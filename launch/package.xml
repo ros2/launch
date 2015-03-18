@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>launch</name>
+  <version>0.0.0</version>
+  <description>The ROS launch tool.</description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>osrf_pycommon</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+</package>
