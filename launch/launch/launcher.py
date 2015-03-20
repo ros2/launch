@@ -2,10 +2,6 @@ import asyncio
 import signal
 from threading import Lock
 
-from launch import ProcessDescriptor
-from launch.output_handler import CompositeOutputHandler
-from launch.output_handler import ConsoleOutput
-from launch.exit_handler import DefaultExitHandler
 from launch.protocol import SubprocessProtocol
 
 
@@ -16,21 +12,16 @@ class DefaultLauncher(object):
         self.process_descriptors = []
         self.print_mutex = Lock()
 
-    def add_process(self, cmd, name=None, env=None, output_handlers=None, exit_handler=None):
-        if not name:
-            name = str(len(self.process_descriptors))
-        if self.name_prefix:
-            name = '%s.%s' % (self.name_prefix, name)
-        if name in [p.name for p in self.process_descriptors]:
-            raise RuntimeError("Process name '%s' already used" % name)
-        if output_handlers is None:
-            output_handlers = [ConsoleOutput()]
-        output_handlers = CompositeOutputHandler(output_handlers)
-        if exit_handler is None:
-            exit_handler = DefaultExitHandler()
-        self.process_descriptors.append(ProcessDescriptor(
-            cmd, name, output_handlers, exit_handler, env=env))
-        return len(self.process_descriptors) - 1
+    def add_launch_descriptor(self, launch_descriptor):
+        for process_descriptor in launch_descriptor.process_descriptors:
+            # automatic naming if not specified
+            if process_descriptor.name is None:
+                name = str(len(self.process_descriptors))
+                if name in [p.name for p in self.process_descriptors]:
+                    raise RuntimeError("Process name '%s' already used" % name)
+                process_descriptor.name = name
+
+            self.process_descriptors.append(process_descriptor)
 
     def launch(self):
         loop = asyncio.get_event_loop()
