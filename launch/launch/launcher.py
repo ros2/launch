@@ -7,8 +7,9 @@ from launch.protocol import SubprocessProtocol
 
 class DefaultLauncher(object):
 
-    def __init__(self, name_prefix=''):
+    def __init__(self, name_prefix='', sigint_timeout=3):
         self.name_prefix = name_prefix
+        self.sigint_timeout = sigint_timeout
         self.process_descriptors = []
         self.print_mutex = Lock()
 
@@ -91,7 +92,7 @@ class DefaultLauncher(object):
                 self._process_message(p, 'signal SIGINT')
                 p.transport.send_signal(signal.SIGINT)
 
-            yield from asyncio.wait(all_futures.keys(), timeout=3)
+            yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
 
             # sending SIGINT to remaining processes
             for index in all_futures.values():

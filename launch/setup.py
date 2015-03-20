@@ -21,7 +21,7 @@ setup(
     ],
     description='Launch processes specified in launch files.',
     long_description='''\
-The ability to run multiple processes and react on individual processes exiting.''',
+This package provides the ability to run multiple processes and react on individual processes exiting.''',
     license='Apache License, Version 2.0',
     test_suite='test',
     entry_points={

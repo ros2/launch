@@ -26,10 +26,10 @@ class OutputHandler(object):
         self.on_stdout_received(lines)
 
     def on_stdout_received(self, data):
-        pass
+        raise NotImplemented
 
     def on_stderr_received(self, data):
-        pass
+        raise NotImplemented
 
     def flush(self):
         pass
@@ -67,14 +67,14 @@ class LineOutput(OutputHandler):
         self.on_stdout_lines(lines)
 
     def on_stdout_lines(self, lines):
-        pass
+        raise NotImplemented
 
     def on_stderr_received(self, data):
         lines, self.left_over_stderr = self._process_incoming_lines(data, self.left_over_stderr)
         self.on_stderr_lines(lines)
 
     def on_stderr_lines(self, lines):
-        pass
+        raise NotImplemented
 
     def flush(self):
         if self.left_over_stdout:
