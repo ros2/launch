@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 
+from launch import LaunchDescriptor
 from launch.launcher import DefaultLauncher
 from launch.loader import load_launch_file
 
@@ -22,9 +23,12 @@ def main(argv=sys.argv[1:]):
         help='The launch file.')
     args = parser.parse_args(argv)
 
+    arguments = {}
+
     launcher = DefaultLauncher()
     for launch_file in args.launch_file:
-        launch_descriptor = load_launch_file(launch_file)
+        launch_descriptor = LaunchDescriptor()
+        load_launch_file(launch_file, launch_descriptor, arguments)
         launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
     return rc

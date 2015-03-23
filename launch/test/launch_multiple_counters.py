@@ -2,13 +2,15 @@ import os
 import sys
 from tempfile import NamedTemporaryFile
 
+from launch import LaunchDescriptor
 from launch.exit_handler import IgnoreExitHandler
 from launch.exit_handler import RestartExitHandler
+from launch.loader import load_launch_file
 from launch.output_handler import FileOutput
 from launch.output_handler import ConsoleOutput
 
 
-def launch(launch_descriptor):
+def launch(launch_descriptor, argv):
     counter_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'counter.py')
 
     with NamedTemporaryFile(mode='w', prefix='foo_', delete=False) as h:
@@ -39,3 +41,12 @@ def launch(launch_descriptor):
         name='qux',
         output_handlers=[ConsoleOutput(stderr_only=True)],
     )
+
+    other_launch_file = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), 'launch_counter.py')
+    sub_ld = LaunchDescriptor()
+    load_launch_file(other_launch_file, sub_ld, {})
+    # namespace all processes from other launch file
+    for d in sub_ld.process_descriptors:
+        d.name = 'sub.' + d.name
+        ld.process_descriptors.append(d)
