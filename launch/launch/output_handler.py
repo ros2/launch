@@ -183,10 +183,12 @@ class FileOutput(LineOutput):
     def on_stdout_lines(self, lines):
         if self.handle_stdout:
             self.handle_stdout.write(lines)
+            self.handle_stdout.flush()
 
     def on_stderr_lines(self, lines):
         if self.handle_stderr:
             self.handle_stderr.write(lines)
+            self.handle_stderr.flush()
 
     def process_cleanup(self):
         if self.handle_stdout:
