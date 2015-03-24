@@ -50,10 +50,17 @@ class DefaultLauncher(object):
                 break
 
             # wait for any process to finish
-            yield from asyncio.wait(all_futures.keys(), return_when=asyncio.FIRST_COMPLETED, timeout=0.1)
+            kwargs = {
+                'return_when': asyncio.FIRST_COMPLETED,
+            }
+            # when the event loop run does not run in the main thread
+            # wake up frequently and check if any subprocess has exited
+            if not isinstance(threading.current_thread(), threading._MainThread):
+                kwargs['timeout'] = 0.5
+            yield from asyncio.wait(all_futures.keys(), **kwargs)
 
             # when the event loop run does not run in the main thread
-            # use custom logic to detect that subprocesses have finished
+            # use custom logic to detect that subprocesses have exited
             if not isinstance(threading.current_thread(), threading._MainThread):
                 for index, p in enumerate(self.process_descriptors):
                     if p.returncode is not None:
