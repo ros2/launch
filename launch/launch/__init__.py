@@ -1,6 +1,6 @@
 from launch.output_handler import CompositeOutputHandler
 from launch.output_handler import ConsoleOutput
-from launch.exit_handler import DefaultExitHandler
+from launch.exit_handler import default_exit_handler
 
 
 class LaunchDescriptor(object):
@@ -12,7 +12,7 @@ class LaunchDescriptor(object):
         if name is not None and name in [p.name for p in self.task_descriptors]:
             raise RuntimeError("Task name '%s' already used" % name)
         if exit_handler is None:
-            exit_handler = DefaultExitHandler()
+            exit_handler = default_exit_handler
         self.task_descriptors.append(CoroutineDescriptor(
             coroutine, name, exit_handler))
 
@@ -23,7 +23,7 @@ class LaunchDescriptor(object):
             output_handlers = [ConsoleOutput()]
         output_handlers = CompositeOutputHandler(output_handlers)
         if exit_handler is None:
-            exit_handler = DefaultExitHandler()
+            exit_handler = default_exit_handler
         self.task_descriptors.append(ProcessDescriptor(
             cmd, name, output_handlers, exit_handler, env=env))
 

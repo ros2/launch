@@ -2,9 +2,13 @@ import asyncio
 from collections import OrderedDict
 import os
 import signal
+import sys
 import threading
 
+from launch.exit_handler import ExitHandlerContext
+from launch.launch import LaunchState
 from launch.protocol import SubprocessProtocol
+from launch.task import TaskState
 
 
 class DefaultLauncher(object):
@@ -35,6 +39,12 @@ class DefaultLauncher(object):
 
     @asyncio.coroutine
     def _run(self):
+        launch_state = LaunchState()
+        task_states = []
+        for p in self.task_descriptors:
+            task_state = TaskState()
+            task_states.append(task_state)
+
         # start all processes and collect their exit futures
         all_futures = OrderedDict()
         for index, p in enumerate(self.task_descriptors):
@@ -46,12 +56,9 @@ class DefaultLauncher(object):
                 yield from self._spawn_process(index)
                 all_futures[p.protocol.exit_future] = index
             else:
-                task = asyncio.async(p.coroutine)
-                all_futures[task] = index
+                future = asyncio.async(p.coroutine)
+                all_futures[future] = index
 
-        print(all_futures)
-
-        rc = 0
         while True:
             # skip if no more processes to run
             if not all_futures:
@@ -73,7 +80,7 @@ class DefaultLauncher(object):
                 for index, p in enumerate(self.task_descriptors):
                     if p.returncode is not None:
                         continue
-                    if 'transport' not in p:
+                    if 'transport' not in dir(p):
                         continue
                     pid, proc_rc = os.waitpid(p.transport.get_pid(), os.WNOHANG)
                     if pid == 0:
@@ -84,37 +91,61 @@ class DefaultLauncher(object):
                     # trigger syncio internal process exit callback
                     p.transport._process_exited(proc_rc)
 
-            # collect done processes
-            done_indices = [index for future, index in all_futures.items() if future.done()]
-            done_task_descriptors = [self.task_descriptors[index] for index in done_indices]
+            # collect done futures
+            done_futures = [future for future in all_futures.keys() if future.done()]
 
-            # close transport, collect return code and remove future
-            for p in done_task_descriptors:
+            # collect return code / exception
+            restart_indices = []
+            for future in done_futures:
+                index = all_futures[future]
+                p = self.task_descriptors[index]
+                task_state = task_states[index]
+
+                exp = future.exception()
+                if exp:
+                    task_state.exception = exp
+                    task_state.returncode = 1
+                    # print traceback with "standard" format
+                    with self.print_mutex:
+                        print('(%s)' % p.name, 'Traceback (most recent call last):',
+                              file=sys.stderr)
+                        for frame in future.get_stack():
+                            filename = frame.f_code.co_filename
+                            print('(%s)' % p.name, '  File "%s", line %d, in %s' %
+                                  (filename, frame.f_lineno, frame.f_code.co_name),
+                                  file=sys.stderr)
+                            import linecache
+                            linecache.checkcache(filename)
+                            line = linecache.getline(filename, frame.f_lineno, frame.f_globals)
+                            print('(%s)' % p.name, '    ' + line.strip(), file=sys.stderr)
+                        print('(%s) %s: %s' % (p.name, type(exp).__name__, str(exp)),
+                              file=sys.stderr)
+                else:
+                    result = future.result()
+                    task_state.returncode = result
+
+                # close transport
                 if 'protocol' in dir(p):
                     self._close_process(p)
-                    del all_futures[p.protocol.exit_future]
 
-            # check if all processes should be stopped
-            tear_down_returncodes = [
-                p.returncode for p in done_task_descriptors
-                if p.exit_handler.should_tear_down(p.returncode)]
-            if tear_down_returncodes:
+                # remove future
+                del all_futures[future]
+
+                # call exit handler of done descriptors
+                context = ExitHandlerContext(launch_state, task_state)
+                p.exit_handler(context)
+                if task_state.restart:
+                    restart_indices.append(index)
+
+            if launch_state.teardown:
                 with self.print_mutex:
                     print('() tear down')
-                if len(tear_down_returncodes) == 1:
-                    rc = tear_down_returncodes[0]
-                else:
-                    rc = 1 if any(tear_down_returncodes) else 0
                 break
 
             # restart processes if requested
-            restart_indices = [
-                index for index in done_indices
-                if self.task_descriptors[index].exit_handler.should_restart(
-                    self.task_descriptors[index].returncode)
-            ]
             for index in restart_indices:
                 if 'protocol' in dir(self.task_descriptors[index]):
+                    task_states[index].restart_count += 1
                     yield from self._spawn_process(index)
                     all_futures[self.task_descriptors[index].protocol.exit_future] = index
 
@@ -146,7 +177,15 @@ class DefaultLauncher(object):
                 if 'transport' in dir(p):
                     self._close_process(p)
 
-        return rc
+            # call exit handler of remaining descriptors
+            for index in all_futures.values():
+                task_state = task_states[index]
+                p = self.task_descriptors[index]
+                context = ExitHandlerContext(launch_state, task_state)
+                p.exit_handler(context)
+
+        print('launcher rc', launch_state.returncode, file=sys.stderr)
+        return launch_state.returncode
 
     def _spawn_process(self, index):
         p = self.task_descriptors[index]

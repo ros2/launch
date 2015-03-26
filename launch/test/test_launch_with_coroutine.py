@@ -3,6 +3,7 @@ import os
 import sys
 
 from launch import LaunchDescriptor
+from launch.exit_handler import primary_exit_handler
 from launch.launcher import DefaultLauncher
 from launch.loader import load_launch_file
 
@@ -32,8 +33,8 @@ def test_launch_with_coroutine():
         yield from asyncio.sleep(1)
         print('three mississippi', file=sys.stderr)
 
-    launch_descriptor.add_coroutine(coroutine())
-    launch_descriptor.add_coroutine(coroutine2())
+    launch_descriptor.add_coroutine(coroutine(), name='coroutine', exit_handler=primary_exit_handler)
+    #launch_descriptor.add_coroutine(coroutine2())
 
     print('launch', file=sys.stderr)
     default_launcher.add_launch_descriptor(launch_descriptor)

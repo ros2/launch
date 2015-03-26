@@ -1,56 +1,48 @@
-class ExitHandler(object):
+class ExitHandlerContext(object):
 
-    """Interface for an exit handler."""
+    """The context which is passed to an exit handler function."""
 
-    def __init__(self):
-        pass
-
-    def should_restart(self, returncode):
-        """Determine if the process should be restarted."""
-        raise NotImplemented
-
-    def should_tear_down(self, returncode):
-        """Determine if all other processes should be terminated."""
-        raise NotImplemented
+    def __init__(self, launch_state, task_state):
+        self.launch_state = launch_state
+        self.task_state = task_state
 
 
-class DefaultExitHandler(ExitHandler):
+def default_exit_handler(context):
+    """
+    Trigger teardown of launch.
 
-    """Terminate all other processes if this process exits."""
-
-    def __init__(self):
-        super(DefaultExitHandler, self).__init__()
-
-    def should_restart(self, returncode):
-        return False
-
-    def should_tear_down(self, returncode):
-        return True
-
-
-class IgnoreExitHandler(ExitHandler):
-
-    """Continue all other processes if this process exits."""
-
-    def __init__(self):
-        super(IgnoreExitHandler, self).__init__()
-
-    def should_restart(self, returncode):
-        return False
-
-    def should_tear_down(self, returncode):
-        return False
+    Use the returncode of the task for the launch if the launch was not already tearing down.
+    """
+    # trigger tear down if not already tearing down
+    if not context.launch_state.teardown:
+        context.launch_state.teardown = True
+        # set launch return code
+        try:
+            rc = int(context.task_state.returncode)
+        except (TypeError, ValueError):
+            rc = 1 if bool(context.task_state.returncode) else 0
+        context.launch_state.returncode = rc
 
 
-class RestartExitHandler(ExitHandler):
+def ignore_exit_handler(context):
+    """Continue the launch and don't affect the returncode of the launch."""
+    pass
 
-    """Restart this process if it exits."""
 
-    def __init__(self):
-        super(RestartExitHandler, self).__init__()
+def restart_exit_handler(context):
+    """Request restart of the task."""
+    context.task_state.restart = True
 
-    def should_restart(self, returncode):
-        return True
 
-    def should_tear_down(self, returncode):
-        return False
+def primary_exit_handler(context):
+    """
+    Trigger teardown of launch and if teardown already in place set non-zero return code.
+
+    Same as default exit handler but if teardown was triggered by another task
+    ensure that the returncode is non-zero.
+    """
+    if context.launch_state.teardown:
+        if not context.launch_state.returncode:
+            context.launch_state.returncode = 1
+
+    default_exit_handler(context)

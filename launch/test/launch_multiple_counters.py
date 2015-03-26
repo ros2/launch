@@ -3,8 +3,8 @@ import sys
 from tempfile import NamedTemporaryFile
 
 from launch import LaunchDescriptor
-from launch.exit_handler import IgnoreExitHandler
-from launch.exit_handler import RestartExitHandler
+from launch.exit_handler import ignore_exit_handler
+from launch.exit_handler import restart_exit_handler
 from launch.loader import load_launch_file
 from launch.output_handler import FileOutput
 from launch.output_handler import ConsoleOutput
@@ -23,13 +23,13 @@ def launch(launch_descriptor, argv):
         cmd=[sys.executable, '-u', counter_file, '--limit', '9', '--sleep', '0.5'],
         name='foo',
         output_handlers=[FileOutput(filename=foo_filename)],
-        exit_handler=RestartExitHandler(),
+        exit_handler=restart_exit_handler,
     )
     ld.add_process(
         cmd=[sys.executable, '-u', counter_file, '--limit', '10', '--sleep', '0.25'],
         name='bar',
         env=None,
-        exit_handler=IgnoreExitHandler(),
+        exit_handler=ignore_exit_handler,
     )
     ld.add_process(
         cmd=[sys.executable, '-u', counter_file, '--limit', '5', '--sleep', '1'],
