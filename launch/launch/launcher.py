@@ -1,4 +1,5 @@
 import asyncio
+from collections import OrderedDict
 import os
 import signal
 import threading
@@ -11,19 +12,19 @@ class DefaultLauncher(object):
     def __init__(self, name_prefix='', sigint_timeout=3):
         self.name_prefix = name_prefix
         self.sigint_timeout = sigint_timeout
-        self.process_descriptors = []
+        self.task_descriptors = []
         self.print_mutex = threading.Lock()
 
     def add_launch_descriptor(self, launch_descriptor):
-        for process_descriptor in launch_descriptor.process_descriptors:
+        for task_descriptor in launch_descriptor.task_descriptors:
             # automatic naming if not specified
-            if process_descriptor.name is None:
-                name = str(len(self.process_descriptors))
-                if name in [p.name for p in self.process_descriptors]:
+            if task_descriptor.name is None:
+                name = str(len(self.task_descriptors))
+                if name in [p.name for p in self.task_descriptors]:
                     raise RuntimeError("Process name '%s' already used" % name)
-                process_descriptor.name = name
+                task_descriptor.name = name
 
-            self.process_descriptors.append(process_descriptor)
+            self.task_descriptors.append(task_descriptor)
 
     def launch(self):
         loop = asyncio.get_event_loop()
@@ -35,13 +36,20 @@ class DefaultLauncher(object):
     @asyncio.coroutine
     def _run(self):
         # start all processes and collect their exit futures
-        all_futures = {}
-        for index, p in enumerate(self.process_descriptors):
-            p.output_handler.set_print_mutex(self.print_mutex)
-            p.output_handler.set_line_prefix('[%s] ' % p.name)
+        all_futures = OrderedDict()
+        for index, p in enumerate(self.task_descriptors):
+            if 'output_handler' in dir(p):
+                p.output_handler.set_print_mutex(self.print_mutex)
+                p.output_handler.set_line_prefix('[%s] ' % p.name)
 
-            yield from self._spawn_process(index)
-            all_futures[p.protocol.exit_future] = index
+            if 'protocol' in dir(p):
+                yield from self._spawn_process(index)
+                all_futures[p.protocol.exit_future] = index
+            else:
+                task = asyncio.async(p.coroutine)
+                all_futures[task] = index
+
+        print(all_futures)
 
         rc = 0
         while True:
@@ -62,8 +70,10 @@ class DefaultLauncher(object):
             # when the event loop run does not run in the main thread
             # use custom logic to detect that subprocesses have exited
             if not isinstance(threading.current_thread(), threading._MainThread):
-                for index, p in enumerate(self.process_descriptors):
+                for index, p in enumerate(self.task_descriptors):
                     if p.returncode is not None:
+                        continue
+                    if 'transport' not in p:
                         continue
                     pid, proc_rc = os.waitpid(p.transport.get_pid(), os.WNOHANG)
                     if pid == 0:
@@ -76,16 +86,17 @@ class DefaultLauncher(object):
 
             # collect done processes
             done_indices = [index for future, index in all_futures.items() if future.done()]
-            done_process_descriptors = [self.process_descriptors[index] for index in done_indices]
+            done_task_descriptors = [self.task_descriptors[index] for index in done_indices]
 
             # close transport, collect return code and remove future
-            for p in done_process_descriptors:
-                self._close_process(p)
-                del all_futures[p.protocol.exit_future]
+            for p in done_task_descriptors:
+                if 'protocol' in dir(p):
+                    self._close_process(p)
+                    del all_futures[p.protocol.exit_future]
 
             # check if all processes should be stopped
             tear_down_returncodes = [
-                p.returncode for p in done_process_descriptors
+                p.returncode for p in done_task_descriptors
                 if p.exit_handler.should_tear_down(p.returncode)]
             if tear_down_returncodes:
                 with self.print_mutex:
@@ -99,42 +110,46 @@ class DefaultLauncher(object):
             # restart processes if requested
             restart_indices = [
                 index for index in done_indices
-                if self.process_descriptors[index].exit_handler.should_restart(
-                    self.process_descriptors[index].returncode)
+                if self.task_descriptors[index].exit_handler.should_restart(
+                    self.task_descriptors[index].returncode)
             ]
             for index in restart_indices:
-                yield from self._spawn_process(index)
-                all_futures[self.process_descriptors[index].protocol.exit_future] = index
+                if 'protocol' in dir(self.task_descriptors[index]):
+                    yield from self._spawn_process(index)
+                    all_futures[self.task_descriptors[index].protocol.exit_future] = index
 
         # terminate all remaining processes
         if all_futures:
 
             # sending SIGINT to remaining processes
             for index in all_futures.values():
-                p = self.process_descriptors[index]
-                self._process_message(p, 'signal SIGINT')
-                p.transport.send_signal(signal.SIGINT)
+                p = self.task_descriptors[index]
+                if 'transport' in dir(p):
+                    self._process_message(p, 'signal SIGINT')
+                    p.transport.send_signal(signal.SIGINT)
 
             yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
 
             # sending SIGINT to remaining processes
             for index in all_futures.values():
-                p = self.process_descriptors[index]
-                if not p.protocol.exit_future.done():
-                    self._process_message(p, 'signal SIGTERM')
-                    p.transport.send_signal(signal.SIGTERM)
+                p = self.task_descriptors[index]
+                if 'protocol' in dir(p):
+                    if not p.protocol.exit_future.done():
+                        self._process_message(p, 'signal SIGTERM')
+                        p.transport.send_signal(signal.SIGTERM)
 
             yield from asyncio.wait(all_futures.keys())
 
             # close all remaining processes
             for index in all_futures.values():
-                p = self.process_descriptors[index]
-                self._close_process(p)
+                p = self.task_descriptors[index]
+                if 'transport' in dir(p):
+                    self._close_process(p)
 
         return rc
 
     def _spawn_process(self, index):
-        p = self.process_descriptors[index]
+        p = self.task_descriptors[index]
         p.output_handler.process_init()
         kwargs = {}
         if p.output_handler.support_stderr2stdout():

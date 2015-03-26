@@ -6,18 +6,35 @@ from launch.exit_handler import DefaultExitHandler
 class LaunchDescriptor(object):
 
     def __init__(self):
-        self.process_descriptors = []
+        self.task_descriptors = []
+
+    def add_coroutine(self, coroutine, name=None, exit_handler=None):
+        if name is not None and name in [p.name for p in self.task_descriptors]:
+            raise RuntimeError("Task name '%s' already used" % name)
+        if exit_handler is None:
+            exit_handler = DefaultExitHandler()
+        self.task_descriptors.append(CoroutineDescriptor(
+            coroutine, name, exit_handler))
 
     def add_process(self, cmd, name=None, env=None, output_handlers=None, exit_handler=None):
-        if name is not None and name in [p.name for p in self.process_descriptors]:
-            raise RuntimeError("Process name '%s' already used" % name)
+        if name is not None and name in [p.name for p in self.task_descriptors]:
+            raise RuntimeError("Task name '%s' already used" % name)
         if output_handlers is None:
             output_handlers = [ConsoleOutput()]
         output_handlers = CompositeOutputHandler(output_handlers)
         if exit_handler is None:
             exit_handler = DefaultExitHandler()
-        self.process_descriptors.append(ProcessDescriptor(
+        self.task_descriptors.append(ProcessDescriptor(
             cmd, name, output_handlers, exit_handler, env=env))
+
+
+class CoroutineDescriptor(object):
+
+    def __init__(self, coroutine, name, exit_handler):
+        self.coroutine = coroutine
+        self.name = name
+        self.exit_handler = exit_handler
+        self.returncode = None
 
 
 class ProcessDescriptor(object):
