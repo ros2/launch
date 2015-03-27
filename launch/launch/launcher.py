@@ -76,11 +76,19 @@ class DefaultLauncher(object):
             # use custom logic to detect that subprocesses have exited
             if not isinstance(threading.current_thread(), threading._MainThread):
                 for index, p in enumerate(self.task_descriptors):
+                    # only consider not yet done tasks
                     if index not in all_futures.values():
                         continue
+                    # only subprocesses need special handling
                     if 'transport' not in dir(p):
                         continue
-                    pid, proc_rc = os.waitpid(p.transport.get_pid(), os.WNOHANG)
+                    # transport.get_pid() sometimes failed due to transport._proc being None
+                    proc = p.transport.get_extra_info('subprocess')
+                    pid = proc.pid
+                    try:
+                        pid, proc_rc = os.waitpid(pid, os.WNOHANG)
+                    except ChildProcessError:
+                        continue
                     if pid == 0:
                         # subprocess is still running
                         continue
@@ -189,7 +197,8 @@ class DefaultLauncher(object):
                 context = ExitHandlerContext(launch_state, p.task_state)
                 p.exit_handler(context)
 
-        print('launcher rc', launch_state.returncode, file=sys.stderr)
+        if launch_state.returncode is None:
+            launch_state.returncode = 0
         return launch_state.returncode
 
     def _spawn_process(self, index):
