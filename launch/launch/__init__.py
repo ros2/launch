@@ -28,18 +28,25 @@ class LaunchDescriptor(object):
             cmd, name, output_handlers, exit_handler, env=env))
 
 
-class CoroutineDescriptor(object):
+class TaskDescriptor(object):
+
+    def __init__(self):
+        self.task_state = None
+
+
+class CoroutineDescriptor(TaskDescriptor):
 
     def __init__(self, coroutine, name, exit_handler):
+        super(CoroutineDescriptor, self).__init__()
         self.coroutine = coroutine
         self.name = name
         self.exit_handler = exit_handler
-        self.returncode = None
 
 
-class ProcessDescriptor(object):
+class ProcessDescriptor(TaskDescriptor):
 
     def __init__(self, cmd, name, output_handler, exit_handler, env=None):
+        super(ProcessDescriptor, self).__init__()
         self.cmd = cmd
         self.name = name
         self.output_handler = output_handler
@@ -47,4 +54,3 @@ class ProcessDescriptor(object):
         self.env = env
         self.transport = None
         self.protocol = None
-        self.returncode = None

@@ -40,10 +40,8 @@ class DefaultLauncher(object):
     @asyncio.coroutine
     def _run(self):
         launch_state = LaunchState()
-        task_states = []
         for p in self.task_descriptors:
-            task_state = TaskState()
-            task_states.append(task_state)
+            p.task_state = TaskState()
 
         # start all processes and collect their exit futures
         all_futures = OrderedDict()
@@ -78,7 +76,7 @@ class DefaultLauncher(object):
             # use custom logic to detect that subprocesses have exited
             if not isinstance(threading.current_thread(), threading._MainThread):
                 for index, p in enumerate(self.task_descriptors):
-                    if p.returncode is not None:
+                    if index not in all_futures.values():
                         continue
                     if 'transport' not in dir(p):
                         continue
@@ -86,7 +84,6 @@ class DefaultLauncher(object):
                     if pid == 0:
                         # subprocess is still running
                         continue
-                    # store returncode to prevent calling waitpid again
                     p.returncode = proc_rc
                     # trigger syncio internal process exit callback
                     p.transport._process_exited(proc_rc)
@@ -94,35 +91,37 @@ class DefaultLauncher(object):
             # collect done futures
             done_futures = [future for future in all_futures.keys() if future.done()]
 
-            # collect return code / exception
+            # collect return code
             restart_indices = []
             for future in done_futures:
                 index = all_futures[future]
                 p = self.task_descriptors[index]
-                task_state = task_states[index]
 
-                exp = future.exception()
-                if exp:
-                    task_state.exception = exp
-                    task_state.returncode = 1
-                    # print traceback with "standard" format
-                    with self.print_mutex:
-                        print('(%s)' % p.name, 'Traceback (most recent call last):',
-                              file=sys.stderr)
-                        for frame in future.get_stack():
-                            filename = frame.f_code.co_filename
-                            print('(%s)' % p.name, '  File "%s", line %d, in %s' %
-                                  (filename, frame.f_lineno, frame.f_code.co_name),
+                # collect return code / exception from coroutine
+                if 'coroutine' in dir(p):
+                    exp = future.exception()
+                    if exp:
+                        p.task_state.exception = exp
+                        p.task_state.returncode = 1
+                        # print traceback with "standard" format
+                        with self.print_mutex:
+                            print('(%s)' % p.name, 'Traceback (most recent call last):',
                                   file=sys.stderr)
-                            import linecache
-                            linecache.checkcache(filename)
-                            line = linecache.getline(filename, frame.f_lineno, frame.f_globals)
-                            print('(%s)' % p.name, '    ' + line.strip(), file=sys.stderr)
-                        print('(%s) %s: %s' % (p.name, type(exp).__name__, str(exp)),
-                              file=sys.stderr)
-                else:
-                    result = future.result()
-                    task_state.returncode = result
+                            for frame in future.get_stack():
+                                filename = frame.f_code.co_filename
+                                print('(%s)' % p.name, '  File "%s", line %d, in %s' %
+                                      (filename, frame.f_lineno, frame.f_code.co_name),
+                                      file=sys.stderr)
+                                import linecache
+                                linecache.checkcache(filename)
+                                line = linecache.getline(filename, frame.f_lineno, frame.f_globals)
+                                print('(%s)' % p.name, '    ' + line.strip(), file=sys.stderr)
+                            print('(%s) %s: %s' % (p.name, type(exp).__name__, str(exp)),
+                                  file=sys.stderr)
+                    else:
+                        result = future.result()
+                        p.task_state.returncode = result
+                    self._process_message(p, 'rc %d' % p.task_state.returncode)
 
                 # close transport
                 if 'protocol' in dir(p):
@@ -132,9 +131,9 @@ class DefaultLauncher(object):
                 del all_futures[future]
 
                 # call exit handler of done descriptors
-                context = ExitHandlerContext(launch_state, task_state)
+                context = ExitHandlerContext(launch_state, p.task_state)
                 p.exit_handler(context)
-                if task_state.restart:
+                if p.task_state.restart:
                     restart_indices.append(index)
 
             if launch_state.teardown:
@@ -144,10 +143,11 @@ class DefaultLauncher(object):
 
             # restart processes if requested
             for index in restart_indices:
-                if 'protocol' in dir(self.task_descriptors[index]):
-                    task_states[index].restart_count += 1
+                p = self.task_descriptors[index]
+                if 'protocol' in dir(p):
+                    p.task_states[index].restart_count += 1
                     yield from self._spawn_process(index)
-                    all_futures[self.task_descriptors[index].protocol.exit_future] = index
+                    all_futures[p.protocol.exit_future] = index
 
         # terminate all remaining processes
         if all_futures:
@@ -157,7 +157,10 @@ class DefaultLauncher(object):
                 p = self.task_descriptors[index]
                 if 'transport' in dir(p):
                     self._process_message(p, 'signal SIGINT')
-                    p.transport.send_signal(signal.SIGINT)
+                    try:
+                        p.transport.send_signal(signal.SIGINT)
+                    except ProcessLookupError:
+                        pass
 
             yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
 
@@ -167,7 +170,10 @@ class DefaultLauncher(object):
                 if 'protocol' in dir(p):
                     if not p.protocol.exit_future.done():
                         self._process_message(p, 'signal SIGTERM')
-                        p.transport.send_signal(signal.SIGTERM)
+                        try:
+                            p.transport.send_signal(signal.SIGTERM)
+                        except ProcessLookupError:
+                            pass
 
             yield from asyncio.wait(all_futures.keys())
 
@@ -179,9 +185,8 @@ class DefaultLauncher(object):
 
             # call exit handler of remaining descriptors
             for index in all_futures.values():
-                task_state = task_states[index]
                 p = self.task_descriptors[index]
-                context = ExitHandlerContext(launch_state, task_state)
+                context = ExitHandlerContext(launch_state, p.task_state)
                 p.exit_handler(context)
 
         print('launcher rc', launch_state.returncode, file=sys.stderr)
@@ -211,8 +216,8 @@ class DefaultLauncher(object):
     def _close_process(self, process_descriptor):
         p = process_descriptor
         p.transport.close()
-        p.returncode = p.transport.get_returncode()
-        self._process_message(p, 'rc %d' % p.returncode)
+        p.task_state.returncode = p.transport.get_returncode()
+        self._process_message(p, 'rc %d' % p.task_state.returncode)
         p.output_handler.process_cleanup()
 
     def _process_message(self, process_descriptor, message):
