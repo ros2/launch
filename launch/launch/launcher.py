@@ -121,7 +121,7 @@ class DefaultLauncher(object):
                     else:
                         result = future.result()
                         p.task_state.returncode = result
-                    self._process_message(p, 'rc %d' % p.task_state.returncode)
+                    self._process_message(p, 'rc ' + str(p.task_state.returncode))
 
                 # close transport
                 if 'protocol' in dir(p):
@@ -226,7 +226,8 @@ class DefaultLauncher(object):
         with self.print_mutex:
             print('(%s)' % p.name, message)
         lines = (message + '\n').encode()
-        p.output_handler.on_message_received(lines)
+        if 'output_handler' in dir(p):
+            p.output_handler.on_message_received(lines)
 
 
 class AsynchronousLauncher(threading.Thread):
