@@ -260,8 +260,12 @@ class AsynchronousLauncher(threading.Thread):
         self.launcher = launcher
 
     def run(self):
-        # explicitly create event loop when not running in main thread
-        if not isinstance(threading.current_thread(), threading._MainThread):
+        if os.name == 'nt':
+            # Windows needs a custom event loop to use subprocess transport
+            loop = asyncio.ProactorEventLoop()
+            asyncio.set_event_loop(loop)
+        elif not isinstance(threading.current_thread(), threading._MainThread):
+            # explicitly create event loop when not running in main thread
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
 
