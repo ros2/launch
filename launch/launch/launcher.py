@@ -45,7 +45,12 @@ class DefaultLauncher(object):
             self.task_descriptors.append(task_descriptor)
 
     def launch(self):
-        loop = asyncio.get_event_loop()
+        if os.name == 'nt':
+            # Windows needs a custom event loop to use subprocess transport
+            loop = asyncio.ProactorEventLoop()
+            asyncio.set_event_loop(loop)
+        else:
+            loop = asyncio.get_event_loop()
         returncode = loop.run_until_complete(self._run())
         loop.close()
 
@@ -98,17 +103,11 @@ class DefaultLauncher(object):
                         continue
                     # transport.get_pid() sometimes failed due to transport._proc being None
                     proc = p.transport.get_extra_info('subprocess')
-                    pid = proc.pid
-                    try:
-                        pid, proc_rc = os.waitpid(pid, os.WNOHANG)
-                    except ChildProcessError:
+                    if proc.returncode is None:
                         continue
-                    if pid == 0:
-                        # subprocess is still running
-                        continue
-                    p.returncode = proc_rc
+                    p.returncode = proc.returncode
                     # trigger syncio internal process exit callback
-                    p.transport._process_exited(proc_rc)
+                    p.transport._process_exited(p.returncode)
 
             # collect done futures
             done_futures = [future for future in all_futures.keys() if future.done()]
@@ -174,19 +173,22 @@ class DefaultLauncher(object):
         # terminate all remaining processes
         if all_futures:
 
-            # sending SIGINT to remaining processes
-            for index in all_futures.values():
-                p = self.task_descriptors[index]
-                if 'transport' in dir(p):
-                    self._process_message(p, 'signal SIGINT')
-                    try:
-                        p.transport.send_signal(signal.SIGINT)
-                    except ProcessLookupError:
-                        pass
+            # sending SIGINT to subprocess transport is not supported on Windows
+            # https://groups.google.com/forum/#!topic/python-tulip/pr9fgX8Vh-A
+            if os.name != 'nt':
+                # sending SIGINT to remaining processes
+                for index in all_futures.values():
+                    p = self.task_descriptors[index]
+                    if 'transport' in dir(p):
+                        self._process_message(p, 'signal SIGINT')
+                        try:
+                            p.transport.send_signal(signal.SIGINT)
+                        except ProcessLookupError:
+                            pass
 
-            yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
+                yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
 
-            # sending SIGINT to remaining processes
+            # sending SIGTERM to remaining processes
             for index in all_futures.values():
                 p = self.task_descriptors[index]
                 if 'protocol' in dir(p):
@@ -260,11 +262,7 @@ class AsynchronousLauncher(threading.Thread):
         self.launcher = launcher
 
     def run(self):
-        if os.name == 'nt':
-            # Windows needs a custom event loop to use subprocess transport
-            loop = asyncio.ProactorEventLoop()
-            asyncio.set_event_loop(loop)
-        elif not isinstance(threading.current_thread(), threading._MainThread):
+        if os.name != 'nt' and not isinstance(threading.current_thread(), threading._MainThread):
             # explicitly create event loop when not running in main thread
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
