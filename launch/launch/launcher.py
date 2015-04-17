@@ -103,17 +103,11 @@ class DefaultLauncher(object):
                         continue
                     # transport.get_pid() sometimes failed due to transport._proc being None
                     proc = p.transport.get_extra_info('subprocess')
-                    pid = proc.pid
-                    try:
-                        pid, proc_rc = os.waitpid(pid, os.WNOHANG)
-                    except ChildProcessError:
+                    if proc.returncode is None:
                         continue
-                    if pid == 0:
-                        # subprocess is still running
-                        continue
-                    p.returncode = proc_rc
+                    p.returncode = proc.returncode
                     # trigger syncio internal process exit callback
-                    p.transport._process_exited(proc_rc)
+                    p.transport._process_exited(p.returncode)
 
             # collect done futures
             done_futures = [future for future in all_futures.keys() if future.done()]
