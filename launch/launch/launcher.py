@@ -179,19 +179,22 @@ class DefaultLauncher(object):
         # terminate all remaining processes
         if all_futures:
 
-            # sending SIGINT to remaining processes
-            for index in all_futures.values():
-                p = self.task_descriptors[index]
-                if 'transport' in dir(p):
-                    self._process_message(p, 'signal SIGINT')
-                    try:
-                        p.transport.send_signal(signal.SIGINT)
-                    except ProcessLookupError:
-                        pass
+            # sending SIGINT to subprocess transport is not supported on Windows
+            # https://groups.google.com/forum/#!topic/python-tulip/pr9fgX8Vh-A
+            if os.name != 'nt':
+                # sending SIGINT to remaining processes
+                for index in all_futures.values():
+                    p = self.task_descriptors[index]
+                    if 'transport' in dir(p):
+                        self._process_message(p, 'signal SIGINT')
+                        try:
+                            p.transport.send_signal(signal.SIGINT)
+                        except ProcessLookupError:
+                            pass
 
-            yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
+                yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
 
-            # sending SIGINT to remaining processes
+            # sending SIGTERM to remaining processes
             for index in all_futures.values():
                 p = self.task_descriptors[index]
                 if 'protocol' in dir(p):
