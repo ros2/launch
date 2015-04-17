@@ -45,7 +45,12 @@ class DefaultLauncher(object):
             self.task_descriptors.append(task_descriptor)
 
     def launch(self):
-        loop = asyncio.get_event_loop()
+        if os.name == 'nt':
+            # Windows needs a custom event loop to use subprocess transport
+            loop = asyncio.ProactorEventLoop()
+            asyncio.set_event_loop(loop)
+        else:
+            loop = asyncio.get_event_loop()
         returncode = loop.run_until_complete(self._run())
         loop.close()
 
@@ -260,11 +265,7 @@ class AsynchronousLauncher(threading.Thread):
         self.launcher = launcher
 
     def run(self):
-        if os.name == 'nt':
-            # Windows needs a custom event loop to use subprocess transport
-            loop = asyncio.ProactorEventLoop()
-            asyncio.set_event_loop(loop)
-        elif not isinstance(threading.current_thread(), threading._MainThread):
+        if os.name != 'nt' and not isinstance(threading.current_thread(), threading._MainThread):
             # explicitly create event loop when not running in main thread
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
