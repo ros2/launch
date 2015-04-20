@@ -103,9 +103,23 @@ class DefaultLauncher(object):
                         continue
                     # transport.get_pid() sometimes failed due to transport._proc being None
                     proc = p.transport.get_extra_info('subprocess')
-                    if proc.returncode is None:
-                        continue
-                    p.returncode = proc.returncode
+                    if os.name != 'nt':
+                        # wait non-blocking on pid
+                        pid = proc.pid
+                        try:
+                            pid, pid_rc = os.waitpid(pid, os.WNOHANG)
+                        except ChildProcessError:
+                            continue
+                        if pid == 0:
+                            # subprocess is still running
+                            continue
+                        p.returncode = pid_rc
+                    else:
+                        # use subprocess return code, only works on Windows
+                        if proc.returncode is None:
+                            continue
+                        p.returncode = proc.returncode
+
                     # trigger syncio internal process exit callback
                     p.transport._process_exited(p.returncode)
 
