@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class ExitHandlerContext(object):
 
     """The context which is passed to an exit handler function."""
