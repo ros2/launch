@@ -27,7 +27,7 @@ from launch.task import TaskState
 
 class DefaultLauncher(object):
 
-    def __init__(self, name_prefix='', sigint_timeout=3):
+    def __init__(self, name_prefix='', sigint_timeout=10):
         self.name_prefix = name_prefix
         self.sigint_timeout = sigint_timeout
         self.task_descriptors = []
