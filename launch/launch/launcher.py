@@ -48,11 +48,13 @@ class DefaultLauncher(object):
         if os.name == 'nt':
             # Windows needs a custom event loop to use subprocess transport
             loop = asyncio.ProactorEventLoop()
-            asyncio.set_event_loop(loop)
         else:
-            loop = asyncio.get_event_loop()
+            loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         returncode = loop.run_until_complete(self._run())
         loop.close()
+        # the watcher must be reset otherwise a repeated invocation fails inside asyncio
+        asyncio.get_event_loop_policy().set_child_watcher(None)
 
         return returncode
 
@@ -138,21 +140,7 @@ class DefaultLauncher(object):
                     if exp:
                         p.task_state.exception = exp
                         p.task_state.returncode = 1
-                        # print traceback with "standard" format
-                        with self.print_mutex:
-                            print('(%s)' % p.name, 'Traceback (most recent call last):',
-                                  file=sys.stderr)
-                            for frame in future.get_stack():
-                                filename = frame.f_code.co_filename
-                                print('(%s)' % p.name, '  File "%s", line %d, in %s' %
-                                      (filename, frame.f_lineno, frame.f_code.co_name),
-                                      file=sys.stderr)
-                                import linecache
-                                linecache.checkcache(filename)
-                                line = linecache.getline(filename, frame.f_lineno, frame.f_globals)
-                                print('(%s)' % p.name, '    ' + line.strip(), file=sys.stderr)
-                            print('(%s) %s: %s' % (p.name, type(exp).__name__, str(exp)),
-                                  file=sys.stderr)
+                        self._print_process_stacktrace(p.name, future, exp)
                     else:
                         result = future.result()
                         p.task_state.returncode = result
@@ -202,6 +190,13 @@ class DefaultLauncher(object):
 
                 yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
 
+            # cancel coroutines
+            for future, index in all_futures.items():
+                if 'coroutine' in dir(p):
+                    if not future.done():
+                        self._process_message(p, 'cancel coroutine')
+                        future.cancel()
+
             # sending SIGTERM to remaining processes
             for index in all_futures.values():
                 p = self.task_descriptors[index]
@@ -222,8 +217,24 @@ class DefaultLauncher(object):
                     self._close_process(p)
 
             # call exit handler of remaining descriptors
-            for index in all_futures.values():
+            for future, index in all_futures.items():
                 p = self.task_descriptors[index]
+
+                # collect return code / exception from coroutine
+                if 'coroutine' in dir(p):
+                    try:
+                        exp = future.exception()
+                        if exp:
+                            p.task_state.exception = exp
+                            p.task_state.returncode = 1
+                            self._print_process_stacktrace(p.name, future, exp)
+                        else:
+                            result = future.result()
+                            p.task_state.returncode = result
+                    except asyncio.CancelledError:
+                        p.task_state.returncode = 0
+                    self._process_message(p, 'rc ' + str(p.task_state.returncode))
+
                 context = ExitHandlerContext(launch_state, p.task_state)
                 p.exit_handler(context)
 
@@ -267,6 +278,23 @@ class DefaultLauncher(object):
         lines = (message + '\n').encode()
         if 'output_handler' in dir(p):
             p.output_handler.on_message_received(lines)
+
+    def _print_process_stacktrace(self, name, future, exception):
+        # print traceback with "standard" format
+        with self.print_mutex:
+            print('(%s)' % name, 'Traceback (most recent call last):',
+                  file=sys.stderr)
+            for frame in future.get_stack():
+                filename = frame.f_code.co_filename
+                print('(%s)' % name, '  File "%s", line %d, in %s' %
+                      (filename, frame.f_lineno, frame.f_code.co_name),
+                      file=sys.stderr)
+                import linecache
+                linecache.checkcache(filename)
+                line = linecache.getline(filename, frame.f_lineno, frame.f_globals)
+                print('(%s)' % name, '    ' + line.strip(), file=sys.stderr)
+            print('(%s) %s: %s' % (name, type(exception).__name__, str(exception)),
+                  file=sys.stderr)
 
 
 class AsynchronousLauncher(threading.Thread):
