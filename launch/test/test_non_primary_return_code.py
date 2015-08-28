@@ -13,49 +13,41 @@
 # limitations under the License.
 
 import asyncio
-import os
 import sys
 
 from launch import LaunchDescriptor
 from launch.exit_handler import primary_exit_handler
 from launch.launcher import DefaultLauncher
-from launch.loader import load_launch_file
 
 
-def test_launch_with_coroutine():
+def test_non_primary_return_code():
     default_launcher = DefaultLauncher()
 
-    launch_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'launch_counter.py')
-    launch_descriptor = LaunchDescriptor()
-    load_launch_file(launch_file, launch_descriptor, {})
-
     @asyncio.coroutine
-    def coroutine():
+    def coroutine1():
         yield from asyncio.sleep(1)
         print('one', file=sys.stderr)
         yield from asyncio.sleep(1)
         print('two', file=sys.stderr)
-        yield from asyncio.sleep(1)
-        print('three', file=sys.stderr)
+        return 3
 
     @asyncio.coroutine
     def coroutine2():
         yield from asyncio.sleep(1)
         print('one mississippi', file=sys.stderr)
-        yield from asyncio.sleep(1)
-        print('two mississippi', file=sys.stderr)
-        yield from asyncio.sleep(1)
-        print('three mississippi', file=sys.stderr)
+        return 0
 
+    launch_descriptor = LaunchDescriptor()
+    launch_descriptor.add_coroutine(coroutine1(), name='coroutine1')
     launch_descriptor.add_coroutine(
-        coroutine(), name='coroutine', exit_handler=primary_exit_handler)
-    # launch_descriptor.add_coroutine(coroutine2())
+        coroutine2(), name='coroutine2', exit_handler=primary_exit_handler)
 
     print('launch', file=sys.stderr)
     default_launcher.add_launch_descriptor(launch_descriptor)
     rc = default_launcher.launch()
     print('done', rc, file=sys.stderr)
+    assert rc == 3, 'Expected return code is 3'
 
 
 if __name__ == '__main__':
-    test_launch_with_coroutine()
+    test_non_primary_return_code()

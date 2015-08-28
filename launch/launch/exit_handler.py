@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class ExitHandlerContext(object):
 
     """The context which is passed to an exit handler function."""
@@ -30,7 +31,9 @@ def default_exit_handler(context):
     # trigger tear down if not already tearing down
     if not context.launch_state.teardown:
         context.launch_state.teardown = True
-        # set launch return code
+
+    # set launch return code if not already set
+    if not context.launch_state.returncode:
         try:
             rc = int(context.task_state.returncode)
         except (TypeError, ValueError):
