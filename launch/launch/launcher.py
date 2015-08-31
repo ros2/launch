@@ -53,8 +53,9 @@ class DefaultLauncher(object):
         asyncio.set_event_loop(loop)
         returncode = loop.run_until_complete(self._run())
         loop.close()
-        # the watcher must be reset otherwise a repeated invocation fails inside asyncio
-        asyncio.get_event_loop_policy().set_child_watcher(None)
+        if os.name != 'nt':
+            # the watcher must be reset otherwise a repeated invocation fails inside asyncio
+            asyncio.get_event_loop_policy().set_child_watcher(None)
 
         return returncode
 
