@@ -33,7 +33,8 @@ def default_exit_handler(context):
         context.launch_state.teardown = True
 
     # set launch return code if not already set
-    if not context.launch_state.returncode:
+    # TODO(dirk-thomas) remove second condition, currently fails on Windows
+    if not context.launch_state.returncode and not context.launch_state.teardown:
         try:
             rc = int(context.task_state.returncode)
         except (TypeError, ValueError):
