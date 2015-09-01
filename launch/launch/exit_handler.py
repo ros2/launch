@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 
 class ExitHandlerContext(object):
 
@@ -33,8 +35,12 @@ def default_exit_handler(context):
         context.launch_state.teardown = True
 
     # set launch return code if not already set
-    # TODO(dirk-thomas) remove second condition, currently fails on Windows
-    if not context.launch_state.returncode and not context.launch_state.teardown:
+    if (
+        not context.launch_state.returncode and
+        # since Python < 3.5 on Windows does not support signaling SIGINT to the subprocesses
+        # we can't expect them to shutdown cleanly, therefore we ignore their return code
+        (os.name != 'nt' or not context.launch_state.teardown)
+    ):
         try:
             rc = int(context.task_state.returncode)
         except (TypeError, ValueError):
