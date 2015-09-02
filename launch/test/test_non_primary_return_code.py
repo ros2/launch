@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import asyncio
+import os
 import sys
 
 from launch import LaunchDescriptor
@@ -21,6 +22,11 @@ from launch.launcher import DefaultLauncher
 
 
 def test_non_primary_return_code():
+    # since Python < 3.5 on Windows does not support signaling SIGINT to the subprocesses
+    # we can't expect them to shutdown cleanly, therefore we ignore this test
+    if os.name == 'nt':
+        return
+
     default_launcher = DefaultLauncher()
 
     @asyncio.coroutine
