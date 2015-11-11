@@ -27,8 +27,10 @@ class LaunchDescriptor(object):
             raise RuntimeError("Task name '%s' already used" % name)
         if exit_handler is None:
             exit_handler = default_exit_handler
-        self.task_descriptors.append(CoroutineDescriptor(
-            coroutine, name, exit_handler))
+        coroutine_descriptor = CoroutineDescriptor(
+            coroutine, name, exit_handler)
+        self.task_descriptors.append(coroutine_descriptor)
+        return coroutine_descriptor
 
     def add_process(self, cmd, name=None, env=None, output_handlers=None, exit_handler=None):
         if name is not None and name in [p.name for p in self.task_descriptors]:
@@ -38,8 +40,10 @@ class LaunchDescriptor(object):
         output_handlers = CompositeOutputHandler(output_handlers)
         if exit_handler is None:
             exit_handler = default_exit_handler
-        self.task_descriptors.append(ProcessDescriptor(
-            cmd, name, output_handlers, exit_handler, env=env))
+        process_descriptor = ProcessDescriptor(
+            cmd, name, output_handlers, exit_handler, env=env)
+        self.task_descriptors.append(process_descriptor)
+        return process_descriptor
 
 
 class TaskDescriptor(object):
@@ -68,3 +72,7 @@ class ProcessDescriptor(TaskDescriptor):
         self.env = env
         self.transport = None
         self.protocol = None
+
+    def send_signal(self, signal):
+        if self.transport:
+            self.transport.send_signal(signal)
