@@ -76,3 +76,7 @@ class ProcessDescriptor(TaskDescriptor):
     def send_signal(self, signal):
         if self.transport:
             self.transport.send_signal(signal)
+
+    def terminate(self):
+        if self.transport:
+            self.transport.terminate()
