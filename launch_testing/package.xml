@@ -6,6 +6,8 @@
   <maintainer email="esteve@osrfoundation.org">Esteve Fernandez</maintainer>
   <license>Apache License 2.0</license>
 
+  <exec_depend>launch</exec_depend>
+
   <export>
     <build_type>ament_python</build_type>
   </export>
