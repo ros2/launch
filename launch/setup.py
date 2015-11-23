@@ -20,8 +20,9 @@ setup(
         'Topic :: Software Development',
     ],
     description='Launch processes specified in launch files.',
-    long_description='''\
-This package provides the ability to run multiple processes and react on individual processes exiting.''',
+    long_description=(
+        'This package provides the ability to run multiple '
+        'processes and react on individual processes exiting.'),
     license='Apache License, Version 2.0',
     test_suite='test',
     entry_points={
