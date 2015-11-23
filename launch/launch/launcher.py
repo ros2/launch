@@ -127,7 +127,7 @@ class DefaultLauncher(object):
                     p.transport._process_exited(p.returncode)
 
             # collect done futures
-            done_futures = [future for future in all_futures.keys() if future.done()]
+            done_futures = [f for f in all_futures.keys() if f.done()]
 
             # collect return code
             restart_indices = []
