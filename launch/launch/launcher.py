@@ -268,7 +268,7 @@ class DefaultLauncher(object):
         p = process_descriptor
         p.transport.close()
         p.task_state.returncode = p.transport.get_returncode()
-        self._process_message(p, 'rc %d' % p.task_state.returncode)
+        self._process_message(p, 'rc ' + str(p.task_state.returncode))
         p.output_handler.process_cleanup()
 
     def _process_message(self, process_descriptor, message):
