@@ -20,8 +20,10 @@ class InMemoryHandler(LineOutput):
     """
 
     # TODO(esteve): This requires internal knowledge about the rmw implementations available.
-    def __init__(self, name, launch_descriptor, expected_lines, regex_match=False,
-                 filtered_prefixes=None):
+    def __init__(
+        self, name, launch_descriptor, expected_lines, regex_match=False,
+        filtered_prefixes=None
+    ):
         super(LineOutput, self).__init__()
         if filtered_prefixes is None:
             self.filtered_prefixes = [
