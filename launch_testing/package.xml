@@ -7,6 +7,9 @@
   <license>Apache License 2.0</license>
 
   <exec_depend>launch</exec_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>ament_pep8</test_depend>
+  <test_depend>ament_pyflakes</test_depend>
   <test_depend>launch</test_depend>
 
   <export>
