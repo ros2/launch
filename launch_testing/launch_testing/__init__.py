@@ -82,7 +82,6 @@ class InMemoryHandler(LineOutput):
 
 def create_handler(name, launch_descriptor, output_file):
     literal_file = output_file + '.txt'
-    py_file = output_file + '.py'
     if os.path.isfile(literal_file):
         with open(literal_file, 'rb') as f:
             expected_output = f.read().splitlines()
