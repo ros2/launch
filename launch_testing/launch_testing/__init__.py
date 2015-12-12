@@ -65,7 +65,7 @@ class InMemoryHandler(LineOutput):
                     if td.name == self.name:
                         td.terminate()
                         self.killed = True
-                        break
+                        return
 
     def on_stderr_lines(self, lines):
         self.stderr_data.write(lines)
