@@ -35,6 +35,7 @@ class InMemoryHandler(LineOutput):
         self.name = name
         self.launch_descriptor = launch_descriptor
         self.expected_lines = expected_lines
+        self.expected_output = b'\n'.join(self.expected_lines)
         self.killed = False
         self.left_over_stdout = b''
         self.left_over_stderr = b''
@@ -52,20 +53,21 @@ class InMemoryHandler(LineOutput):
             if any([line.startswith(prefix) for prefix in self.filtered_prefixes]):
                 continue
             self.stdout_data.write(line + b'\n')
-
-            # Are we ready to quit?
-            if self.regex_match:
-                self.matched = re.match(self.expected_lines[0], line)
-            else:
+            if not self.regex_match and not self.matched:
                 output_lines = self.stdout_data.getvalue().splitlines()
                 self.matched = output_lines == self.expected_lines
-            if self.matched:
-                # We have enough output to compare; shut down my child
-                for td in self.launch_descriptor.task_descriptors:
-                    if td.name == self.name:
-                        td.terminate()
-                        self.killed = True
-                        return
+
+        # Are we ready to quit?
+        if self.regex_match and not self.matched:
+            self.matched = re.search(self.expected_output, self.stdout_data.getvalue())
+
+        if self.matched:
+            # We have enough output to compare; shut down my child
+            for td in self.launch_descriptor.task_descriptors:
+                if td.name == self.name:
+                    td.terminate()
+                    self.killed = True
+                    return
 
     def on_stderr_lines(self, lines):
         self.stderr_data.write(lines)
