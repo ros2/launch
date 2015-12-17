@@ -24,11 +24,13 @@ class ExitHandlerContext(object):
         self.task_state = task_state
 
 
-def default_exit_handler(context):
+def default_exit_handler(context, ignore_returncode=False):
     """
     Trigger teardown of launch.
 
     Use the returncode of the task for the launch if the launch was not already tearing down.
+
+    @param ignore_returncode: If True, then ignore process return code.
     """
     # trigger tear down if not already tearing down
     if not context.launch_state.teardown:
@@ -39,7 +41,9 @@ def default_exit_handler(context):
         not context.launch_state.returncode and
         # since Python < 3.5 on Windows does not support signaling SIGINT to the subprocesses
         # we can't expect them to shutdown cleanly, therefore we ignore their return code
-        (os.name != 'nt' or not context.launch_state.teardown)
+        (os.name != 'nt' or not context.launch_state.teardown) and
+        # allow force ignoring
+        not ignore_returncode
     ):
         try:
             rc = int(context.task_state.returncode)
@@ -70,3 +74,16 @@ def primary_exit_handler(context):
             context.launch_state.returncode = 1
 
     default_exit_handler(context)
+
+
+def primary_ignore_returncode_exit_handler(context):
+    """
+    Trigger teardown of launch and ignore return codes.
+
+    Same as primary exit handler but ignore return codes from teardown.
+    """
+    if context.launch_state.teardown:
+        if not context.launch_state.returncode:
+            context.launch_state.returncode = 1
+
+    default_exit_handler(context, ignore_returncode=True)
