@@ -25,6 +25,13 @@ from launch.protocol import SubprocessProtocol
 from launch.task import TaskState
 
 
+class _TaskException(Exception):
+
+    def __init__(self, task_descriptor_index, exception):
+        self.task_descriptor_index = task_descriptor_index
+        self.exception = exception
+
+
 class DefaultLauncher(object):
 
     def __init__(self, name_prefix='', sigint_timeout=10):
@@ -51,7 +58,13 @@ class DefaultLauncher(object):
         else:
             loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        returncode = loop.run_until_complete(self._run())
+        try:
+            returncode = loop.run_until_complete(self._run())
+        except _TaskException as e:
+            print(
+                'Failed to execute command: ' +
+                ' '.join(self.task_descriptors[e.task_descriptor_index].cmd), file=sys.stderr)
+            raise e.exception
         loop.close()
         if os.name != 'nt':
             # the watcher must be reset otherwise a repeated invocation fails inside asyncio
@@ -73,7 +86,10 @@ class DefaultLauncher(object):
                 p.output_handler.set_line_prefix('[%s] ' % p.name)
 
             if 'protocol' in dir(p):
-                yield from self._spawn_process(index)
+                try:
+                    yield from self._spawn_process(index)
+                except Exception as e:
+                    raise _TaskException(index, e)
                 all_futures[p.protocol.exit_future] = index
             else:
                 future = asyncio.async(p.coroutine)
