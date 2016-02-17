@@ -30,7 +30,7 @@ class InMemoryHandler(LineOutput):
         if filtered_prefixes is None:
             self.filtered_prefixes = [
                 b'pid', b'rc',
-                b'RTI Data Distribution Service Evaluation License issued to',
+                b'RTI Data Distribution Service',
                 b'Expires on']
         else:
             self.filtered_prefixes = filtered_prefixes
