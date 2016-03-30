@@ -18,6 +18,7 @@ import os
 import signal
 import sys
 import threading
+import time
 
 from launch.exit_handler import ExitHandlerContext
 from launch.launch import LaunchState
@@ -141,34 +142,7 @@ class DefaultLauncher(object):
             # when the event loop run does not run in the main thread
             # use custom logic to detect that subprocesses have exited
             if not isinstance(threading.current_thread(), threading._MainThread):
-                for index, p in enumerate(self.task_descriptors):
-                    # only consider not yet done tasks
-                    if index not in all_futures.values():
-                        continue
-                    # only subprocesses need special handling
-                    if 'transport' not in dir(p):
-                        continue
-                    # transport.get_pid() sometimes failed due to transport._proc being None
-                    proc = p.transport.get_extra_info('subprocess')
-                    if os.name != 'nt':
-                        # wait non-blocking on pid
-                        pid = proc.pid
-                        try:
-                            pid, pid_rc = os.waitpid(pid, os.WNOHANG)
-                        except ChildProcessError:
-                            continue
-                        if pid == 0:
-                            # subprocess is still running
-                            continue
-                        p.returncode = pid_rc
-                    else:
-                        # use subprocess return code, only works on Windows
-                        if proc.returncode is None:
-                            continue
-                        p.returncode = proc.returncode
-
-                    # trigger syncio internal process exit callback
-                    p.transport._process_exited(p.returncode)
+                self.check_for_exited_subprocesses(all_futures)
 
             # collect done futures
             done_futures = [f for f in all_futures.keys() if f.done()]
@@ -234,7 +208,20 @@ class DefaultLauncher(object):
                         except ProcessLookupError:
                             pass
 
-                yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
+                if isinstance(threading.current_thread(), threading._MainThread):
+                    # if in the main thread, just wait
+                    yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
+                else:
+                    # if not in the main thread, wake up periodically to check SIGINT status
+                    start = time.time()
+                    short_timeout = self.sigint_timeout / 10.0
+                    while time.time() - start < self.sigint_timeout:
+                        # each loop check for recently exited subprocesses
+                        self.check_for_exited_subprocesses(all_futures)
+                        if not [fut for fut in all_futures.keys() if not fut.done()]:
+                            # if all of the futures are done, stop waiting
+                            break
+                        yield from asyncio.wait(all_futures.keys(), timeout=short_timeout)
 
             # cancel coroutines
             for future, index in all_futures.items():
@@ -254,7 +241,18 @@ class DefaultLauncher(object):
                         except ProcessLookupError:
                             pass
 
-            yield from asyncio.wait(all_futures.keys())
+            kwargs = {}
+            if not isinstance(threading.current_thread(), threading._MainThread):
+                # wake up periodically if we are not in the main thread
+                kwargs['timeout'] = 0.5
+            pending = None
+            while pending is None or pending:
+                # when the event loop run does not run in the main thread
+                # use custom logic to detect that subprocesses have exited
+                if not isinstance(threading.current_thread(), threading._MainThread):
+                    self.check_for_exited_subprocesses(all_futures)
+                # wait for futures to be complete
+                _, pending = yield from asyncio.wait(all_futures.keys(), **kwargs)
 
             # close all remaining processes
             for index in all_futures.values():
@@ -288,6 +286,36 @@ class DefaultLauncher(object):
             launch_state.returncode = 0
         self.launch_complete.set()
         return launch_state.returncode
+
+    def check_for_exited_subprocesses(self, all_futures):
+        for index, p in enumerate(self.task_descriptors):
+            # only consider not yet done tasks
+            if index not in all_futures.values():
+                continue
+            # only subprocesses need special handling
+            if 'transport' not in dir(p):
+                continue
+            # transport.get_pid() sometimes failed due to transport._proc being None
+            proc = p.transport.get_extra_info('subprocess')
+            if os.name != 'nt':
+                # wait non-blocking on pid
+                pid = proc.pid
+                try:
+                    pid, pid_rc = os.waitpid(pid, os.WNOHANG)
+                except ChildProcessError:
+                    continue
+                if pid == 0:
+                    # subprocess is still running
+                    continue
+                p.returncode = pid_rc
+            else:
+                # use subprocess return code, only works on Windows
+                if proc.returncode is None:
+                    continue
+                p.returncode = proc.returncode
+
+            # trigger asyncio internal process exit callback
+            p.transport._process_exited(p.returncode)
 
     def _spawn_process(self, index):
         p = self.task_descriptors[index]
