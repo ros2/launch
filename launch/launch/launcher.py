@@ -44,6 +44,7 @@ class DefaultLauncher(object):
         self.loop_lock = threading.Lock()
         self.interrupt_future = asyncio.Future()
         self.launch_complete = threading.Event()
+        self.processes_launched = threading.Event()
 
     def add_launch_descriptor(self, launch_descriptor):
         for task_descriptor in launch_descriptor.task_descriptors:
@@ -69,6 +70,12 @@ class DefaultLauncher(object):
 
     def launch_is_running(self):
         return not self.launch_complete.is_set()
+
+    def wait_on_processes_to_launch(self, timeout):
+        return self.processes_launched.wait(timeout)
+
+    def processes_are_launched(self):
+        return self.processes_launched.is_set()
 
     def launch(self):
         with self.loop_lock:
@@ -99,6 +106,7 @@ class DefaultLauncher(object):
     def _run(self):
         self.interrupt_future = asyncio.Future()
         self.launch_complete.clear()
+        self.processes_launched.clear()
         launch_state = LaunchState()
         for p in self.task_descriptors:
             p.task_state = TaskState()
@@ -119,6 +127,11 @@ class DefaultLauncher(object):
             else:
                 future = asyncio.async(p.coroutine)
                 all_futures[future] = index
+
+        # the processes are not guaranteed to be running yet, but at least you
+        # can say that it was not possible for all of them to be running before
+        # this point
+        self.processes_launched.set()
 
         while True:
             # skip if no more processes to run
