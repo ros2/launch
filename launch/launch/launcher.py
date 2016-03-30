@@ -39,6 +39,10 @@ class DefaultLauncher(object):
         self.sigint_timeout = sigint_timeout
         self.task_descriptors = []
         self.print_mutex = threading.Lock()
+        self.loop = None
+        self.loop_lock = threading.Lock()
+        self.interrupt_future = asyncio.Future()
+        self.launch_complete = threading.Event()
 
     def add_launch_descriptor(self, launch_descriptor):
         for task_descriptor in launch_descriptor.task_descriptors:
@@ -51,13 +55,29 @@ class DefaultLauncher(object):
 
             self.task_descriptors.append(task_descriptor)
 
+    def interrupt_launch(self):
+        with self.loop_lock:
+            if self.loop is not None:
+                self.loop.call_soon_threadsafe(self.interrupt_launch_non_threadsafe)
+
+    def interrupt_launch_non_threadsafe(self):
+        self.interrupt_future.set_result(True)
+
+    def wait_on_launch_to_finish(self, timeout):
+        return self.launch_complete.wait(timeout)
+
+    def launch_is_running(self):
+        return not self.launch_complete.is_set()
+
     def launch(self):
-        if os.name == 'nt':
-            # Windows needs a custom event loop to use subprocess transport
-            loop = asyncio.ProactorEventLoop()
-        else:
-            loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        with self.loop_lock:
+            if os.name == 'nt':
+                # Windows needs a custom event loop to use subprocess transport
+                self.loop = asyncio.ProactorEventLoop()
+            else:
+                self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+        loop = self.loop
         try:
             returncode = loop.run_until_complete(self._run())
         except _TaskException as e:
@@ -66,6 +86,8 @@ class DefaultLauncher(object):
                 ' '.join(self.task_descriptors[e.task_descriptor_index].cmd), file=sys.stderr)
             raise e.exception
         loop.close()
+        with self.loop_lock:
+            self.loop = None
         if os.name != 'nt':
             # the watcher must be reset otherwise a repeated invocation fails inside asyncio
             asyncio.get_event_loop_policy().set_child_watcher(None)
@@ -74,6 +96,8 @@ class DefaultLauncher(object):
 
     @asyncio.coroutine
     def _run(self):
+        self.interrupt_future = asyncio.Future()
+        self.launch_complete.clear()
         launch_state = LaunchState()
         for p in self.task_descriptors:
             p.task_state = TaskState()
@@ -108,7 +132,11 @@ class DefaultLauncher(object):
             # wake up frequently and check if any subprocess has exited
             if not isinstance(threading.current_thread(), threading._MainThread):
                 kwargs['timeout'] = 0.5
-            yield from asyncio.wait(all_futures.keys(), **kwargs)
+            yield from asyncio.wait(list(all_futures.keys()) + [self.interrupt_future], **kwargs)
+
+            # if asynchronously interrupted, stop looping and shutdown
+            if self.interrupt_future.done():
+                break
 
             # when the event loop run does not run in the main thread
             # use custom logic to detect that subprocesses have exited
@@ -188,6 +216,7 @@ class DefaultLauncher(object):
                     p.task_states[index].restart_count += 1
                     yield from self._spawn_process(index)
                     all_futures[p.protocol.exit_future] = index
+        # end while True
 
         # terminate all remaining processes
         if all_futures:
@@ -257,6 +286,7 @@ class DefaultLauncher(object):
 
         if launch_state.returncode is None:
             launch_state.returncode = 0
+        self.launch_complete.set()
         return launch_state.returncode
 
     def _spawn_process(self, index):
@@ -319,6 +349,9 @@ class AsynchronousLauncher(threading.Thread):
     def __init__(self, launcher):
         super(AsynchronousLauncher, self).__init__()
         self.launcher = launcher
+
+    def terminate(self):
+        self.launcher.interrupt_launch()
 
     def run(self):
         if os.name != 'nt' and not isinstance(threading.current_thread(), threading._MainThread):
