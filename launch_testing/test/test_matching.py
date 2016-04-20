@@ -21,6 +21,7 @@ from nose.tools import assert_raises
 from launch import LaunchDescriptor
 from launch.exit_handler import ignore_exit_handler
 from launch.launcher import DefaultLauncher
+from launch.output_handler import ConsoleOutput
 import launch_testing
 from launch_testing import create_handler, UnmatchedOutputError
 
@@ -28,7 +29,7 @@ from launch_testing import create_handler, UnmatchedOutputError
 def _run_launch_testing(
         output_file, prepended_lines=False, appended_lines=False, interleaved_lines=False,
         filtered_prefixes=None):
-    output_handlers = []
+    output_handlers = [ConsoleOutput()]
 
     launch_descriptor = LaunchDescriptor()
 
@@ -68,11 +69,10 @@ def _run_launch_testing(
     assert rc == 0, \
         "the launch file failed with exit code '{0}'".format(rc)
 
-    for handler in output_handlers:
-        try:
-            handler.check()
-        except UnmatchedOutputError:
-            raise
+    try:
+        handler.check()
+    except UnmatchedOutputError:
+        raise
 
 
 def test_matching_text():
