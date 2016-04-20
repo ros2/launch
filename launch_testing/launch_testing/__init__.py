@@ -55,7 +55,7 @@ class InMemoryHandler(LineOutput):
         self.name = name
         self.launch_descriptor = launch_descriptor
         self.expected_lines = expected_lines
-        self.expected_output = b'\n'.join(self.expected_lines)
+        self.expected_output = b'\n'.join(self.expected_lines) + b'\n'
         self.left_over_stdout = b''
         self.left_over_stderr = b''
         self.stdout_data = io.BytesIO()
@@ -63,6 +63,7 @@ class InMemoryHandler(LineOutput):
         self.regex_match = regex_match
         self.exit_on_match = exit_on_match
         self.matched = False
+        self.complete_match = False
 
     def on_stdout_lines(self, lines):
         if self.matched:
@@ -76,10 +77,14 @@ class InMemoryHandler(LineOutput):
             if not self.regex_match and not self.matched:
                 output_lines = self.stdout_data.getvalue().splitlines()
                 self.matched = output_lines == self.expected_lines
+                self.complete_match = self.matched
 
         # Are we ready to quit?
         if self.regex_match and not self.matched:
             self.matched = re.search(self.expected_output, self.stdout_data.getvalue())
+            if self.matched:
+                if self.matched.group(0) == self.stdout_data.getvalue():
+                    self.complete_match = True
 
         if self.matched and self.exit_on_match:
             # We matched and we're in charge; shut myself down
@@ -100,7 +105,7 @@ class InMemoryHandler(LineOutput):
 
     def check(self):
         output_lines = self.stdout_data.getvalue().splitlines()
-        if not self.matched:
+        if not self.complete_match:
             raise UnmatchedOutputError(
                 'Example output (%r) does not match expected output (%r)' %
                 (output_lines, self.expected_lines))
