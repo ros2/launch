@@ -92,13 +92,11 @@ def primary_ignore_returncode_exit_handler(context):
 def ignore_signal_exit_handler(context):
     """
     Trigger teardown of launch and ignore return code if SIGINT or SIGTERM was triggered.
-
-    Same as primary exit handler but ignore return codes set by SIGINT or SIGTERM.
     """
     if context.launch_state.teardown:
         # Check the return code
-        ret = context.launch_state.returncode
+        ret = context.task_state.returncode
         if ret == signal.SIGINT or ret == signal.SIGTERM:
-            context.launch_state.returncode = 0
+            context.task_state.returncode = 0
 
-    default_exit_handler(context, ignore_returncode=True)
+    default_exit_handler(context)
