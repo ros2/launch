@@ -88,7 +88,8 @@ def test_matching_text():
         _run_launch_testing(output_file, prepended_lines=True)
 
     # unmatched lines appear after expected text
-    _run_launch_testing(output_file, appended_lines=True)
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, appended_lines=True)
 
     # filtered lines appear before regex is matched
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()

@@ -74,10 +74,10 @@ class InMemoryHandler(LineOutput):
             if any([line.startswith(prefix) for prefix in self.filtered_prefixes]):
                 continue
             self.stdout_data.write(line + b'\n')
-            if not self.regex_match and not self.matched:
+            if not self.regex_match:
                 output_lines = self.stdout_data.getvalue().splitlines()
-                self.matched = output_lines == self.expected_lines
-                self.complete_match = self.matched
+                self.complete_match = output_lines == self.expected_lines
+                self.matched |= self.complete_match
 
         # Are we ready to quit?
         if self.regex_match and not self.matched:
