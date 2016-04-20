@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import signal
 
 
 class ExitHandlerContext(object):
@@ -84,5 +85,20 @@ def primary_ignore_returncode_exit_handler(context):
     if context.launch_state.teardown:
         if not context.launch_state.returncode:
             context.launch_state.returncode = 1
+
+    default_exit_handler(context, ignore_returncode=True)
+
+
+def ignore_signal_exit_handler(context):
+    """
+    Trigger teardown of launch and ignore return code if SIGINT or SIGTERM was triggered.
+
+    Same as primary exit handler but ignore return codes set by SIGINT or SIGTERM.
+    """
+    if context.launch_state.teardown:
+        # Check the return code
+        ret = context.launch_state.returncode
+        if ret == signal.SIGINT or ret == signal.SIGTERM:
+            context.launch_state.returncode = 0
 
     default_exit_handler(context, ignore_returncode=True)
