@@ -26,7 +26,7 @@ from launch_testing import create_handler, UnmatchedOutputError
 
 
 def _run_launch_testing(
-        output_file, prepended_lines=False, appended_lines=False,
+        output_file, prepended_lines=False, appended_lines=False, interleaved_lines=False,
         filtered_prefixes=None):
     output_handlers = []
 
@@ -51,6 +51,9 @@ def _run_launch_testing(
 
     if appended_lines:
         executable_command.append('--appended-lines')
+
+    if interleaved_lines:
+        executable_command.append('--interleaved-lines')
 
     launch_descriptor.add_process(
         cmd=executable_command,
@@ -91,10 +94,19 @@ def test_matching_text():
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, appended_lines=True)
 
-    # filtered lines appear before regex is matched
+    # filtered lines appear before expected text
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'license')
     _run_launch_testing(output_file, prepended_lines=True, filtered_prefixes=filtered_prefixes)
+
+    # unmatched lines appear interleaved with expected text
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, interleaved_lines=True)
+
+    # filtered lines appear interleaved with expected text
+    filtered_prefixes = launch_testing.get_default_filtered_prefixes()
+    filtered_prefixes.append(b'debug')
+    _run_launch_testing(output_file, interleaved_lines=True, filtered_prefixes=filtered_prefixes)
 
 
 def test_matching_regex():
@@ -120,6 +132,16 @@ def test_matching_regex():
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'license')
     _run_launch_testing(output_file, prepended_lines=True, filtered_prefixes=filtered_prefixes)
+
+    # unmatched lines appear interleaved with regex lines 
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, interleaved_lines=True)
+
+    # filtered lines appear interleaved with regex lines
+    filtered_prefixes = launch_testing.get_default_filtered_prefixes()
+    filtered_prefixes.append(b'debug')
+    _run_launch_testing(output_file, interleaved_lines=True, filtered_prefixes=filtered_prefixes)
+
 
 if __name__ == '__main__':
     test_matching_regex()
