@@ -16,35 +16,41 @@ import os
 import sys
 import tempfile
 
+from nose.tools import assert_raises
+
 from launch import LaunchDescriptor
 from launch.exit_handler import ignore_exit_handler
 from launch.launcher import DefaultLauncher
-from launch_testing import create_handler
+import launch_testing
+from launch_testing import create_handler, UnmatchedOutputError
 
 
-def test_matching():
+def _run_launch_testing(
+        output_file, prepended_lines=False, appended_lines=False,
+        filtered_prefixes=None):
     output_handlers = []
 
     launch_descriptor = LaunchDescriptor()
 
-    # This temporary directory and files contained in it will be deleted when the process ends.
-    tempdir = tempfile.mkdtemp()
-    output_file = tempdir + os.sep + "testfile"
-    full_output_file = output_file + ".regex"
-    with open(full_output_file, 'w+') as f:
-        f.write('this is line \d\nthis is line [a-z]')
-
     name = "test_executable_0"
 
-    handler = create_handler(name, launch_descriptor, output_file)
+    handler = create_handler(
+        name, launch_descriptor, output_file,
+        filtered_prefixes=filtered_prefixes)
 
-    assert handler, 'Cannot find appropriate handler for %s' % output_file
+    assert handler, 'cannot find appropriate handler for %s' % output_file
 
     output_handlers.append(handler)
 
     executable_command = [
         sys.executable,
         os.path.join(os.path.abspath(os.path.dirname(__file__)), 'matching.py')]
+
+    if prepended_lines:
+        executable_command.append('--prepended-lines')
+
+    if appended_lines:
+        executable_command.append('--appended-lines')
 
     launch_descriptor.add_process(
         cmd=executable_command,
@@ -57,11 +63,39 @@ def test_matching():
     rc = launcher.launch()
 
     assert rc == 0, \
-        "The launch file failed with exit code '" + str(rc) + "'. "
+        "the launch file failed with exit code '{0}'".format(rc)
 
     for handler in output_handlers:
-        handler.check()
+        try:
+            handler.check()
+        except UnmatchedOutputError:
+            raise
 
+
+def test_matching_regex():
+    # this temporary directory and files contained in it will be deleted when the process ends.
+    tempdir = tempfile.mkdtemp()
+    output_file = os.path.join(tempdir, "testfile")
+    full_output_file = output_file + ".regex"
+    with open(full_output_file, 'w+') as f:
+        f.write('this is line \d\nthis is line [a-z]')
+
+    # regex is matched exactly
+    _run_launch_testing(output_file)
+
+    # unmatched lines appear before regex is matched
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, prepended_lines=True)
+
+    # unmatched lines appear after regex is matched
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, appended_lines=True)
+
+    # filtered lines appear before regex is matched
+    filtered_prefixes = launch_testing.get_default_filtered_prefixes()
+    filtered_prefixes.append(b'license')
+    _run_launch_testing(output_file, prepended_lines=True, filtered_prefixes=filtered_prefixes)
 
 if __name__ == '__main__':
-    test_matching()
+    test_matching_regex()
+    #test_matching_text()
