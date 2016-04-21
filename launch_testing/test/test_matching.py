@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import print_function
 
 import os
 import sys
@@ -83,27 +84,27 @@ def test_matching_text():
     with open(full_output_file, 'w+') as f:
         f.write('this is line 1\nthis is line b')
 
-    # regex is matched exactly
+    print("Testing when expected text appears exactly.")
     _run_launch_testing(output_file)
 
-    # unmatched lines appear before expected text
+    print("Testing when unmatched lines appear before expected text.")
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, prepended_lines=True)
 
-    # unmatched lines appear after expected text
+    print("Testing when unmatched lines appear after expected text.")
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, appended_lines=True)
 
-    # filtered lines appear before expected text
+    print("Testing when filtered lines appear before expected text.")
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'license')
     _run_launch_testing(output_file, prepended_lines=True, filtered_prefixes=filtered_prefixes)
 
-    # unmatched lines appear interleaved with expected text
+    print("Testing when unmatched lines appear interleaved with expected text.")
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, interleaved_lines=True)
 
-    # filtered lines appear interleaved with expected text
+    print("Testing when filtered lines appear interleaved with expected text.")
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'debug')
     _run_launch_testing(output_file, interleaved_lines=True, filtered_prefixes=filtered_prefixes)
@@ -117,27 +118,27 @@ def test_matching_regex():
     with open(full_output_file, 'w+') as f:
         f.write('this is line \d\nthis is line [a-z]')
 
-    # regex is matched exactly
+    print("Testing when regex match appears exactly.")
     _run_launch_testing(output_file)
 
-    # unmatched lines appear before regex is matched
+    print("Testing when unmatched lines appear before regex is matched.")
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, prepended_lines=True)
 
-    # unmatched lines appear after regex is matched
+    print("Testing when unmatched lines appear after regex is matched.")
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, appended_lines=True)
 
-    # filtered lines appear before regex is matched
+    print("Testing when filtered lines appear before regex is matched.")
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'license')
     _run_launch_testing(output_file, prepended_lines=True, filtered_prefixes=filtered_prefixes)
 
-    # unmatched lines appear interleaved with regex lines 
+    print("Testing when unmatched lines appear interleaved with regex lines.")
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, interleaved_lines=True)
 
-    # filtered lines appear interleaved with regex lines
+    print("Testing when filtered lines appear interleaved with regex lines.")
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'debug')
     _run_launch_testing(output_file, interleaved_lines=True, filtered_prefixes=filtered_prefixes)
