@@ -96,7 +96,7 @@ def ignore_signal_exit_handler(context):
     if context.launch_state.teardown:
         # Check the return code
         ret = context.task_state.returncode
-        if abs(ret) == signal.SIGINT or ret == signal.SIGTERM:
+        if abs(ret) == signal.SIGINT or abs(ret) == signal.SIGTERM:
             context.task_state.returncode = 0
 
     default_exit_handler(context)
