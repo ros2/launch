@@ -16,7 +16,6 @@ import os
 
 
 class ExitHandlerContext(object):
-
     """The context which is passed to an exit handler function."""
 
     def __init__(self, launch_state, task_state):
