@@ -6,7 +6,6 @@ from launch.output_handler import LineOutput
 
 
 class InMemoryHandler(LineOutput):
-
     """Aggregate data from standard output.
 
     @param name: Name of the process being tested.
