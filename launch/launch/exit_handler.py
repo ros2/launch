@@ -91,13 +91,13 @@ def primary_ignore_returncode_exit_handler(context):
 
 def ignore_signal_exit_handler(context):
     """
-    Trigger teardown of launch and ignore return code if SIGINT or SIGTERM was triggered.
+    Trigger teardown of launch and ignore return code if SIGINT (Unix) or SIGTERM (Windows) was triggered.
     """
     if context.launch_state.teardown:
         # Check the return code
         ret = context.task_state.returncode
         if os.name == 'nt':
-            if ret == signal.SIGINT or ret == signal.SIGTERM:
+            if ret == -signal.SIGTERM:
                 context.task_state.returncode = 0
         else:
             # On Unix, return codes are negated for subprocesses
