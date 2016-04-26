@@ -98,10 +98,7 @@ def ignore_signal_exit_handler(context):
     """
     if context.launch_state.teardown:
         # Check the return code
-        ret = context.task_state.returncode
-        # Return codes are negated for subprocesses
-        # Launched processes are always subprocesses
-        if ret == -signal.SIGINT or ret == -signal.SIGTERM:
+        if task_state.terminated_from_launch:
             context.task_state.returncode = 0
 
     default_exit_handler(context)

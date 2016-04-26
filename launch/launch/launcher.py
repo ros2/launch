@@ -218,6 +218,7 @@ class DefaultLauncher(object):
                         self._process_message(p, 'signal SIGINT')
                         try:
                             p.transport.send_signal(signal.SIGINT)
+                            p.task_state.terminated_from_launch = True
                         except ProcessLookupError:
                             pass
 
@@ -251,6 +252,7 @@ class DefaultLauncher(object):
                         self._process_message(p, 'signal SIGTERM')
                         try:
                             p.transport.send_signal(signal.SIGTERM)
+                            p.task_state.terminated_from_launch = True
                         except ProcessLookupError:
                             pass
 
