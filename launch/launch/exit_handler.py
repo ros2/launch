@@ -91,14 +91,15 @@ def primary_ignore_returncode_exit_handler(context):
 
 def ignore_signal_exit_handler(context):
     """
-    Trigger teardown of launch and ignore nonzero return codes if the process
-    received a shutdown signal.
+    Succeed if the process received a shutdown signal on teardown.
 
-    Ignores return code if SIGINT (Unix) or SIGTERM (Windows) was triggered.
+    Ignores return code if launch sent a SIGINT or SIGKILL to the task.
     """
     if context.launch_state.teardown:
         # Check the return code
-        if task_state.terminated_from_launch:
+        sigint_received = signal.SIGINT in context.task_state.signals_received
+        sigterm_received = signal.SIGTERM in context.task_state.signals_received
+        if sigint_received or sigterm_received:
             context.task_state.returncode = 0
 
     default_exit_handler(context)

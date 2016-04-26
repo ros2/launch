@@ -21,4 +21,4 @@ class TaskState(object):
         self.restart = False
         self.restart_count = 0
         self.returncode = None
-        self.terminated_from_launch = False
+        self.signals_received = []
