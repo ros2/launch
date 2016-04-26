@@ -97,9 +97,7 @@ def ignore_signal_exit_handler(context):
     """
     if context.launch_state.teardown:
         # Check the return code
-        sigint_received = signal.SIGINT in context.task_state.signals_received
-        sigterm_received = signal.SIGTERM in context.task_state.signals_received
-        if sigint_received or sigterm_received:
+        if context.task_state.signals_received:
             context.task_state.returncode = 0
 
     default_exit_handler(context)
