@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-import signal
 
 
 class ExitHandlerContext(object):
@@ -87,7 +86,6 @@ def primary_ignore_returncode_exit_handler(context):
             context.launch_state.returncode = 1
 
     default_exit_handler(context, ignore_returncode=True)
-
 
 def ignore_signal_exit_handler(context):
     """
