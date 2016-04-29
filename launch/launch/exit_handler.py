@@ -86,3 +86,16 @@ def primary_ignore_returncode_exit_handler(context):
             context.launch_state.returncode = 1
 
     default_exit_handler(context, ignore_returncode=True)
+
+def ignore_signal_exit_handler(context):
+    """
+    Succeed if the process received a shutdown signal on teardown.
+
+    Ignores return code if launch sent a SIGINT or SIGKILL to the task.
+    """
+    if context.launch_state.teardown:
+        # Check the return code
+        if context.task_state.signals_received:
+            context.task_state.returncode = 0
+
+    default_exit_handler(context)
