@@ -87,6 +87,7 @@ def primary_ignore_returncode_exit_handler(context):
 
     default_exit_handler(context, ignore_returncode=True)
 
+
 def ignore_signal_exit_handler(context):
     """
     Succeed if the process received a shutdown signal on teardown.
