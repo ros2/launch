@@ -61,6 +61,6 @@ def launch(launch_descriptor, argv):
     sub_ld = LaunchDescriptor()
     load_launch_file(other_launch_file, sub_ld, {})
     # namespace all processes from other launch file
-    for d in sub_ld.process_descriptors:
+    for d in sub_ld.task_descriptors:
         d.name = 'sub.' + d.name
-        ld.process_descriptors.append(d)
+        ld.task_descriptors.append(d)
