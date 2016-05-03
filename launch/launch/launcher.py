@@ -200,7 +200,7 @@ class DefaultLauncher(object):
             for index in restart_indices:
                 p = self.task_descriptors[index]
                 if 'protocol' in dir(p):
-                    p.task_states[index].restart_count += 1
+                    p.task_state.restart_count += 1
                     yield from self._spawn_process(index)
                     all_futures[p.protocol.exit_future] = index
         # end while True
