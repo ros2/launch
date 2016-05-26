@@ -63,7 +63,7 @@ class InMemoryHandler(LineOutput):
         self.regex_match = regex_match
         self.exit_on_match = exit_on_match
         self.matched = False
-        self.complete_match = False
+        self.matched_exactly = False
 
     def on_stdout_lines(self, lines):
         if self.matched:
@@ -74,17 +74,19 @@ class InMemoryHandler(LineOutput):
             if any([line.startswith(prefix) for prefix in self.filtered_prefixes]):
                 continue
             self.stdout_data.write(line + b'\n')
-            if not self.regex_match:
-                output_lines = self.stdout_data.getvalue().splitlines()
-                self.complete_match = output_lines == self.expected_lines
-                self.matched |= self.complete_match
 
-        # Are we ready to quit?
-        if self.regex_match and not self.matched:
-            self.matched = re.search(self.expected_output, self.stdout_data.getvalue())
-            if self.matched:
-                if self.matched.group(0) == self.stdout_data.getvalue():
-                    self.complete_match = True
+        received_output = self.stdout_data.getvalue()
+        received_lines = received_output.splitlines()
+
+        # Check for literal match
+        if not self.regex_match:
+            self.matched = all(line in received_lines for line in self.expected_lines)
+            self.matched_exactly = self.expected_lines == received_lines
+
+        # Check for regex match
+        if self.regex_match:
+            self.matched = re.search(self.expected_output, received_output)
+            self.matched_exactly = self.matched and self.matched.group(0) == received_output
 
         if self.matched and self.exit_on_match:
             # We matched and we're in charge; shut myself down
@@ -105,10 +107,11 @@ class InMemoryHandler(LineOutput):
 
     def check(self):
         output_lines = self.stdout_data.getvalue().splitlines()
-        if not self.complete_match:
+        if not self.matched_exactly:
             raise UnmatchedOutputError(
-                'Example output (%r) does not match expected output (%r)' %
-                (output_lines, self.expected_lines))
+                'Received output does not match expected output.\n' +
+                'Received output:\n%r\nExpected output%s:\n%r' %
+                (output_lines, ' (regex)' if self.regex_match else '', self.expected_lines))
 
 
 def get_default_filtered_prefixes():
