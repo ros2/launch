@@ -29,7 +29,7 @@ from launch_testing import create_handler, UnmatchedOutputError
 
 def _run_launch_testing(
         output_file, prepended_lines=False, appended_lines=False, interleaved_lines=False,
-        filtered_prefixes=None):
+        filtered_prefixes=None, no_output=False):
     output_handlers = [ConsoleOutput()]
 
     launch_descriptor = LaunchDescriptor()
@@ -47,6 +47,9 @@ def _run_launch_testing(
     executable_command = [
         sys.executable,
         os.path.join(os.path.abspath(os.path.dirname(__file__)), 'matching.py')]
+
+    if no_output:
+        executable_command.append('--no-output')
 
     if prepended_lines:
         executable_command.append('--prepended-lines')
@@ -84,6 +87,10 @@ def test_matching_text():
     with open(full_output_file, 'w+') as f:
         f.write('this is line 1\nthis is line b')
 
+    print("Testing when expected text is never printed.")
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, no_output=True)
+
     print("Testing when expected text appears exactly.")
     _run_launch_testing(output_file)
 
@@ -117,6 +124,10 @@ def test_matching_regex():
     full_output_file = output_file + ".regex"
     with open(full_output_file, 'w+') as f:
         f.write('this is line \d\nthis is line [a-z]')
+
+    print("Testing when regex is never matched.")
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, no_output=True)
 
     print("Testing when regex match appears exactly.")
     _run_launch_testing(output_file)

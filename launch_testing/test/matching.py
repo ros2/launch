@@ -20,22 +20,24 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--no-output', action='store_true')
     parser.add_argument('--prepended-lines', action='store_true')
     parser.add_argument('--appended-lines', action='store_true')
     parser.add_argument('--interleaved-lines', action='store_true')
     args = parser.parse_args()
 
-    if args.prepended_lines:
-        print('license output', file=sys.stdout)
-    print('this is line 1', file=sys.stdout)
+    if not args.no_output:
+        if args.prepended_lines:
+            print('license output', file=sys.stdout)
+        print('this is line 1', file=sys.stdout)
 
-    if args.interleaved_lines:
-        print('debug output', file=sys.stdout)
+        if args.interleaved_lines:
+            print('debug output', file=sys.stdout)
 
-    print('this is line b', file=sys.stdout)
+        print('this is line b', file=sys.stdout)
 
-    if args.appended_lines:
-        print('extra printout', file=sys.stdout)
+        if args.appended_lines:
+            print('extra printout', file=sys.stdout)
 
     return 0
 
