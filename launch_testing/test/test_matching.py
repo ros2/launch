@@ -85,7 +85,7 @@ def test_matching_text():
     output_file = os.path.join(tempdir, 'testfile')
     full_output_file = output_file + '.txt'
     with open(full_output_file, 'w+') as f:
-        f.write('this is line 1\nthis is line b')
+        f.write('this is line 1\nthis is line b\n')
 
     print('Testing when expected text is never printed.')
     with assert_raises(UnmatchedOutputError):
@@ -128,7 +128,7 @@ def test_matching_regex():
     output_file = os.path.join(tempdir, 'testfile')
     full_output_file = output_file + '.regex'
     with open(full_output_file, 'w+') as f:
-        f.write('this is line \d\nthis is line [a-z]')
+        f.write('this is line \d\nthis is line [a-z]\n')
 
     print('Testing when regex is never matched.')
     with assert_raises(UnmatchedOutputError):
