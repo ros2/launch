@@ -80,29 +80,29 @@ class InMemoryHandler(LineOutput):
                 continue
             self.stdout_data.write(line + b'\n')
 
-        received_output = self.stdout_data.getvalue()
-        received_lines = received_output.splitlines()
+            received_output = self.stdout_data.getvalue()
+            received_lines = received_output.splitlines()
 
-        # Check for literal match
-        if not self.regex_match:
-            self.matched = all(line in received_lines for line in self.expected_lines)
-            self.matched_exactly = self.expected_lines == received_lines
+            # Check for literal match
+            if not self.regex_match:
+                self.matched = all(line in received_lines for line in self.expected_lines)
+                self.matched_exactly = self.expected_lines == received_lines
 
-        # Check for regex match
-        if self.regex_match:
-            self.matched = re.search(self.expected_output, received_output)
-            self.matched_exactly = self.matched and self.matched.group(0) == received_output
+            # Check for regex match
+            if self.regex_match:
+                self.matched = re.search(self.expected_output, received_output)
+                self.matched_exactly = self.matched and self.matched.group(0) == received_output
 
-        if self.matched and self.exit_on_match:
-            # We matched and we're in charge; shut myself down
-            for td in self.launch_descriptor.task_descriptors:
-                if td.name == self.name:
-                    if os.name != 'nt':
-                        td.task_state.signals_received.append(signal.SIGINT)
-                        td.transport.send_signal(signal.SIGINT)
-                    else:
-                        td.terminate()
-                    return
+            if self.matched and self.exit_on_match:
+                # We matched and we're in charge; shut myself down
+                for td in self.launch_descriptor.task_descriptors:
+                    if td.name == self.name:
+                        if os.name != 'nt':
+                            td.task_state.signals_received.append(signal.SIGINT)
+                            td.transport.send_signal(signal.SIGINT)
+                        else:
+                            td.terminate()
+                        return
 
     def on_stderr_lines(self, lines):
         self.stderr_data.write(lines)
