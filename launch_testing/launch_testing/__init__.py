@@ -59,11 +59,14 @@ class InMemoryHandler(LineOutput):
         self.name = name
         self.launch_descriptor = launch_descriptor
         self.expected_lines = expected_lines
-        self.expected_output = b'\n'.join(self.expected_lines) + b'\n'
         if regex_match:
+            self.expected_output = self.expected_lines
             # Add a surrounding capture group
             self.expected_output_captured = \
                 b'(?P<launch_testing_capture>' + self.expected_output + b')'
+        else:
+            self.expected_output = b'\n'.join(self.expected_lines)
+            self.expected_output += b'\n'
         self.left_over_stdout = b''
         self.left_over_stderr = b''
         self.stdout_data = io.BytesIO()
@@ -156,7 +159,7 @@ def create_handler(
     regex_file = output_file + '.regex'
     if os.path.isfile(regex_file):
         with open(regex_file, 'rb') as f:
-            expected_output = f.read().splitlines()
+            expected_output = f.read()
         return InMemoryHandler(
             name, launch_descriptor, expected_output, regex_match=True,
             exit_on_match=exit_on_match, filtered_prefixes=filtered_prefixes,
