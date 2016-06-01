@@ -24,14 +24,14 @@ def main():
     parser.add_argument('--prepended-lines', action='store_true')
     parser.add_argument('--appended-lines', action='store_true')
     parser.add_argument('--interleaved-lines', action='store_true')
-    parser.add_argument('--repeated-times', action='store', type=int, default=0)
+    parser.add_argument('--reprints', action='store', type=int, default=0)
     args = parser.parse_args()
 
     if not args.no_output:
         if args.prepended_lines:
             print('license output', file=sys.stdout)
 
-        for i in range(args.repeated_times + 1):
+        for i in range(args.reprints + 1):
             print('this is line 1', file=sys.stdout)
 
             if args.interleaved_lines:

@@ -29,7 +29,8 @@ from launch_testing import create_handler, UnmatchedOutputError
 
 def _run_launch_testing(
         output_file, prepended_lines=False, appended_lines=False, interleaved_lines=False,
-        filtered_prefixes=None, no_output=False, exact_match=True, exit_on_match=False):
+        filtered_prefixes=None, no_output=False, exact_match=True, exit_on_match=False,
+        reprints=0):
     output_handlers = [ConsoleOutput()]
 
     launch_descriptor = LaunchDescriptor()
@@ -59,6 +60,9 @@ def _run_launch_testing(
 
     if interleaved_lines:
         executable_command.append('--interleaved-lines')
+
+    executable_command.append('--reprints')
+    executable_command.append(str(reprints))
 
     launch_descriptor.add_process(
         cmd=executable_command,
@@ -119,14 +123,18 @@ def test_matching_text():
     print(
         'Testing when unmatched lines appear before/after text, '
         'but exact matching is not required.')
-    _run_launch_testing(
-        output_file, prepended_lines=True, appended_lines=True, exact_match=False)
+    _run_launch_testing(output_file, prepended_lines=True, appended_lines=True, exact_match=False)
 
     print(
-        'Testing when unmatched lines appear interleaved with regex lines,'
+        'Testing when unmatched lines appear interleaved with text lines, '
         'but exact matching is not required.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, interleaved_lines=True, exact_match=False)
+
+    print('Testing exiting upon text match.')
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, reprints=1)
+    _run_launch_testing(output_file, reprints=1, exit_on_match=True)
 
 
 def test_matching_regex():
@@ -167,16 +175,30 @@ def test_matching_regex():
     _run_launch_testing(output_file, interleaved_lines=True, filtered_prefixes=filtered_prefixes)
 
     print(
-        'Testing when unmatched lines appear before/after regex lines,'
+        'Testing when unmatched lines appear before/after regex lines, '
         'but exact matching is not required.')
     _run_launch_testing(output_file, prepended_lines=True, appended_lines=True, exact_match=False)
 
     print(
-        'Testing when unmatched lines appear interleaved with regex lines,'
+        'Testing when unmatched lines appear interleaved with regex lines, '
         'but exact matching is not required.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, interleaved_lines=True, exact_match=False)
 
+    print('Testing exiting upon regex match.')
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, reprints=1)
+    _run_launch_testing(output_file, reprints=1, exit_on_match=True)
+
+    # Test regex which can match multiple times
+    output_file = os.path.join(tempdir, 'testfile2')
+    full_output_file = output_file + '.regex'
+    with open(full_output_file, 'w+') as f:
+        f.write('(this is line \d\nthis is line [a-z]\n)+')
+
+    print('Testing when multiple regex matches are made.')
+    _run_launch_testing(output_file)
+    _run_launch_testing(output_file, reprints=1)
 
 if __name__ == '__main__':
     test_matching_regex()
