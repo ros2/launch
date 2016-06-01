@@ -29,16 +29,16 @@ from launch_testing import create_handler, UnmatchedOutputError
 
 def _run_launch_testing(
         output_file, prepended_lines=False, appended_lines=False, interleaved_lines=False,
-        filtered_prefixes=None, no_output=False):
+        filtered_prefixes=None, no_output=False, exact_match=True):
     output_handlers = [ConsoleOutput()]
 
     launch_descriptor = LaunchDescriptor()
 
-    name = "test_executable_0"
+    name = 'test_executable_0'
 
     handler = create_handler(
         name, launch_descriptor, output_file,
-        filtered_prefixes=filtered_prefixes)
+        filtered_prefixes=filtered_prefixes, exact_match=exact_match)
 
     assert handler, 'cannot find appropriate handler for %s' % output_file
 
@@ -82,77 +82,93 @@ def _run_launch_testing(
 def test_matching_text():
     # this temporary directory and files contained in it will be deleted when the process ends.
     tempdir = tempfile.mkdtemp()
-    output_file = os.path.join(tempdir, "testfile")
-    full_output_file = output_file + ".txt"
+    output_file = os.path.join(tempdir, 'testfile')
+    full_output_file = output_file + '.txt'
     with open(full_output_file, 'w+') as f:
         f.write('this is line 1\nthis is line b')
 
-    print("Testing when expected text is never printed.")
+    print('Testing when expected text is never printed.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, no_output=True)
 
-    print("Testing when expected text appears exactly.")
+    print('Testing when expected text appears exactly.')
     _run_launch_testing(output_file)
 
-    print("Testing when unmatched lines appear before expected text.")
+    print('Testing when unmatched lines appear before expected text.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, prepended_lines=True)
 
-    print("Testing when unmatched lines appear after expected text.")
+    print('Testing when unmatched lines appear after expected text.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, appended_lines=True)
 
-    print("Testing when filtered lines appear before expected text.")
+    print('Testing when filtered lines appear before expected text.')
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'license')
     _run_launch_testing(output_file, prepended_lines=True, filtered_prefixes=filtered_prefixes)
 
-    print("Testing when unmatched lines appear interleaved with expected text.")
+    print('Testing when unmatched lines appear interleaved with expected text.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, interleaved_lines=True)
 
-    print("Testing when filtered lines appear interleaved with expected text.")
+    print('Testing when filtered lines appear interleaved with expected text.')
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'debug')
     _run_launch_testing(output_file, interleaved_lines=True, filtered_prefixes=filtered_prefixes)
+
+    print('Testing when unmatched lines appear but exact matching of text is not required.')
+    _run_launch_testing(
+        output_file, prepended_lines=True, appended_lines=True, interleaved_lines=True,
+        exact_match=False)
 
 
 def test_matching_regex():
     # this temporary directory and files contained in it will be deleted when the process ends.
     tempdir = tempfile.mkdtemp()
-    output_file = os.path.join(tempdir, "testfile")
-    full_output_file = output_file + ".regex"
+    output_file = os.path.join(tempdir, 'testfile')
+    full_output_file = output_file + '.regex'
     with open(full_output_file, 'w+') as f:
         f.write('this is line \d\nthis is line [a-z]')
 
-    print("Testing when regex is never matched.")
+    print('Testing when regex is never matched.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, no_output=True)
 
-    print("Testing when regex match appears exactly.")
+    print('Testing when regex match appears exactly.')
     _run_launch_testing(output_file)
 
-    print("Testing when unmatched lines appear before regex is matched.")
+    print('Testing when unmatched lines appear before regex is matched.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, prepended_lines=True)
 
-    print("Testing when unmatched lines appear after regex is matched.")
+    print('Testing when unmatched lines appear after regex is matched.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, appended_lines=True)
 
-    print("Testing when filtered lines appear before regex is matched.")
+    print('Testing when filtered lines appear before regex is matched.')
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'license')
     _run_launch_testing(output_file, prepended_lines=True, filtered_prefixes=filtered_prefixes)
 
-    print("Testing when unmatched lines appear interleaved with regex lines.")
+    print('Testing when unmatched lines appear interleaved with regex lines.')
     with assert_raises(UnmatchedOutputError):
         _run_launch_testing(output_file, interleaved_lines=True)
 
-    print("Testing when filtered lines appear interleaved with regex lines.")
+    print('Testing when filtered lines appear interleaved with regex lines.')
     filtered_prefixes = launch_testing.get_default_filtered_prefixes()
     filtered_prefixes.append(b'debug')
     _run_launch_testing(output_file, interleaved_lines=True, filtered_prefixes=filtered_prefixes)
+
+    print(
+        'Testing when unmatched lines appear before/after regex lines,'
+        'but exact matching is not required.')
+    _run_launch_testing(output_file, prepended_lines=True, appended_lines=True, exact_match=False)
+
+    print(
+        'Testing when unmatched lines appear interleaved with regex lines,'
+        'but exact matching is not required.')
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, interleaved_lines=True, exact_match=False)
 
 
 if __name__ == '__main__':
