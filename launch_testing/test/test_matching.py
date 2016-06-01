@@ -29,7 +29,7 @@ from launch_testing import create_handler, UnmatchedOutputError
 
 def _run_launch_testing(
         output_file, prepended_lines=False, appended_lines=False, interleaved_lines=False,
-        filtered_prefixes=None, no_output=False, exact_match=True):
+        filtered_prefixes=None, no_output=False, exact_match=True, exit_on_match=False):
     output_handlers = [ConsoleOutput()]
 
     launch_descriptor = LaunchDescriptor()
@@ -37,7 +37,7 @@ def _run_launch_testing(
     name = 'test_executable_0'
 
     handler = create_handler(
-        name, launch_descriptor, output_file,
+        name, launch_descriptor, output_file, exit_on_match=exit_on_match,
         filtered_prefixes=filtered_prefixes, exact_match=exact_match)
 
     assert handler, 'cannot find appropriate handler for %s' % output_file

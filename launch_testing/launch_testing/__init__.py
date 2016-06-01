@@ -43,7 +43,7 @@ class InMemoryHandler(LineOutput):
 
     def __init__(
         self, name, launch_descriptor, expected_lines, regex_match=False,
-        filtered_prefixes=None, filtered_rmw_implementation=None, exit_on_match=True,
+        filtered_prefixes=None, filtered_rmw_implementation=None, exit_on_match=False,
         exact_match=True
     ):
         super(LineOutput, self).__init__()
@@ -74,9 +74,6 @@ class InMemoryHandler(LineOutput):
         self.matched_exactly = False
 
     def on_stdout_lines(self, lines):
-        if self.matched:
-            return
-
         for line in lines.splitlines():
             # Filter out stdout that comes from underlying DDS implementation
             if any([line.startswith(prefix) for prefix in self.filtered_prefixes]):
@@ -144,7 +141,7 @@ def get_rmw_output_filter(rmw_implementation):
 
 
 def create_handler(
-    name, launch_descriptor, output_file, exit_on_match=True, filtered_prefixes=None,
+    name, launch_descriptor, output_file, exit_on_match=False, filtered_prefixes=None,
     filtered_rmw_implementation=None, exact_match=True
 ):
     literal_file = output_file + '.txt'
