@@ -62,7 +62,8 @@ class InMemoryHandler(LineOutput):
         self.expected_output = b'\n'.join(self.expected_lines) + b'\n'
         if regex_match:
             # Add a surrounding capture group
-            self.expected_output = b'(?P<launch_testing_capture>' + self.expected_output + b')'
+            self.expected_output_captured = \
+                b'(?P<launch_testing_capture>' + self.expected_output + b')'
         self.left_over_stdout = b''
         self.left_over_stderr = b''
         self.stdout_data = io.BytesIO()
@@ -90,7 +91,7 @@ class InMemoryHandler(LineOutput):
 
             # Check for regex match
             if self.regex_match:
-                self.matched = re.search(self.expected_output, received_output)
+                self.matched = re.search(self.expected_output_captured, received_output)
                 matched_group = self.matched.group('launch_testing_capture') \
                     if self.matched else None
                 self.matched_exactly = matched_group == received_output
