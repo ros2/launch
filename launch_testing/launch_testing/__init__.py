@@ -21,7 +21,7 @@ class InMemoryHandler(LineOutput):
         test.
     :param expected_lines: A list of lines to match the output literally or a regular expression
         that will only need one line to match, instead of the entire output.
-    :param regex_match: If true, treat the expected_lines as a regular expression in match
+    :param regex_match: If True, treat the expected_lines as a regular expression in match
         accordingly.
     :param filtered_prefixes: A list of byte strings representing prefixes that will cause output
         lines to be ignored if they start with one of the prefixes. By default lines starting with
@@ -30,6 +30,9 @@ class InMemoryHandler(LineOutput):
         in addition to the default/`filtered_prefixes`.
     :param exit_on_match: If True, then when its output is matched, this handler
         will terminate; otherwise it will simply keep track of the match.
+    :param exact_match: If True, the output received must exactly match the expected output, with
+        no unfiltered lines appearing. If False, the output must simply contain the expected
+        output, but unfiltered lines will be tolerated. Default value is True.
     :raises: :py:class:`UnmatchedOutputError` if :py:meth:`check` does not find that the output
         matches as expected.
     :raises: :exc:`LookupError` if the `rmw_output_filter` of the `filtered_rmw_implementation`
@@ -40,7 +43,8 @@ class InMemoryHandler(LineOutput):
 
     def __init__(
         self, name, launch_descriptor, expected_lines, regex_match=False,
-        filtered_prefixes=None, filtered_rmw_implementation=None, exit_on_match=True
+        filtered_prefixes=None, filtered_rmw_implementation=None, exit_on_match=True,
+        exact_match=True
     ):
         super(LineOutput, self).__init__()
         if filtered_prefixes is None:
@@ -62,6 +66,7 @@ class InMemoryHandler(LineOutput):
         self.stderr_data = io.BytesIO()
         self.regex_match = regex_match
         self.exit_on_match = exit_on_match
+        self.exact_match_required = exact_match
         self.matched = False
         self.matched_exactly = False
 
@@ -107,7 +112,8 @@ class InMemoryHandler(LineOutput):
 
     def check(self):
         output_lines = self.stdout_data.getvalue().splitlines()
-        if not self.matched_exactly:
+        success = self.matched_exactly or (self.matched and not self.exact_match_required)
+        if not success:
             raise UnmatchedOutputError(
                 'Received output does not match expected output.\n' +
                 'Received output:\n%r\nExpected output%s:\n%r' %
@@ -134,7 +140,7 @@ def get_rmw_output_filter(rmw_implementation):
 
 def create_handler(
     name, launch_descriptor, output_file, exit_on_match=True, filtered_prefixes=None,
-    filtered_rmw_implementation=None
+    filtered_rmw_implementation=None, exact_match=True
 ):
     literal_file = output_file + '.txt'
     if os.path.isfile(literal_file):
@@ -143,7 +149,7 @@ def create_handler(
         return InMemoryHandler(
             name, launch_descriptor, expected_output, regex_match=False,
             exit_on_match=exit_on_match, filtered_prefixes=filtered_prefixes,
-            filtered_rmw_implementation=filtered_rmw_implementation)
+            filtered_rmw_implementation=filtered_rmw_implementation, exact_match=exact_match)
     regex_file = output_file + '.regex'
     if os.path.isfile(regex_file):
         with open(regex_file, 'rb') as f:
@@ -151,7 +157,7 @@ def create_handler(
         return InMemoryHandler(
             name, launch_descriptor, expected_output, regex_match=True,
             exit_on_match=exit_on_match, filtered_prefixes=filtered_prefixes,
-            filtered_rmw_implementation=filtered_rmw_implementation)
+            filtered_rmw_implementation=filtered_rmw_implementation, exact_match=exact_match)
     py_file = output_file + '.py'
     if os.path.isfile(py_file):
         checker_module = SourceFileLoader(
