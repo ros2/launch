@@ -86,7 +86,7 @@ class InMemoryHandler(LineOutput):
 
             # Check for literal match
             if not self.regex_match:
-                self.matched = all(line in received_lines for line in self.expected_lines)
+                self.matched = self.expected_output in received_output
                 self.matched_exactly = self.expected_lines == received_lines
 
             # Check for regex match

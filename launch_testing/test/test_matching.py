@@ -116,10 +116,17 @@ def test_matching_text():
     filtered_prefixes.append(b'debug')
     _run_launch_testing(output_file, interleaved_lines=True, filtered_prefixes=filtered_prefixes)
 
-    print('Testing when unmatched lines appear but exact matching of text is not required.')
+    print(
+        'Testing when unmatched lines appear before/after text, '
+        'but exact matching is not required.')
     _run_launch_testing(
-        output_file, prepended_lines=True, appended_lines=True, interleaved_lines=True,
-        exact_match=False)
+        output_file, prepended_lines=True, appended_lines=True, exact_match=False)
+
+    print(
+        'Testing when unmatched lines appear interleaved with regex lines,'
+        'but exact matching is not required.')
+    with assert_raises(UnmatchedOutputError):
+        _run_launch_testing(output_file, interleaved_lines=True, exact_match=False)
 
 
 def test_matching_regex():
