@@ -46,7 +46,7 @@ def _run_launch_testing(
     output_handlers.append(handler)
 
     executable_command = [
-        sys.executable,
+        sys.executable, '-u',
         os.path.join(os.path.abspath(os.path.dirname(__file__)), 'matching.py')]
 
     if no_output:

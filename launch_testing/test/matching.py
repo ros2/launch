@@ -16,6 +16,7 @@
 
 import argparse
 import sys
+import time
 
 
 def main():
@@ -30,17 +31,22 @@ def main():
     if not args.no_output:
         if args.prepended_lines:
             print('license output', file=sys.stdout)
+            time.sleep(0.01)
 
         for i in range(args.reprints + 1):
             print('this is line 1', file=sys.stdout)
+            time.sleep(0.01)
 
             if args.interleaved_lines:
                 print('debug output', file=sys.stdout)
+                time.sleep(0.01)
 
             print('this is line b', file=sys.stdout)
+            time.sleep(0.01)
 
         if args.appended_lines:
             print('extra printout', file=sys.stdout)
+            time.sleep(0.01)
 
     return 0
 
