@@ -196,6 +196,16 @@ def test_matching_regex():
     _run_launch_testing(output_file)
     _run_launch_testing(output_file, reprints=1)
 
+    # Test regex which has matches for defined groups
+    output_file = os.path.join(tempdir, 'testfile2')
+    full_output_file = output_file + '.regex'
+    with open(full_output_file, 'w+') as f:
+        f.write('this is (\w+) \d\nthis is \\1 [a-z]\n')
+
+    print('Testing when the regex has groups.')
+    _run_launch_testing(output_file)
+
+
 if __name__ == '__main__':
     test_matching_regex()
     test_matching_text()
