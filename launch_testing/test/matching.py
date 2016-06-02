@@ -25,7 +25,9 @@ def main():
     parser.add_argument('--prepended-lines', action='store_true')
     parser.add_argument('--appended-lines', action='store_true')
     parser.add_argument('--interleaved-lines', action='store_true')
-    parser.add_argument('--reprints', action='store', type=int, default=0)
+    parser.add_argument(
+        '--reprints', action='store', type=int, default=0,
+        help='number of times to reprint core lines (-1 for indefinitely)')
     args = parser.parse_args()
 
     if not args.no_output:
@@ -33,9 +35,11 @@ def main():
             print('license output', file=sys.stdout)
             time.sleep(0.01)
 
-        for i in range(args.reprints + 1):
+        i = 0
+        while i < args.reprints + 1 or args.reprints == -1:
             print('this is line 1', file=sys.stdout)
             time.sleep(0.01)
+            i += 1
 
             if args.interleaved_lines:
                 print('debug output', file=sys.stdout)
