@@ -43,7 +43,7 @@ class InMemoryHandler(LineOutput):
 
     def __init__(
         self, name, launch_descriptor, expected_lines, regex_match=False,
-        filtered_prefixes=None, filtered_rmw_implementation=None, exit_on_match=False,
+        filtered_prefixes=None, filtered_rmw_implementation=None, exit_on_match=True,
         exact_match=True
     ):
         super(LineOutput, self).__init__()
@@ -149,7 +149,7 @@ def get_rmw_output_filter(rmw_implementation):
 
 
 def create_handler(
-    name, launch_descriptor, output_file, exit_on_match=False, filtered_prefixes=None,
+    name, launch_descriptor, output_file, exit_on_match=True, filtered_prefixes=None,
     filtered_rmw_implementation=None, exact_match=True
 ):
     literal_file = output_file + '.txt'
