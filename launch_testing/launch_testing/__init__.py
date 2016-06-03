@@ -64,10 +64,11 @@ class InMemoryHandler(LineOutput):
             # Add a surrounding capture group
             self.expected_output_captured = \
                 b'(?P<launch_testing_capture>' + self.expected_output + b')'
-            # Increment any group IDs in the original regex to compensate for the surrounding one
-            incrementer = lambda matchobj: '\\' + str(int(matchobj.group(1)) + 1)
+            # Increment any group IDs in the original regex to compensate for the surrounding group
             self.expected_output_captured = re.sub(
-                (r'\\(\d)'), incrementer, self.expected_output_captured.decode()).encode()
+                b'\\\(\d)',  # TODO(dhood): only match single backslashes
+                lambda matchobj: b'\\' + str(int(matchobj.group(1)) + 1).encode(),
+                self.expected_output_captured)
         else:
             self.expected_output = b'\n'.join(self.expected_lines)
             self.expected_output += b'\n'
