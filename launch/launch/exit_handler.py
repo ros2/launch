@@ -23,7 +23,7 @@ class ExitHandlerContext(object):
         self.task_state = task_state
 
 
-def default_exit_handler(context, ignore_returncode=False):
+def default_exit_handler(context, ignore_returncode=False, trigger_teardown=True):
     """
     Trigger teardown of launch.
 
@@ -32,7 +32,7 @@ def default_exit_handler(context, ignore_returncode=False):
     @param ignore_returncode: If True, then ignore process return code.
     """
     # trigger tear down if not already tearing down
-    if not context.launch_state.teardown:
+    if not context.launch_state.teardown and trigger_teardown:
         context.launch_state.teardown = True
 
     # set launch return code if not already set
@@ -66,6 +66,7 @@ def primary_exit_handler(context):
     Trigger teardown of launch and if teardown already in place set non-zero return code.
 
     Same as default exit handler but if teardown was triggered by another task
+
     ensure that the returncode is non-zero.
     """
     if context.launch_state.teardown:
@@ -88,7 +89,7 @@ def primary_ignore_returncode_exit_handler(context):
     default_exit_handler(context, ignore_returncode=True)
 
 
-def ignore_signal_exit_handler(context):
+def ignore_signal_exit_handler(context, trigger_teardown=True):
     """
     Succeed if the process received a shutdown signal on teardown.
 
@@ -99,4 +100,14 @@ def ignore_signal_exit_handler(context):
         if context.task_state.signals_received:
             context.task_state.returncode = 0
 
-    default_exit_handler(context)
+    default_exit_handler(context, trigger_teardown=trigger_teardown)
+
+def ignore_signal_exit_handler_no_teardown(context):
+    """
+    Succeed if the process received a shutdown signal on teardown.
+
+    Ignores return code if launch sent a SIGINT or SIGKILL to the task.
+
+    Do not trigger teardown
+    """
+    ignore_signal_exit_handler(context, trigger_teardown=False)
