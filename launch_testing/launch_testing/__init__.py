@@ -124,7 +124,8 @@ class InMemoryHandler(LineOutput):
 
     def check(self):
         output_lines = self.stdout_data.getvalue().splitlines()
-        success = self.matched_exactly or (self.matched and not self.exact_match_required)
+        success = self.matched_exactly or (self.matched and not self.exact_match_required) or \
+            not output_lines and not self.expected_lines
         if not success:
             raise UnmatchedOutputError(
                 'Received output does not match expected output.\n' +

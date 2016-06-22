@@ -134,6 +134,14 @@ def test_matching_text():
     print('Testing exiting upon text match.')
     _run_launch_testing(output_file, reprints=-1, exit_on_match=True)
 
+    output_file = os.path.join(tempdir, 'testfile_empty')
+    full_output_file = output_file + '.txt'
+    with open(full_output_file, 'w+') as f:
+        f.write('')
+
+    print('Testing when expected text output is nothing.')
+    _run_launch_testing(output_file, no_output=True)
+
 
 def test_matching_regex():
     # this temporary directory and files contained in it will be deleted when the process ends.
@@ -204,6 +212,14 @@ def test_matching_regex():
 
     print('Testing when the regex has groups.')
     _run_launch_testing(output_file)
+
+    output_file = os.path.join(tempdir, 'testfile_empty')
+    full_output_file = output_file + '.regex'
+    with open(full_output_file, 'w+') as f:
+        f.write('')
+
+    print('Testing when expected regex output is nothing.')
+    _run_launch_testing(output_file, no_output=True)
 
 
 if __name__ == '__main__':
