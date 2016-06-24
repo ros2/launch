@@ -2,6 +2,7 @@ from importlib.machinery import SourceFileLoader
 import io
 import os
 import re
+import signal
 
 import ament_index_python
 from launch.output_handler import LineOutput
@@ -83,7 +84,10 @@ class InMemoryHandler(LineOutput):
             # We matched and we're in charge; shut myself down
             for td in self.launch_descriptor.task_descriptors:
                 if td.name == self.name:
-                    td.terminate()
+                    if os.name != 'nt':
+                        td.send_signal(signal.SIGINT)
+                    else:
+                        td.terminate()
                     return
 
     def on_stderr_lines(self, lines):
