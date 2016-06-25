@@ -84,10 +84,8 @@ class InMemoryHandler(LineOutput):
             # We matched and we're in charge; shut myself down
             for td in self.launch_descriptor.task_descriptors:
                 if td.name == self.name:
-                    if os.name != 'nt':
-                        td.send_signal(signal.SIGINT)
-                    else:
-                        td.terminate()
+                    td.terminate()
+                    td.protocol.exit_future.set_result(True)
                     return
 
     def on_stderr_lines(self, lines):

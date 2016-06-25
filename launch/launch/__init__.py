@@ -16,6 +16,9 @@ from launch.output_handler import CompositeOutputHandler
 from launch.output_handler import ConsoleOutput
 from launch.exit_handler import default_exit_handler
 
+import os
+import signal
+
 
 class LaunchDescriptor(object):
 
@@ -76,7 +79,10 @@ class ProcessDescriptor(TaskDescriptor):
     def send_signal(self, signal):
         if self.transport:
             self.transport.send_signal(signal)
+            self.task_state.signals_received.append(signal)
 
     def terminate(self):
-        if self.transport:
+        if os.name != 'nt':
+            self.send_signal(signal.SIGINT)
+        elif self.transport:
             self.transport.terminate()
