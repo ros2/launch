@@ -78,8 +78,8 @@ class ProcessDescriptor(TaskDescriptor):
 
     def send_signal(self, signal):
         if self.transport:
-            self.transport.send_signal(signal)
             self.task_state.signals_received.append(signal)
+            self.transport.send_signal(signal)
 
     def terminate(self):
         if os.name != 'nt':
