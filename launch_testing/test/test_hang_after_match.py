@@ -16,13 +16,13 @@ import os
 import sys
 import tempfile
 from launch import LaunchDescriptor
-from launch.exit_handler import ignore_exit_handler
+from launch.exit_handler import ignore_signal_exit_handler
 from launch.launcher import DefaultLauncher
 from launch.output_handler import ConsoleOutput
 from launch_testing import create_handler
 
 
-def test_matching():
+def test_hang_after_match():
     output_handlers = []
 
     launch_descriptor = LaunchDescriptor()
@@ -36,7 +36,7 @@ def test_matching():
 
     name = "test_executable_0"
 
-    handler = create_handler(name, launch_descriptor, output_file)
+    handler = create_handler(name, launch_descriptor, output_file, exit_on_match=True)
 
     assert handler, 'Cannot find appropriate handler for %s' % output_file
 
@@ -44,12 +44,12 @@ def test_matching():
 
     executable_command = [
         sys.executable,
-        os.path.join(os.path.abspath(os.path.dirname(__file__)), 'matching.py')]
+        os.path.join(os.path.abspath(os.path.dirname(__file__)), 'hang_after_match.py')]
 
     launch_descriptor.add_process(
         cmd=executable_command,
         name=name,
-        exit_handler=ignore_exit_handler,
+        exit_handler=ignore_signal_exit_handler,
         output_handlers=[ConsoleOutput(), handler])
 
     launcher = DefaultLauncher()
@@ -64,4 +64,4 @@ def test_matching():
 
 
 if __name__ == '__main__':
-    test_matching()
+    test_hang_after_match()
