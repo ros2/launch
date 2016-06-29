@@ -2,7 +2,6 @@ from importlib.machinery import SourceFileLoader
 import io
 import os
 import re
-import signal
 
 import ament_index_python
 from launch.output_handler import LineOutput
