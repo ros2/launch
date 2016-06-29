@@ -19,30 +19,15 @@ import sys
 import time
 
 
-# from http://stackoverflow.com/questions/842557
-class IgnoreKeyboardInterrupt(object):
-    def __enter__(self):
-        self.signal_received = False
-        self.old_handler = signal.getsignal(signal.SIGINT)
-        signal.signal(signal.SIGINT, self.handler)
-
-    def handler(self, sig, frame):
-        self.signal_received = (sig, frame)
-
-    def __exit__(self, type, value, traceback):
-        signal.signal(signal.SIGINT, self.old_handler)
-        if self.signal_received:
-            self.old_handler(*self.signal_received)
-
-
 def main():
     print("this is line 1", file=sys.stdout)
     print("this is line b", file=sys.stdout)
     sys.stdout.flush()
 
-    with IgnoreKeyboardInterrupt():
-        while True:
-            pass
+    signal.signal(signal.SIGINT, lambda signum, frame: print('ignoring SIGINT'))
+
+    while True:
+        pass
 
     return 0
 
