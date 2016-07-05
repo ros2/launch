@@ -342,6 +342,7 @@ class DefaultLauncher(object):
         transport, protocol = yield from loop.subprocess_exec(
             lambda: SubprocessProtocol(p.output_handler),
             *p.cmd,
+            env=p.env,
             **kwargs)
         p.transport = transport
         p.protocol = protocol
