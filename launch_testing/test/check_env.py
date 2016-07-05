@@ -16,5 +16,5 @@ import os
 
 
 if __name__ == '__main__':
-    assert os.environ.get('testenv2', 'Not Set') == 'Not Set'
+    assert 'testenv2' not in os.environ
     assert os.environ.get('testenv1', 'Not Set') == 'testval1'
