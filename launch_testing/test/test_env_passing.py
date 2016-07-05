@@ -1,3 +1,4 @@
+import copy
 import os
 import sys
 
@@ -9,9 +10,9 @@ from launch.exit_handler import primary_exit_handler
 def test_env():
     ld = LaunchDescriptor()
 
-    sub_env = os.environ
+    sub_env = copy.deepcopy(os.environ)
     sub_env['testenv1'] = 'testval1'
-#    os.environ['testenv2'] = 'testval2'
+    os.environ['testenv2'] = 'testval2'
     ld.add_process(
         cmd=[
             sys.executable,
