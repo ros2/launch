@@ -17,9 +17,7 @@ def test_env():
             sys.executable,
             os.path.join(
                 os.path.abspath(
-                    os.path.dirname(
-                        os.path.dirname(
-                            os.path.dirname(__file__)))),
+                    os.path.dirname(__file__)),
                 'check_env.py')],
         name='test_env',
         env=sub_env,
