@@ -338,6 +338,8 @@ class DefaultLauncher(object):
         kwargs = {}
         if p.output_handler.support_stderr2stdout():
             kwargs['stderr'] = asyncio.subprocess.STDOUT
+        if p.env is not None:
+            kwargs['env'] = p.env
         loop = asyncio.get_event_loop()
         transport, protocol = yield from loop.subprocess_exec(
             lambda: SubprocessProtocol(p.output_handler),
