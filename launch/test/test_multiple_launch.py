@@ -27,9 +27,8 @@ def test_multiple_launch():
 def launch(index):
     default_launcher = DefaultLauncher()
 
-    @asyncio.coroutine
-    def coroutine():
-        yield from asyncio.sleep(1)
+    async def coroutine():
+        await asyncio.sleep(1)
         print('message %d' % index, file=sys.stderr)
 
     launch_descriptor = LaunchDescriptor()
