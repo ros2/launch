@@ -27,12 +27,14 @@ from launch.task import TaskState
 
 
 class _TaskException(Exception):
+
     def __init__(self, task_descriptor_index, exception):
         self.task_descriptor_index = task_descriptor_index
         self.exception = exception
 
 
 class DefaultLauncher(object):
+
     def __init__(self, name_prefix='', sigint_timeout=10):
         self.name_prefix = name_prefix
         self.sigint_timeout = sigint_timeout
@@ -387,6 +389,7 @@ class DefaultLauncher(object):
 
 
 class AsynchronousLauncher(threading.Thread):
+
     def __init__(self, launcher):
         super(AsynchronousLauncher, self).__init__()
         self.launcher = launcher
