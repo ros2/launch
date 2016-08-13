@@ -29,22 +29,20 @@ def test_launch_with_coroutine():
     launch_descriptor = LaunchDescriptor()
     load_launch_file(launch_file, launch_descriptor, {})
 
-    @asyncio.coroutine
-    def coroutine():
-        yield from asyncio.sleep(1)
+    async def coroutine():
+        await asyncio.sleep(1)
         print('one', file=sys.stderr)
-        yield from asyncio.sleep(1)
+        await asyncio.sleep(1)
         print('two', file=sys.stderr)
-        yield from asyncio.sleep(1)
+        await asyncio.sleep(1)
         print('three', file=sys.stderr)
 
-    @asyncio.coroutine
-    def coroutine2():
-        yield from asyncio.sleep(1)
+    async def coroutine2():
+        await asyncio.sleep(1)
         print('one mississippi', file=sys.stderr)
-        yield from asyncio.sleep(1)
+        await asyncio.sleep(1)
         print('two mississippi', file=sys.stderr)
-        yield from asyncio.sleep(1)
+        await asyncio.sleep(1)
         print('three mississippi', file=sys.stderr)
 
     launch_descriptor.add_coroutine(

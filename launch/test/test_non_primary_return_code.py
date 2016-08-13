@@ -29,17 +29,15 @@ def test_non_primary_return_code():
 
     default_launcher = DefaultLauncher()
 
-    @asyncio.coroutine
-    def coroutine1():
-        yield from asyncio.sleep(1)
+    async def coroutine1():
+        await asyncio.sleep(1)
         print('one', file=sys.stderr)
-        yield from asyncio.sleep(1)
+        await asyncio.sleep(1)
         print('two', file=sys.stderr)
         return 3
 
-    @asyncio.coroutine
-    def coroutine2():
-        yield from asyncio.sleep(1)
+    async def coroutine2():
+        await asyncio.sleep(1)
         print('one mississippi', file=sys.stderr)
         return 0
 

@@ -102,8 +102,7 @@ class DefaultLauncher(object):
 
         return returncode
 
-    @asyncio.coroutine
-    def _run(self):
+    async def _run(self):
         self.interrupt_future = asyncio.Future()
         self.launch_complete.clear()
         self.processes_spawned.clear()
@@ -120,12 +119,12 @@ class DefaultLauncher(object):
 
             if 'protocol' in dir(p):
                 try:
-                    yield from self._spawn_process(index)
+                    await self._spawn_process(index)
                 except Exception as e:
                     raise _TaskException(index, e)
                 all_futures[p.protocol.exit_future] = index
             else:
-                future = asyncio.async(p.coroutine)
+                future = asyncio.ensure_future(p.coroutine)
                 all_futures[future] = index
 
         # the processes are not guaranteed to be running yet, but at least you
@@ -146,7 +145,7 @@ class DefaultLauncher(object):
             # wake up frequently and check if any subprocess has exited
             if not isinstance(threading.current_thread(), threading._MainThread):
                 kwargs['timeout'] = 0.5
-            yield from asyncio.wait(list(all_futures.keys()) + [self.interrupt_future], **kwargs)
+            await asyncio.wait(list(all_futures.keys()) + [self.interrupt_future], **kwargs)
 
             # if asynchronously interrupted, stop looping and shutdown
             if self.interrupt_future.done():
@@ -201,7 +200,7 @@ class DefaultLauncher(object):
                 p = self.task_descriptors[index]
                 if 'protocol' in dir(p):
                     p.task_state.restart_count += 1
-                    yield from self._spawn_process(index)
+                    await self._spawn_process(index)
                     all_futures[p.protocol.exit_future] = index
         # end while True
 
@@ -224,7 +223,7 @@ class DefaultLauncher(object):
 
                 if isinstance(threading.current_thread(), threading._MainThread):
                     # if in the main thread, just wait
-                    yield from asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
+                    await asyncio.wait(all_futures.keys(), timeout=self.sigint_timeout)
                 else:
                     # if not in the main thread, wake up periodically to check SIGINT status
                     start = time.time()
@@ -235,7 +234,7 @@ class DefaultLauncher(object):
                         if not [fut for fut in all_futures.keys() if not fut.done()]:
                             # if all of the futures are done, stop waiting
                             break
-                        yield from asyncio.wait(all_futures.keys(), timeout=short_timeout)
+                        await asyncio.wait(all_futures.keys(), timeout=short_timeout)
 
             # cancel coroutines
             for future, index in all_futures.items():
@@ -267,7 +266,7 @@ class DefaultLauncher(object):
                 if not isinstance(threading.current_thread(), threading._MainThread):
                     self.check_for_exited_subprocesses(all_futures)
                 # wait for futures to be complete
-                _, pending = yield from asyncio.wait(all_futures.keys(), **kwargs)
+                _, pending = await asyncio.wait(all_futures.keys(), **kwargs)
 
             # close all remaining processes
             for index in all_futures.values():
@@ -332,7 +331,7 @@ class DefaultLauncher(object):
             # trigger asyncio internal process exit callback
             p.transport._process_exited(p.returncode)
 
-    def _spawn_process(self, index):
+    async def _spawn_process(self, index):
         p = self.task_descriptors[index]
         p.output_handler.process_init()
         kwargs = {}
@@ -341,7 +340,7 @@ class DefaultLauncher(object):
         if p.env is not None:
             kwargs['env'] = p.env
         loop = asyncio.get_event_loop()
-        transport, protocol = yield from loop.subprocess_exec(
+        transport, protocol = await loop.subprocess_exec(
             lambda: SubprocessProtocol(p.output_handler),
             *p.cmd,
             **kwargs)
