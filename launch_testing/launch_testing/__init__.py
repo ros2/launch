@@ -12,7 +12,8 @@ class UnmatchedOutputError(BaseException):
 
 
 class InMemoryHandler(LineOutput):
-    """Aggregate data from standard output.
+    """
+    Aggregate data from standard output.
 
     :param name: Name of the process being tested.
     :param launch_descriptor: :py:obj:`LaunchDescriptor` object that contains the processes in the
