@@ -35,6 +35,10 @@ def default_exit_handler(context, ignore_returncode=False):
     if not context.launch_state.teardown:
         context.launch_state.teardown = True
 
+    __default_exit_handler_helper(context)
+
+
+def __default_exit_handler_helper(context, ignore_returncode=False):
     # set launch return code if not already set
     if (
         not context.launch_state.returncode and
@@ -100,3 +104,14 @@ def ignore_signal_exit_handler(context):
             context.task_state.returncode = 0
 
     default_exit_handler(context)
+
+
+def check_error_code_on_close(context):
+    """
+    Succeed if the process shuts down only if the error code is 0.
+    """
+
+    if int(context.task_state.returncode):
+        context.launch_state.teardown = True
+
+    __default_exit_handler_helper(context)
