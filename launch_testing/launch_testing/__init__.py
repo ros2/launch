@@ -85,6 +85,7 @@ class InMemoryHandler(LineOutput):
             for td in self.launch_descriptor.task_descriptors:
                 if td.name == self.name:
                     td.terminate()
+                    td.protocol.exit_future.set_result(True)
                     return
 
     def on_stderr_lines(self, lines):
