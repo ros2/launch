@@ -108,7 +108,7 @@ def ignore_signal_exit_handler(context):
 
 def check_error_code_on_close(context):
     """
-    Succeed if the process shuts down only if the error code is 0.
+    Trigger teardown of launch, if the process returns a non-zero error code.
     """
 
     if int(context.task_state.returncode):
