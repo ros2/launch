@@ -118,7 +118,7 @@ def get_rmw_output_filter(rmw_implementation):
     if not prefix_with_resource:
         return []
 
-    rmw_output_filter = ament_index_python.get_resource('rmw_output_filter', rmw_implementation)
+    rmw_output_filter, _ = ament_index_python.get_resource('rmw_output_filter', rmw_implementation)
     additional_filtered_prefixes = [
         str.encode(l) for l in rmw_output_filter.splitlines()]
     return additional_filtered_prefixes
