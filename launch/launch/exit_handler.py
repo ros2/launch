@@ -100,3 +100,22 @@ def ignore_signal_exit_handler(context):
             context.task_state.returncode = 0
 
     default_exit_handler(context)
+
+
+def exit_on_error_exit_handler(context):
+    """
+    If the return code indicates an error trigger a tear down.
+
+    If the return code is zero continue the other tasks.
+    """
+    try:
+        rc = int(context.task_state.returncode)
+    except (TypeError, ValueError):
+        rc = 1 if bool(context.task_state.returncode) else 0
+    if rc:
+        # trigger tear down if not already tearing down
+        if not context.launch_state.teardown:
+            context.launch_state.teardown = True
+        # set return code if not already set
+        if not context.launch_state.returncode:
+            context.launch_state.returncode = rc
