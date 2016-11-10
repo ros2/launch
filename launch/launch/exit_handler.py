@@ -107,7 +107,14 @@ def exit_on_error_exit_handler(context):
     If the return code indicates an error trigger a tear down.
 
     If the return code is zero continue the other tasks.
+    On Windows the task return code is ignored if launch sent a SIGINT or
+    SIGKILL to the task.
     """
+    if context.launch_state.teardown and context.task_state.signals_received \
+            and os.name == 'nt':
+        context.task_state.returncode = 0
+        return
+
     try:
         rc = int(context.task_state.returncode)
     except (TypeError, ValueError):
