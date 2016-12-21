@@ -87,12 +87,17 @@ class DefaultLauncher(object):
             asyncio.set_event_loop(self.loop)
         loop = self.loop
         try:
-            returncode = loop.run_until_complete(self._run())
+            generator = self._run()
+            returncode = loop.run_until_complete(generator)
         except _TaskException as e:
             print(
                 'Failed to execute command: ' +
                 ' '.join(self.task_descriptors[e.task_descriptor_index].cmd), file=sys.stderr)
             raise e.exception
+        except KeyboardInterrupt:
+            self.interrupt_launch_non_threadsafe()
+            loop.run_forever()
+            returncode = 1
         loop.close()
         with self.loop_lock:
             self.loop = None
