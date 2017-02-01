@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from launch.exit_handler import default_exit_handler
 from launch.output_handler import CompositeOutputHandler
 from launch.output_handler import ConsoleOutput
-from launch.exit_handler import default_exit_handler
 
 
 class LaunchDescriptor(object):

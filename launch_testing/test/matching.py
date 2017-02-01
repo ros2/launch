@@ -22,5 +22,6 @@ def main():
     print("this is line b", file=sys.stdout)
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())
