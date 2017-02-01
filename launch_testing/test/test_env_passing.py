@@ -17,8 +17,8 @@ import os
 import sys
 
 from launch import LaunchDescriptor
-from launch.launcher import DefaultLauncher
 from launch.exit_handler import primary_exit_handler
+from launch.launcher import DefaultLauncher
 
 
 def test_env():

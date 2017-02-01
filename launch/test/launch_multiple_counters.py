@@ -20,8 +20,8 @@ from launch import LaunchDescriptor
 from launch.exit_handler import ignore_exit_handler
 from launch.exit_handler import restart_exit_handler
 from launch.loader import load_launch_file
-from launch.output_handler import FileOutput
 from launch.output_handler import ConsoleOutput
+from launch.output_handler import FileOutput
 
 
 def launch(launch_descriptor, argv):
