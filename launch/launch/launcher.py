@@ -391,21 +391,3 @@ class DefaultLauncher(object):
                 print('(%s)' % name, '    ' + line.strip(), file=sys.stderr)
             print('(%s) %s: %s' % (name, type(exception).__name__, str(exception)),
                   file=sys.stderr)
-
-
-class AsynchronousLauncher(threading.Thread):
-
-    def __init__(self, launcher):
-        super(AsynchronousLauncher, self).__init__()
-        self.launcher = launcher
-
-    def terminate(self):
-        self.launcher.interrupt_launch()
-
-    def run(self):
-        if os.name != 'nt' and not isinstance(threading.current_thread(), threading._MainThread):
-            # explicitly create event loop when not running in main thread
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-
-        self.launcher.launch()
