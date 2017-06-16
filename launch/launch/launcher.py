@@ -125,8 +125,11 @@ class DefaultLauncher(object):
             if 'protocol' in dir(p):
                 try:
                     await self._spawn_process(index)
-                except Exception as e:
-                    raise _TaskException(index, e)
+                except Exception:
+                    # clean up already spawned processes
+                    await self._terminate_processes(launch_state, all_futures)
+                    self.launch_complete.set()
+                    return 1
                 all_futures[p.protocol.exit_future] = index
             else:
                 future = asyncio.ensure_future(p.coroutine)
@@ -209,6 +212,14 @@ class DefaultLauncher(object):
                     all_futures[p.protocol.exit_future] = index
         # end while True
 
+        await self._terminate_processes(launch_state, all_futures)
+
+        if launch_state.returncode is None:
+            launch_state.returncode = 0
+        self.launch_complete.set()
+        return launch_state.returncode
+
+    async def _terminate_processes(self, launch_state, all_futures):
         # terminate all remaining processes
         if all_futures:
 
@@ -243,6 +254,7 @@ class DefaultLauncher(object):
 
             # cancel coroutines
             for future, index in all_futures.items():
+                p = self.task_descriptors[index]
                 if 'coroutine' in dir(p):
                     if not future.done():
                         self._process_message(p, 'cancel coroutine')
@@ -301,11 +313,6 @@ class DefaultLauncher(object):
                 context = ExitHandlerContext(launch_state, p.task_state)
                 p.exit_handler(context)
 
-        if launch_state.returncode is None:
-            launch_state.returncode = 0
-        self.launch_complete.set()
-        return launch_state.returncode
-
     def check_for_exited_subprocesses(self, all_futures):
         for index, p in enumerate(self.task_descriptors):
             # only consider not yet done tasks
@@ -345,10 +352,15 @@ class DefaultLauncher(object):
         if p.env is not None:
             kwargs['env'] = p.env
         loop = asyncio.get_event_loop()
-        transport, protocol = await loop.subprocess_exec(
-            lambda: SubprocessProtocol(p.output_handler),
-            *p.cmd,
-            **kwargs)
+        try:
+            transport, protocol = await loop.subprocess_exec(
+                lambda: SubprocessProtocol(p.output_handler),
+                *p.cmd,
+                **kwargs)
+        except Exception as e:
+            self._process_message(
+                p, 'Failed to spawn command %s: %s' % (p.cmd, e))
+            raise
         p.transport = transport
         p.protocol = protocol
 
