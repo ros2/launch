@@ -254,6 +254,7 @@ class DefaultLauncher(object):
 
             # cancel coroutines
             for future, index in all_futures.items():
+                p = self.task_descriptors[index]
                 if 'coroutine' in dir(p):
                     if not future.done():
                         self._process_message(p, 'cancel coroutine')
