@@ -25,15 +25,6 @@ def file_exists(filename):
     return os.path.exists(filename) and os.path.isfile(filename)
 
 
-def get_launch_arg(arg, separator=":="):
-    # Split the arg into a key value pair
-    parts = arg.split(separator)
-    if len(parts) != 2:
-        return None
-
-    return tuple(parts)
-
-
 def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(
         description='Launch the processes specified in a launch file.')
@@ -49,57 +40,31 @@ def main(argv=sys.argv[1:]):
         help='An argument to the launch file (e.g., arg_name:=value).')
     args = parser.parse_args(argv)
 
-    launch_files = []
-    launch_args = []
-
-    # Validate the list of arguments
+    # Get the list of launch files passed on the command line
     # NOTE: since both the launch files and launch arguments are consecutive
     # lists of arguments, argparse will put all arguments into the launch_file
     # list, and the arg list will be empty. This is because the '+' list is
     # greedy and consumes the remaining arguments. Therefore the arguments
     # need to be validated afterward
+    launch_files = []
     for arg in args.launch_file:
-        if len(launch_files) == 0:
-            # Found no launch files yet, therefore this must be a launch file
-            if file_exists(arg):
-                launch_files.append(arg)
-            else:
-                print("ERROR: '%s' is not a valid launch file" % arg)
-                parser.print_help()
-                sys.exit(2)
+        # Store consecutive existing files and stop once a
+        # non-existing file is found
+        if file_exists(arg):
+            launch_files.append(arg)
         else:
-            # Found at least one launch file before this, need to know
-            # if arguments have been found yet
-            arg_pair = get_launch_arg(arg)
-            if len(launch_args) > 0:
-                # Found a previous launch argument, therefore
-                # this must also be a launch argument
-                if arg_pair is None:
-                    print("ERROR: '%s' is not a valid launch argument" % arg)
-                    parser.print_help()
-                    sys.exit(2)
-                else:
-                    launch_args.append(arg_pair)
-            else:
-                # Found no arguments yet, so the argument can
-                # be either a launch file, or a launch argument
-                if arg_pair is None:
-                    # Must be a file
-                    if file_exists(arg):
-                        launch_files.append(arg)
-                    else:
-                        print("ERROR: '%s' is not a valid launch file or argument" % arg)
-                        parser.print_help()
-                        sys.exit(2)
-                else:
-                    launch_args.append(arg_pair)
+            break
 
-    arguments = dict(launch_args)
+    # Ensure that at least one existing launch file was given
+    if len(launch_files) == 0:
+        sys.stderr.write('error: you must pass at least one valid launch file\n')
+        parser.print_help()
+        sys.exit(2)
 
     launcher = DefaultLauncher()
     for launch_file in launch_files:
         launch_descriptor = LaunchDescriptor()
-        load_launch_file(launch_file, launch_descriptor, arguments)
+        load_launch_file(launch_file, launch_descriptor, argv)
         launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
     return rc
