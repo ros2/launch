@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+
+# Copyright 2017 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import sys
 import tempfile
@@ -8,6 +24,7 @@ from launch.exit_handler import primary_ignore_returncode_exit_handler
 from launch.launcher import DefaultLauncher
 from launch.output_handler import ConsoleOutput
 from launch_testing import create_handler
+from launch_testing import get_default_filtered_prefixes
 
 
 def setup():
@@ -41,11 +58,16 @@ def test_executable():
         else:
             exit_handler = ignore_exit_handler
             exit_on_match = False
-            exact_match = False  # TODO(dhood): finer ignoring of SIGINT
+            exact_match = True
 
+        filtered_prefixes = get_default_filtered_prefixes()
+        filtered_prefixes.append(
+            b'signal SIGINT')
         handler = create_handler(
             name, launch_descriptor, output_file, exact_match=exact_match,
-            exit_on_match=exit_on_match)
+            exit_on_match=exit_on_match,
+            filtered_prefixes=filtered_prefixes,
+        )
         assert handler, 'Cannot find appropriate handler for %s' % output_file
         output_handlers.append(handler)
         launch_descriptor.add_process(
