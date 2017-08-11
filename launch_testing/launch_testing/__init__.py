@@ -23,11 +23,13 @@ class InMemoryHandler(LineOutput):
         that will only need one line to match, instead of the entire output.
     :param regex_match: If true, treat the expected_lines as a regular expression in match
         accordingly.
+    :param filtered_prefixes: A list of byte strings representing prefixes that will cause output
+        lines to be ignored if they start with one of the prefixes. By default lines starting with
+        the process ID (`b'pid'`) and return code (`b'rc'`) will be ignored.
     :param filtered_patterns: A list of byte strings representing regexes that will cause output
-        lines to be ignored if they completely match one of the regexes. By default lines starting
-        with the process ID (`b'pid'`) and return code (`b'rc'`) will be ignored.
+        lines to be ignored if they completely match one of the regexes.
     :param filtered_rmw_implementation: RMW implementation for which the output will be ignored
-        in addition to the default/`filtered_patterns`.
+        in addition to the `filtered_prefixes`/`filtered_patterns`.
     :param exit_on_match: If True, then when its output is matched, this handler
         will terminate; otherwise it will simply keep track of the match.
     :raises: :py:class:`UnmatchedOutputError` if :py:meth:`check` does not find that the output
@@ -40,9 +42,14 @@ class InMemoryHandler(LineOutput):
 
     def __init__(
         self, name, launch_descriptor, expected_lines, regex_match=False,
-        filtered_patterns=None, filtered_rmw_implementation=None, exit_on_match=True
+        filtered_prefixes=None, filtered_patterns=None, filtered_rmw_implementation=None,
+        exit_on_match=True,
     ):
         super(LineOutput, self).__init__()
+        if filtered_prefixes is None:
+            self.filtered_prefixes = get_default_filtered_prefixes()
+        else:
+            self.filtered_prefixes = filtered_prefixes
         if filtered_patterns is None:
             self.filtered_patterns = get_default_filtered_patterns()
         else:
@@ -70,8 +77,10 @@ class InMemoryHandler(LineOutput):
 
         for line in lines.splitlines():
             # Filter out stdout that comes from underlying DDS implementation
-            # TODO (dhood): support matching filters across multiple stdout lines.
+            # Note: we do not currently support matching filters across multiple stdout lines.
             if any(re.fullmatch(pattern, line) for pattern in self.filtered_patterns):
+                continue
+            if any(line.startswith(prefix) for prefix in self.filtered_prefixes):
                 continue
             self.stdout_data.write(line + b'\n')
             if not self.regex_match and not self.matched:
@@ -107,10 +116,14 @@ class InMemoryHandler(LineOutput):
                 (output_lines, self.expected_lines))
 
 
-def get_default_filtered_patterns():
+def get_default_filtered_prefixes():
     return [
-        b'pid.*$', b'rc.*$',
+        b'pid', b'rc',
     ]
+
+
+def get_default_filtered_patterns():
+    return []
 
 
 def get_rmw_output_filter(rmw_implementation):
@@ -127,8 +140,8 @@ def get_rmw_output_filter(rmw_implementation):
 
 
 def create_handler(
-    name, launch_descriptor, output_file, exit_on_match=True, filtered_patterns=None,
-    filtered_rmw_implementation=None
+    name, launch_descriptor, output_file, exit_on_match=True, filtered_prefixes=None,
+    filtered_patterns=None, filtered_rmw_implementation=None
 ):
     literal_file = output_file + '.txt'
     if os.path.isfile(literal_file):
@@ -136,7 +149,8 @@ def create_handler(
             expected_output = f.read().splitlines()
         return InMemoryHandler(
             name, launch_descriptor, expected_output, regex_match=False,
-            exit_on_match=exit_on_match, filtered_patterns=filtered_patterns,
+            exit_on_match=exit_on_match,
+            filtered_prefixes=filtered_prefixes, filtered_patterns=filtered_patterns,
             filtered_rmw_implementation=filtered_rmw_implementation)
     regex_file = output_file + '.regex'
     if os.path.isfile(regex_file):
@@ -144,7 +158,8 @@ def create_handler(
             expected_output = f.read().splitlines()
         return InMemoryHandler(
             name, launch_descriptor, expected_output, regex_match=True,
-            exit_on_match=exit_on_match, filtered_patterns=filtered_patterns,
+            exit_on_match=exit_on_match,
+            filtered_prefixes=filtered_prefixes, filtered_patterns=filtered_patterns,
             filtered_rmw_implementation=filtered_rmw_implementation)
     py_file = output_file + '.py'
     if os.path.isfile(py_file):
