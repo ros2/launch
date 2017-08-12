@@ -1,4 +1,4 @@
-# Copyright 2015 Open Source Robotics Foundation, Inc.
+# Copyright 2017 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,33 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from launch.arguments import get_launch_args
-from launch.main import main
 
 
 def test_launch_args():
-    ## Test empty arguments
+    # Test empty arguments
     argv = []
     args = get_launch_args(argv)
     assert len(args) == 0, "Failed empty list"
 
-    ## Test single argument with no launch arg
+    # Test single argument with no launch arg
     argv = ["/path/to/my/executable"]
     args = get_launch_args(argv)
     assert len(args) == 0, "Failed single non-launch arg"
 
-    ## Test single argument with launch arg
+    # Test single argument with launch arg
     argv = ["my_arg:=12345"]
     args = get_launch_args(argv)
     assert len(args) == 1, "Failed single launch arg"
     assert "my_arg" in args, "Did not find my_arg"
     assert "12345" == args["my_arg"], "my_arg has invalid value"
 
-    ## Test multiple non-launch args
+    # Test multiple non-launch args
     argv = ["/path/to/file", "hello", "123", "abcdefg"]
     args = get_launch_args(argv)
     assert len(args) == 0, "Failed multiple non-launch args"
 
-    ## Test multiple launch arguments
+    # Test multiple launch arguments
     argv = ["arg1:=12345", "arg2:=true", "arg3:=whatever", "arg4:=yes"]
     args = get_launch_args(argv)
     assert len(args) == 4, "Failed multiple launch args"
@@ -51,8 +50,15 @@ def test_launch_args():
     assert "whatever" == args["arg3"], "arg3 has invalid value"
     assert "yes" == args["arg4"], "arg4 has invalid value"
 
-    ## Test list of both non-launch args and args
-    argv = ["/path/to/file", "arg5:=HELLO", "--help", "my_fancy_arg:=/cmd_vel", "-v", "verbose:=false"]
+    # Test list of both non-launch args and args
+    argv = [
+        "/path/to/file",
+        "arg5:=HELLO",
+        "--help",
+        "my_fancy_arg:=/cmd_vel",
+        "-v",
+        "verbose:=false",
+    ]
     args = get_launch_args(argv)
     assert len(args) == 3, "Failed list of both non-launch args and args"
     assert "arg5" in args, "Did not find arg5"
@@ -62,8 +68,14 @@ def test_launch_args():
     assert "/cmd_vel" == args["my_fancy_arg"], "my_fancy_arg has invalid value"
     assert "false" == args["verbose"], "verbose has invalid value"
 
-    ## Test custom separator
-    argv = ["/path/to/file", "arg5->HELLO", "--help", "my_fancy_arg->/cmd_vel", "-v", "verbose:=false"]
+    # Test custom separator
+    argv = [
+        "/path/to/file",
+        "arg5->HELLO",
+        "--help",
+        "my_fancy_arg->/cmd_vel",
+        "-v", "verbose:=false",
+    ]
     args = get_launch_args(argv, separator="->")
     assert len(args) == 2, "Failed custom separator"
     assert "arg5" in args, "Did not find arg5"
@@ -72,19 +84,19 @@ def test_launch_args():
     assert "HELLO" == args["arg5"], "arg5 has invalid value"
     assert "/cmd_vel" == args["my_fancy_arg"], "my_fancy_arg has invalid value"
 
-    ## Test pair without key
+    # Test pair without key
     argv = [":=my_value"]
     args = get_launch_args(argv)
     assert len(args) == 0, "Failed pair without key"
 
-    ## Test pair without value
+    # Test pair without value
     argv = ["my_key:="]
     args = get_launch_args(argv)
     assert len(args) == 1, "Failed pair without value"
     assert "my_key" in args, "Did not find my_key argument"
     assert "" == args["my_key"], "my_key arg has incorrect value"
 
-    ## Test pair without key and value
+    # Test pair without key and value
     argv = [":="]
     args = get_launch_args(argv)
     assert len(args) == 0, "Failed pair without key and value"

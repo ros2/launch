@@ -1,4 +1,4 @@
-# Copyright 2015 Open Source Robotics Foundation, Inc.
+# Copyright 2017 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 def get_launch_args(argv, separator=":="):
-    """Return a dictionay of key value pairs for launch arguments passed
-    on the command line using the format "key:=value". This will process
-    every string in the argv list.
+    """Get the list of launch arguments passed on the command line.
+
+    Return a dictionary of key value pairs for launch arguments passed
+    on the command line using the format "key{separator}value". This will
+    process every string in the argv list.
 
     NOTE: all key value pairs will be returned as strings and no type
     checking is applied to the values.
@@ -27,15 +30,16 @@ def get_launch_args(argv, separator=":="):
         # Results in args = {'arg1': '123', 'arg2': 'true', 'arg3': 'true'}
 
     :param argv: is the list of string command line arguments
-    :param separator: is the string separator for each key:=value pair (e.g., ':=')
+    :type argv: list(str)
+    :param str separator: is the string separator for each key value pair (e.g., ':=')
     :returns: a dictionary of string key value pairs
-    :rtype: dictionary
+    :rtype: dict(str, str)
 
     """
     launch_args = {}
 
     # Separate the command line arguments into a dictionary of
-    # launch key value pairs of the format key:=value. Process the
+    # launch key value pairs of the format key${separator}value. Process the
     # first element even though it will likely be the executable name
     # to support other lists.
     for arg in argv:

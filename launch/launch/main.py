@@ -1,4 +1,4 @@
-# Copyright 2015 Open Source Robotics Foundation, Inc.
+# Copyright 2017 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ def main(argv=sys.argv[1:]):
 
     # Ensure that at least one existing launch file was given
     if len(launch_files) == 0:
-        sys.stderr.write('error: you must pass at least one valid launch file\n')
+        print('error: you must pass at least one valid launch file', file=sys.stderr)
         parser.print_help()
         sys.exit(2)
 
