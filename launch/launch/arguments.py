@@ -14,7 +14,8 @@
 
 
 def get_launch_args(argv, separator=":="):
-    """Get the list of launch arguments passed on the command line.
+    """
+    Get the list of launch arguments passed on the command line.
 
     Return a dictionary of key value pairs for launch arguments passed
     on the command line using the format "key{separator}value". This will
