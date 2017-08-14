@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-def get_launch_args(argv, separator=":="):
+def get_launch_args(argv, separator=':='):
     """
     Get the list of launch arguments passed on the command line.
 
