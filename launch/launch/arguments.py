@@ -18,7 +18,7 @@ def get_launch_args(argv, separator=':='):
     Get the list of launch arguments passed on the command line.
 
     Return a dictionary of key value pairs for launch arguments passed
-    on the command line using the format "key{separator}value". This will
+    on the command line using the format 'key{separator}value'. This will
     process every string in the argv list.
 
     NOTE: all key value pairs will be returned as strings and no type
@@ -26,7 +26,7 @@ def get_launch_args(argv, separator=':='):
 
     For example:
 
-        argv = ["arg1:=123", "hello", "arg2:=true", "arg3:=true", "/path/to/file"]
+        argv = ['arg1:=123', 'hello', 'arg2:=true', 'arg3:=true', '/path/to/file']
         args = get_launch_args(argv)
         # Results in args = {'arg1': '123', 'arg2': 'true', 'arg3': 'true'}
 
@@ -44,8 +44,9 @@ def get_launch_args(argv, separator=':='):
     # first element even though it will likely be the executable name
     # to support other lists.
     for arg in argv:
-        # Split the arg into a key value pair
-        arg_pair = arg.split(separator)
+        # Split the arg into a key value pair (allow values to contain
+        # the separator)
+        arg_pair = arg.split(separator, 1)
         if len(arg_pair) != 2:
             continue  # Skip non launch args
 

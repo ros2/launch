@@ -1,4 +1,4 @@
-# Copyright 2017 Open Source Robotics Foundation, Inc.
+# Copyright 2015-2017 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,10 +19,6 @@ import sys
 from launch import LaunchDescriptor
 from launch.launcher import DefaultLauncher
 from launch.loader import load_launch_file
-
-
-def file_exists(filename):
-    return os.path.exists(filename) and os.path.isfile(filename)
 
 
 def main(argv=sys.argv[1:]):
@@ -50,15 +46,14 @@ def main(argv=sys.argv[1:]):
     for arg in args.launch_file:
         # Store consecutive existing files and stop once a
         # non-existing file is found
-        if file_exists(arg):
+        if os.path.isfile(arg):
             launch_files.append(arg)
         else:
             break
 
     # Ensure that at least one existing launch file was given
     if len(launch_files) == 0:
-        print('error: you must pass at least one valid launch file', file=sys.stderr)
-        parser.print_help()
+        parser.error('you must pass at least one valid launch file')
         sys.exit(2)
 
     launcher = DefaultLauncher()
