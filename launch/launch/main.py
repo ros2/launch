@@ -21,19 +21,27 @@ from launch.launcher import DefaultLauncher
 from launch.loader import load_launch_file
 
 
+def file_exists(filename):
+    if not os.path.isfile(filename):
+        raise argparse.ArgumentError("'%s' does not exist" % filename)
+    return filename
+
+
 def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(
         description='Launch the processes specified in a launch file.')
     parser.add_argument(
         'launch_file',
-        type=str,
+        type=file_exists,
         nargs='+',
         help='The launch file.')
     parser.add_argument(
-        'arg',
+        '--args',
+        metavar="arg",
         type=str,
-        nargs='*',
-        help='An argument to the launch file (e.g., arg_name:=value).')
+        nargs='+',
+        help='An argument to the launch file (e.g., arg_name:=value). All ' +
+        'arguments will be passed to each launch file.')
     args = parser.parse_args(argv)
 
     # Get the list of launch files passed on the command line
@@ -54,12 +62,11 @@ def main(argv=sys.argv[1:]):
     # Ensure that at least one existing launch file was given
     if len(launch_files) == 0:
         parser.error('you must pass at least one valid launch file')
-        sys.exit(2)
 
     launcher = DefaultLauncher()
     for launch_file in launch_files:
         launch_descriptor = LaunchDescriptor()
-        load_launch_file(launch_file, launch_descriptor, argv)
+        load_launch_file(launch_file, launch_descriptor, args.args)
         launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
     return rc
