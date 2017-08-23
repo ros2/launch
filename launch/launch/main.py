@@ -41,7 +41,7 @@ def main(argv=sys.argv[1:]):
         type=str,
         nargs='+',
         help='An argument to the launch file (e.g., arg_name:=value). All '
-        'arguments will be passed to each launch file.')
+             'arguments will be passed to each launch file.')
     args = parser.parse_args(argv)
 
     launcher = DefaultLauncher()
