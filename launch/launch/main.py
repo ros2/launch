@@ -40,33 +40,14 @@ def main(argv=sys.argv[1:]):
         metavar="arg",
         type=str,
         nargs='+',
-        help='An argument to the launch file (e.g., arg_name:=value). All ' +
+        help='An argument to the launch file (e.g., arg_name:=value). All '
         'arguments will be passed to each launch file.')
     args = parser.parse_args(argv)
 
-    # Get the list of launch files passed on the command line
-    # NOTE: since both the launch files and launch arguments are consecutive
-    # lists of arguments, argparse will put all arguments into the launch_file
-    # list, and the arg list will be empty. This is because the '+' list is
-    # greedy and consumes the remaining arguments. Therefore the arguments
-    # need to be validated afterward
-    launch_files = []
-    for arg in args.launch_file:
-        # Store consecutive existing files and stop once a
-        # non-existing file is found
-        if os.path.isfile(arg):
-            launch_files.append(arg)
-        else:
-            break
-
-    # Ensure that at least one existing launch file was given
-    if len(launch_files) == 0:
-        parser.error('you must pass at least one valid launch file')
-
     launcher = DefaultLauncher()
-    for launch_file in launch_files:
+    for launch_file in args.launch_file:
         launch_descriptor = LaunchDescriptor()
-        load_launch_file(launch_file, launch_descriptor, args.args)
+        load_launch_file(args.launch_file, launch_descriptor, args.args)
         launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
     return rc

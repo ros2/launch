@@ -108,5 +108,6 @@ def test_launch_args():
     assert 'key' in args, 'Did not find key'
     assert 'value:=another_value' == args['key'], 'key had incorrect value'
 
+
 if __name__ == '__main__':
     test_launch_args()
