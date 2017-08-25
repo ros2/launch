@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-class TaskState(object):
+class TaskState:
 
     def __init__(self):
         self.argv = []

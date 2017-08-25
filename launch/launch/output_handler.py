@@ -15,7 +15,7 @@
 import sys
 
 
-class OutputHandler(object):
+class OutputHandler:
 
     def __init__(self):
         self.print_mutex = None
@@ -52,7 +52,7 @@ class OutputHandler(object):
         pass
 
 
-class CompositeOutputHandler(object):
+class CompositeOutputHandler:
 
     def __init__(self, output_handlers):
         self.output_handlers = output_handlers

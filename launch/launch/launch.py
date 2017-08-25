@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-class LaunchState(object):
+class LaunchState:
 
     def __init__(self):
         self.returncode = None
