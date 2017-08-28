@@ -14,12 +14,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import sys
+import time
 
 
 def main():
-    print("this is line 1", file=sys.stdout)
-    print("this is line b", file=sys.stdout)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--no-output', action='store_true')
+    parser.add_argument('--prepended-lines', action='store_true')
+    parser.add_argument('--appended-lines', action='store_true')
+    parser.add_argument('--interleaved-lines', action='store_true')
+    parser.add_argument(
+        '--reprints', action='store', type=int, default=0,
+        help='number of times to reprint core lines (-1 for indefinitely)')
+    args = parser.parse_args()
+
+    if not args.no_output:
+        if args.prepended_lines:
+            print('license output', file=sys.stdout)
+            time.sleep(0.01)
+
+        i = 0
+        while i < args.reprints + 1 or args.reprints == -1:
+            print('this is line 1', file=sys.stdout)
+            time.sleep(0.01)
+            i += 1
+
+            if args.interleaved_lines:
+                print('debug output', file=sys.stdout)
+                time.sleep(0.01)
+
+            print('this is line b', file=sys.stdout)
+            time.sleep(0.01)
+
+        if args.appended_lines:
+            print('extra printout', file=sys.stdout)
+            time.sleep(0.01)
+
     return 0
 
 
