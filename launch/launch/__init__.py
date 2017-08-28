@@ -17,7 +17,7 @@ from launch.output_handler import CompositeOutputHandler
 from launch.output_handler import ConsoleOutput
 
 
-class LaunchDescriptor(object):
+class LaunchDescriptor:
 
     def __init__(self):
         self.task_descriptors = []
@@ -46,7 +46,7 @@ class LaunchDescriptor(object):
         return process_descriptor
 
 
-class TaskDescriptor(object):
+class TaskDescriptor:
 
     def __init__(self):
         self.task_state = None

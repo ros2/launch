@@ -33,7 +33,7 @@ class _TaskException(Exception):
         self.exception = exception
 
 
-class DefaultLauncher(object):
+class DefaultLauncher:
 
     def __init__(self, name_prefix='', sigint_timeout=10):
         self.name_prefix = name_prefix
