@@ -18,8 +18,8 @@ import sys
 
 
 def main():
-    print("this is line 1", file=sys.stdout)
-    print("this is line b", file=sys.stdout)
+    print('this is line 1', file=sys.stdout)
+    print('this is line b', file=sys.stdout)
     return 0
 
 

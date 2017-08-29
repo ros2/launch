@@ -37,7 +37,7 @@ def main(argv=sys.argv[1:]):
         help='The launch file.')
     parser.add_argument(
         '--args',
-        metavar="arg",
+        metavar='arg',
         type=str,
         nargs='+',
         help='An argument to the launch file (e.g., arg_name:=value). All '
