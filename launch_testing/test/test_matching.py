@@ -29,12 +29,12 @@ def test_matching():
 
     # This temporary directory and files contained in it will be deleted when the process ends.
     tempdir = tempfile.mkdtemp()
-    output_file = tempdir + os.sep + "testfile"
-    full_output_file = output_file + ".regex"
+    output_file = tempdir + os.sep + 'testfile'
+    full_output_file = output_file + '.regex'
     with open(full_output_file, 'w+') as f:
         f.write('this is line \d\nthis is line [a-z]')
 
-    name = "test_executable_0"
+    name = 'test_executable_0'
 
     handler = create_handler(name, launch_descriptor, output_file)
 

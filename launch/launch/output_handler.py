@@ -61,7 +61,7 @@ class CompositeOutputHandler:
         return ', '.join([h.get_description() for h in self.output_handlers])
 
     def support_stderr2stdout(self):
-        return all([h.support_stderr2stdout() for h in self.output_handlers])
+        return all(h.support_stderr2stdout() for h in self.output_handlers)
 
     def __getattr__(self, name):
         def wrapper(*args, **kwargs):

@@ -70,7 +70,7 @@ class InMemoryHandler(LineOutput):
 
         for line in lines.splitlines():
             # Filter out stdout that comes from underlying DDS implementation
-            if any([line.startswith(prefix) for prefix in self.filtered_prefixes]):
+            if any(line.startswith(prefix) for prefix in self.filtered_prefixes):
                 continue
             self.stdout_data.write(line + b'\n')
             if not self.regex_match and not self.matched:
