@@ -31,10 +31,10 @@ def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(
         description='Launch the processes specified in a launch file.')
     parser.add_argument(
-        'launch_files',
+        'launch_file',
         type=file_exists,
         nargs='+',
-        help='The launch file(s).')
+        help='The launch file.')
     parser.add_argument(
         '--args',
         metavar='arg',
@@ -45,7 +45,7 @@ def main(argv=sys.argv[1:]):
     args = parser.parse_args(argv)
 
     launcher = DefaultLauncher()
-    for launch_file in args.launch_files:
+    for launch_file in args.launch_file:
         launch_descriptor = LaunchDescriptor()
         load_launch_file(launch_file, launch_descriptor, args.args)
         launcher.add_launch_descriptor(launch_descriptor)
