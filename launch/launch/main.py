@@ -47,7 +47,7 @@ def main(argv=sys.argv[1:]):
     launcher = DefaultLauncher()
     for launch_file in args.launch_file:
         launch_descriptor = LaunchDescriptor()
-        load_launch_file(args.launch_file, launch_descriptor, args.args)
+        load_launch_file(launch_file, launch_descriptor, args.args)
         launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
     return rc
