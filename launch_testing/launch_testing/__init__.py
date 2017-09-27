@@ -78,7 +78,7 @@ class InMemoryHandler(LineOutput):
         for line in lines.splitlines():
             # Filter out stdout that comes from underlying DDS implementation
             # Note: we do not currently support matching filters across multiple stdout lines.
-            if any(re.fullmatch(pattern, line) for pattern in self.filtered_patterns):
+            if any(re.match(pattern, line) for pattern in self.filtered_patterns):
                 continue
             if any(line.startswith(prefix) for prefix in self.filtered_prefixes):
                 continue
