@@ -56,8 +56,10 @@ class InMemoryHandler(LineOutput):
             self.filtered_patterns = filtered_patterns
 
         if filtered_rmw_implementation:
-            rmw_output_filter = get_rmw_output_filter(filtered_rmw_implementation)
-            self.filtered_patterns.extend(rmw_output_filter)
+            self.filtered_patterns.extend(
+                get_rmw_output_filter(filtered_rmw_implementation, 'patterns'))
+            self.filtered_prefixes.extend(
+                get_rmw_output_filter(filtered_rmw_implementation, 'prefixes'))
 
         self.name = name
         self.launch_descriptor = launch_descriptor
@@ -126,17 +128,21 @@ def get_default_filtered_patterns():
     return []
 
 
-def get_rmw_output_filter(rmw_implementation):
+def get_rmw_output_filter(rmw_implementation, filter_type):
+    supported_filter_types = ['patterns', 'prefixes']
+    if filter_type not in supported_filter_types:
+        raise TypeError(
+            'Unsupported filter_type "{0}". Supported types: {1}'
+            .format(filter_type, supported_filter_types))
+    resource_name = 'rmw_output_' + filter_type
     prefix_with_resource = ament_index_python.has_resource(
-        'rmw_output_filter', rmw_implementation)
+        resource_name, rmw_implementation)
     if not prefix_with_resource:
         return []
 
-    # Treat each line of the resource as an independent pattern.
-    rmw_output_filter, _ = ament_index_python.get_resource('rmw_output_filter', rmw_implementation)
-    additional_filtered_patterns = [
-        str.encode(l) for l in rmw_output_filter.splitlines()]
-    return additional_filtered_patterns
+    # Treat each line of the resource as an independent filter.
+    rmw_output_filter, _ = ament_index_python.get_resource(resource_name, rmw_implementation)
+    return [str.encode(l) for l in rmw_output_filter.splitlines()]
 
 
 def create_handler(
