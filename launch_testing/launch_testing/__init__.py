@@ -50,10 +50,10 @@ class InMemoryHandler(LineOutput):
         self.filtered_patterns = filtered_patterns or get_default_filtered_patterns()
 
         if filtered_rmw_implementation:
-            self.filtered_patterns.extend(
-                get_rmw_output_filter(filtered_rmw_implementation, 'patterns'))
             self.filtered_prefixes.extend(
                 get_rmw_output_filter(filtered_rmw_implementation, 'prefixes'))
+            self.filtered_patterns.extend(
+                get_rmw_output_filter(filtered_rmw_implementation, 'patterns'))
 
         self.name = name
         self.launch_descriptor = launch_descriptor
