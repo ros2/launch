@@ -27,7 +27,7 @@ class InMemoryHandler(LineOutput):
         lines to be ignored if they start with one of the prefixes. By default lines starting with
         the process ID (`b'pid'`) and return code (`b'rc'`) will be ignored.
     :param filtered_patterns: A list of byte strings representing regexes that will cause output
-        lines to be ignored if they completely match one of the regexes.
+        lines to be ignored if they match one of the regexes.
     :param filtered_rmw_implementation: RMW implementation for which the output will be ignored
         in addition to the `filtered_prefixes`/`filtered_patterns`.
     :param exit_on_match: If True, then when its output is matched, this handler
@@ -46,14 +46,8 @@ class InMemoryHandler(LineOutput):
         exit_on_match=True,
     ):
         super(LineOutput, self).__init__()
-        if filtered_prefixes is None:
-            self.filtered_prefixes = get_default_filtered_prefixes()
-        else:
-            self.filtered_prefixes = filtered_prefixes
-        if filtered_patterns is None:
-            self.filtered_patterns = get_default_filtered_patterns()
-        else:
-            self.filtered_patterns = filtered_patterns
+        self.filtered_prefixes = filtered_prefixes or get_default_filtered_prefixes()
+        self.filtered_patterns = filtered_patterns or get_default_filtered_patterns()
 
         if filtered_rmw_implementation:
             self.filtered_patterns.extend(
@@ -80,9 +74,9 @@ class InMemoryHandler(LineOutput):
         for line in lines.splitlines():
             # Filter out stdout that comes from underlying DDS implementation
             # Note: we do not currently support matching filters across multiple stdout lines.
-            if any(re.match(pattern, line) for pattern in self.filtered_patterns):
-                continue
             if any(line.startswith(prefix) for prefix in self.filtered_prefixes):
+                continue
+            if any(re.match(pattern, line) for pattern in self.filtered_patterns):
                 continue
             self.stdout_data.write(line + b'\n')
             if not self.regex_match and not self.matched:
