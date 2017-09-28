@@ -123,7 +123,7 @@ def get_default_filtered_patterns():
 
 
 def get_rmw_output_filter(rmw_implementation, filter_type):
-    supported_filter_types = ['patterns', 'prefixes']
+    supported_filter_types = ['prefixes', 'patterns']
     if filter_type not in supported_filter_types:
         raise TypeError(
             'Unsupported filter_type "{0}". Supported types: {1}'
