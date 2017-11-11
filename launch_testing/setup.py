@@ -23,5 +23,5 @@ setup(
     long_description="""\
 This package provides helper scripts for writing tests that use the ROS launch tool.""",
     license='Apache License, Version 2.0',
-    test_suite='test',
+    tests_require=['pytest'],
 )
