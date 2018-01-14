@@ -3,6 +3,7 @@ import io
 import os
 import re
 import signal
+import sys
 
 import ament_index_python
 from launch.output_handler import LineOutput
@@ -58,17 +59,26 @@ class InMemoryHandler(LineOutput):
         self.name = name
         self.launch_descriptor = launch_descriptor
         self.expected_lines = expected_lines
-        self.expected_output = b'\n'.join(self.expected_lines)
         self.left_over_stdout = b''
         self.left_over_stderr = b''
         self.stdout_data = io.BytesIO()
         self.stderr_data = io.BytesIO()
         self.regex_match = regex_match
         self.exit_on_match = exit_on_match
-        self.matched = False
+        if not self.regex_match:
+            self.unmatched = list(self.expected_lines)
+        else:
+            self.unmatched = []
+            for l in self.expected_lines:
+                try:
+                    regex = re.compile(l)
+                except Exception as e:
+                    print('Failed to compile regex [%s]: %s' % (l, e), file=sys.stderr)
+                    raise
+                self.unmatched.append(regex)
 
     def on_stdout_lines(self, lines):
-        if self.matched:
+        if not self.unmatched:
             return
 
         for line in lines.splitlines():
@@ -79,15 +89,19 @@ class InMemoryHandler(LineOutput):
             if any(re.match(pattern, line) for pattern in self.filtered_patterns):
                 continue
             self.stdout_data.write(line + b'\n')
-            if not self.regex_match and not self.matched:
-                output_lines = self.stdout_data.getvalue().splitlines()
-                self.matched = output_lines == self.expected_lines
 
-        # Are we ready to quit?
-        if self.regex_match and not self.matched:
-            self.matched = re.search(self.expected_output, self.stdout_data.getvalue())
+        output_lines = self.stdout_data.getvalue()
+        if not self.regex_match:
+            output_lines = output_lines.splitlines()
+        for unmatched in list(self.unmatched):
+            if not self.regex_match:
+                if unmatched in output_lines:
+                    self.unmatched.remove(unmatched)
+            else:
+                if unmatched.search(self.stdout_data.getvalue()):
+                    self.unmatched.remove(unmatched)
 
-        if self.matched and self.exit_on_match:
+        if not self.unmatched and self.exit_on_match:
             # We matched and we're in charge; shut myself down
             for td in self.launch_descriptor.task_descriptors:
                 if td.name == self.name:
@@ -106,7 +120,7 @@ class InMemoryHandler(LineOutput):
 
     def check(self):
         output_lines = self.stdout_data.getvalue().splitlines()
-        if not self.matched:
+        if self.unmatched:
             raise UnmatchedOutputError(
                 'Example output (%r) does not match expected output (%r)' %
                 (output_lines, self.expected_lines))
