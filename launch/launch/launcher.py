@@ -219,6 +219,7 @@ class DefaultLauncher:
         if launch_state.returncode is None:
             launch_state.returncode = 0
         self.launch_complete.set()
+        self.loop.stop()
         return launch_state.returncode
 
     async def _terminate_processes(self, launch_state, all_futures):
