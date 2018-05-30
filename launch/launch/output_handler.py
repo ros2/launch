@@ -22,7 +22,7 @@ class OutputHandler:
         self.line_prefix = None
 
     def get_description(self):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def set_print_mutex(self, print_mutex):
         self.print_mutex = print_mutex
@@ -40,10 +40,10 @@ class OutputHandler:
         self.on_stdout_received(lines)
 
     def on_stdout_received(self, data):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def on_stderr_received(self, data):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def flush(self):
         pass
@@ -81,14 +81,14 @@ class LineOutput(OutputHandler):
         self.on_stdout_lines(lines)
 
     def on_stdout_lines(self, lines):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def on_stderr_received(self, data):
         lines, self.left_over_stderr = self._process_incoming_lines(data, self.left_over_stderr)
         self.on_stderr_lines(lines)
 
     def on_stderr_lines(self, lines):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def flush(self):
         if self.left_over_stdout:
