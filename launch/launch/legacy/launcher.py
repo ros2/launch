@@ -20,10 +20,10 @@ import sys
 import threading
 import time
 
-from launch.exit_handler import ExitHandlerContext
-from launch.launch import LaunchState
-from launch.protocol import SubprocessProtocol
-from launch.task import TaskState
+from launch.legacy.exit_handler import ExitHandlerContext
+from launch.legacy.launch import LaunchState
+from launch.legacy.protocol import SubprocessProtocol
+from launch.legacy.task import TaskState
 
 
 class _TaskException(Exception):
