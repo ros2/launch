@@ -16,9 +16,9 @@ import os
 import sys
 import tempfile
 
-from launch import LaunchDescriptor
-from launch.exit_handler import ignore_exit_handler
-from launch.launcher import DefaultLauncher
+from launch.legacy import LaunchDescriptor
+from launch.legacy.exit_handler import ignore_exit_handler
+from launch.legacy.launcher import DefaultLauncher
 from launch_testing import create_handler
 
 

@@ -15,8 +15,8 @@
 import asyncio
 import sys
 
-from launch import LaunchDescriptor
-from launch.launcher import DefaultLauncher
+from launch.legacy import LaunchDescriptor
+from launch.legacy.launcher import DefaultLauncher
 
 
 def test_multiple_launch():

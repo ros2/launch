@@ -16,8 +16,8 @@ import os
 import sys
 from tempfile import NamedTemporaryFile
 
-from launch.exit_handler import ignore_exit_handler
-from launch.output_handler import FileOutput
+from launch.legacy.exit_handler import ignore_exit_handler
+from launch.legacy.output_handler import FileOutput
 
 
 def launch(launch_descriptor, argv):
