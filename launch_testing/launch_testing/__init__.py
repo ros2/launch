@@ -6,7 +6,7 @@ import signal
 import sys
 
 import ament_index_python
-from launch.output_handler import LineOutput
+from launch.legacy.output_handler import LineOutput
 
 
 class UnmatchedOutputError(BaseException):

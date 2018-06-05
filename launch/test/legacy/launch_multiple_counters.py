@@ -16,12 +16,12 @@ import os
 import sys
 from tempfile import NamedTemporaryFile
 
-from launch import LaunchDescriptor
-from launch.exit_handler import ignore_exit_handler
-from launch.exit_handler import restart_exit_handler
-from launch.loader import load_launch_file
-from launch.output_handler import ConsoleOutput
-from launch.output_handler import FileOutput
+from launch.legacy import LaunchDescriptor
+from launch.legacy.exit_handler import ignore_exit_handler
+from launch.legacy.exit_handler import restart_exit_handler
+from launch.legacy.loader import load_launch_file
+from launch.legacy.output_handler import ConsoleOutput
+from launch.legacy.output_handler import FileOutput
 
 
 def launch(launch_descriptor, argv):

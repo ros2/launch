@@ -16,8 +16,8 @@ import _thread
 import sys
 import threading
 
-from launch import LaunchDescriptor
-from launch.launcher import DefaultLauncher
+from launch.legacy import LaunchDescriptor
+from launch.legacy.launcher import DefaultLauncher
 
 
 def test_interrupt_default_launcher():

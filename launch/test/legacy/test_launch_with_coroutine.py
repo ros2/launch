@@ -16,10 +16,10 @@ import asyncio
 import os
 import sys
 
-from launch import LaunchDescriptor
-from launch.exit_handler import primary_exit_handler
-from launch.launcher import DefaultLauncher
-from launch.loader import load_launch_file
+from launch.legacy import LaunchDescriptor
+from launch.legacy.exit_handler import primary_exit_handler
+from launch.legacy.launcher import DefaultLauncher
+from launch.legacy.loader import load_launch_file
 
 
 def test_launch_with_coroutine():
