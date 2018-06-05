@@ -1,4 +1,4 @@
-# Copyright 2015 Open Source Robotics Foundation, Inc.
+# Copyright 2018 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Main entry point for the `launch` package."""
+"""Module for SomeActionsType type."""
 
-from . import actions
-from . import events
-from . import legacy
-from .launch_description import LaunchDescription
-from .launch_introspector import LaunchIntrospector
-from .launch_service import LaunchService
+from typing import Iterable
+from typing import Union
 
-__all__ = [
-    'actions',
-    'events',
-    'legacy',
+if False:
+    # imports here would cause loops, but are only used as forward-references for type-checking
+    from .launch_description import LaunchDescription  # noqa
+    from .launch_description_entity import LaunchDescriptionEntity  # noqa
+
+SomeActionsType = Union[
     'LaunchDescription',
-    'LaunchIntrospector',
-    'LaunchService',
+    'LaunchDescriptionEntity',
+    Iterable['LaunchDescriptionEntity'],
 ]

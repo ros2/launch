@@ -1,0 +1,115 @@
+# Copyright 2018 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Module for LaunchContext class."""
+
+import asyncio
+import collections
+import logging
+from typing import Any
+from typing import Dict
+from typing import Text
+
+from .event import Event
+from .event_handler import EventHandler
+from .substitution import Substitution
+
+_logger = logging.getLogger(name='launch')
+
+
+class LaunchContext:
+    """Runtime context used by various launch entities when being visited or executed."""
+
+    def __init__(self):
+        """Constructor."""
+        self._event_queue = asyncio.Queue()
+        self._event_handlers = collections.deque()
+        self._async_event_handlers = collections.deque()
+
+        self.__locals_stack = []
+        self.__locals = {}
+
+        self.__launch_configurations: Dict[Text, Text] = {}
+
+        self.__asyncio_loop = None
+
+    def _set_asyncio_loop(self, loop: asyncio.AbstractEventLoop) -> None:
+        self.__asyncio_loop = loop
+
+    def _push_locals(self):
+        self.__locals_stack.append(dict(self.__locals))
+
+    def _pop_locals(self):
+        if not self.__locals_stack:
+            raise RuntimeError('locals stack unexpectedly empty')
+        self.__locals = self.__locals_stack.pop()
+
+    def extend_locals(self, extensions: Dict[Text, Any]) -> None:
+        """Extend the context.locals object with new members until popped."""
+        self.__locals.update(extensions)
+
+    def get_locals_as_dict(self) -> Dict[Text, Any]:
+        """Access the context locals as a dictionary."""
+        return self.__locals
+
+    @property
+    def launch_configurations(self) -> Dict[Text, Text]:
+        """Getter for launch_configurations dictionary."""
+        return self.__launch_configurations
+
+    @property
+    def locals(self):
+        """Getter for the locals."""
+        class AttributeDict:
+            def __init__(self, dict_in):
+                self.__dict = dict_in
+
+            def __getattr__(self, key):
+                if key not in self.__dict:
+                    raise RuntimeError(
+                        "context.locals does not contain attribute '{}', it contains: [{}]".format(
+                            key,
+                            ', '.join(self.__dict.keys())
+                        )
+                    )
+                return self.__dict[key]
+
+        return AttributeDict(self.__locals)
+
+    @property
+    def asyncio_loop(self):
+        """Getter for asyncio_loop."""
+        return self.__asyncio_loop
+
+    def register_event_handler(self, event_handler: EventHandler) -> None:
+        """Register a synchronous event handler."""
+        self._event_handlers.appendleft(event_handler)
+
+    def register_async_event_handler(self, event_handler: EventHandler) -> None:
+        """Register a synchronous event handler."""
+        self._async_event_handlers.appendleft(event_handler)
+
+    def emit_event_sync(self, event: Event) -> None:
+        """Emit an event synchronously."""
+        _logger.debug("emitting event synchronously: '{}'".format(event.name))
+        self._event_queue.put_nowait(event)
+
+    async def emit_event(self, event: Event) -> None:
+        """Emit an event."""
+        _logger.debug("emitting event: '{}'".format(event.name))
+        await self._event_queue.put(event)
+
+    def perform_substitution(self, substitution: Substitution) -> Text:
+        """Perform substitution on given Substitution."""
+        return substitution.perform(self)

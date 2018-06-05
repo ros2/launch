@@ -1,4 +1,4 @@
-# Copyright 2015 Open Source Robotics Foundation, Inc.
+# Copyright 2018 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Main entry point for the `launch` package."""
+"""Module for ProcessStarted event."""
 
-from . import actions
-from . import events
-from . import legacy
-from .launch_description import LaunchDescription
-from .launch_introspector import LaunchIntrospector
-from .launch_service import LaunchService
+from .running_process_event import RunningProcessEvent
 
-__all__ = [
-    'actions',
-    'events',
-    'legacy',
-    'LaunchDescription',
-    'LaunchIntrospector',
-    'LaunchService',
-]
+
+class ProcessStarted(RunningProcessEvent):
+    """Event emitted when a process starts."""
+
+    name = 'launch.events.process.ProcessStarted'
+
+    def __init__(self, **kwargs):
+        """
+        Constructor.
+
+        Unmatched keyword arguments are passed to RunningProcessEvent, see it
+        for details on those arguments.
+        """
+        super().__init__(**kwargs)

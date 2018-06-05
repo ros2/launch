@@ -1,4 +1,4 @@
-# Copyright 2015 Open Source Robotics Foundation, Inc.
+# Copyright 2018 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Main entry point for the `launch` package."""
+"""Module for the perform_substitutions() utility function."""
 
-from . import actions
-from . import events
-from . import legacy
-from .launch_description import LaunchDescription
-from .launch_introspector import LaunchIntrospector
-from .launch_service import LaunchService
+from typing import List
+from typing import Text
 
-__all__ = [
-    'actions',
-    'events',
-    'legacy',
-    'LaunchDescription',
-    'LaunchIntrospector',
-    'LaunchService',
-]
+from ..launch_context import LaunchContext
+from ..substitution import Substitution
+
+
+def perform_substitutions(context: LaunchContext, subs: List[Substitution]) -> Text:
+    """Resolve a list of Substitutions with a context into a single string."""
+    return ''.join([context.perform_substitution(sub) for sub in subs])
