@@ -28,7 +28,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'launch = launch.main:main',
+            'launch = launch.legacy.main:main',
         ],
     },
 )
