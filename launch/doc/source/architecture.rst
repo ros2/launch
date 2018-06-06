@@ -109,7 +109,7 @@ Even if the associated action evaluates to false the action will be available fo
 Substitutions
 -------------
 
-A substitution is a something that cannot, or should not, be evaluated until it's time to execute the launch description that they are used in.
+A substitution is something that cannot, or should not, be evaluated until it's time to execute the launch description that they are used in.
 There are many possible variations of a substitution, but here are some of the core ones implemented by `launch` (all of which inherit from :class:`launch.Substitution`):
 
 - :class:`launch.substitutions.Text`
