@@ -17,15 +17,27 @@
 from . import actions
 from . import events
 from . import legacy
+from .action import Action
+from .event import Event
+from .event_handler import EventHandler
+from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
+from .launch_description_entity import LaunchDescriptionEntity
 from .launch_introspector import LaunchIntrospector
 from .launch_service import LaunchService
+from .substitution import Substitution
 
 __all__ = [
     'actions',
     'events',
     'legacy',
+    'Action',
+    'Event',
+    'EventHandler',
+    'LaunchContext',
     'LaunchDescription',
+    'LaunchDescriptionEntity',
     'LaunchIntrospector',
     'LaunchService',
+    'Substitution',
 ]

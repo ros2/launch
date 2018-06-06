@@ -52,7 +52,7 @@ class LaunchService:
         # Setup logging and debugging.
         logging.basicConfig(
             level=logging.INFO,
-            format='[%(msecs)d] [%(levelname)s] [%(name)s]: %(msg)s',
+            format='[%(levelname)s] [%(name)s]: %(msg)s',
         )
         self.__debug = debug
         if self.__debug:
@@ -143,6 +143,7 @@ class LaunchService:
                 self.__context._pop_locals()
             else:
                 pass
+                # Keep this commented for now, since it's very chatty.
                 # _logger.debug(
                 #     "processing event: '{}' x '{}'".format(event, event_handler))
 
