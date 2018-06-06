@@ -50,10 +50,7 @@ class OnProcessIO(EventHandler):
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
             raise RuntimeError("OnProcessIO requires an 'ExecuteProcess' action as the target")
-        super().__init__(
-            matcher=self._matcher,
-            handler=None,  # noop
-        )
+        super().__init__(matcher=self._matcher, entities=None)
         self.__target_action = target_action
         self.__on_stdin = on_stdin
         self.__on_stdout = on_stdout

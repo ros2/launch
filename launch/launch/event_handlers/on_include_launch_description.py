@@ -14,10 +14,13 @@
 
 """Module for OnIncludeLaunchDescription class."""
 
+from typing import List
 from typing import Text
+from typing import Tuple
 
 from ..event_handler import EventHandler
 from ..events import IncludeLaunchDescription
+from ..launch_description_entity import LaunchDescriptionEntity
 from ..utilities import is_a_subclass
 
 
@@ -26,17 +29,20 @@ class OnIncludeLaunchDescription(EventHandler):
 
     def __init__(self):
         """Constructor."""
+        from ..actions import OpaqueFunction
         super().__init__(
             matcher=lambda event: is_a_subclass(event, IncludeLaunchDescription),
-            handler=lambda event, context: event.launch_description,
+            entities=OpaqueFunction(
+                function=lambda context: [context.locals.event.launch_description]
+            ),
         )
 
-    def describe(self) -> Text:
+    def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
         """Return the description list with 0 being a string, and then LaunchDescriptionEntity's."""
-        return [
+        return (
             "OnIncludeLaunchDescription(matcher='{}', handler='{}')".format(
                 'event issubclass of launch.events.IncludeLaunchDescription',
                 'returns the launch_description in the event'
             ),
             [],
-        ]
+        )

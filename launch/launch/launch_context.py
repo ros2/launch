@@ -19,6 +19,7 @@ import collections
 import logging
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import Text
 
 from .event import Event
@@ -35,11 +36,11 @@ class LaunchContext:
         """Constructor."""
         self._event_queue = asyncio.Queue()
         self._event_handlers = collections.deque()
-        self._async_event_handlers = collections.deque()
 
         self.__locals_stack = []
         self.__locals = {}
 
+        self.__launch_configurations_stack: List[Dict[Text, Text]] = []
         self.__launch_configurations: Dict[Text, Text] = {}
 
         self.__asyncio_loop = None
@@ -64,28 +65,40 @@ class LaunchContext:
         return self.__locals
 
     @property
-    def launch_configurations(self) -> Dict[Text, Text]:
-        """Getter for launch_configurations dictionary."""
-        return self.__launch_configurations
-
-    @property
     def locals(self):
         """Getter for the locals."""
         class AttributeDict:
             def __init__(self, dict_in):
-                self.__dict = dict_in
+                self.__dict__['__dict'] = dict_in
 
             def __getattr__(self, key):
-                if key not in self.__dict:
-                    raise RuntimeError(
+                _dict = self.__dict__['__dict']
+                if key not in _dict:
+                    raise AttributeError(
                         "context.locals does not contain attribute '{}', it contains: [{}]".format(
                             key,
-                            ', '.join(self.__dict.keys())
+                            ', '.join(_dict.keys())
                         )
                     )
-                return self.__dict[key]
+                return _dict[key]
+
+            def __setattr__(self, key, value):
+                raise AttributeError("can't set attribute '{}', locals are read-only".format(key))
 
         return AttributeDict(self.__locals)
+
+    def _push_launch_configurations(self):
+        self.__launch_configurations_stack.append(dict(self.__launch_configurations))
+
+    def _pop_launch_configurations(self):
+        if not self.__launch_configurations_stack:
+            raise RuntimeError('launch_configurations stack unexpectedly empty')
+        self.__launch_configurations = self.__launch_configurations_stack.pop()
+
+    @property
+    def launch_configurations(self) -> Dict[Text, Text]:
+        """Getter for launch_configurations dictionary."""
+        return self.__launch_configurations
 
     @property
     def asyncio_loop(self):
@@ -93,12 +106,12 @@ class LaunchContext:
         return self.__asyncio_loop
 
     def register_event_handler(self, event_handler: EventHandler) -> None:
-        """Register a synchronous event handler."""
+        """Register a event handler."""
         self._event_handlers.appendleft(event_handler)
 
-    def register_async_event_handler(self, event_handler: EventHandler) -> None:
-        """Register a synchronous event handler."""
-        self._async_event_handlers.appendleft(event_handler)
+    def unregister_event_handler(self, event_handler: EventHandler) -> None:
+        """Unregister an event handler."""
+        self._event_handlers.remove(event_handler)
 
     def emit_event_sync(self, event: Event) -> None:
         """Emit an event synchronously."""

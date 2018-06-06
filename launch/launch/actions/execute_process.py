@@ -164,28 +164,43 @@ class ExecuteProcess(Action):
         """Getter for the process details, e.g. name, pid, cmd, etc., or None if not started yet."""
         return self.__process_event_args
 
+    def __shutdown_process(self, context, *, send_sigint):
+        if self.__shutdown_received:
+            # Do not handle shutdown more than once.
+            return None
+        self.__shutdown_received = True
+        if self.__completed_future is None:
+            # Execution not started so nothing to do, but self.__shutdown_received should prevent
+            # execution from starting in the future.
+            return None
+        if self.__completed_future.done():
+            # If already done, then nothing to do.
+            return None
+        # Otherwise process is still running, start the shutdown procedures.
+        context.extend_locals({'process_name': self.process_details['name']})
+        actions_to_return = self.__get_shutdown_timer_actions()
+        if send_sigint:
+            actions_to_return.append(self.__get_sigint_event())
+        return actions_to_return
+
     def __on_shutdown_process_event(
         self,
-        event: Event,
         context: LaunchContext
     ) -> Optional[LaunchDescription]:
-        _logger.warn("in ExecuteProcess('{}').__on_shutdown_process_event()".format(id(self)))
-        cast(ShutdownProcess, event)
-        return None
+        return self.__shutdown_process(context, send_sigint=True)
 
     def __on_signal_process_event(
         self,
-        event: Event,
         context: LaunchContext
     ) -> Optional[LaunchDescription]:
-        typed_event = cast(SignalProcess, event)
+        typed_event = cast(SignalProcess, context.locals.event)
         if not typed_event.process_matcher(self):
             # this event whas not intended for this process
             return None
         if self.process_details is None:
-            raise RuntimeError('Signal event received, before execution.')
+            raise RuntimeError('Signal event received before execution.')
         if self._subprocess_transport is None:
-            raise RuntimeError('Signal event received, before subprocess transport available.')
+            raise RuntimeError('Signal event received before subprocess transport available.')
         if self._subprocess_protocol.complete.done():
             # the process is done or is cleaning up, no need to signal
             _logger.debug("signal '{}' not set to '{}' because it is already closing".format(
@@ -208,23 +223,10 @@ class ExecuteProcess(Action):
         return None
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
-        if self.__shutdown_received:
-            # Do not handle shutdown more than once.
-            return None
-        self.__shutdown_received = True
-        if self.__completed_future is None:
-            # Execution not started so nothing to do, but self.__shutdown_received should prevent
-            # execution from starting in the future.
-            return None
-        if self.__completed_future.done():
-            # If already done, then nothing to do.
-            return None
-        # Otherwise process is still running, start the shutdown procedures.
-        context.extend_locals({'process_name': self.process_details['name']})
-        actions_to_return = self.__get_shutdown_timer_actions()
-        if not cast(Shutdown, event).due_to_sigint:
-            actions_to_return.append(self.__get_sigint_event())
-        return actions_to_return
+        return self.__shutdown_process(
+            context,
+            send_sigint=(not cast(Shutdown, event).due_to_sigint),
+        )
 
     def __get_shutdown_timer_actions(self) -> List[Action]:
         base_msg = 'process[{}] failed to terminate {} seconds after receiving {}, escalating to {}'
@@ -397,15 +399,15 @@ class ExecuteProcess(Action):
         # TODO(wjwwood): unregister event handlers when that is possible
         context.register_event_handler(EventHandler(
             matcher=event_named('launch.events.ShutdownProcess'),
-            handler=self.__on_shutdown_process_event
+            entities=OpaqueFunction(function=self.__on_shutdown_process_event),
         ))
         context.register_event_handler(EventHandler(
             matcher=lambda event: is_a_subclass(event, SignalProcess),
-            handler=self.__on_signal_process_event
+            entities=OpaqueFunction(function=self.__on_signal_process_event),
         ))
         context.register_event_handler(EventHandler(
             matcher=event_named('launch.events.ProcessStdin'),
-            handler=self.__on_process_stdin_event
+            entities=OpaqueFunction(function=self.__on_process_stdin_event),
         ))
         context.register_event_handler(OnShutdown(
             on_shutdown=self.__on_shutdown,

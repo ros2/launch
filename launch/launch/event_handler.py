@@ -26,22 +26,39 @@ if False:
 
 
 class EventHandler:
-    """Base class for event handlers, which handle events in the launch system."""
+    """
+    Base class for event handlers, which handle events in the launch system.
+
+    Entities yielded by the event handler can access the event being handled
+    via the context's locals, e.g. `context.locals.event`
+    As another example, getting the name of the event as a Substitution:
+    `launch.substitutions.LocalSubstitution('event.name')`.
+    """
 
     def __init__(
         self,
         *,
         matcher: Callable[[Event], bool],
-        handler: Optional[Callable[[Event, 'LaunchContext'], Optional[SomeActionsType]]]
+        entities: Optional[SomeActionsType] = None,
     ) -> None:
-        """Constructor."""
+        """
+        Constructor.
+
+        :param: matcher is a callable that takes an event and returns True if
+            the event should be handled by this event handler, False otherwise.
+        :param: entities is an LaunchDescriptionEntity or list of them, and is
+            returned by handle() unconditionally if matcher returns True.
+        """
         self.__matcher = matcher
-        self.__handler = handler
+        self.__entities = entities
+
+    # TODO(wjwwood): setup standard interface for describing event handlers
 
     def matches(self, event: Event) -> bool:
-        """Return True if the given event should be handled by this handler."""
+        """Return True if the given event should be handled by this event handler."""
         return self.__matcher(event)
 
     def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
         """Handle the given event."""
-        return self.__handler(event, context) if self.__handler is not None else None
+        context.extend_locals({'event': event})
+        return self.__entities

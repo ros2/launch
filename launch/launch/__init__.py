@@ -25,6 +25,10 @@ from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
 from .launch_introspector import LaunchIntrospector
 from .launch_service import LaunchService
+from .some_actions_type import SomeActionsType
+from .some_actions_type import SomeActionsType_types_tuple
+from .some_substitutions_type import SomeSubstitutionsType
+from .some_substitutions_type import SomeSubstitutionsType_types_tuple
 from .substitution import Substitution
 
 __all__ = [
@@ -39,5 +43,9 @@ __all__ = [
     'LaunchDescriptionEntity',
     'LaunchIntrospector',
     'LaunchService',
+    'SomeActionsType',
+    'SomeActionsType_types_tuple',
+    'SomeSubstitutionsType',
+    'SomeSubstitutionsType_types_tuple',
     'Substitution',
 ]

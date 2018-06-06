@@ -12,21 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for SomeActionsType type."""
+"""Tests for the Event class."""
 
-import collections
-from typing import Iterable
-from typing import Union
-
-from .launch_description_entity import LaunchDescriptionEntity
+from launch import Event
 
 
-SomeActionsType = Union[
-    LaunchDescriptionEntity,
-    Iterable[LaunchDescriptionEntity],
-]
-
-SomeActionsType_types_tuple = (
-    LaunchDescriptionEntity,
-    collections.Iterable,
-)
+def test_event_constructors():
+    """Test the constructors for Event class."""
+    event = Event()
+    assert event.name == 'launch.Event'

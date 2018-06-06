@@ -34,7 +34,7 @@ from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..some_substitutions_type import SomeSubstitutionsType_type
+from ..some_substitutions_type import SomeSubstitutionsType_types_tuple
 from ..utilities import create_future
 from ..utilities import ensure_argument_type
 from ..utilities import is_a_subclass
@@ -59,7 +59,7 @@ class TimerAction(Action):
     ) -> None:
         """Constructor."""
         super().__init__()
-        period_types = list(SomeSubstitutionsType_type) + [float]
+        period_types = list(SomeSubstitutionsType_types_tuple) + [float]
         ensure_argument_type(period, period_types, 'period', 'TimerAction')
         ensure_argument_type(actions, collections.Iterable, 'actions', 'TimerAction')
         if isinstance(period, float):
@@ -136,9 +136,14 @@ class TimerAction(Action):
         # Once globally, install the general purpose OnTimerEvent event handler.
         global _event_handler_has_been_installed
         if not _event_handler_has_been_installed:
+            from ..actions import OpaqueFunction
             context.register_event_handler(EventHandler(
                 matcher=lambda event: is_a_subclass(event, TimerEvent),
-                handler=lambda event, context: cast(TimerEvent, event).timer_action.handle(context),
+                entities=OpaqueFunction(
+                    function=lambda context: (
+                        cast(TimerEvent, context.locals.event).timer_action.handle(context)
+                    )
+                ),
             ))
             _event_handler_has_been_installed = True
 

@@ -19,20 +19,26 @@ from typing import List
 from typing import Optional
 from typing import Text
 from typing import Tuple
+from typing import cast
 from typing import overload
 
+from ..event import Event
 from ..event_handler import EventHandler
 from ..events import Shutdown
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 from ..utilities import is_a_subclass
 
+if False:
+    # imports here would cause loops, but are only used as forward-references for type-checking
+    from ..launch_context import LaunchContext  # noqa
+
 
 class OnShutdown(EventHandler):
     """Convenience class for handling the launch shutdown event."""
 
     @overload
-    def __init__(self, *, on_shutdown: SomeActionsType):
+    def __init__(self, *, on_shutdown: SomeActionsType) -> None:
         """Overload which takes just actions."""
         ...
 
@@ -41,7 +47,7 @@ class OnShutdown(EventHandler):
         self,
         *,
         on_shutdown: Callable[[Shutdown, 'LaunchContext'], Optional[SomeActionsType]]
-    ):
+    ) -> None:
         """Overload which takes a callable to handle the shutdown."""
         ...
 
@@ -49,7 +55,7 @@ class OnShutdown(EventHandler):
         """Constructor."""
         super().__init__(
             matcher=lambda event: is_a_subclass(event, Shutdown),
-            handler=None,  # noop
+            entities=None,  # noop
         )
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
         # the correct signature for a handler in this case
@@ -57,18 +63,18 @@ class OnShutdown(EventHandler):
         if not callable(on_shutdown):
             self.__on_shutdown = (lambda event, context: on_shutdown)
 
-    def handle(self, event: Shutdown, context: 'LaunchContext') -> Optional[SomeActionsType]:
+    def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
         """Handle the given event."""
-        return self.__on_shutdown(event, context)
+        return self.__on_shutdown(cast(Shutdown, event), context)
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
         """Return the description list with 0 being a string, and then LaunchDescriptionEntity's."""
-        return [
+        return (
             "OnShutdown(matcher='{}', handler={})".format(
                 self.matcher_description,
                 self.__on_shutdown),
             [],
-        ]
+        )
 
     @property
     def matcher_description(self):

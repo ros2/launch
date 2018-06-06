@@ -52,5 +52,5 @@ class LaunchDescription(LaunchDescriptionEntity):
         self.__entities.append(entity)
 
     def add_action(self, action: Action) -> None:
-        """Add an action based on the given ActionType and arguments."""
+        """Add an action to the LaunchDescription."""
         self.add_entity(action)

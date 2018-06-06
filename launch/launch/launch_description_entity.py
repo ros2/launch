@@ -132,7 +132,7 @@ class LaunchDescriptionEntity:
         subprocess exits before setting the future as "done" so that the
         launch system doesn't exit until all child processes are joined.
         """
-        pass
+        return None
 
     def get_asyncio_future(self) -> Optional[asyncio.Future]:
         """

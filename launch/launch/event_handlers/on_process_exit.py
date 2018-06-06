@@ -68,7 +68,7 @@ class OnProcessExit(EventHandler):
                     )
                 )
             ),
-            handler=None,  # noop
+            entities=None,
         )
         self.__target_action = target_action
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches

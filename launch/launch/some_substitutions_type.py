@@ -27,7 +27,7 @@ SomeSubstitutionsType = Union[
     Iterable[Union[Text, Substitution]],
 ]
 
-SomeSubstitutionsType_type = (
+SomeSubstitutionsType_types_tuple = (
     str,
     Substitution,
     collections.Iterable,

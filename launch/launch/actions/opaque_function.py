@@ -60,7 +60,7 @@ class OpaqueFunction(Action):
         ensure_argument_type(args, (collections.Iterable, type(None)), 'args', 'OpaqueFunction')
         ensure_argument_type(kwargs, (dict, type(None)), 'kwargs', 'OpaqueFunction')
         self.__function = function
-        self.__args: Iterable = ((),)
+        self.__args: Iterable = []
         if args is not None:
             self.__args = args
         self.__kwargs: Dict[Text, Any] = {}

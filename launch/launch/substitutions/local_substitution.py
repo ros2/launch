@@ -24,7 +24,7 @@ from ..utilities import ensure_argument_type
 class LocalSubstitution(Substitution):
     """Substitution that can access contextual local variables."""
 
-    def __init__(self, *, expression: Text) -> None:
+    def __init__(self, expression: Text) -> None:
         """Constructor."""
         super().__init__()
 

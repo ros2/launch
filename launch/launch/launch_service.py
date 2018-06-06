@@ -34,20 +34,19 @@ from .launch_description_entity import LaunchDescriptionEntity
 from .some_actions_type import SomeActionsType
 from .utilities import visit_all_entities_and_collect_futures
 
-_logger = logging.getLogger(name='launch.LaunchService')
+_logger = logging.getLogger('launch.LaunchService')
 
 
 class LaunchService:
     """Service that manages the event loop and runtime for launched system."""
 
-    def __init__(self, *, shutdown_when_idle=True, debug=False):
+    def __init__(self, *, debug=False):
         """
         Constructor.
 
-        :param: shutdown_when_idle if True (default), the service will shutdown when idle
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
-        self.__shutdown_when_idle = shutdown_when_idle
+        self.__shutdown_when_idle = False
 
         # Setup logging and debugging.
         logging.basicConfig(
@@ -56,7 +55,9 @@ class LaunchService:
         )
         self.__debug = debug
         if self.__debug:
-            logging.getLogger().setLevel(logging.DEBUG)
+            logging.getLogger('launch').setLevel(logging.DEBUG)
+        else:
+            logging.getLogger('launch').setLevel(logging.INFO)
 
         # Setup context and register a built-in event handler for bootstrapping.
         self.__context = LaunchContext()
@@ -123,7 +124,6 @@ class LaunchService:
 
     async def __process_event(self, event: Event) -> None:
         _logger.debug("processing event: '{}'".format(event))
-        # TODO(wjwwood): do something with async event handlers, either drop them or use them
         for event_handler in tuple(self.__context._event_handlers):
             if event_handler.matches(event):
                 _logger.debug(
@@ -176,17 +176,21 @@ class LaunchService:
             else:
                 await process_one_event_task
 
-    def run(self) -> None:
+    def run(self, *, shutdown_when_idle=True) -> None:
         """
         Start the event loop and visit all entities of all included LaunchDescriptions.
 
         This should only ever be run from a single thread.
+
+        :param: shutdown_when_idle if True (default), the service will shutdown when idle
         """
         # Make sure this has not been called in multiple threads.
         with self.__running_lock:
             if self.__running:
                 raise RuntimeError('LaunchService.run() called from multiple threads concurrently.')
             self.__running = True
+
+        self.__shutdown_when_idle = shutdown_when_idle
 
         # Acquire the lock and initialize the asyncio loop.
         with self.__loop_from_run_thread_lock:
