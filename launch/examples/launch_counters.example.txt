@@ -1,4 +1,4 @@
-$ python3 ./launch_counter_good_bad_ugly.py
+$ python3 ./launch_counters.py
 Starting introspection of launch description...
 
 <launch.launch_description.LaunchDescription object at 0x103e46860>
