@@ -24,6 +24,18 @@ import pytest
 def test_launch_context_constructors():
     """Test the constructors for LaunchContext class."""
     LaunchContext()
+    LaunchContext(argv=[])
+    LaunchContext(argv=['--arg1', 'value'])
+
+
+def test_launch_context_get_argv():
+    """Test the getting of argv in the LaunchContext class."""
+    argv = ['a', 'b']
+    lc = LaunchContext(argv=argv)
+    assert lc.argv == argv
+
+    lc = LaunchContext()
+    assert lc.argv == []
 
 
 def test_launch_context_get_set_asyncio_loop():

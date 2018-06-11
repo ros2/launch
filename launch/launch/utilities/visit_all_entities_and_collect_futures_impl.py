@@ -16,6 +16,7 @@
 
 import asyncio
 from typing import List
+from typing import Tuple
 
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
@@ -24,7 +25,7 @@ from ..launch_description_entity import LaunchDescriptionEntity
 def visit_all_entities_and_collect_futures(
     entity: LaunchDescriptionEntity,
     context: LaunchContext
-) -> List[asyncio.Future]:
+) -> List[Tuple[LaunchDescriptionEntity, asyncio.Future]]:
     """
     Visit given entity, as well as all sub-entities, and collect any futures.
 
@@ -35,7 +36,10 @@ def visit_all_entities_and_collect_futures(
     This function may call itself to traverse the sub-entities recursively.
     """
     sub_entities = entity.visit(context)
-    futures_to_return = [(entity, entity.get_asyncio_future())]
+    entity_future = entity.get_asyncio_future()
+    futures_to_return = []
+    if entity_future is not None:
+        futures_to_return.append((entity, entity_future))
     if sub_entities is not None:
         for sub_entity in sub_entities:
             futures_to_return += visit_all_entities_and_collect_futures(sub_entity, context)

@@ -18,8 +18,12 @@ import asyncio
 import collections
 import logging
 import threading
+from typing import Iterable
+from typing import List
 from typing import Optional
 from typing import Set
+from typing import Text
+from typing import Tuple
 
 import osrf_pycommon.process_utils
 
@@ -40,13 +44,19 @@ _logger = logging.getLogger('launch.LaunchService')
 class LaunchService:
     """Service that manages the event loop and runtime for launched system."""
 
-    def __init__(self, *, debug=False):
+    def __init__(
+        self,
+        *,
+        argv: Optional[Iterable[Text]] = None,
+        debug: bool = False
+    ) -> None:
         """
         Constructor.
 
+        :param: argv stored in the context for access by the entities, None results in []
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
-        self.__shutdown_when_idle = False
+        self.__argv = argv if argv is not None else []
 
         # Setup logging and debugging.
         logging.basicConfig(
@@ -60,12 +70,12 @@ class LaunchService:
             logging.getLogger('launch').setLevel(logging.INFO)
 
         # Setup context and register a built-in event handler for bootstrapping.
-        self.__context = LaunchContext()
+        self.__context = LaunchContext(argv=self.__argv)
         self.__context.register_event_handler(OnIncludeLaunchDescription())
         self.__context.register_event_handler(OnShutdown(on_shutdown=self.__on_shutdown))
 
         # Setup storage for state.
-        self._entity_future_pairs = []
+        self._entity_future_pairs: List[Tuple[LaunchDescriptionEntity, asyncio.Future]] = []
 
         # Used to prevent run() being called from multiple threads.
         self.__running_lock = threading.Lock()
@@ -78,6 +88,7 @@ class LaunchService:
 
         # Used to indicate when shutdown() has been called.
         self.__shutting_down = False
+        self.__shutdown_when_idle = False
 
     def emit_event(self, event: Event) -> None:
         """
@@ -114,8 +125,19 @@ class LaunchService:
                 [pair for pair in self._entity_future_pairs if not pair[1].done()]
         return len(self._entity_future_pairs)
 
+    def _prune_and_count_context_completion_futures(self):
+        needs_prune = False
+        for future in self.__context._completion_futures:
+            if future .done():
+                needs_prune = True
+        if needs_prune:
+            self.__context._completion_futures = \
+                [f for f in self.__context._completion_futures if not f.done()]
+        return len(self.__context._completion_futures)
+
     def _is_idle(self):
         number_of_entity_future_pairs = self._prune_and_count_entity_future_pairs()
+        number_of_entity_future_pairs += self._prune_and_count_context_completion_futures()
         return number_of_entity_future_pairs == 0 and self.__context._event_queue.empty()
 
     async def _process_one_event(self) -> None:
@@ -154,6 +176,8 @@ class LaunchService:
             if not self.__shutting_down and self.__shutdown_when_idle and is_idle:
                 self._shutdown(reason='idle', due_to_sigint=False)
 
+            if self.__loop_from_run_thread is None:
+                raise RuntimeError('__loop_from_run_thread unexpectedly None')
             process_one_event_task = self.__loop_from_run_thread.create_task(
                 self._process_one_event())
             if self.__shutting_down:
@@ -164,6 +188,7 @@ class LaunchService:
                 else:
                     entity_futures = [pair[1] for pair in self._entity_future_pairs]
                     entity_futures.append(process_one_event_task)
+                    entity_futures.extend(self.__context._completion_futures)
                     done: Set[asyncio.Future] = set()
                     while not done:
                         done, pending = await asyncio.wait(
@@ -195,6 +220,8 @@ class LaunchService:
         # Acquire the lock and initialize the asyncio loop.
         with self.__loop_from_run_thread_lock:
             self.__loop_from_run_thread = osrf_pycommon.process_utils.get_loop()
+            if self.__loop_from_run_thread is None:
+                raise RuntimeError('__loop_from_run_thread unexpectedly None')
             if self.__debug:
                 self.__loop_from_run_thread.set_debug(True)
             self.__context._set_asyncio_loop(self.__loop_from_run_thread)
@@ -232,6 +259,7 @@ class LaunchService:
         if not self.__shutting_down:
             self.emit_event(Shutdown(reason=reason, due_to_sigint=due_to_sigint))
         self.__shutting_down = True
+        self.__context._set_is_shutdown(True)
 
     def shutdown(self) -> None:
         """
