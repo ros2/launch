@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'launch'
-copyright = '2018, William Woodall'
-author = 'William Woodall'
+copyright = '2018, Open Source Robotics Foundation, Inc.'  # noqa
+author = 'Open Source Robotics Foundation, Inc.'
 
 # The short X.Y version
 version = ''
@@ -138,7 +138,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'launch.tex', 'launch Documentation',
-     'William Woodall', 'manual'),
+     'Open Source Robotics Foundation, Inc.', 'manual'),
 ]
 
 

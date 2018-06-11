@@ -54,9 +54,9 @@ class OpaqueFunction(Action):
         """Constructor."""
         super().__init__()
         if not callable(function):
-            raise TypeError(
-                "OpaqueFunction expected a callable for 'function', got '{}'".format(type(function))
-            )
+            raise TypeError("OpaqueFunction expected a callable for 'function', got '{}'".format(
+                type(function)
+            ))
         ensure_argument_type(args, (collections.Iterable, type(None)), 'args', 'OpaqueFunction')
         ensure_argument_type(kwargs, (dict, type(None)), 'kwargs', 'OpaqueFunction')
         self.__function = function

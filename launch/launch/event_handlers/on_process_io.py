@@ -15,11 +15,11 @@
 """Module for OnProcessIO class."""
 
 from typing import Callable
+from typing import cast
 from typing import List
 from typing import Optional
 from typing import Text
 from typing import Tuple
-from typing import cast
 
 from ..event import Event
 from ..event_handler import EventHandler
@@ -78,7 +78,7 @@ class OnProcessIO(EventHandler):
         return None
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 being a string, and then LaunchDescriptionEntity's."""
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         handlers = []
         if self.__on_stdin is not None:
             handlers.append("on_stdin: '{}'".format(self.__on_stdin))
@@ -88,7 +88,9 @@ class OnProcessIO(EventHandler):
             handlers.append("on_stderr: '{}'".format(self.__on_stderr))
         handlers_str = '{' + ', '.join(handlers) + '}'
         return (
-            "OnProcessIO(matcher='{}', handlers={})".format(self.matcher_description, handlers_str),
+            "OnProcessIO(matcher='{}', handlers={})".format(
+                self.matcher_description, handlers_str
+            ),
             [],
         )
 

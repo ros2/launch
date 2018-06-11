@@ -35,6 +35,7 @@ def test_action_methods():
     assert action.get_asyncio_future() is None
 
     class CustomAction(Action):
+
         def __init__(self):
             super().__init__()
             self.execute_called = False

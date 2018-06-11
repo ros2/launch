@@ -50,7 +50,7 @@ class LaunchConfiguration(Substitution):
         else:
             # convert any items in default that are not a Substitution or str to a str
             str_normalized_default: List[Union[Text, Substitution]] = []
-            definitely_iterable_default: Iterable[Any]
+            definitely_iterable_default: Iterable[Any]  # noqa
             if isinstance(default, collections.Iterable):
                 definitely_iterable_default = default
             else:

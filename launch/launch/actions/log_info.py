@@ -17,9 +17,9 @@
 import logging
 from typing import List
 from typing import Optional
+from typing import overload
 from typing import Text
 from typing import Union
-from typing import overload
 
 from ..action import Action
 from ..launch_context import LaunchContext
@@ -33,12 +33,12 @@ class LogInfo(Action):
     """Action that logs a message when executed."""
 
     @overload
-    def __init__(self, *, msg: Text):
+    def __init__(self, *, msg: Text) -> None:
         """Construct with just Text (unicode string)."""
         ...
 
     @overload  # noqa: F811
-    def __init__(self, *, msg: List[Union[Text, Substitution]]):
+    def __init__(self, *, msg: List[Union[Text, Substitution]]) -> None:
         """Construct with list of Text and Substitutions."""
         ...
 
@@ -56,3 +56,4 @@ class LogInfo(Action):
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """Execute the action."""
         _logger.info(''.join([context.perform_substitution(sub) for sub in self.msg]))
+        return None

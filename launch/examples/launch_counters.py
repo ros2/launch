@@ -27,12 +27,12 @@ from typing import cast
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # noqa
 
 import launch
-import launch.actions
-import launch.events
-import launch.substitutions
 from launch import LaunchDescription
 from launch import LaunchIntrospector
 from launch import LaunchService
+import launch.actions
+import launch.events
+import launch.substitutions
 
 
 def main(argv=sys.argv[1:]):
@@ -47,10 +47,11 @@ def main(argv=sys.argv[1:]):
     ])
 
     # Setup a custom event handler for all stdout/stderr from processes.
-    # In the future this will be a configurable, but always present extension, to the LaunchService.
+    # In the future this will be a configurable, but always present extension to the LaunchService.
     def on_output(event: launch.Event) -> None:
         for line in event.text.decode().splitlines():
-            print('[{}] {}'.format(cast(launch.events.process.ProcessIO, event).process_name, line))
+            print('[{}] {}'.format(
+                cast(launch.events.process.ProcessIO, event).process_name, line))
 
     ld.add_action(launch.actions.RegisterEventHandler(launch.event_handlers.OnProcessIO(
         # this is the action     ^              and this, the event handler ^

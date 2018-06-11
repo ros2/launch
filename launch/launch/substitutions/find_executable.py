@@ -15,9 +15,9 @@
 """Module for the FindExecutable substitution."""
 
 from typing import List
+from typing import overload
 from typing import Text
 from typing import Union
-from typing import overload
 
 from osrf_pycommon.process_utils import which
 
@@ -34,12 +34,12 @@ class FindExecutable(Substitution):
     """
 
     @overload
-    def __init__(self, *, name: Text):
+    def __init__(self, *, name: Text) -> None:
         """Construct with just Text (unicode string)."""
         ...
 
     @overload  # noqa: F811
-    def __init__(self, *, name: List[Union[Text, Substitution]]):
+    def __init__(self, *, name: List[Union[Text, Substitution]]) -> None:
         """Construct with list of Text and Substitutions."""
         ...
 

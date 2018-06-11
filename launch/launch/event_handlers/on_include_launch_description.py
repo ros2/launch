@@ -38,7 +38,7 @@ class OnIncludeLaunchDescription(EventHandler):
         )
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 being a string, and then LaunchDescriptionEntity's."""
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         return (
             "OnIncludeLaunchDescription(matcher='{}', handler='{}')".format(
                 'event issubclass of launch.events.IncludeLaunchDescription',

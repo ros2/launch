@@ -212,7 +212,8 @@ class LaunchService:
         # Make sure this has not been called in multiple threads.
         with self.__running_lock:
             if self.__running:
-                raise RuntimeError('LaunchService.run() called from multiple threads concurrently.')
+                raise RuntimeError(
+                    'LaunchService.run() called from multiple threads concurrently.')
             self.__running = True
 
         self.__shutdown_when_idle = shutdown_when_idle

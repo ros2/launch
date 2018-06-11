@@ -123,6 +123,7 @@ class LaunchContext:
     def locals(self):
         """Getter for the locals."""
         class AttributeDict:
+
             def __init__(self, dict_in):
                 self.__dict__['__dict'] = dict_in
 

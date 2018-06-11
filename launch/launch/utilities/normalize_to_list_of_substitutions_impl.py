@@ -14,9 +14,9 @@
 
 """Module for the normalize_to_list_of_substitutions() utility function."""
 
+from typing import cast
 from typing import Iterable
 from typing import List
-from typing import cast
 
 from .class_tools_impl import is_a_subclass
 from ..some_substitutions_type import SomeSubstitutionsType

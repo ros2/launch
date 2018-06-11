@@ -22,15 +22,15 @@ import signal
 import threading
 import traceback
 from typing import Any
+from typing import cast
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import cast
 
-from osrf_pycommon.process_utils import AsyncSubprocessProtocol
 from osrf_pycommon.process_utils import async_execute_process
+from osrf_pycommon.process_utils import AsyncSubprocessProtocol
 
 from .emit_event import EmitEvent
 from .opaque_function import OpaqueFunction
@@ -40,6 +40,7 @@ from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnShutdown
 from ..events import Shutdown
+from ..events.process import matches_action
 from ..events.process import ProcessExited
 from ..events.process import ProcessStarted
 from ..events.process import ProcessStderr
@@ -47,7 +48,6 @@ from ..events.process import ProcessStdin
 from ..events.process import ProcessStdout
 from ..events.process import ShutdownProcess
 from ..events.process import SignalProcess
-from ..events.process import matches_action
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
 from ..some_actions_type import SomeActionsType
@@ -188,7 +188,7 @@ class ExecuteProcess(Action):
 
     @property
     def process_details(self):
-        """Getter for the process details, e.g. name, pid, cmd, etc., or None if not started yet."""
+        """Getter for the process details, e.g. name, pid, cmd, etc., or None if not started."""
         return self.__process_event_args
 
     def __shutdown_process(self, context, *, send_sigint):
@@ -256,7 +256,8 @@ class ExecuteProcess(Action):
         )
 
     def __get_shutdown_timer_actions(self) -> List[Action]:
-        base_msg = 'process[{}] failed to terminate {} seconds after receiving {}, escalating to {}'
+        base_msg = \
+            "process[{}] failed to terminate '{}' seconds after receiving '{}', escalating to '{}'"
 
         def printer(context, msg, timeout_substitutions):
             _logger.error(msg.format(

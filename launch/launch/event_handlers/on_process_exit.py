@@ -16,12 +16,12 @@
 
 import collections
 from typing import Callable
+from typing import cast
 from typing import List
 from typing import Optional
+from typing import overload
 from typing import Text
 from typing import Tuple
-from typing import cast
-from typing import overload
 
 from ..event import Event
 from ..event_handler import EventHandler
@@ -40,7 +40,11 @@ class OnProcessExit(EventHandler):
     """Convenience class for handling a process exited event."""
 
     @overload
-    def __init__(self, *, target_action: 'ExecuteProcess' = None, on_exit: SomeActionsType) -> None:
+    def __init__(
+        self, *,
+        target_action: 'ExecuteProcess' = None,
+        on_exit: SomeActionsType
+    ) -> None:
         """Overload which takes just actions."""
         ...
 
@@ -87,7 +91,7 @@ class OnProcessExit(EventHandler):
         return self.__on_exit(cast(ProcessExited, event), context)
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 being a string, and then LaunchDescriptionEntity's."""
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         return (
             "OnProcessExit(matcher='{}', handler=<actions>)".format(self.matcher_description),
             self.__actions_on_exit,

@@ -15,12 +15,12 @@
 """Module for OnShutdown class."""
 
 from typing import Callable
+from typing import cast
 from typing import List
 from typing import Optional
+from typing import overload
 from typing import Text
 from typing import Tuple
-from typing import cast
-from typing import overload
 
 from ..event import Event
 from ..event_handler import EventHandler
@@ -68,7 +68,7 @@ class OnShutdown(EventHandler):
         return self.__on_shutdown(cast(Shutdown, event), context)
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 being a string, and then LaunchDescriptionEntity's."""
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         return (
             "OnShutdown(matcher='{}', handler={})".format(
                 self.matcher_description,
