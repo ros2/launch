@@ -78,6 +78,8 @@ class ExecuteProcess(Action):
         sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration('sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration('sigkill_timeout', default=5),
         prefix: Optional[SomeSubstitutionsType] = None,
+        output: Optional[Text] = None,
+        log_cmd: bool = False,
     ) -> None:
         """
         Construct an ExecuteProcess action.
@@ -123,6 +125,9 @@ class ExecuteProcess(Action):
             - emitted when the process produces data on either the stdout or stderr pipes
             - event contains the data from the pipe
 
+        Note that output is just stored in this class and has to be properly
+        implemented by the event handlers for the process's ProcessIO events.
+
         :param: cmd a list where the first item is the executable and the rest
             are arguments to the executable, each item maybe be a string or a
             list of strings and Substitutions to be resolved at runtime
@@ -134,6 +139,13 @@ class ExecuteProcess(Action):
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'
+        :param: output either 'log' or 'screen'; if 'screen' stderr is directed
+            to stdout and stdout is printed to the screen; if 'log' stderr is
+            directed to the screen and both stdout and stderr are directed to
+            a log file; the default is 'log'
+        :param: log_cmd if True, print's the final cmd before executing the
+            process, which is useful for debugging when substitutions are
+            involved.
         """
         super().__init__()
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
@@ -150,6 +162,16 @@ class ExecuteProcess(Action):
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
+        self.__output = output if output is not None else 'log'
+        allowed_output_options = ['log', 'screen']
+        if self.__output not in allowed_output_options:
+            raise ValueError(
+                "output argument to ExecuteProcess is '{}', expected one of [{}]".format(
+                    self.__output,
+                    allowed_output_options,
+                )
+            )
+        self.__log_cmd = log_cmd
 
         self.__process_event_args: Optional[Dict[Text, Any]] = None
         self._subprocess_protocol: Optional[Any] = None
@@ -158,6 +180,11 @@ class ExecuteProcess(Action):
         self.__sigterm_timer: Optional[TimerAction] = None
         self.__sigkill_timer: Optional[TimerAction] = None
         self.__shutdown_received = False
+
+    @property
+    def output(self):
+        """Getter for output."""
+        return self.__output
 
     @property
     def process_details(self):
@@ -348,6 +375,10 @@ class ExecuteProcess(Action):
         cmd = process_event_args['cmd']
         cwd = process_event_args['cwd']
         env = process_event_args['env']
+        if self.__log_cmd:
+            _logger.info("process[{}] details: cmd=[{}], cwd='{}', custom_env?={}".format(
+                name, ', '.join(cmd), cwd, 'True' if env is not None else 'False'
+            ))
         try:
             transport, self._subprocess_protocol = await async_execute_process(
                 lambda **kwargs: self.__ProcessProtocol(
@@ -358,7 +389,7 @@ class ExecuteProcess(Action):
                 env=env,
                 shell=self.__shell,
                 emulate_tty=False,
-                stderr_to_stdout=False,
+                stderr_to_stdout=(self.__output == 'screen'),
             )
         except Exception:
             _logger.error('exception occurred while executing process[{}]:\n{}'.format(
@@ -395,10 +426,9 @@ class ExecuteProcess(Action):
         if self.__shutdown_received:
             # If shutdown starts before execution can start, don't start execution.
             return None
-        from ..event_handlers import event_named
         # TODO(wjwwood): unregister event handlers when that is possible
         context.register_event_handler(EventHandler(
-            matcher=event_named('launch.events.ShutdownProcess'),
+            matcher=lambda event: is_a_subclass(event, ShutdownProcess),
             entities=OpaqueFunction(function=self.__on_shutdown_process_event),
         ))
         context.register_event_handler(EventHandler(
@@ -406,7 +436,7 @@ class ExecuteProcess(Action):
             entities=OpaqueFunction(function=self.__on_signal_process_event),
         ))
         context.register_event_handler(EventHandler(
-            matcher=event_named('launch.events.ProcessStdin'),
+            matcher=lambda event: is_a_subclass(event, ProcessStdin),
             entities=OpaqueFunction(function=self.__on_process_stdin_event),
         ))
         context.register_event_handler(OnShutdown(
