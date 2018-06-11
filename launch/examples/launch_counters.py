@@ -47,7 +47,7 @@ def main(argv=sys.argv[1:]):
     ])
 
     # Setup a custom event handler for all stdout/stderr from processes.
-    # In the future this will be a configurable, but always present extension to the LaunchService.
+    # In the future this will be a configurable, but always present extension, to the LaunchService.
     def on_output(event: launch.Event) -> None:
         for line in event.text.decode().splitlines():
             print('[{}] {}'.format(cast(launch.events.process.ProcessIO, event).process_name, line))
@@ -59,7 +59,7 @@ def main(argv=sys.argv[1:]):
     )))
 
     # Run whoami, and use it's output to log the name of the user.
-    # Prefix just the whoamit processes with `time`.
+    # Prefix just the whoami process with `time`.
     ld.add_action(launch.actions.SetLaunchConfiguration('launch-prefix', 'time'))
     # Run whoami, but keep handle to action to make a targeted event handler.
     whoami_action = launch.actions.ExecuteProcess(
@@ -105,9 +105,9 @@ def main(argv=sys.argv[1:]):
 
     # Add our own message for when shutdown is requested.
     ld.add_action(launch.actions.RegisterEventHandler(launch.event_handlers.OnShutdown(
-        on_shutdown=lambda event, context: launch.actions.LogInfo(
-            msg='Launch was asked to shutdown: {}'.format(event.reason)
-        ),
+        on_shutdown=[launch.actions.LogInfo(msg='Launch was asked to shutdown: {}'.format(
+            launch.substitutions.LocalSubstitution('event.reason')
+        ))],
     )))
 
     print('Starting introspection of launch description...')
