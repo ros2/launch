@@ -56,6 +56,7 @@ class RunningProcessEvent(Event):
         self.__cmd = cmd
         self.__cwd = cwd
         self.__env = env
+        self.__pid = pid
 
     @property
     def action(self) -> 'ExecuteProcess':
@@ -86,3 +87,8 @@ class RunningProcessEvent(Event):
     def env(self) -> Optional[Dict[Text, Text]]:
         """Getter for env."""
         return self.__env
+
+    @property
+    def pid(self) -> Optional[Dict[Text, Text]]:
+        """Getter for pid."""
+        return self.__pid

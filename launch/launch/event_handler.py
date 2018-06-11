@@ -52,6 +52,11 @@ class EventHandler:
         self.__matcher = matcher
         self.__entities = entities
 
+    @property
+    def entities(self):
+        """Getter for entities."""
+        return self.__entities
+
     # TODO(wjwwood): setup standard interface for describing event handlers
 
     def matches(self, event: Event) -> bool:
