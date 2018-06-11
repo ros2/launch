@@ -16,13 +16,17 @@
 
 from ..event import Event
 
+if False:
+    # imports here would cause loops, but are only used as forward-references for type-checking
+    from ...actions import TimerAction  # noqa
+
 
 class TimerEvent(Event):
     """Event that fires when a TimerAction's period expires."""
 
     name = 'launch.events.TimerEvent'
 
-    def __init__(self, *, timer_action: 'TimerAction') -> None:  # type: ignore
+    def __init__(self, *, timer_action: 'TimerAction') -> None:
         """Constructor."""
         self.__timer_action = timer_action
 
