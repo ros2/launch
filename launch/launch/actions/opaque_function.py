@@ -30,7 +30,7 @@ from ..utilities import ensure_argument_type
 
 class OpaqueFunction(Action):
     """
-    Action executes a Python function.
+    Action that executes a Python function.
 
     The signature of the function should be:
 

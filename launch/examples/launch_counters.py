@@ -47,7 +47,7 @@ def main(argv=sys.argv[1:]):
     ])
 
     # Setup a custom event handler for all stdout/stderr from processes.
-    # In the future this will be a configurable, but always present extension to the LaunchService.
+    # In the future this will be a configurable, but always present, extension to the LaunchService.
     def on_output(event: launch.Event) -> None:
         for line in event.text.decode().splitlines():
             print('[{}] {}'.format(
@@ -59,7 +59,7 @@ def main(argv=sys.argv[1:]):
         on_stderr=on_output,
     )))
 
-    # Run whoami, and use it's output to log the name of the user.
+    # Run whoami, and use its output to log the name of the user.
     # Prefix just the whoami process with `time`.
     ld.add_action(launch.actions.SetLaunchConfiguration('launch-prefix', 'time'))
     # Run whoami, but keep handle to action to make a targeted event handler.
@@ -67,7 +67,7 @@ def main(argv=sys.argv[1:]):
         cmd=[launch.substitutions.FindExecutable(name='whoami')],
     )
     ld.add_action(whoami_action)
-    # Make event handler which uses the output.
+    # Make event handler that uses the output.
     ld.add_action(launch.actions.RegisterEventHandler(launch.event_handlers.OnProcessIO(
         target_action=whoami_action,
         # The output of `time` will be skipped since it goes to stderr.

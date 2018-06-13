@@ -24,7 +24,7 @@ from .launch_description_entity import LaunchDescriptionEntity
 
 class Action(LaunchDescriptionEntity):
     """
-    LaunchDescriptionEntity which represents a user intention to do something.
+    LaunchDescriptionEntity that represents a user intention to do something.
 
     The action describes the intention to do something, but also can be
     executed given a :class:`launch.LaunchContext` at runtime.

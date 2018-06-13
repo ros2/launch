@@ -2,31 +2,31 @@ Architecture of `launch`
 ========================
 
 `launch` is designed to provide core features like describing actions (e.g. executing a process or including another launch description), generating events, introspecting launch descriptions, and executing launch descriptions.
-While at the same time, it provides extension points so that the set of things on which these core features can operate on, or integrate with, can be expanded with additional packages.
+At the same time, it provides extension points so that the set of things that these core features can operate on, or integrate with, can be expanded with additional packages.
 
 Launch Entities and Launch Descriptions
 ---------------------------------------
 
-The main object in `launch` is the :class:`launch.LaunchDescriptionEntity`, from which other entities which are "launched" inherit.
+The main object in `launch` is the :class:`launch.LaunchDescriptionEntity`, from which other entities that are "launched" inherit.
 This class, or more specifically classes derived from this class, are responsible for capturing the system architect's (a.k.a. the user's) intent for how the system should be launched, as well as how `launch` itself should react to asynchronous events in the system during launch.
 A launch description entity has its :meth:`launch.LaunchDescriptionEntity.visit` method called during "launching", and has any of the "describe" methods called during "introspection".
 It may also provide a :class:`asyncio.Future` with the :meth:`launch.LaunchDescriptionEntity.get_asyncio_future` method, if it has on-going asynchronous activity after returning from visit.
 
 When visited, entities may yield additional entities to be visited, and this pattern is used from the "root" of the launch, where a special entity called :class:`launch.LaunchDescription` is provided to start the launch process.
 
-The :class:`launch.LaunchDescription` class encapsulates the intent of the user as a list of discrete :class:`launch.Action`'s (which are also derived from :class:`launch.LaunchDescriptionEntity`.
-As "launch description entities" themselves, these "actions" can either be introspected for analysis without performing the sideffects, or the actions can be executed, usually in response to an event in the launch system.
+The :class:`launch.LaunchDescription` class encapsulates the intent of the user as a list of discrete :class:`launch.Action`'s, which are also derived from :class:`launch.LaunchDescriptionEntity`.
+As "launch description entities" themselves, these "actions" can either be introspected for analysis without performing the side effects, or the actions can be executed, usually in response to an event in the launch system.
 
-Additionally, launch descriptions, and the actions which they contain, can have references to :class:`launch.Substitution`'s within them.
-These substitutions are things which can be evaluated during launch and can be used to do various things like: get a launch configuration, get an environment variable, or evaluate arbitrary Python expressions.
+Additionally, launch descriptions, and the actions that they contain, can have references to :class:`launch.Substitution`'s within them.
+These substitutions are things that can be evaluated during launch and can be used to do various things like: get a launch configuration, get an environment variable, or evaluate arbitrary Python expressions.
 
 Launch descriptions, and the actions contained therein, can either be introspected directly or launched by a :class:`launch.LaunchService`.
-A launch service, is a long running activity which handles the event loop and dispatches actions.
+A launch service is a long running activity that handles the event loop and dispatches actions.
 
 Actions
 -------
 
-The aforementioned actions allow the user to express various intentions and the set of available actions to the user can also be extended by other packages, allowing for domain specific actions.
+The aforementioned actions allow the user to express various intentions, and the set of available actions to the user can also be extended by other packages, allowing for domain specific actions.
 
 Actions can have direct side effects (e.g. run a process or set a configuration variable) and as well they can yield additional actions.
 The latter can be used to create "syntactic sugar" actions which simply yield more verbose actions.
@@ -60,7 +60,7 @@ This is a non-exhaustive list of actions that `launch` may provide:
 
 - :class:`launch.actions.GroupAction`
 
-  - This action will yield other actions, but can associated with conditionals (allowing you to use the conditional on the group action rather than on each sub-action individually) and can optionally scope the launch configurations.
+  - This action will yield other actions, but can be associated with conditionals (allowing you to use the conditional on the group action rather than on each sub-action individually) and can optionally scope the launch configurations.
 
 - :class:`launch.actions.TimerAction`
 
@@ -68,11 +68,11 @@ This is a non-exhaustive list of actions that `launch` may provide:
 
 - :class:`launch.actions.ExecuteProcess`
 
-  - This action will execute a process given it's path and arguments, and optionally other things like working directory or environment variables.
+  - This action will execute a process given its path and arguments, and optionally other things like working directory or environment variables.
 
 - :class:`launch.actions.RegisterEventHandler`
 
-  - This action will register a :class:`launch.EventHandler` class, which takes user defined lambda to handle some event.
+  - This action will register an :class:`launch.EventHandler` class, which takes a user defined lambda to handle some event.
   - It could be any event, a subset of events, or one specific event.
 
 - :class:`launch.actions.UnregisterEventHandler`
@@ -99,7 +99,7 @@ Base Action
 All actions need to inherit from the :class:`launch.Action` base class, so that some common interface is available to the launch system when interacting with actions defined by external packages.
 Since the base action class is a first class element in a launch description it also inherits from :class:`launch.LaunchDescriptionEntity`, which is the polymorphic type used when iterating over the elements in a launch description.
 
-Also, the base action has a few features common to all actions like some introspection utilities, the ability to be associated with a single :class:`launch.Conditional`, like the :class:`launch.IfCondition` class or the :class:`launch.UnlessCondition` class.
+Also, the base action has a few features common to all actions, such as some introspection utilities, and the ability to be associated with a single :class:`launch.Conditional`, like the :class:`launch.IfCondition` class or the :class:`launch.UnlessCondition` class.
 
 The action configurations are supplied when the user uses an action and can be used to pass "arguments" to the action in order to influence its behavior, e.g. this is how you would pass the path to the executable in the execute process action.
 
@@ -129,9 +129,9 @@ There are many possible variations of a substitution, but here are some of the c
 
   - This substitution gets the value of a launch description argument, as a string, by name.
 
-- :class:`launch.substitutions.LocalSubstituion`
+- :class:`launch.substitutions.LocalSubstitution`
 
-  - This substitution gets a "local" variable out of the context, this is a mechanism that allows a "parent" action to pass information to sub actions.
+  - This substitution gets a "local" variable out of the context. This is a mechanism that allows a "parent" action to pass information to sub actions.
   - As an example, consider this pseudo code example `OnShutdown(actions=LogInfo(msg=["shutdown due to: ", LocalSubstitution(expression='event.reason')]))`, which assumes that `OnShutdown` will put the shutdown event in the locals before `LogInfo` is visited.
 
 - :class:`launch.substitutions.EnvironmentVariable`

@@ -28,7 +28,7 @@ from ..substitution import Substitution
 
 class FindExecutable(Substitution):
     """
-    Substitution that trys to locate an executable on the PATH.
+    Substitution that tries to locate an executable on the PATH.
 
     :raise: SubstitutionFailure when executable not found
     """
@@ -56,7 +56,7 @@ class FindExecutable(Substitution):
         return self.__name
 
     def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution by looking up the environment variable."""
+        """Perform the substitution by locating the executable on the PATH."""
         from ..utilities import perform_substitutions  # import here to avoid loop
         result = which(perform_substitutions(context, self.name))
         if result is None:
