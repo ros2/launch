@@ -109,9 +109,18 @@ class OnProcessExit(EventHandler):
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
         """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+        if self.__actions_on_exit:
+            # A list of resulting actions is already known.
+            return (
+                "OnProcessExit(matcher='{}', handler=<actions>)".format(self.matcher_description),
+                self.__actions_on_exit,
+            )
+        # A callable handler has been provided.
         return (
-            "OnProcessExit(matcher='{}', handler=<actions>)".format(self.matcher_description),
-            self.__actions_on_exit,
+            "OnProcessExit(matcher='{}', handler={})".format(
+                self.matcher_description,
+                self.__on_exit),
+            [],
         )
 
     @property
