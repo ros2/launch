@@ -38,5 +38,5 @@ class LocalSubstitution(Substitution):
         return self.__expression
 
     def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution by looking up the environment expression."""
+        """Perform the substitution by retrieving the local variable."""
         return eval('context.locals.' + self.expression)

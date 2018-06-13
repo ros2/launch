@@ -40,5 +40,5 @@ class TextSubstitution(Substitution):
         return self.__text
 
     def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution by looking up the environment variable."""
+        """Perform the substitution by returning the string itself."""
         return self.text

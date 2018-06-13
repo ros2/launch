@@ -70,7 +70,12 @@ class LaunchConfiguration(Substitution):
         return self.__variable_name
 
     def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution by looking up the environment expression."""
+        """
+        Perform the substitution by retrieving the launch configuration, as a string.
+
+        If the launch configuration is not found and a default has been set,
+        the default will be returned, as a string.
+        """
         from ..utilities import perform_substitutions
         expanded_variable_name = perform_substitutions(context, self.__variable_name)
         if expanded_variable_name not in context.launch_configurations:

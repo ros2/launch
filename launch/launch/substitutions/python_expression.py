@@ -51,6 +51,6 @@ class PythonExpression(Substitution):
         return self.__expression
 
     def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution by looking up the environment expression."""
+        """Perform the substitution by evaluating the expression."""
         from ..utilities import perform_substitutions
         return str(eval(perform_substitutions(context, self.expression)))
