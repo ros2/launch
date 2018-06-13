@@ -17,6 +17,7 @@
 import asyncio
 import collections
 import logging
+import signal
 import threading
 from typing import Iterable
 from typing import List
@@ -217,6 +218,9 @@ class LaunchService:
             self.__running = True
 
         self.__shutdown_when_idle = shutdown_when_idle
+        self.__original_sigint_handler = signal.getsignal(signal.SIGINT)
+        self.__original_sigquit_handler = signal.getsignal(signal.SIGQUIT)
+        self.__original_sigterm_handler = signal.getsignal(signal.SIGTERM)
 
         # Acquire the lock and initialize the asyncio loop.
         with self.__loop_from_run_thread_lock:
@@ -231,24 +235,47 @@ class LaunchService:
         try:
             sigint_received = False
             run_loop_task = self.__loop_from_run_thread.create_task(self.__run_loop())
+
+            # Setup custom signal hanlders for SIGINT, SIGQUIT, and SIGTERM.
+            def _on_sigint(signum, frame):
+                nonlocal sigint_received
+                base_msg = 'user interrupted with ctrl-c (SIGINT)'
+                if not sigint_received:
+                    _logger.warn(base_msg)
+                    self._shutdown(reason='ctrl-c (SIGINT)', due_to_sigint=True)
+                    sigint_received = True
+                else:
+                    _logger.warn('{} again, ignoring...'.format(base_msg))
+            signal.signal(signal.SIGINT, _on_sigint)
+
+            def _on_sigterm(signum, frame):
+                # TODO(wjwwood): try to terminate running subprocesses before exiting.
+                _logger.error('using SIGTERM or SIGQUIT can result in orphaned processes')
+                _logger.error('make sure no processes launched are still running')
+                run_loop_task.cancel()
+            signal.signal(signal.SIGTERM, _on_sigterm)
+
+            def _on_sigquit(signum, frame):
+                nonlocal run_loop_task
+                _logger.error('user interrupted with ctrl-\\ (SIGQUIT), terminating...')
+                _on_sigterm(signum, frame)
+            signal.signal(signal.SIGQUIT, _on_sigquit)
+
             while not run_loop_task.done():
                 try:
                     self.__loop_from_run_thread.run_until_complete(run_loop_task)
-                except KeyboardInterrupt:
-                    base_msg = 'user interrupted with ctrl-c (SIGINT)'
-                    if not sigint_received:
-                        _logger.warn(base_msg)
-                        self._shutdown(reason='ctrl-c (SIGINT)', due_to_sigint=True)
-                        sigint_received = True
-                    else:
-                        _logger.warn('{} again, terminating...'.format(base_msg))
-                        run_loop_task.cancel()
+                except asyncio.CancelledError:
+                    _logger.error('asyncio run loop was canceled')
         finally:
             # No matter what happens, unset the loop and set running to false.
             with self.__loop_from_run_thread_lock:
                 self.__shutting_down = False
                 self.__loop_from_run_thread = None
                 self.__context._set_asyncio_loop(None)
+            # Restore the original signal handlers for SIGINT, SIGQUIT, and SIGTERM.
+            signal.signal(signal.SIGINT, self.__original_sigint_handler)
+            signal.signal(signal.SIGQUIT, self.__original_sigquit_handler)
+            signal.signal(signal.SIGTERM, self.__original_sigterm_handler)
             with self.__running_lock:
                 self.__running = False
 
