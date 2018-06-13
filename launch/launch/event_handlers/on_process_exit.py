@@ -84,12 +84,24 @@ class OnProcessExit(EventHandler):
         # the correct signature for a handler in this case
         self.__on_exit = on_exit
         self.__actions_on_exit: List[LaunchDescriptionEntity] = []
-        if isinstance(on_exit, LaunchDescriptionEntity):
-            self.__on_exit = lambda event, context: on_exit
+        if callable(on_exit):
+            # Then on_exit is a function or lambda, so we can just call it, but
+            # we don't put anything in self.__actions_on_exit because we cannot
+            # know what the function will return.
+            pass
+        else:
+            # Otherwise, setup self.__actions_on_exit
             if isinstance(on_exit, collections.Iterable):
-                self.__actions_on_exit = on_exit
+                for entity in on_exit:
+                    if not isinstance(entity, LaunchDescriptionEntity):
+                        raise ValueError(
+                            "expected all items in 'on_exit' iterable to be of type "
+                            "'LaunchDescriptionEntity' but got '{}'".format(type(entity)))
+                self.__actions_on_exit = list(on_exit)  # Outside list is to ensure type is List
             else:
                 self.__actions_on_exit = [on_exit]
+            # Then return it from a lambda and use that as the self.__on_exit callback.
+            self.__on_exit = lambda event, context: self.__actions_on_exit
 
     def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
