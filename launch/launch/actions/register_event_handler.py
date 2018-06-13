@@ -23,12 +23,12 @@ class RegisterEventHandler(Action):
     """
     Action that registers an event handler.
 
-    Event handlers which are registered in this action will not be matched
-    to an event which is in the process of being handled.
-    For example, if you have an event handler for event 'Foo' which returns
+    Event handlers that are registered in this action will not be matched
+    to an event that is in the process of being handled.
+    For example, if you have an event handler for event 'Foo', which returns
     an instance of RegisterEventHandler for a new event handler that handles
     the event 'Foo' as well, that event handler will not be matched with the
-    instance of the 'Foo' event which caused it to be registered in the first
+    instance of the 'Foo' event that caused it to be registered in the first
     place.
     """
 

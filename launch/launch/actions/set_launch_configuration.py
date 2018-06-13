@@ -29,7 +29,7 @@ class SetLaunchConfiguration(Action):
     Action that sets a launch configuration by name.
 
     Launch configurations can be accessed by the LaunchConfiguration
-    substitution and accessible after being set, even in included
+    substitution and are accessible after being set, even in included
     LaunchDescription's, but can be scoped with groups.
     """
 

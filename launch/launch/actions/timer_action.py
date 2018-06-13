@@ -90,7 +90,7 @@ class TimerAction(Action):
         Text,
         Iterable['LaunchDescriptionEntity'],
     ]]:
-        """Return the actions that will result when it the timer expires, but was not canceled."""
+        """Return the actions that will result when the timer expires, but was not canceled."""
         return [('{} seconds pass without being canceled'.format(self.__period), self.__actions)]
 
     def handle(self, context: LaunchContext) -> Optional[SomeActionsType]:
@@ -118,7 +118,7 @@ class TimerAction(Action):
         Execute the action.
 
         This does the following:
-        - register a global event handler TimerAction's if not already done
+        - register a global event handler for TimerAction's if not already done
         - create a task for the coroutine that waits until canceled or timeout
         - coroutine asynchronously fires event after timeout, if not canceled
         """
