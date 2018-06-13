@@ -47,7 +47,7 @@ def main(argv=sys.argv[1:]):
     ])
 
     # Setup a custom event handler for all stdout/stderr from processes.
-    # In the future this will be a configurable, but always present, extension to the LaunchService.
+    # Later, this will be a configurable, but always present, extension to the LaunchService.
     def on_output(event: launch.Event) -> None:
         for line in event.text.decode().splitlines():
             print('[{}] {}'.format(
