@@ -129,13 +129,19 @@ class ExecuteProcess(Action):
         implemented by the event handlers for the process's ProcessIO events.
 
         :param: cmd a list where the first item is the executable and the rest
-            are arguments to the executable, each item maybe be a string or a
+            are arguments to the executable, each item may be a string or a
             list of strings and Substitutions to be resolved at runtime
         :param: cwd the directory in which to run the executable
         :param: env dictionary of environment variables to be used
         :param: shell if True, a shell is used to execute the cmd
-        :param: sigterm_timeout time until shutdown should escalate to SIGTERM
-        :param: sigkill_timeout time until escalating to SIGKILL after SIGTERM
+        :param: sigterm_timeout time until shutdown should escalate to SIGTERM,
+            as a string or a list of strings and Substitutions to be resolved
+            at runtime, defaults to the LaunchConfiguration called
+            'sigterm_timeout'
+        :param: sigkill_timeout time until escalating to SIGKILL after SIGTERM,
+            as a string or a list of strings and Substitutions to be resolved
+            at runtime, defaults to the LaunchConfiguration called
+            'sigkill_timeout'
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'
@@ -143,7 +149,7 @@ class ExecuteProcess(Action):
             to stdout and stdout is printed to the screen; if 'log' stderr is
             directed to the screen and both stdout and stderr are directed to
             a log file; the default is 'log'
-        :param: log_cmd if True, print's the final cmd before executing the
+        :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
         """
