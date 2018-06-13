@@ -65,6 +65,7 @@ class OnShutdown(EventHandler):
 
     def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
         """Handle the given event."""
+        context.extend_locals({'event': event})
         return self.__on_shutdown(cast(Shutdown, event), context)
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:

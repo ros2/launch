@@ -106,9 +106,10 @@ def main(argv=sys.argv[1:]):
 
     # Add our own message for when shutdown is requested.
     ld.add_action(launch.actions.RegisterEventHandler(launch.event_handlers.OnShutdown(
-        on_shutdown=[launch.actions.LogInfo(msg='Launch was asked to shutdown: {}'.format(
-            launch.substitutions.LocalSubstitution('event.reason')
-        ))],
+        on_shutdown=[launch.actions.LogInfo(msg=[
+            'Launch was asked to shutdown: ',
+            launch.substitutions.LocalSubstitution('event.reason'),
+        ])],
     )))
 
     print('Starting introspection of launch description...')
