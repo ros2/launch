@@ -16,7 +16,6 @@
 
 import logging
 from typing import List
-from typing import Optional
 from typing import overload
 from typing import Text
 from typing import Union
@@ -53,7 +52,7 @@ class LogInfo(Action):
         """Getter for self.__msg."""
         return self.__msg
 
-    def execute(self, context: LaunchContext) -> Optional[List[Action]]:
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         _logger.info(''.join([context.perform_substitution(sub) for sub in self.msg]))
         return None
