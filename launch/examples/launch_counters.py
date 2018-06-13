@@ -121,8 +121,8 @@ def main(argv=sys.argv[1:]):
     print('Starting launch of launch description...')
     print('')
 
-    # ls = LaunchService(debug=True)  # Use this instead to get more debug info out of launch.
-    ls = LaunchService()
+    # ls = LaunchService(argv=argv, debug=True)  # Use this instead to get more debug messages.
+    ls = LaunchService(argv=argv)
     ls.include_launch_description(ld)
     ls.run()
 
