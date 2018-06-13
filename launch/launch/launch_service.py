@@ -128,7 +128,7 @@ class LaunchService:
     def _prune_and_count_context_completion_futures(self):
         needs_prune = False
         for future in self.__context._completion_futures:
-            if future .done():
+            if future.done():
                 needs_prune = True
         if needs_prune:
             self.__context._completion_futures = \
