@@ -70,6 +70,7 @@ class OnShutdown(EventHandler):
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
         """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+        # TODO(dhood): print known actions if they were passed in, like in OnProcessExit
         return (
             "OnShutdown(matcher='{}', handler={})".format(
                 self.matcher_description,
