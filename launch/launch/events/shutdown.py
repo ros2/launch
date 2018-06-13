@@ -20,7 +20,7 @@ from ..event import Event
 
 
 class Shutdown(Event):
-    """Event that can be emitted during runtime of a launched system."""
+    """Event that is emitted on shutdown of a launched system."""
 
     name = 'launch.events.Shutdown'
 
