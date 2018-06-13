@@ -55,7 +55,7 @@ def matches_executable(executable: Text) -> Callable[['ExecuteProcess'], bool]:
 
     The given executable is compared with the first element of the 'cmd' using
     str.endswith().
-    So, for example, 'ls' would match either 'ls' or '/usr/bin/ls'.
+    So, for example, 'ls' would match either 'ls .' or '/usr/bin/ls .'.
     """
     def matcher(action: 'ExecuteProcess') -> bool:
         if action.process_details is None:
