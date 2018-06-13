@@ -70,7 +70,7 @@ def main(argv=sys.argv[1:]):
     # Make event handler that uses the output.
     ld.add_action(launch.actions.RegisterEventHandler(launch.event_handlers.OnProcessIO(
         target_action=whoami_action,
-        # The output of `time` will be skipped since it goes to stderr.
+        # The output of `time` will be skipped since `time`'s output always goes to stderr.
         on_stdout=lambda event: launch.actions.LogInfo(
             msg="whoami says you are '{}'.".format(event.text.decode().strip())
         ),
