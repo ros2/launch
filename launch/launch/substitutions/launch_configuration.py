@@ -41,7 +41,7 @@ class LaunchConfiguration(Substitution):
         """Constructor."""
         super().__init__()
 
-        ensure_argument_type(variable_name, str, 'expression', 'LaunchConfiguration')
+        ensure_argument_type(variable_name, str, 'variable_name', 'LaunchConfiguration')
 
         from ..utilities import normalize_to_list_of_substitutions
         self.__variable_name = normalize_to_list_of_substitutions(variable_name)
