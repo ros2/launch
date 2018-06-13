@@ -68,7 +68,7 @@ def ensure_argument_type(
             result |= issubclass(argument.__class__, type_var)
         return result
 
-    list_of_types = list(types if isinstance(types, collections.Iterable) else [types])
+    list_of_types = types if isinstance(types, collections.Iterable) else [types]
     if not any(check_argument(argument, type_var) for type_var in list_of_types):
         raise TypeError(error_msg_template.format(
             'E' if caller is None else "'{}' e".format(caller),

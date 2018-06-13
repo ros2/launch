@@ -14,12 +14,12 @@
 
 """Module for SignalProcess event."""
 
+import signal
 from typing import Callable
-from typing import Optional
 from typing import Text
 
 from .process_targeted_event import ProcessTargetedEvent
-from ...utilities import get_signal_name
+from ...utilities import ensure_argument_type
 
 if False:
     # imports here would cause loops, but are only used as forward-references for type-checking
@@ -33,7 +33,7 @@ class SignalProcess(ProcessTargetedEvent):
 
     def __init__(
         self, *,
-        signal_number: int,
+        signal_number: signal.Signals,
         process_matcher: Callable[['ExecuteProcess'], bool]
     ) -> None:
         """
@@ -43,8 +43,9 @@ class SignalProcess(ProcessTargetedEvent):
         signal to a process.
         """
         super().__init__(process_matcher=process_matcher)
+        ensure_argument_type(signal_number, (signal.Signals,), 'signal_number', 'SignalProcess')
         self.__signal = signal_number
-        self.__signal_name: Optional[Text] = None  # evaluate lazily
+        self.__signal_name = signal_number.name
 
     @property
     def signal(self) -> int:
@@ -58,6 +59,4 @@ class SignalProcess(ProcessTargetedEvent):
 
         It will be something like (e.g.) 'SIGINT', or the number if name is unknown.
         """
-        if self.__signal_name is None:
-            self.__signal_name = get_signal_name(self.__signal)
         return self.__signal_name
