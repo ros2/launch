@@ -14,7 +14,7 @@
 
 """Module for SignalProcess event."""
 
-import signal
+import signal as signal_module  # to avoid confusion with .signal property in type annotations
 from typing import Callable
 from typing import Text
 
@@ -33,7 +33,7 @@ class SignalProcess(ProcessTargetedEvent):
 
     def __init__(
         self, *,
-        signal_number: signal.Signals,
+        signal_number: signal_module.Signals,
         process_matcher: Callable[['ExecuteProcess'], bool]
     ) -> None:
         """
@@ -43,12 +43,12 @@ class SignalProcess(ProcessTargetedEvent):
         signal to a process.
         """
         super().__init__(process_matcher=process_matcher)
-        ensure_argument_type(signal_number, (signal.Signals,), 'signal_number', 'SignalProcess')
+        ensure_argument_type(
+            signal_number, (signal_module.Signals,), 'signal_number', 'SignalProcess')
         self.__signal = signal_number
-        self.__signal_name = signal_number.name
 
     @property
-    def signal(self) -> int:
+    def signal(self) -> signal_module.Signals:
         """Getter for signal, it will match something from the signal module."""
         return self.__signal
 
@@ -57,6 +57,6 @@ class SignalProcess(ProcessTargetedEvent):
         """
         Getter for signal_name.
 
-        It will be something like (e.g.) 'SIGINT', or the number if name is unknown.
+        It will be something like (e.g.) 'SIGINT'.
         """
-        return self.__signal_name
+        return self.__signal.name
