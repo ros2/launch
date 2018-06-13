@@ -97,6 +97,8 @@ class OnProcessIO(EventHandler):
     @property
     def matcher_description(self):
         """Return the string description of the matcher."""
+        if self.__target_action is None:
+            return 'event issubclass of ProcessIO'
         return 'event issubclass of ProcessIO and event.action == ExecuteProcess({})'.format(
             hex(id(self.__target_action))
         )
