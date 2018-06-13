@@ -39,7 +39,7 @@ if False:
 class OnProcessExit(EventHandler):
     """
     Convenience class for handling a process exited event.
-    
+
     It may be configured to only handle the exiting of a specific action,
     or to handle all exited processes.
     """

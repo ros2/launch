@@ -148,7 +148,7 @@ class TimerAction(Action):
             _event_handler_has_been_installed = True
 
         # Capture the current context locals so the yielded actions can make use of them too.
-        self.__context_locals = dict(context.get_locals_as_dict())
+        self.__context_locals = dict(context.get_locals_as_dict())  # Capture a copy
         context.asyncio_loop.create_task(self.__wait_to_fire_event(context))
         return None
 
