@@ -108,7 +108,6 @@ def install_signal_handlers():
     global __custom_sigint_handler, __custom_sigquit_handler, __custom_sigterm_handler
 
     __original_sigint_handler = signal.getsignal(signal.SIGINT)
-    __original_sigquit_handler = signal.getsignal(signal.SIGQUIT)
     __original_sigterm_handler = signal.getsignal(signal.SIGTERM)
 
     def __on_sigint(signum, frame):
@@ -122,11 +121,15 @@ def install_signal_handlers():
                     # Suppress KeyboardInterrupt unless there is no custom handler.
                     raise
 
-    def __on_sigquit(signum, frame):
-        if callable(__custom_sigquit_handler):
-            __custom_sigquit_handler(signum, frame)
-        if callable(__original_sigquit_handler):
-            __original_sigquit_handler(signum, frame)
+    if platform.system() != 'Windows':
+        # Windows does not support SIGQUIT
+        __original_sigquit_handler = signal.getsignal(signal.SIGQUIT)
+
+        def __on_sigquit(signum, frame):
+            if callable(__custom_sigquit_handler):
+                __custom_sigquit_handler(signum, frame)
+            if callable(__original_sigquit_handler):
+                __original_sigquit_handler(signum, frame)
 
     def __on_sigterm(signum, frame):
         if callable(__custom_sigterm_handler):
