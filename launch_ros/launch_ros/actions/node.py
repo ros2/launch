@@ -125,7 +125,7 @@ class Node(ExecuteProcess):
             raise RuntimeError("cannot access 'node_name' before executing action")
         return self.__final_node_name
 
-    def _perform_substituions(self, context: LaunchContext) -> None:
+    def _perform_substitutions(self, context: LaunchContext) -> None:
         try:
             if self.__substitutions_performed:
                 return
@@ -171,7 +171,7 @@ class Node(ExecuteProcess):
 
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
-        self._perform_substituions(context)
+        self._perform_substitutions(context)
         ros_specific_arguments: List[Text] = []
         if self.__node_name is not None:
             ros_specific_arguments.append('__node:={}'.format(self.__expanded_node_name))

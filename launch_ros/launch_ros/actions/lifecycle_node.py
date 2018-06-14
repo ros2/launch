@@ -102,7 +102,7 @@ class LifecycleNode(Node):
 
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
-        self._perform_substituions(context)  # ensure self.node_name is expanded
+        self._perform_substitutions(context)  # ensure self.node_name is expanded
         if '<node_name_unspecified>' in self.node_name:
             raise RuntimeError('node_name unexpectedly incomplete for lifecycle node')
         # Create a subscription to monitor the state changes of the subprocess.
