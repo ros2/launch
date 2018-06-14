@@ -38,41 +38,53 @@ def main(argv=sys.argv[1:]):
 
     ld = launch.LaunchDescription()
 
-    # Launch the talker node.
+    # Prepare the talker node.
     talker_node = launch_ros.actions.LifecycleNode(
         node_name='talker',
         package='lifecycle', node_executable='lifecycle_talker', output='screen')
-    ld.add_action(talker_node)
-    # When the talker node reaches the PRIMARY_STATE_ACTIVE state, start the listener.
-    ld.add_action(launch.actions.RegisterEventHandler(launch_ros.event_handlers.OnStateTransition(
-        target_lifecycle_node=talker_node, goal_state='active',
-        entities=[
-            launch.actions.LogInfo(
-                msg="lifecycle node 'talker' reached the 'active' state, launching 'listener'."),
-            launch_ros.actions.LifecycleNode(
-                node_name='listener',
-                package='lifecycle', node_executable='lifecycle_listener', output='screen'),
-        ],
-    )))
 
-    # When the talker reaches 'configured', make it take the 'activate' transition.
-    ld.add_action(launch.actions.RegisterEventHandler(launch_ros.event_handlers.OnStateTransition(
-        target_lifecycle_node=talker_node, goal_state='inactive',
-        entities=[
-            launch.actions.LogInfo(
-                msg="lifecycle node 'talker' reached the 'unconfigured' state, 'activating'."),
-            launch.actions.EmitEvent(event=launch_ros.events.lifecycle.ChangeState(
-                lifecycle_node_matcher=launch.events.process.matches_action(talker_node),
-                transition_id=lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE,
-            )),
-        ],
-    )))
+    # When the talker reaches the 'inactive' state, make it take the 'activate' transition.
+    event_handler_for_talker_reaching_inactive_state = launch.actions.RegisterEventHandler(
+        launch_ros.event_handlers.OnStateTransition(
+            target_lifecycle_node=talker_node, goal_state='inactive',
+            entities=[
+                launch.actions.LogInfo(
+                    msg="node 'talker' reached the 'inactive' state, 'activating'."),
+                launch.actions.EmitEvent(event=launch_ros.events.lifecycle.ChangeState(
+                    lifecycle_node_matcher=launch.events.process.matches_action(talker_node),
+                    transition_id=lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE,
+                )),
+            ],
+        )
+    )
+
+    # When the talker node reaches the 'active' state, log a message and start the listener node.
+    event_handler_for_talker_reaching_active_state = launch.actions.RegisterEventHandler(
+        launch_ros.event_handlers.OnStateTransition(
+            target_lifecycle_node=talker_node, goal_state='active',
+            entities=[
+                launch.actions.LogInfo(
+                    msg="node 'talker' reached the 'active' state, launching 'listener'."),
+                launch_ros.actions.LifecycleNode(
+                    node_name='listener',
+                    package='lifecycle', node_executable='lifecycle_listener', output='screen'),
+            ],
+        )
+    )
 
     # Make the talker node take the 'configure' transition.
-    ld.add_action(launch.actions.EmitEvent(event=launch_ros.events.lifecycle.ChangeState(
-        lifecycle_node_matcher=launch.events.process.matches_action(talker_node),
-        transition_id=lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
-    )))
+    emit_event_to_request_that_talker_does_configure_transition = launch.actions.EmitEvent(
+        event=launch_ros.events.lifecycle.ChangeState(
+            lifecycle_node_matcher=launch.events.process.matches_action(talker_node),
+            transition_id=lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
+        )
+    )
+
+    # Add the actions to the launch description all at once, because the order matters:
+    ld.add_action(event_handler_for_talker_reaching_inactive_state)
+    ld.add_action(event_handler_for_talker_reaching_active_state)
+    ld.add_action(talker_node)
+    ld.add_action(emit_event_to_request_that_talker_does_configure_transition)
 
     print('Starting introspection of launch description...')
     print('')
