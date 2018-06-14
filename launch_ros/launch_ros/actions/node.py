@@ -142,8 +142,6 @@ class Node(ExecuteProcess):
                     context, normalize_to_list_of_substitutions(self.__node_namespace))
             if not self.__expanded_node_namespace.startswith('/'):
                 self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
-
-            self.__expanded_node_namespace.lstrip('/')
             validate_namespace(self.__expanded_node_namespace)
         except Exception:
             print("Error while expanding or validating node name or namespace for '{}':".format(
