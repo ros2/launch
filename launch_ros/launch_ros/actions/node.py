@@ -92,6 +92,7 @@ class Node(ExecuteProcess):
         cmd = [ExecutableInPackage(package=package, executable=node_executable)]
         cmd += [] if arguments is None else arguments
         # Reserve space for ros specific arguments.
+        # The substitutions will get expanded when the action is executed.
         ros_args_index = 0
         if node_name is not None:
             cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
@@ -172,6 +173,8 @@ class Node(ExecuteProcess):
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
         self._perform_substitutions(context)
+        # Prepare the ros_specific_arguments list and add it to the context so that the
+        # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
         ros_specific_arguments: List[Text] = []
         if self.__node_name is not None:
             ros_specific_arguments.append('__node:={}'.format(self.__expanded_node_name))
