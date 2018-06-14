@@ -92,6 +92,9 @@ class OnStateTransition(EventHandler):
     @property
     def matcher_description(self):
         """Return the string description of the matcher."""
+        # TODO(dhood): improve this to print more matcher properties
+        if self.__target_lifecycle_node is None:
+            return 'event == StateTransition'
         return 'event == StateTransition and event.action == LifecycleNode({})'.format(
             hex(id(self.__target_lifecycle_node))
         )
