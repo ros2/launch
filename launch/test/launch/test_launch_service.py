@@ -19,6 +19,15 @@ import threading
 
 from launch import LaunchDescription
 from launch import LaunchService
+from launch.utilities import install_signal_handlers
+
+# Install the signal handlers here, in the hope that this is executed in the
+# main-thread.
+# If this is not the main-thread, a ValueError will be raised.
+# See the docs for this function for more info.
+# This would ensure that the custom handlers that the LaunchService needs can
+# be installed later from other threads.
+install_signal_handlers()
 
 
 def test_launch_service_constructors():

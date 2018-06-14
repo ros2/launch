@@ -17,7 +17,6 @@
 import asyncio
 import collections
 import logging
-import signal
 import threading
 from typing import Iterable
 from typing import List
@@ -37,6 +36,10 @@ from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
 from .some_actions_type import SomeActionsType
+from .utilities import install_signal_handlers
+from .utilities import on_sigint
+from .utilities import on_sigquit
+from .utilities import on_sigterm
 from .utilities import visit_all_entities_and_collect_futures
 
 _logger = logging.getLogger('launch.LaunchService')
@@ -54,9 +57,18 @@ class LaunchService:
         """
         Constructor.
 
+        If called outside of the main-thread before the function
+        :func:`launch.utilities.install_signal_handlers()` has been called,
+        a ValueError can be raised, as setting signal handlers cannot be done
+        outside of the main-thread.
+
         :param: argv stored in the context for access by the entities, None results in []
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
+        # Install signal handlers if not already installed, will raise if not
+        # in main-thread, call manually in main-thread to avoid this.
+        install_signal_handlers()
+
         self.__argv = argv if argv is not None else []
 
         # Setup logging and debugging.
@@ -218,9 +230,6 @@ class LaunchService:
             self.__running = True
 
         self.__shutdown_when_idle = shutdown_when_idle
-        self.__original_sigint_handler = signal.getsignal(signal.SIGINT)
-        self.__original_sigquit_handler = signal.getsignal(signal.SIGQUIT)
-        self.__original_sigterm_handler = signal.getsignal(signal.SIGTERM)
 
         # Acquire the lock and initialize the asyncio loop.
         with self.__loop_from_run_thread_lock:
@@ -246,20 +255,21 @@ class LaunchService:
                     sigint_received = True
                 else:
                     _logger.warn('{} again, ignoring...'.format(base_msg))
-            signal.signal(signal.SIGINT, _on_sigint)
 
             def _on_sigterm(signum, frame):
                 # TODO(wjwwood): try to terminate running subprocesses before exiting.
                 _logger.error('using SIGTERM or SIGQUIT can result in orphaned processes')
                 _logger.error('make sure no processes launched are still running')
                 run_loop_task.cancel()
-            signal.signal(signal.SIGTERM, _on_sigterm)
 
             def _on_sigquit(signum, frame):
                 nonlocal run_loop_task
                 _logger.error('user interrupted with ctrl-\\ (SIGQUIT), terminating...')
                 _on_sigterm(signum, frame)
-            signal.signal(signal.SIGQUIT, _on_sigquit)
+
+            on_sigint(_on_sigint)
+            on_sigterm(_on_sigterm)
+            on_sigquit(_on_sigquit)
 
             while not run_loop_task.done():
                 try:
@@ -272,10 +282,12 @@ class LaunchService:
                 self.__shutting_down = False
                 self.__loop_from_run_thread = None
                 self.__context._set_asyncio_loop(None)
-            # Restore the original signal handlers for SIGINT, SIGQUIT, and SIGTERM.
-            signal.signal(signal.SIGINT, self.__original_sigint_handler)
-            signal.signal(signal.SIGQUIT, self.__original_sigquit_handler)
-            signal.signal(signal.SIGTERM, self.__original_sigterm_handler)
+
+            # Unset the signal handlers while not running.
+            on_sigint(None)
+            on_sigterm(None)
+            on_sigquit(None)
+
             with self.__running_lock:
                 self.__running = False
 
