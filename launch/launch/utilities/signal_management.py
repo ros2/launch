@@ -146,5 +146,5 @@ def install_signal_handlers():
             signal.signal(signal.SIGQUIT, __on_sigquit)
     except ValueError:
         _logger.error("failed to set signal handlers in 'launch.utilities.signal_management.py'")
-        _logger.error('this module must be imported in the main thread')
+        _logger.error('this function must be called in the main thread')
         raise
