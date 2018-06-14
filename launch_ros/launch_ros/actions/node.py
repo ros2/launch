@@ -20,6 +20,7 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
@@ -46,7 +47,7 @@ class Node(ExecuteProcess):
         node_executable: SomeSubstitutionsType,
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: Optional[SomeSubstitutionsType] = None,
-        remappings: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        remappings: Optional[Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         **kwargs,
     ) -> None:
@@ -85,8 +86,8 @@ class Node(ExecuteProcess):
         :param: node_executable the name of the executable to find
         :param: node_name the name of the node
         :param: node_namespace the ros namespace for this Node
-        :param: remappings map of 'to' and 'from' strings to be passed to the
-            node as ROS remapping rules
+        :param: remappings ordered list of 'to' and 'from' string pairs to be
+            passed to the node as ROS remapping rules
         :param: arguments list of extra arguments for the node
         """
         cmd = [ExecutableInPackage(package=package, executable=node_executable)]
@@ -101,7 +102,7 @@ class Node(ExecuteProcess):
             cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
             ros_args_index += 1
         if remappings is not None:
-            for k in remappings.keys():
+            for k, v in remappings:
                 cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
                 ros_args_index += 1
         super().__init__(cmd=cmd, **kwargs)
@@ -109,7 +110,7 @@ class Node(ExecuteProcess):
         self.__node_executable = node_executable
         self.__node_name = node_name
         self.__node_namespace = node_namespace
-        self.__remappings = {} if remappings is None else remappings
+        self.__remappings = [] if remappings is None else remappings
         self.__arguments = arguments
 
         self.__expanded_node_name = '<node_name_unspecified>'
@@ -161,7 +162,7 @@ class Node(ExecuteProcess):
         # expand remappings too
         if self.__remappings is not None:
             self.__expanded_remappings = {}
-            for k, v in self.__remappings.items():
+            for k, v in self.__remappings:
                 key = perform_substitutions(context, normalize_to_list_of_substitutions(k))
                 value = perform_substitutions(context, normalize_to_list_of_substitutions(v))
                 self.__expanded_remappings[key] = value
@@ -181,7 +182,7 @@ class Node(ExecuteProcess):
         if self.__node_namespace is not None:
             ros_specific_arguments.append('__ns:={}'.format(self.__expanded_node_namespace))
         if self.__expanded_remappings is not None:
-            for remapping_from, remapping_to in self.__remappings.items():
+            for remapping_from, remapping_to in self.__remappings:
                 ros_specific_arguments.append('{}:={}'.format(remapping_from, remapping_to))
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         return super().execute(context)
