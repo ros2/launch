@@ -115,7 +115,8 @@ def get_default_launch_description(*, prefix_output_with_name=False):
     Return a LaunchDescription to be included before user descriptions.
 
     :param: prefix_output_with_name if True, each line of output is prefixed
-        with the name of the node as `[name] `, else it is printed unmodified
+        with the name of the process as `[process_name] `, else it is printed
+        unmodified
     """
     default_ros_launch_description = launch.LaunchDescription([
         # ROS initialization (create node and other stuff).
