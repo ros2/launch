@@ -82,7 +82,7 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
     def _run(self):
         executor = rclpy.get_global_executor()
         try:
-            executor.add_node(self.__rclpy_node)
+            executor.add_node(self.__launch_ros_node)
             while rclpy.ok():
                 # TODO(wjwwood): switch this to `spin()` when it considers
                 #   asynchronously added subscriptions.
@@ -91,7 +91,7 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
         except KeyboardInterrupt:
             pass
         finally:
-            executor.remove_node(self.__rclpy_node)
+            executor.remove_node(self.__launch_ros_node)
 
     def _function(self, context: launch.LaunchContext):
         try:
@@ -100,10 +100,10 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
             if 'rcl_init called while already initialized' in str(exc):
                 pass
             raise
-        self.__rclpy_node = rclpy.create_node('launch_ros')
+        self.__launch_ros_node = rclpy.create_node('launch_ros')
         context.extend_globals({
             'ros_startup_action': self,
-            'rclpy_node': self.__rclpy_node
+            'launch_ros_node': self.__launch_ros_node
         })
         context.register_event_handler(launch.event_handlers.OnShutdown(
             on_shutdown=self._shutdown,

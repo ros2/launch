@@ -106,12 +106,12 @@ class LifecycleNode(Node):
         if '<node_name_unspecified>' in self.node_name:
             raise RuntimeError('node_name unexpectedly incomplete for lifecycle node')
         # Create a subscription to monitor the state changes of the subprocess.
-        self.__rclpy_subscription = context.locals.rclpy_node.create_subscription(
+        self.__rclpy_subscription = context.locals.launch_ros_node.create_subscription(
             lifecycle_msgs.msg.TransitionEvent,
             '{}/transition_event'.format(self.node_name),
             functools.partial(self._on_transition_event, context))
         # Create a service client to change state on demand.
-        self.__rclpy_change_state_client = context.locals.rclpy_node.create_client(
+        self.__rclpy_change_state_client = context.locals.launch_ros_node.create_client(
             lifecycle_msgs.srv.ChangeState,
             '{}/change_state'.format(self.node_name))
         # Register an event handler to change states on a ChangeState lifecycle event.
