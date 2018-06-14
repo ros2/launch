@@ -31,7 +31,7 @@ from ..events.lifecycle import StateTransition
 
 
 class OnStateTransition(EventHandler):
-    """Convenience class for handling a state transition in a lifecycle node."""
+    """Convenience class for handling a state transition of a lifecycle node."""
 
     def __init__(
         self,
@@ -83,7 +83,7 @@ class OnStateTransition(EventHandler):
         self.__target_lifecycle_node = target_lifecycle_node
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 being a string, and then LaunchDescriptionEntity's."""
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         return (
             "OnStateTransition(matcher='{}', handler=<actions>)".format(self.matcher_description),
             self.entities,

@@ -16,10 +16,10 @@
 
 import functools
 import logging
+from typing import cast
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import cast
 
 import launch
 from launch.action import Action
