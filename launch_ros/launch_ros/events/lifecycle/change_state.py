@@ -27,7 +27,7 @@ if False:
 
 
 class ChangeState(Event):
-    """Event emitted when a lifecycle node makes a state transition."""
+    """Event emitted when a state transition is requested for a lifecycle node."""
 
     name = 'launch_ros.events.lifecycle.ChangeState'
     valid_transitions = collections.OrderedDict([
