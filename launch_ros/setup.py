@@ -5,7 +5,7 @@ setup(
     name='launch_ros',
     version='0.4.0',
     packages=find_packages(exclude=['test']),
-    install_requires=['setuptools', 'launch'],
+    install_requires=['setuptools', 'ament_index_python', 'launch', 'lifecycle_msgs', 'rclpy'],
     zip_safe=True,
     author='William Woodall',
     author_email='william@osrfoundation.org',
