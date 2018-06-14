@@ -15,7 +15,7 @@
 """Module containing the default LaunchDescription for ROS."""
 
 import functools
-import os
+import logging
 import threading
 from typing import cast
 from typing import Dict
@@ -28,23 +28,22 @@ import launch.events
 
 import rclpy
 
+_logger = logging.getLogger('launch_ros')
 _process_log_files: Dict[Text, TextIO] = {}
 
 
 def _on_process_started(context: launch.LaunchContext):
     typed_event = cast(launch.events.process.ProcessStarted, context.locals.event)
     if typed_event.execute_process_action.output == 'log':
-        os.makedirs('/tmp/launch/logs', exist_ok=True)
-        _process_log_files[typed_event.process_name] = open(
-            '/tmp/launch/logs/{}.txt'.format(typed_event.process_name), 'w')
+        # TODO(wjwwood): implement file logging
+        _logger.warn("process '{}' asked for 'output=log', but that's not currently implemented.")
 
 
 def _on_process_exited(context: launch.LaunchContext):
     typed_event = cast(launch.events.process.ProcessExited, context.locals.event)
     if typed_event.execute_process_action.output == 'log':
-        print("closing log file '{}'".format(_process_log_files[typed_event.process_name].name))
-        _process_log_files[typed_event.process_name].close()
-        del _process_log_files[typed_event.process_name]
+        # TODO(wjwwood): implement file logging
+        pass
 
 
 def _on_process_output(event: launch.Event, *, file_name: Text, prefix_output: bool):
@@ -63,8 +62,7 @@ def _on_process_output(event: launch.Event, *, file_name: Text, prefix_output: b
                     print('[{}:{}] {}'.format(event.process_name, file_name, line))
             else:
                 print(text, end='')
-        log_file = _process_log_files[typed_event.process_name]
-        log_file.write(text)
+        # TODO(wjwwood): implement file logging
 
 
 class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
