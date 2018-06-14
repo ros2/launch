@@ -18,12 +18,12 @@ from . import actions
 from . import event_handlers
 from . import events
 from . import substitutions
-from .default_launch_description import get_default_ros_launch_description
+from .default_launch_description import get_default_launch_description
 
 __all__ = [
     'actions',
     'event_handlers',
     'events',
     'substitutions',
-    'get_default_ros_launch_description',
+    'get_default_launch_description',
 ]

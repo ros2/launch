@@ -17,10 +17,10 @@
 import functools
 import os
 import threading
+from typing import cast
 from typing import Dict
 from typing import Text
 from typing import TextIO
-from typing import cast
 
 import launch
 import launch.actions
@@ -112,7 +112,7 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
         self.__rclpy_spin_thread.start()
 
 
-def get_default_ros_launch_description(*, prefix_output_with_name=False):
+def get_default_launch_description(*, prefix_output_with_name=False):
     """
     Return a LaunchDescription to be included before user descriptions.
 

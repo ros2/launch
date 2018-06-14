@@ -23,10 +23,10 @@ import launch
 import launch.actions
 import launch.events
 
+from launch_ros import get_default_launch_description
 import launch_ros.actions
 import launch_ros.events
 import launch_ros.events.lifecycle
-from launch_ros import get_default_ros_launch_description
 
 import lifecycle_msgs.msg
 
@@ -85,7 +85,7 @@ def main(argv=sys.argv[1:]):
 
     # ls = LaunchService(argv=argv, debug=True)
     ls = launch.LaunchService(argv=argv)
-    ls.include_launch_description(get_default_ros_launch_description(prefix_output_with_name=False))
+    ls.include_launch_description(get_default_launch_description(prefix_output_with_name=False))
     ls.include_launch_description(ld)
     ls.run()
 
