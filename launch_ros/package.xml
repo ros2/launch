@@ -12,6 +12,7 @@
   <depend>ament_index_python</depend>
   <depend>launch</depend>
   <depend>lifecycle_msgs</depend>
+  <depend>osrf_pycommon</depend>
   <depend>rclpy</depend>
 
   <test_depend>ament_flake8</test_depend>
