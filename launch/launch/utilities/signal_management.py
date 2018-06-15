@@ -42,6 +42,8 @@ def on_sigint(handler):
     It is called automatically by the constructor of `launch.LaunchService`.
     """
     global __custom_sigint_handler
+    if handler is not None and not callable(handler):
+        raise ValueError('handler must be callable or None')
     __custom_sigint_handler = handler
 
 
@@ -58,6 +60,8 @@ def on_sigquit(handler):
     It is called automatically by the constructor of `launch.LaunchService`.
     """
     global __custom_sigquit_handler
+    if handler is not None and not callable(handler):
+        raise ValueError('handler must be callable or None')
     __custom_sigquit_handler = handler
 
 
@@ -71,6 +75,8 @@ def on_sigterm(handler):
     It is called automatically by the constructor of `launch.LaunchService`.
     """
     global __custom_sigterm_handler
+    if handler is not None and not callable(handler):
+        raise ValueError('handler must be callable or None')
     __custom_sigterm_handler = handler
 
 
