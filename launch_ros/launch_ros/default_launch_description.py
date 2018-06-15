@@ -74,14 +74,14 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
         self.__shutting_down = False
 
     def _shutdown(self, event: launch.Event, context: launch.LaunchContext):
-        rclpy.get_global_executor().shutdown()
+        self.__shutting_down = True
         self.__rclpy_spin_thread.join()
 
     def _run(self):
         executor = rclpy.get_global_executor()
         try:
             executor.add_node(self.__launch_ros_node)
-            while rclpy.ok():
+            while not self.__shutting_down:
                 # TODO(wjwwood): switch this to `spin()` when it considers
                 #   asynchronously added subscriptions.
                 #   see: https://github.com/ros2/rclpy/issues/188

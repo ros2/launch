@@ -260,7 +260,7 @@ class LaunchService:
                 # TODO(wjwwood): try to terminate running subprocesses before exiting.
                 _logger.error('using SIGTERM or SIGQUIT can result in orphaned processes')
                 _logger.error('make sure no processes launched are still running')
-                run_loop_task.cancel()
+                self.__loop_from_run_thread.call_soon_threadsafe(run_loop_task.cancel)
 
             def _on_sigquit(signum, frame):
                 nonlocal run_loop_task
