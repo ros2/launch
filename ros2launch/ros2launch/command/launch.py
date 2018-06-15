@@ -66,7 +66,7 @@ class LaunchCommand(CommandExtension):
                     file_name=args.launch_file_name)
             except PackageNotFoundError as exc:
                 raise RuntimeError(
-                    "Package '{args.package_name}' not found: {exc}".format_map(locals()))
+                    "Package '{}' not found: {}".format(args.package_name, exc))
             except (FileNotFoundError, MultipleLaunchFilesError) as exc:
                 raise RuntimeError(str(exc))
         if args.print:
