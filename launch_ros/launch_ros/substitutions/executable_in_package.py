@@ -32,7 +32,7 @@ from osrf_pycommon.process_utils import which
 
 class ExecutableInPackage(Substitution):
     """
-    Substitution that trys to locate an executable in the libexec directory of a ROS package.
+    Substitution that tries to locate an executable in the libexec directory of a ROS package.
 
     The ROS package is located using ament_index_python.
 
@@ -59,7 +59,7 @@ class ExecutableInPackage(Substitution):
         return self.__package
 
     def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution by looking up the environment variable."""
+        """Perform the substitution by locating the executable."""
         executable = perform_substitutions(context, self.executable)
         package = perform_substitutions(context, self.package)
         package_prefix = get_package_prefix(package)

@@ -35,11 +35,11 @@ _logger = logging.getLogger(name='launch_ros')
 
 
 class LifecycleNode(Node):
-    """Action that begins executing a process and sets up event handlers for the process."""
+    """Action that executes a ROS lifecycle node."""
 
     def __init__(self, *, node_name: Text, **kwargs) -> None:
         """
-        Construct an LifecycleNode action.
+        Construct a LifecycleNode action.
 
         Almost all of the arguments are passed to :class:`Node` and eventually
         to :class:`launch.actions.ExecuteProcess`, so see the documentation of
@@ -53,13 +53,13 @@ class LifecycleNode(Node):
               "/<node_name>/transition_event" topic, indicating the lifecycle
               node represented by this action changed state
 
-        This action also handels some events related to lifecycle:
+        This action also handles some events related to lifecycle:
 
         - :class:`launch.events.lifecycle.ChangeState`
 
           - this event can be targeted to a single lifecycle node, or more than
-            one, or even all lifecycle nodes, and it causes the targeted nodes
-            to change state if possible, see its documentation for more details.
+            one, or even all lifecycle nodes, and it requests the targeted nodes
+            to change state, see its documentation for more details.
         """
         super().__init__(node_name=node_name, **kwargs)
         self.__rclpy_subscription = None

@@ -39,7 +39,7 @@ class StateTransition(Event):
         """
         Constructor.
 
-        :param: action the instance of LifecycleNode that generated this event
+        :param: action the instance of class::`LifecycleNode` that generated this event
         :param: msg the instance of the ROS message TransitionEvent that generated this event
         """
         super().__init__()

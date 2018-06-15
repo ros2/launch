@@ -39,7 +39,7 @@ _logger = logging.getLogger(name='launch_ros')
 
 
 class Node(ExecuteProcess):
-    """Action that begins executing a process and sets up event handlers for the process."""
+    """Action that executes a ROS node."""
 
     def __init__(
         self, *,
@@ -130,6 +130,7 @@ class Node(ExecuteProcess):
     def _perform_substitutions(self, context: LaunchContext) -> None:
         try:
             if self.__substitutions_performed:
+                # This function may have already been called by a subclass' `execute`, for example.
                 return
             self.__substitutions_performed = True
             if self.__node_name is not None:
