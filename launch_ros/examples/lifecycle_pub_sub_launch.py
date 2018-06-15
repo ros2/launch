@@ -33,9 +33,6 @@ import lifecycle_msgs.msg
 
 def main(argv=sys.argv[1:]):
     """Main."""
-    def _on_transition_event(context):
-        print('got transition_event {}'.format(context.locals.event))
-
     ld = launch.LaunchDescription()
 
     # Prepare the talker node.
