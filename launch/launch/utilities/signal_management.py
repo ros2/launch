@@ -42,6 +42,8 @@ def on_sigint(handler):
     It is called automatically by the constructor of `launch.LaunchService`.
     """
     global __custom_sigint_handler
+    if handler is not None and not callable(handler):
+        raise ValueError('handler must be callable or None')
     __custom_sigint_handler = handler
 
 
@@ -58,6 +60,8 @@ def on_sigquit(handler):
     It is called automatically by the constructor of `launch.LaunchService`.
     """
     global __custom_sigquit_handler
+    if handler is not None and not callable(handler):
+        raise ValueError('handler must be callable or None')
     __custom_sigquit_handler = handler
 
 
@@ -71,6 +75,8 @@ def on_sigterm(handler):
     It is called automatically by the constructor of `launch.LaunchService`.
     """
     global __custom_sigterm_handler
+    if handler is not None and not callable(handler):
+        raise ValueError('handler must be callable or None')
     __custom_sigterm_handler = handler
 
 
@@ -95,8 +101,8 @@ def install_signal_handlers():
     If you register signal handlers before calling this function, then your
     signal handler will automatically be called by the signal handlers in this
     thread.
-    One exception is that if your handler raises KeyboardInterrupt and a custom
-    handler for SIGINT has been set with on_sigint, then that exception will be
+    If your handler for SIGINT raises KeyboardInterrupt, and a custom handler
+    for SIGINT has been set with on_sigint, then that exception will be
     suppressed.
     """
     global __signal_handlers_installed_lock, __signal_handlers_installed
@@ -146,5 +152,5 @@ def install_signal_handlers():
             signal.signal(signal.SIGQUIT, __on_sigquit)
     except ValueError:
         _logger.error("failed to set signal handlers in 'launch.utilities.signal_management.py'")
-        _logger.error('this module must be imported in the main thread')
+        _logger.error('this function must be called in the main thread')
         raise
