@@ -12,6 +12,7 @@
   <license>Apache License 2.0</license>
 
   <depend>ament_index_python</depend>
+  <depend>launch</depend>
   <depend>launch_ros</depend>
   <depend>ros2cli</depend>
   <depend>ros2pkg</depend>
