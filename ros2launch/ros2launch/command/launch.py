@@ -26,13 +26,13 @@ from ros2pkg.api import package_name_completer
 
 
 class LaunchCommand(CommandExtension):
-    """Run a package specific executable."""
+    """Run a launch file."""
 
     def add_arguments(self, parser, cli_name):
         """Add arguments to argparse."""
         parser.add_argument(
             '-d', '--debug', default=False, action='store_true',
-            help='Put the launch system in debug mode, provided more verbose output.')
+            help='Put the launch system in debug mode, provides more verbose output.')
         parser.add_argument(
             '-p', '--print', '--print-description', default=False, action='store_true',
             help='Print the launch description to the console without launching it.')
@@ -42,6 +42,7 @@ class LaunchCommand(CommandExtension):
         arg.completer = package_name_completer
         arg = parser.add_argument(
             'launch_file_name',
+            # TODO(wjwwood) make this not optional when full launch path is supported.
             nargs='?',
             help='Name of the launch file')
         arg.completer = LaunchFileNameCompleter()
