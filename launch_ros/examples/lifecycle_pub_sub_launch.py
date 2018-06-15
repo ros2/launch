@@ -41,7 +41,7 @@ def main(argv=sys.argv[1:]):
         package='lifecycle', node_executable='lifecycle_talker', output='screen')
 
     # When the talker reaches the 'inactive' state, make it take the 'activate' transition.
-    register_event_handler_for_talker_reaching_inactive_state = launch.actions.RegisterEventHandler(
+    register_event_handler_for_talker_reaches_inactive_state = launch.actions.RegisterEventHandler(
         launch_ros.event_handlers.OnStateTransition(
             target_lifecycle_node=talker_node, goal_state='inactive',
             entities=[
@@ -56,7 +56,7 @@ def main(argv=sys.argv[1:]):
     )
 
     # When the talker node reaches the 'active' state, log a message and start the listener node.
-    register_event_handler_for_talker_reaching_active_state = launch.actions.RegisterEventHandler(
+    register_event_handler_for_talker_reaches_active_state = launch.actions.RegisterEventHandler(
         launch_ros.event_handlers.OnStateTransition(
             target_lifecycle_node=talker_node, goal_state='active',
             entities=[
@@ -79,8 +79,8 @@ def main(argv=sys.argv[1:]):
 
     # Add the actions to the launch description.
     # The order they are added reflects the order in which they will be executed.
-    ld.add_action(register_event_handler_for_talker_reaching_inactive_state)
-    ld.add_action(register_event_handler_for_talker_reaching_active_state)
+    ld.add_action(register_event_handler_for_talker_reaches_inactive_state)
+    ld.add_action(register_event_handler_for_talker_reaches_active_state)
     ld.add_action(talker_node)
     ld.add_action(emit_event_to_request_that_talker_does_configure_transition)
 
