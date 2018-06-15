@@ -101,8 +101,8 @@ def install_signal_handlers():
     If you register signal handlers before calling this function, then your
     signal handler will automatically be called by the signal handlers in this
     thread.
-    One exception is that if your handler raises KeyboardInterrupt and a custom
-    handler for SIGINT has been set with on_sigint, then that exception will be
+    If your handler for SIGINT raises KeyboardInterrupt, and a custom handler
+    for SIGINT has been set with on_sigint, then that exception will be
     suppressed.
     """
     global __signal_handlers_installed_lock, __signal_handlers_installed
