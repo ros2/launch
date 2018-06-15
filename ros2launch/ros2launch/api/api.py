@@ -122,7 +122,7 @@ def launch_a_python_launch_file(*, python_launch_file_path, launch_file_argument
     launch_description = get_launch_description_from_python_launch_file(python_launch_file_path)
     launch_service = launch.LaunchService(argv=launch_file_arguments, debug=debug)
     launch_service.include_launch_description(
-        launch_ros.get_default_ros_launch_description(prefix_output_with_name=False))
+        launch_ros.get_default_launch_description(prefix_output_with_name=False))
     launch_service.include_launch_description(launch_description)
     return launch_service.run()
 
