@@ -63,8 +63,8 @@ class LifecycleNode(Node):
         """
         super().__init__(node_name=node_name, **kwargs)
         self.__rclpy_subscription = None
-        # first item is unknown state
-        self.__current_state = next(iter(ChangeState.valid_states.values()))
+        self.__current_state = \
+            ChangeState.valid_states[lifecycle_msgs.msg.State.PRIMARY_STATE_UNKNOWN]
 
     def _on_transition_event(self, context, msg):
         try:
