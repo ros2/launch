@@ -21,7 +21,7 @@ import shlex
 import signal
 import threading
 import traceback
-from typing import Any
+from typing import Any  # noqa: F401
 from typing import cast
 from typing import Dict
 from typing import Iterable
@@ -52,7 +52,7 @@ from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
+from ..substitution import Substitution  # noqa: F401
 from ..substitutions import LaunchConfiguration
 from ..substitutions import PythonExpression
 from ..utilities import create_future
@@ -156,7 +156,7 @@ class ExecuteProcess(Action):
         super().__init__()
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
-        self.__env: Optional[Dict[List[Substitution], List[Substitution]]] = None
+        self.__env = None  # type: Optional[Dict[List[Substitution], List[Substitution]]]
         if env is not None:
             self.__env = {}
             for key, value in env.items():
@@ -179,12 +179,12 @@ class ExecuteProcess(Action):
             )
         self.__log_cmd = log_cmd
 
-        self.__process_event_args: Optional[Dict[Text, Any]] = None
-        self._subprocess_protocol: Optional[Any] = None
+        self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
+        self._subprocess_protocol = None  # type: Optional[Any]
         self._subprocess_transport = None
-        self.__completed_future: Optional[asyncio.Future] = None
-        self.__sigterm_timer: Optional[TimerAction] = None
-        self.__sigkill_timer: Optional[TimerAction] = None
+        self.__completed_future = None  # type: Optional[asyncio.Future]
+        self.__sigterm_timer = None  # type: Optional[TimerAction]
+        self.__sigkill_timer = None  # type: Optional[TimerAction]
         self.__shutdown_received = False
 
     @property

@@ -17,9 +17,9 @@
 import asyncio
 import collections
 import logging
-from typing import Any
+from typing import Any  # noqa: F401
 from typing import cast
-from typing import Dict
+from typing import Dict  # noqa: F401
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -67,10 +67,10 @@ class TimerAction(Action):
         else:
             self.__period = normalize_to_list_of_substitutions(period)
         self.__actions = actions
-        self.__context_locals: Dict[Text, Any] = {}
-        self.__completed_future: Optional[asyncio.Future] = None
+        self.__context_locals = {}  # type: Dict[Text, Any]
+        self.__completed_future = None  # type: Optional[asyncio.Future]
         self.__canceled = False
-        self.__canceled_future: Optional[asyncio.Future] = None
+        self.__canceled_future = None  # type: Optional[asyncio.Future]
 
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(

@@ -29,7 +29,7 @@ import launch.events
 import rclpy
 
 _logger = logging.getLogger('launch_ros')
-_process_log_files: Dict[Text, TextIO] = {}
+_process_log_files = {}  # type: Dict[Text, TextIO]
 
 
 def _on_process_started(context: launch.LaunchContext):

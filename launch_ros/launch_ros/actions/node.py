@@ -115,8 +115,8 @@ class Node(ExecuteProcess):
 
         self.__expanded_node_name = '<node_name_unspecified>'
         self.__expanded_node_namespace = '/'
-        self.__final_node_name: Optional[Text] = None
-        self.__expanded_remappings: Optional[Dict[Text, Text]] = None
+        self.__final_node_name = None  # type: Optional[Text]
+        self.__expanded_remappings = None  # type: Optional[Dict[Text, Text]]
 
         self.__substitutions_performed = False
 
@@ -175,7 +175,7 @@ class Node(ExecuteProcess):
         self._perform_substitutions(context)
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
-        ros_specific_arguments: List[Text] = []
+        ros_specific_arguments = []  # type: List[Text]
         if self.__node_name is not None:
             ros_specific_arguments.append('__node:={}'.format(self.__expanded_node_name))
         if self.__node_namespace is not None:
