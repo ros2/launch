@@ -22,7 +22,7 @@ class ProcessStdout(ProcessIO):
 
     name = 'launch.events.process.ProcessStdout'
 
-    def __init__(self, *, text: bytes, **kwargs):
+    def __init__(self, *, text: bytes, **kwargs) -> None:
         """
         Constructor.
 

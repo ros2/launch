@@ -44,7 +44,7 @@ class OnProcessIO(EventHandler):
         target_action: Optional['ExecuteProcess'] = None,
         on_stdin: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         on_stdout: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
-        on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
+        on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None
     ) -> None:
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa

@@ -60,7 +60,7 @@ class ChangeState(Event):
         self,
         *,
         lifecycle_node_matcher: Callable[['LifecycleNode'], bool],
-        transition_id: int,
+        transition_id: int
     ) -> None:
         """
         Constructor.

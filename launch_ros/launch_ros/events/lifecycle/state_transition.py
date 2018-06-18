@@ -34,7 +34,7 @@ class StateTransition(Event):
         self,
         *,
         action: 'LifecycleNode',
-        msg: lifecycle_msgs.msg.TransitionEvent,
+        msg: lifecycle_msgs.msg.TransitionEvent
     ) -> None:
         """
         Constructor.

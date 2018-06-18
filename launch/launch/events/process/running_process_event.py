@@ -39,7 +39,7 @@ class RunningProcessEvent(Event):
         cmd: List[Text],
         cwd: Optional[Text],
         env: Optional[Dict[Text, Text]],
-        pid: int,
+        pid: int
     ) -> None:
         """
         Constructor.
@@ -89,6 +89,6 @@ class RunningProcessEvent(Event):
         return self.__env
 
     @property
-    def pid(self) -> Optional[Dict[Text, Text]]:
+    def pid(self) -> int:
         """Getter for pid."""
         return self.__pid

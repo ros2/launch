@@ -39,7 +39,7 @@ class EventHandler:
         self,
         *,
         matcher: Callable[[Event], bool],
-        entities: Optional[SomeActionsType] = None,
+        entities: Optional[SomeActionsType] = None
     ) -> None:
         """
         Constructor.

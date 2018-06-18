@@ -23,7 +23,7 @@ from ..substitution import Substitution
 class TextSubstitution(Substitution):
     """Substitution that wraps a single string text."""
 
-    def __init__(self, *, text: Text):
+    def __init__(self, *, text: Text) -> None:
         """Constructor."""
         super().__init__()
 

@@ -27,7 +27,7 @@ class ProcessExited(RunningProcessEvent):
         *,
         returncode: int,
         **kwargs
-    ):
+    ) -> None:
         """
         Constructor.
 

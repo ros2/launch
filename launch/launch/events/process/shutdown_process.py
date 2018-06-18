@@ -18,6 +18,10 @@ from typing import Callable
 
 from .process_targeted_event import ProcessTargetedEvent
 
+if False:
+    # imports here would cause loops, but are only used as forward-references for type-checking
+    from ...actions import ExecuteProcess  # noqa
+
 
 class ShutdownProcess(ProcessTargetedEvent):
     """
@@ -32,6 +36,6 @@ class ShutdownProcess(ProcessTargetedEvent):
 
     name = 'launch.events.process.ShutdownProcess'
 
-    def __init__(self, *, process_matcher: Callable[['ExecuteProcess'], bool]):
+    def __init__(self, *, process_matcher: Callable[['ExecuteProcess'], bool]) -> None:
         """Constructor."""
         super().__init__(process_matcher=process_matcher)

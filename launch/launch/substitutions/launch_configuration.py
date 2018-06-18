@@ -36,7 +36,7 @@ class LaunchConfiguration(Substitution):
         self,
         variable_name: SomeSubstitutionsType,
         *,
-        default: Optional[Union[Any, Iterable[Any]]] = None,
+        default: Optional[Union[Any, Iterable[Any]]] = None
     ) -> None:
         """Constructor."""
         super().__init__()
@@ -49,8 +49,8 @@ class LaunchConfiguration(Substitution):
             self.__default = default
         else:
             # convert any items in default that are not a Substitution or str to a str
-            str_normalized_default: List[Union[Text, Substitution]] = []
-            definitely_iterable_default: Iterable[Any]  # noqa
+            str_normalized_default = []  # type: List[Union[Text, Substitution]]
+            definitely_iterable_default = ((),)  # type: Iterable[Any]
             if isinstance(default, collections.Iterable):
                 definitely_iterable_default = default
             else:
@@ -61,8 +61,9 @@ class LaunchConfiguration(Substitution):
                 else:
                     str_normalized_default.append(str(item))
             # use normalize_to_list_of_substitutions to convert str to TextSubstitution's too
-            self.__default: List[Substitution] = \
-                normalize_to_list_of_substitutions(str_normalized_default)
+            self.__default = \
+                normalize_to_list_of_substitutions(
+                    str_normalized_default)  # type: List[Substitution]
 
     @property
     def variable_name(self) -> List[Substitution]:

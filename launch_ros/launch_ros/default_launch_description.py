@@ -18,9 +18,9 @@ import functools
 import logging
 import threading
 from typing import cast
-from typing import Dict
+from typing import Dict  # noqa: F401
 from typing import Text
-from typing import TextIO
+from typing import TextIO  # noqa: F401
 
 import launch
 import launch.actions
@@ -29,7 +29,7 @@ import launch.events
 import rclpy
 
 _logger = logging.getLogger('launch_ros')
-_process_log_files: Dict[Text, TextIO] = {}
+_process_log_files = {}  # type: Dict[Text, TextIO]
 
 
 def _on_process_started(context: launch.LaunchContext):

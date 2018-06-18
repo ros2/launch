@@ -83,7 +83,7 @@ class OnProcessExit(EventHandler):
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
         # the correct signature for a handler in this case
         self.__on_exit = on_exit
-        self.__actions_on_exit: List[LaunchDescriptionEntity] = []
+        self.__actions_on_exit = []  # type: List[LaunchDescriptionEntity]
         if callable(on_exit):
             # Then on_exit is a function or lambda, so we can just call it, but
             # we don't put anything in self.__actions_on_exit because we cannot

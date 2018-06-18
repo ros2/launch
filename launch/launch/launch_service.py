@@ -19,11 +19,11 @@ import collections
 import logging
 import threading
 from typing import Iterable
-from typing import List
+from typing import List  # noqa: F401
 from typing import Optional
-from typing import Set
+from typing import Set  # noqa: F401
 from typing import Text
-from typing import Tuple
+from typing import Tuple  # noqa: F401
 
 import osrf_pycommon.process_utils
 
@@ -88,7 +88,8 @@ class LaunchService:
         self.__context.register_event_handler(OnShutdown(on_shutdown=self.__on_shutdown))
 
         # Setup storage for state.
-        self._entity_future_pairs: List[Tuple[LaunchDescriptionEntity, asyncio.Future]] = []
+        self._entity_future_pairs = \
+            []  # type: List[Tuple[LaunchDescriptionEntity, asyncio.Future]]
 
         # Used to prevent run() being called from multiple threads.
         self.__running_lock = threading.Lock()
@@ -202,7 +203,7 @@ class LaunchService:
                     entity_futures = [pair[1] for pair in self._entity_future_pairs]
                     entity_futures.append(process_one_event_task)
                     entity_futures.extend(self.__context._completion_futures)
-                    done: Set[asyncio.Future] = set()
+                    done = set()  # type: Set[asyncio.Future]
                     while not done:
                         done, pending = await asyncio.wait(
                             entity_futures,
