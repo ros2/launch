@@ -15,11 +15,11 @@
 """Module for the Node action."""
 
 import logging
-from typing import Dict
+from typing import Dict  # noqa: F401
 from typing import Iterable
 from typing import List
 from typing import Optional
-from typing import Text
+from typing import Text  # noqa: F401
 from typing import Tuple
 
 from launch.action import Action
@@ -49,7 +49,7 @@ class Node(ExecuteProcess):
         node_namespace: Optional[SomeSubstitutionsType] = None,
         remappings: Optional[Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
-        **kwargs,
+        **kwargs
     ) -> None:
         """
         Construct an Node action.

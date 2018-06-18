@@ -41,7 +41,7 @@ class OnStateTransition(EventHandler):
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,
         goal_state: Optional[SomeSubstitutionsType] = None,
-        matcher: Optional[Callable[[Event], bool]] = None,
+        matcher: Optional[Callable[[Event], bool]] = None
     ) -> None:
         """
         Constructor.

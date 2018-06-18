@@ -18,9 +18,9 @@ import functools
 import logging
 import threading
 from typing import cast
-from typing import Dict
+from typing import Dict  # noqa: F401
 from typing import Text
-from typing import TextIO
+from typing import TextIO  # noqa: F401
 
 import launch
 import launch.actions
