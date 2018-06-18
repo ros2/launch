@@ -55,7 +55,7 @@ class TimerAction(Action):
     def __init__(
         self, *,
         period: Union[float, SomeSubstitutionsType],
-        actions: Iterable[LaunchDescriptionEntity],
+        actions: Iterable[LaunchDescriptionEntity]
     ) -> None:
         """Constructor."""
         super().__init__()

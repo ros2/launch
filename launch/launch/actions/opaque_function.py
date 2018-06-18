@@ -49,7 +49,7 @@ class OpaqueFunction(Action):
         self, *,
         function: Callable,
         args: Optional[Iterable[Any]] = None,
-        kwargs: Optional[Dict[Text, Any]] = None,
+        kwargs: Optional[Dict[Text, Any]] = None
     ) -> None:
         """Constructor."""
         super().__init__()

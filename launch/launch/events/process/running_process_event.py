@@ -39,7 +39,7 @@ class RunningProcessEvent(Event):
         cmd: List[Text],
         cwd: Optional[Text],
         env: Optional[Dict[Text, Text]],
-        pid: int,
+        pid: int
     ) -> None:
         """
         Constructor.

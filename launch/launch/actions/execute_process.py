@@ -79,7 +79,7 @@ class ExecuteProcess(Action):
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration('sigkill_timeout', default=5),
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Optional[Text] = None,
-        log_cmd: bool = False,
+        log_cmd: bool = False
     ) -> None:
         """
         Construct an ExecuteProcess action.

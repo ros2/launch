@@ -36,7 +36,7 @@ class LaunchConfiguration(Substitution):
         self,
         variable_name: SomeSubstitutionsType,
         *,
-        default: Optional[Union[Any, Iterable[Any]]] = None,
+        default: Optional[Union[Any, Iterable[Any]]] = None
     ) -> None:
         """Constructor."""
         super().__init__()
