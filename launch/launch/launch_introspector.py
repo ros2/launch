@@ -15,6 +15,7 @@
 """Module for the LaunchIntrospector class."""
 
 import logging
+from typing import cast
 from typing import List
 from typing import Text
 
@@ -73,7 +74,7 @@ def format_entities(entities: List[LaunchDescriptionEntity]) -> List[Text]:
     result = []
     for entity in entities:
         if is_a(entity, Action):
-            result.extend(format_action(entity))
+            result.extend(format_action(cast(Action, entity)))
         else:
             result.append("Unknown entity('{}')".format(entity))
     return result
@@ -86,11 +87,13 @@ def format_substitutions(substitutions: SomeSubstitutionsType) -> Text:
     for sub in normalized_substitutions:
         result += ' + '
         if is_a(sub, TextSubstitution):
-            result += "'{}'".format(sub.text)
+            result += "'{}'".format(cast(TextSubstitution, sub).text)
         elif is_a(sub, EnvironmentVariable):
-            result += 'EnvVarSub({})'.format(format_substitutions(sub.name))
+            result += 'EnvVarSub({})'.format(
+                format_substitutions(cast(EnvironmentVariable, sub).name))
         elif is_a(sub, FindExecutable):
-            result += 'FindExecSub({})'.format(format_substitutions(sub.name))
+            result += 'FindExecSub({})'.format(
+                format_substitutions(cast(FindExecutable, sub).name))
         else:
             result += "Substitution('{}')".format(sub)
     return result[3:]
@@ -100,7 +103,7 @@ def format_event_handler(event_handler: EventHandler) -> List[Text]:
     """Return a text representation of an event handler."""
     if hasattr(event_handler, 'describe'):
         # TODO(wjwwood): consider supporting mode complex descriptions of branching
-        description, entities = event_handler.describe()
+        description, entities = event_handler.describe()  # type: ignore
         result = [description]
         result.extend(indent(format_entities(entities)))
         return result
@@ -111,24 +114,26 @@ def format_event_handler(event_handler: EventHandler) -> List[Text]:
 def format_action(action: Action) -> List[Text]:
     """Return a text representation of an action."""
     if is_a(action, LogInfo):
-        return ['LogInfo({})'.format(format_substitutions(action.msg))]
+        return ['LogInfo({})'.format(format_substitutions(cast(LogInfo, action).msg))]
     elif is_a(action, EmitEvent):
-        return ["EmitEvent(event='{}')".format(action.event.name)]
+        return ["EmitEvent(event='{}')".format(cast(EmitEvent, action).event.name)]
     elif is_a(action, ExecuteProcess):
+        typed_action = cast(ExecuteProcess, action)
         msg = 'ExecuteProcess(cmd=[{}], cwd={}, env={}, shell={})'.format(
-            ', '.join([format_substitutions(x) for x in action.cmd]),
-            action.cwd if action.cwd is None else "'{}'".format(
-                format_substitutions(action.cwd)
+            ', '.join([format_substitutions(x) for x in typed_action.cmd]),
+            typed_action.cwd if typed_action.cwd is None else "'{}'".format(
+                format_substitutions(typed_action.cwd)
             ),
-            action.env if action.env is None else '{' + ', '.join(
+            typed_action.env if typed_action.env is None else '{' + ', '.join(
                 ['{}: {}'.format(format_substitutions(k), format_substitutions(v))
-                 for k, v in action.env.items()] + '}'),
-            action.shell,
+                 for k, v in typed_action.env.items()] + '}'),
+            typed_action.shell,
         )
         return [msg]
     elif is_a(action, RegisterEventHandler):
-        result = ["RegisterEventHandler('{}'):".format(action.event_handler)]
-        result.extend(indent(format_event_handler(action.event_handler)))
+        typed_action2 = cast(RegisterEventHandler, action)
+        result = ["RegisterEventHandler('{}'):".format(typed_action2.event_handler)]
+        result.extend(indent(format_event_handler(typed_action2.event_handler)))
         return result
     else:
         return ["Action('{}')".format(action)]
