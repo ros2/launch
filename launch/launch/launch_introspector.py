@@ -131,6 +131,7 @@ def format_action(action: Action) -> List[Text]:
         )
         return [msg]
     elif is_a(action, RegisterEventHandler):
+        # Different variable name used to assist with type checking.
         typed_action2 = cast(RegisterEventHandler, action)
         result = ["RegisterEventHandler('{}'):".format(typed_action2.event_handler)]
         result.extend(indent(format_event_handler(typed_action2.event_handler)))
