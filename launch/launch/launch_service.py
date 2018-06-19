@@ -275,6 +275,8 @@ class LaunchService:
             while not run_loop_task.done():
                 try:
                     self.__loop_from_run_thread.run_until_complete(run_loop_task)
+                except KeyboardInterrupt:
+                    pass
                 except asyncio.CancelledError:
                     _logger.error('asyncio run loop was canceled')
         finally:
