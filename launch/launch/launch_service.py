@@ -15,6 +15,7 @@
 """Module for the LaunchService class."""
 
 import asyncio
+import atexit
 import collections
 import logging
 import threading
@@ -43,6 +44,19 @@ from .utilities import on_sigterm
 from .utilities import visit_all_entities_and_collect_futures
 
 _logger = logging.getLogger('launch.LaunchService')
+_g_loops_used = set()
+
+
+# This atexit handler ensures all the loops are closed at exit.
+# This is only really required pre-3.6, see:
+#   https://github.com/ros2/launch/issues/84
+#   https://bugs.python.org/issue23548
+@atexit.register
+def close_loop():
+    global _g_loops_used
+    for loop in _g_loops_used:
+        if not loop.is_closed():
+            loop.close()
 
 
 class LaunchService:
@@ -237,6 +251,8 @@ class LaunchService:
             self.__loop_from_run_thread = osrf_pycommon.process_utils.get_loop()
             if self.__loop_from_run_thread is None:
                 raise RuntimeError('__loop_from_run_thread unexpectedly None')
+            global _g_loops_used
+            _g_loops_used.add(self.__loop_from_run_thread)
             if self.__debug:
                 self.__loop_from_run_thread.set_debug(True)
             self.__context._set_asyncio_loop(self.__loop_from_run_thread)
