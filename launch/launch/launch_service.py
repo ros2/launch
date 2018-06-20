@@ -268,6 +268,14 @@ class LaunchService:
 
             # Set the asyncio loop for the context.
             self.__context._set_asyncio_loop(self.__loop_from_run_thread)
+            # Recreate the event queue to ensure the same event loop is being used.
+            new_queue = asyncio.Queue(loop=self.__loop_from_run_thread)
+            while True:
+                try:
+                    new_queue.put_nowait(self.__context._event_queue.get_nowait())
+                except asyncio.QueueEmpty:
+                    break
+            self.__context._event_queue = new_queue
 
         # Run the asyncio loop over the main coroutine that processes events.
         try:
