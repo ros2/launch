@@ -17,6 +17,7 @@
 import signal as signal_module  # to avoid confusion with .signal property in type annotations
 from typing import Callable
 from typing import Text
+from typing import Union
 
 from .process_targeted_event import ProcessTargetedEvent
 from ...utilities import ensure_argument_type
@@ -33,7 +34,7 @@ class SignalProcess(ProcessTargetedEvent):
 
     def __init__(
         self, *,
-        signal_number: signal_module.Signals,
+        signal_number: Union[Text, signal_module.Signals],
         process_matcher: Callable[['ExecuteProcess'], bool]
     ) -> None:
         """
@@ -41,15 +42,22 @@ class SignalProcess(ProcessTargetedEvent):
 
         Takes an optional process matcher, which can be used to match the
         signal to a process.
+
+        Since Windows does not support SIGKILL, the string 'SIGKILL' can be
+        given instead of `signal.SIGKILL`.
+        Handlers of this event can then check for the 'SIGKILL' string and do
+        the appropriate thing on Windows instead of sending a signal.
+
+        :signal_number: either the string 'SIGKILL' or a signal.Signals
         """
         super().__init__(process_matcher=process_matcher)
         ensure_argument_type(
-            signal_number, (signal_module.Signals,), 'signal_number', 'SignalProcess')
+            signal_number, (str, signal_module.Signals), 'signal_number', 'SignalProcess')
         self.__signal = signal_number
 
     @property
-    def signal(self) -> signal_module.Signals:
-        """Getter for signal, it will match something from the signal module."""
+    def signal(self) -> Union[Text, signal_module.Signals]:
+        """Getter for signal, it will be 'SIGKILL' or match something from the signal module."""
         return self.__signal
 
     @property
@@ -59,4 +67,4 @@ class SignalProcess(ProcessTargetedEvent):
 
         It will be something like (e.g.) 'SIGINT'.
         """
-        return self.__signal.name
+        return self.__signal if isinstance(self.__signal, str) else self.__signal.name

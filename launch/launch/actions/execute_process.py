@@ -243,6 +243,9 @@ class ExecuteProcess(Action):
         _logger.info("sending signal '{}' to process[{}]".format(
             typed_event.signal_name, self.process_details['name']
         ))
+        if typed_event.signal_name == 'SIGKILL':
+            self._subprocess_transport.kill()  # works on both Windows and POSIX
+            return None
         self._subprocess_transport.send_signal(typed_event.signal)
         return None
 
@@ -293,7 +296,7 @@ class ExecuteProcess(Action):
                 args=(base_msg.format('{}', '{}', 'SIGTERM', 'SIGKILL'), sigkill_timeout)
             ),
             EmitEvent(event=SignalProcess(
-                signal_number=signal.SIGKILL,
+                signal_number='SIGKILL',
                 process_matcher=matches_action(self)
             ))
         ])
