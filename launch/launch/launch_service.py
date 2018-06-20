@@ -248,11 +248,11 @@ class LaunchService:
 
         # Acquire the lock and initialize the asyncio loop.
         with self.__loop_from_run_thread_lock:
-            global _g_loops_used
             self.__loop_from_run_thread = osrf_pycommon.process_utils.get_loop()
-            _g_loops_used.add(self.__loop_from_run_thread)
             if self.__loop_from_run_thread is None:
                 raise RuntimeError('__loop_from_run_thread unexpectedly None')
+            global _g_loops_used
+            _g_loops_used.add(self.__loop_from_run_thread)
             if self.__debug:
                 self.__loop_from_run_thread.set_debug(True)
             self.__context._set_asyncio_loop(self.__loop_from_run_thread)
