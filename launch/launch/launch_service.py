@@ -118,6 +118,9 @@ class LaunchService:
         self.__shutting_down = False
         self.__shutdown_when_idle = False
 
+        # Used to keep track of whether or not there were unexpected exceptions.
+        self.__return_code = 0
+
     def emit_event(self, event: Event) -> None:
         """
         Emit an event synchronously and thread-safely.
@@ -244,6 +247,7 @@ class LaunchService:
                     'LaunchService.run() called from multiple threads concurrently.')
             self.__running = True
 
+        self.__return_code = 0  # reset the return_code for this run()
         self.__shutdown_when_idle = shutdown_when_idle
 
         # Acquire the lock and initialize the asyncio loop.
@@ -255,6 +259,14 @@ class LaunchService:
             _g_loops_used.add(self.__loop_from_run_thread)
             if self.__debug:
                 self.__loop_from_run_thread.set_debug(True)
+
+            # Setup the exception handler to make sure we return non-0 when there are errors.
+            def exception_handler(loop, context):
+                self.__return_code = 1
+                return loop.default_exception_handler(context)
+            self.__loop_from_run_thread.set_exception_handler(exception_handler)
+
+            # Set the asyncio loop for the context.
             self.__context._set_asyncio_loop(self.__loop_from_run_thread)
 
         # Run the asyncio loop over the main coroutine that processes events.
@@ -307,6 +319,8 @@ class LaunchService:
 
             with self.__running_lock:
                 self.__running = False
+
+        return self.__return_code
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         self.__shutting_down = True

@@ -83,5 +83,5 @@ def test_launch_service_emit_event():
 
     ls.emit_event(MockEvent())
 
-    ls.run(shutdown_when_idle=True)
+    assert ls.run(shutdown_when_idle=True) == 0
     handled_events.get(timeout=5.0)

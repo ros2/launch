@@ -124,9 +124,7 @@ def main(argv=sys.argv[1:]):
     # ls = LaunchService(argv=argv, debug=True)  # Use this instead to get more debug messages.
     ls = LaunchService(argv=argv)
     ls.include_launch_description(ld)
-    ls.run()
-
-    return 0
+    return ls.run()
 
 
 if __name__ == '__main__':
