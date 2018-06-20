@@ -22,6 +22,7 @@ For an example of expected output, see the file next to this one called
 """
 
 import os
+import platform
 import sys
 from typing import cast
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # noqa
@@ -37,12 +38,14 @@ import launch.substitutions
 
 def main(argv=sys.argv[1:]):
     """Main."""
+    print("platform is '{}': {}".format(platform.system(), platform.system() == 'Windows'))
     # Any number of actions can optionally be given to the constructor of LaunchDescription.
     # Or actions/entities can be added after creating the LaunchDescription.
+    user_env_var = 'USERNAME' if platform.system() == 'Windows' else 'USER'
     ld = LaunchDescription([
         launch.actions.LogInfo(msg='Hello World!'),
         launch.actions.LogInfo(msg=(
-            'Is that you, ', launch.substitutions.EnvironmentVariable(name='USER'), '?'
+            'Is that you, ', launch.substitutions.EnvironmentVariable(name=user_env_var), '?'
         )),
     ])
 
@@ -63,8 +66,13 @@ def main(argv=sys.argv[1:]):
     # Prefix just the whoami process with `time`.
     ld.add_action(launch.actions.SetLaunchConfiguration('launch-prefix', 'time'))
     # Run whoami, but keep handle to action to make a targeted event handler.
+    if platform.system() == 'Windows':
+        whoami_cmd = ['echo', '%USERNAME%']
+    else:
+        whoami_cmd = [launch.substitutions.FindExecutable(name='whoami')]
     whoami_action = launch.actions.ExecuteProcess(
-        cmd=[launch.substitutions.FindExecutable(name='whoami')],
+        cmd=whoami_cmd,
+        shell=(platform.system() == 'Windows')
     )
     ld.add_action(whoami_action)
     # Make event handler that uses the output.
@@ -79,7 +87,7 @@ def main(argv=sys.argv[1:]):
     ld.add_action(launch.actions.SetLaunchConfiguration('launch-prefix', ''))
 
     # Run the counting program, with default options.
-    counter_action = launch.actions.ExecuteProcess(cmd=['python3', '-u', './counter.py'])
+    counter_action = launch.actions.ExecuteProcess(cmd=[sys.executable, '-u', './counter.py'])
     ld.add_action(counter_action)
 
     # Setup an event handler for just this process which will exit when `Counter: 4` is seen.
@@ -98,10 +106,10 @@ def main(argv=sys.argv[1:]):
 
     # Run the counter a few more times, with various options.
     ld.add_action(launch.actions.ExecuteProcess(
-        cmd=['python3', '-u', './counter.py', '--ignore-sigint']
+        cmd=[sys.executable, '-u', './counter.py', '--ignore-sigint']
     ))
     ld.add_action(launch.actions.ExecuteProcess(
-        cmd=['python3', '-u', './counter.py', '--ignore-sigint', '--ignore-sigterm']
+        cmd=[sys.executable, '-u', './counter.py', '--ignore-sigint', '--ignore-sigterm']
     ))
 
     # Add our own message for when shutdown is requested.
