@@ -44,7 +44,7 @@ from .utilities import on_sigterm
 from .utilities import visit_all_entities_and_collect_futures
 
 _logger = logging.getLogger('launch.LaunchService')
-_g_loops_used = set()
+_g_loops_used = set()  # type: Set
 
 
 # This atexit handler ensures all the loops are closed at exit.
@@ -118,6 +118,9 @@ class LaunchService:
         self.__shutting_down = False
         self.__shutdown_when_idle = False
 
+        # Used to keep track of whether or not there were unexpected exceptions.
+        self.__return_code = 0
+
     def emit_event(self, event: Event) -> None:
         """
         Emit an event synchronously and thread-safely.
@@ -127,10 +130,11 @@ class LaunchService:
         with self.__loop_from_run_thread_lock:
             if self.__loop_from_run_thread is not None:
                 # loop is in use, asynchronously emit the event
-                asyncio.run_coroutine_threadsafe(
+                future = asyncio.run_coroutine_threadsafe(
                     self.__context.emit_event(event),
                     self.__loop_from_run_thread
                 )
+                future.result()
             else:
                 # loop is not in use, synchronously emit the event, and it will be processed later
                 self.__context.emit_event_sync(event)
@@ -244,6 +248,7 @@ class LaunchService:
                     'LaunchService.run() called from multiple threads concurrently.')
             self.__running = True
 
+        self.__return_code = 0  # reset the return_code for this run()
         self.__shutdown_when_idle = shutdown_when_idle
 
         # Acquire the lock and initialize the asyncio loop.
@@ -255,7 +260,23 @@ class LaunchService:
             _g_loops_used.add(self.__loop_from_run_thread)
             if self.__debug:
                 self.__loop_from_run_thread.set_debug(True)
+
+            # Setup the exception handler to make sure we return non-0 when there are errors.
+            def exception_handler(loop, context):
+                self.__return_code = 1
+                return loop.default_exception_handler(context)
+            self.__loop_from_run_thread.set_exception_handler(exception_handler)
+
+            # Set the asyncio loop for the context.
             self.__context._set_asyncio_loop(self.__loop_from_run_thread)
+            # Recreate the event queue to ensure the same event loop is being used.
+            new_queue = asyncio.Queue(loop=self.__loop_from_run_thread)
+            while True:
+                try:
+                    new_queue.put_nowait(self.__context._event_queue.get_nowait())
+                except asyncio.QueueEmpty:
+                    break
+            self.__context._event_queue = new_queue
 
         # Run the asyncio loop over the main coroutine that processes events.
         try:
@@ -308,13 +329,22 @@ class LaunchService:
             with self.__running_lock:
                 self.__running = False
 
+        return self.__return_code
+
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         self.__shutting_down = True
         return None
 
     def _shutdown(self, *, reason, due_to_sigint):
+        # Assumption is that this method is only called when running.
         if not self.__shutting_down:
-            self.emit_event(Shutdown(reason=reason, due_to_sigint=due_to_sigint))
+            shutdown_event = Shutdown(reason=reason, due_to_sigint=due_to_sigint)
+            if self.__loop_from_run_thread == asyncio.get_event_loop():
+                # If in the thread of the loop.
+                self.__loop_from_run_thread.create_task(self.__context.emit_event(shutdown_event))
+            else:
+                # Otherwise in a different thread, so use the thread-safe method.
+                self.emit_event(shutdown_event)
         self.__shutting_down = True
         self.__context._set_is_shutdown(True)
 

@@ -74,14 +74,22 @@ def test_launch_service_emit_event():
     t = threading.Thread(target=ls.run, kwargs={'shutdown_when_idle': False})
     t.start()
 
+    # First event (after including description of event handler).
+    handled_events.get(block=True, timeout=5.0)
+
+    # Emit and then check for a second event.
     ls.emit_event(MockEvent())
-    handled_events.get(timeout=5.0)  # First event (after including description of event handler).
-    handled_events.get(timeout=5.0)  # Second event.
+    handled_events.get(block=True, timeout=5.0)
+
+    # Shutdown (generates a third event) and join the thread.
     ls.shutdown()
-
     t.join()
+    # Check that the shutdown event was handled.
+    handled_events.get(block=False)
 
+    assert handled_events.qsize() == 0
     ls.emit_event(MockEvent())
+    assert handled_events.qsize() == 0
 
-    ls.run(shutdown_when_idle=True)
-    handled_events.get(timeout=5.0)
+    assert ls.run(shutdown_when_idle=True) == 0
+    handled_events.get(block=False)
