@@ -44,7 +44,7 @@ from .utilities import on_sigterm
 from .utilities import visit_all_entities_and_collect_futures
 
 _logger = logging.getLogger('launch.LaunchService')
-_g_loops_used = set()
+_g_loops_used = set()  # type: Set
 
 
 # This atexit handler ensures all the loops are closed at exit.
@@ -130,10 +130,11 @@ class LaunchService:
         with self.__loop_from_run_thread_lock:
             if self.__loop_from_run_thread is not None:
                 # loop is in use, asynchronously emit the event
-                asyncio.run_coroutine_threadsafe(
+                future = asyncio.run_coroutine_threadsafe(
                     self.__context.emit_event(event),
                     self.__loop_from_run_thread
                 )
+                future.result()
             else:
                 # loop is not in use, synchronously emit the event, and it will be processed later
                 self.__context.emit_event_sync(event)
@@ -335,8 +336,15 @@ class LaunchService:
         return None
 
     def _shutdown(self, *, reason, due_to_sigint):
+        # Assumption is that this method is only called when running.
         if not self.__shutting_down:
-            self.emit_event(Shutdown(reason=reason, due_to_sigint=due_to_sigint))
+            shutdown_event = Shutdown(reason=reason, due_to_sigint=due_to_sigint)
+            if self.__loop_from_run_thread == asyncio.get_event_loop():
+                # If in the thread of the loop.
+                self.__loop_from_run_thread.create_task(self.__context.emit_event(shutdown_event))
+            else:
+                # Otherwise in a different thread, so use the thread-safe method.
+                self.emit_event(shutdown_event)
         self.__shutting_down = True
         self.__context._set_is_shutdown(True)
 
