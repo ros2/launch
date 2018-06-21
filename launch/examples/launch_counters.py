@@ -38,7 +38,6 @@ import launch.substitutions
 
 def main(argv=sys.argv[1:]):
     """Main."""
-    print("platform is '{}': {}".format(platform.system(), platform.system() == 'Windows'))
     # Any number of actions can optionally be given to the constructor of LaunchDescription.
     # Or actions/entities can be added after creating the LaunchDescription.
     user_env_var = 'USERNAME' if platform.system() == 'Windows' else 'USER'
