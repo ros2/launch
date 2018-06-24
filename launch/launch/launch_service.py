@@ -18,8 +18,8 @@ import asyncio
 import atexit
 import collections
 import logging
-import threading
 import signal
+import threading
 from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Optional
