@@ -19,6 +19,7 @@ import atexit
 import collections
 import logging
 import threading
+import signal
 from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Optional
@@ -285,6 +286,12 @@ class LaunchService:
 
             # Setup custom signal hanlders for SIGINT, SIGQUIT, and SIGTERM.
             def _on_sigint(signum, frame):
+                # Ignore additional interrupts until we finish processing this one.
+                prev_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
+                if prev_handler is signal.SIG_IGN:
+                    # This function has been called re-entrantly.
+                    return
+
                 nonlocal sigint_received
                 base_msg = 'user interrupted with ctrl-c (SIGINT)'
                 if not sigint_received:
@@ -293,6 +300,8 @@ class LaunchService:
                     sigint_received = True
                 else:
                     _logger.warn('{} again, ignoring...'.format(base_msg))
+
+                signal.signal(signal.SIGINT, prev_handler)
 
             def _on_sigterm(signum, frame):
                 # TODO(wjwwood): try to terminate running subprocesses before exiting.
