@@ -80,7 +80,7 @@ class LaunchCommand(CommandExtension):
                     launch_file_arguments=args.argv,
                     debug=args.debug
                 )
-        except SyntaxError as exc:
+        except SyntaxError:
             print("""
 Notice: SyntaxError (or related errors) can occur if your launch file ('{}') is not a Python file.
 """.format(path), file=sys.stderr)
