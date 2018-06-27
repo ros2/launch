@@ -2,6 +2,18 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Changed the behavior when signaling SIGINT to subprocesses on Windows, where it now does SIGTERM instead, because SIGINT causes a ValueError about SIGINT being an unsupported signal number. (`#94 <https://github.com/ros2/launch/issues/94>`_)
+* Fixed a bug by avoiding reentrancy in the SIGINT signal handler. (`#92 <https://github.com/ros2/launch/issues/92>`_)
+* Various Windows fixes. (`#87 <https://github.com/ros2/launch/issues/87>`_)
+  * LaunchService.run() now returns non-0 when there are exceptions in coroutines.
+  * Updated ``launch_counters.py`` example for Windows.
+  * Fixed a bug that would cause mismatched asyncio loops in some futures.
+  * Addressed the fact that ``signal.SIGKILL`` doesn’t exist on Windows, so emulate it in our Event.
+  * Fixed an issue that resulted in spurious asyncio errors in LaunchService test.
+* Contributors: William Woodall, dhood
+
 0.5.0 (2018-06-19)
 ------------------
 * Fixed a bug where unclosed asyncio loops caused a traceback on the terminal on exit, but only in Python 3.5 (`#85 <https://github.com/ros2/launch/issues/85>`_)

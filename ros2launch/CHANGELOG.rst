@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Improved error handling in the ``ros2 launch`` command line tool. (`#93 <https://github.com/ros2/launch/issues/93>`_)
+* Contributors: William Woodall
+
 0.5.0 (2018-06-19)
 ------------------
 * First commit of the `ros2launch` package and the `ros2 launch` CLI tool (`#76 <https://github.com/ros2/launch/issues/76>`_)

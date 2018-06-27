@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Various Windows fixes. (`#87 <https://github.com/ros2/launch/issues/87>`_)
+* Contributors: William Woodall
+
 0.5.0 (2018-06-19)
 ------------------
 * Changed to use variable typing in comments to support python 3.5 (`#81 <https://github.com/ros2/launch/issues/81>`_)
