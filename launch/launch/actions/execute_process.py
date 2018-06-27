@@ -17,6 +17,7 @@
 import asyncio
 import logging
 import os
+import platform
 import shlex
 import signal
 import threading
@@ -240,6 +241,14 @@ class ExecuteProcess(Action):
                 typed_event.signal_name, self.process_details['name']
             ))
             return None
+        if platform.system() == 'Windows' and typed_event.signal_name == 'SIGINT':
+            # TODO(wjwwood): remove this when/if SIGINT is fixed on Windows
+            _logger.warn(
+                "'SIGINT' sent to process[{}] not supported on Windows, escalating to 'SIGTERM'"
+                .format(self.process_details['name']))
+            typed_event = SignalProcess(
+                signal_number=signal.SIGTERM,
+                process_matcher=lambda process: True)
         _logger.info("sending signal '{}' to process[{}]".format(
             typed_event.signal_name, self.process_details['name']
         ))
