@@ -159,10 +159,11 @@ class ExecuteProcess(Action):
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
         self.__env = None  # type: Optional[Dict[List[Substitution], List[Substitution]]]
         if env is not None:
-            self.__env = {}
+            self.__env = []
             for key, value in env.items():
-                self.__env[normalize_to_list_of_substitutions(key)] = \
-                    normalize_to_list_of_substitutions(value)
+                self.__env.append((
+                    normalize_to_list_of_substitutions(key),
+                    normalize_to_list_of_substitutions(value)))
         self.__shell = shell
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
@@ -372,7 +373,7 @@ class ExecuteProcess(Action):
         env = None
         if self.__env is not None:
             env = {}
-            for key, value in self.__env.items():
+            for key, value in self.__env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])
 
