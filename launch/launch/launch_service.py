@@ -304,15 +304,31 @@ class LaunchService:
                 signal.signal(signal.SIGINT, prev_handler)
 
             def _on_sigterm(signum, frame):
+                # Ignore additional signals until we finish processing this one.
+                prev_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
+                if prev_handler is signal.SIG_IGN:
+                    # This function has been called re-entrantly.
+                    return
+
                 # TODO(wjwwood): try to terminate running subprocesses before exiting.
                 _logger.error('using SIGTERM or SIGQUIT can result in orphaned processes')
                 _logger.error('make sure no processes launched are still running')
                 self.__loop_from_run_thread.call_soon_threadsafe(run_loop_task.cancel)
 
+                signal.signal(signal.SIGTERM, prev_handler)
+
             def _on_sigquit(signum, frame):
+                # Ignore additional signals until we finish processing this one.
+                prev_handler = signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+                if prev_handler is signal.SIG_IGN:
+                    # This function has been called re-entrantly.
+                    return
+
                 nonlocal run_loop_task
                 _logger.error('user interrupted with ctrl-\\ (SIGQUIT), terminating...')
                 _on_sigterm(signum, frame)
+
+                signal.signal(signal.SIGQUIT, prev_handler)
 
             on_sigint(_on_sigint)
             on_sigterm(_on_sigterm)
