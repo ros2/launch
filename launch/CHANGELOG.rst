@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.2 (2018-07-17)
+------------------
 * Made a change to avoid reentrancy of signal handlers (`#99 <https://github.com/ros2/launch/issues/99>`_)
 * Ignored warning for builtins A003 (`#100 <https://github.com/ros2/launch/issues/100>`_)
 * Fixed exception when launch process with environment variables (`#96 <https://github.com/ros2/launch/issues/96>`_)
