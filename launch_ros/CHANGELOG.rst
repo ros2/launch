@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.5.1 (2018-06-27)
 ------------------
 * Various Windows fixes. (`#87 <https://github.com/ros2/launch/issues/87>`_)
