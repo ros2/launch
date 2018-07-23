@@ -70,9 +70,10 @@ class LifecycleNode(Node):
         try:
             event = StateTransition(action=self, msg=msg)
             self.__current_state = ChangeState.valid_states[msg.goal_state.id]
-            context.emit_event_sync(event)
+            context.asyncio_loop.call_soon_threadsafe(lambda: context.emit_event_sync(event))
         except Exception as exc:
-            print("Exception in handling of 'lifecycle.msg.TransitionEvent': {}".format(exc))
+            _logger.error(
+                "Exception in handling of 'lifecycle.msg.TransitionEvent': {}".format(exc))
 
     def _call_change_state(self, request, context: launch.LaunchContext):
         while not self.__rclpy_change_state_client.wait_for_service(timeout_sec=1.0):
