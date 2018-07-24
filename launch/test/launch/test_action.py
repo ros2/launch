@@ -23,7 +23,7 @@ def test_action_constructors():
 
 
 def test_action_methods():
-    """Test the moethods of the Action class."""
+    """Test the methods of the Action class."""
     class MockLaunchContext:
         ...
 

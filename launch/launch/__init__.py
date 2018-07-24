@@ -23,6 +23,7 @@ from .event_handler import EventHandler
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
+from .launch_description_source import LaunchDescriptionSource
 from .launch_introspector import LaunchIntrospector
 from .launch_service import LaunchService
 from .some_actions_type import SomeActionsType
@@ -41,6 +42,7 @@ __all__ = [
     'LaunchContext',
     'LaunchDescription',
     'LaunchDescriptionEntity',
+    'LaunchDescriptionSource',
     'LaunchIntrospector',
     'LaunchService',
     'SomeActionsType',
