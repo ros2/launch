@@ -49,10 +49,11 @@ class OpaqueFunction(Action):
         self, *,
         function: Callable,
         args: Optional[Iterable[Any]] = None,
-        kwargs: Optional[Dict[Text, Any]] = None
+        kwargs: Optional[Dict[Text, Any]] = None,
+        **left_over_kwargs
     ) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(**left_over_kwargs)
         if not callable(function):
             raise TypeError("OpaqueFunction expected a callable for 'function', got '{}'".format(
                 type(function)

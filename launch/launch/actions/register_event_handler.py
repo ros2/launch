@@ -32,9 +32,9 @@ class RegisterEventHandler(Action):
     place.
     """
 
-    def __init__(self, event_handler: EventHandler) -> None:
+    def __init__(self, event_handler: EventHandler, **kwargs) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(**kwargs)
         self.__event_handler = event_handler
 
     @property

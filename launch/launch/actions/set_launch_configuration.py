@@ -33,9 +33,14 @@ class SetLaunchConfiguration(Action):
     LaunchDescription's, but can be scoped with groups.
     """
 
-    def __init__(self, name: SomeSubstitutionsType, value: SomeSubstitutionsType) -> None:
+    def __init__(
+        self,
+        name: SomeSubstitutionsType,
+        value: SomeSubstitutionsType,
+        **kwargs
+    ) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
         self.__value = normalize_to_list_of_substitutions(value)
 

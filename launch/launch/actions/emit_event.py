@@ -23,9 +23,9 @@ from ..utilities import is_a_subclass
 class EmitEvent(Action):
     """Action that emits an event when executed."""
 
-    def __init__(self, *, event: Event) -> None:
+    def __init__(self, *, event: Event, **kwargs) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(**kwargs)
         if not is_a_subclass(event, Event):
             raise RuntimeError("EmitEvent() expected an event instance, got '{}'.".format(event))
         self.__event = event
