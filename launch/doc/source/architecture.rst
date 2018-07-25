@@ -99,7 +99,7 @@ Base Action
 All actions need to inherit from the :class:`launch.Action` base class, so that some common interface is available to the launch system when interacting with actions defined by external packages.
 Since the base action class is a first class element in a launch description it also inherits from :class:`launch.LaunchDescriptionEntity`, which is the polymorphic type used when iterating over the elements in a launch description.
 
-Also, the base action has a few features common to all actions, such as some introspection utilities, and the ability to be associated with a single :class:`launch.Conditional`, like the :class:`launch.IfCondition` class or the :class:`launch.UnlessCondition` class.
+Also, the base action has a few features common to all actions, such as some introspection utilities, and the ability to be associated with a single :class:`launch.Condition`, like the :class:`launch.IfCondition` class or the :class:`launch.UnlessCondition` class.
 
 The action configurations are supplied when the user uses an action and can be used to pass "arguments" to the action in order to influence its behavior, e.g. this is how you would pass the path to the executable in the execute process action.
 
