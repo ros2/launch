@@ -18,6 +18,7 @@ from . import actions
 from . import events
 from . import legacy
 from .action import Action
+from .condition import Condition
 from .event import Event
 from .event_handler import EventHandler
 from .launch_context import LaunchContext
@@ -36,6 +37,7 @@ __all__ = [
     'events',
     'legacy',
     'Action',
+    'Condition',
     'Event',
     'EventHandler',
     'LaunchContext',

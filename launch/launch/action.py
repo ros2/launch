@@ -14,10 +14,12 @@
 
 """Module for Action class."""
 
+from typing import cast
 from typing import List
 from typing import Optional
 from typing import Text
 
+from .condition import Condition
 from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
 
@@ -30,13 +32,27 @@ class Action(LaunchDescriptionEntity):
     executed given a :class:`launch.LaunchContext` at runtime.
     """
 
+    def __init__(self, *, condition: Optional[Condition] = None) -> None:
+        """
+        Constructor.
+
+        If the conditions argument is not None, the condition object will be
+        evaluated while being visited and the action will only be executed if
+        the condition evaluates to True.
+
+        :param condition: Either a :py:class:`Condition` or None
+        """
+        self.__condition = condition
+
     def describe(self) -> Text:
         """Return a description of this Action."""
         return self.__repr__()
 
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity so that it executes."""
-        return self.execute(context)  # type: ignore
+        if self.__condition is None or self.__condition.evaluate(context):
+            return cast(Optional[List[LaunchDescriptionEntity]], self.execute(context))
+        return None
 
     def execute(self, context: LaunchContext) -> Optional[List['Action']]:
         """
