@@ -29,6 +29,7 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple  # noqa: F401
 
 from osrf_pycommon.process_utils import async_execute_process
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
@@ -161,7 +162,7 @@ class ExecuteProcess(Action):
         super().__init__(**kwargs)
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
-        self.__env = None  # type: Optional[Dict[List[Substitution], List[Substitution]]]
+        self.__env = None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
         if env is not None:
             self.__env = []
             for key, value in env.items():
