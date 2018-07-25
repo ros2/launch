@@ -15,6 +15,7 @@
 """Main entry point for the `launch` package."""
 
 from . import actions
+from . import conditions
 from . import events
 from . import legacy
 from .action import Action
@@ -34,6 +35,7 @@ from .substitution import Substitution
 
 __all__ = [
     'actions',
+    'conditions',
     'events',
     'legacy',
     'Action',
