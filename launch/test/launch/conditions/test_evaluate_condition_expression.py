@@ -24,6 +24,7 @@ import pytest
 def test_evaluate_condition_expression():
     """Test common use cases for evaluate_condition_expression()."""
     class MockLaunchContext:
+
         def perform_substitution(self, substitution):
             return substitution.perform(self)
 

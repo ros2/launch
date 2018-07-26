@@ -24,6 +24,7 @@ import pytest
 def test_if_condition():
     """Test UnlessCondition class."""
     class MockLaunchContext:
+
         def perform_substitution(self, substitution):
             return substitution.perform(self)
 
