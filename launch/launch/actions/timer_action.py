@@ -53,12 +53,14 @@ class TimerAction(Action):
     """
 
     def __init__(
-        self, *,
+        self,
+        *,
         period: Union[float, SomeSubstitutionsType],
-        actions: Iterable[LaunchDescriptionEntity]
+        actions: Iterable[LaunchDescriptionEntity],
+        **kwargs
     ) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(**kwargs)
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
         ensure_argument_type(period, period_types, 'period', 'TimerAction')
         ensure_argument_type(actions, collections.Iterable, 'actions', 'TimerAction')

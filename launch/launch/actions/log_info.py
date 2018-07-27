@@ -41,9 +41,9 @@ class LogInfo(Action):
         """Construct with list of Text and Substitutions."""
         ...
 
-    def __init__(self, *, msg):  # noqa: F811
+    def __init__(self, *, msg, **kwargs):  # noqa: F811
         """Constructor."""
-        super().__init__()
+        super().__init__(**kwargs)
 
         self.__msg = normalize_to_list_of_substitutions(msg)
 
