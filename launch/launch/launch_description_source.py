@@ -14,6 +14,9 @@
 
 """Module for the LaunchDescriptionSource class."""
 
+from typing import Optional
+
+from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 
 
@@ -22,7 +25,7 @@ class LaunchDescriptionSource:
 
     def __init__(
         self,
-        launch_description: LaunchDescription,
+        launch_description: Optional[LaunchDescription] = None,
         location: str = '<string>',
         method: str = 'unspecified mechanism from a script',
     ) -> None:
@@ -41,9 +44,13 @@ class LaunchDescriptionSource:
         self.__location = location
         self.__method = method
 
-    @property
-    def launch_description(self) -> LaunchDescription:
-        """Getter for self.__launch_description."""
+    def get_launch_description(self, context: LaunchContext) -> LaunchDescription:
+        """Get the LaunchDescription, loading it if necessary."""
+        if self.__launch_description is None:
+            raise RuntimeError(
+                'LaunchDescriptionSource.get_launch_description(): '
+                'called without launch description being set'
+            )
         return self.__launch_description
 
     @property
