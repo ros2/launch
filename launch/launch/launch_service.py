@@ -20,6 +20,7 @@ import collections
 import logging
 import signal
 import threading
+import traceback
 from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Optional
@@ -313,6 +314,7 @@ class LaunchService:
                 # TODO(wjwwood): try to terminate running subprocesses before exiting.
                 _logger.error('using SIGTERM or SIGQUIT can result in orphaned processes')
                 _logger.error('make sure no processes launched are still running')
+                nonlocal run_loop_task
                 self.__loop_from_run_thread.call_soon_threadsafe(run_loop_task.cancel)
 
                 signal.signal(signal.SIGTERM, prev_handler)
@@ -324,7 +326,6 @@ class LaunchService:
                     # This function has been called re-entrantly.
                     return
 
-                nonlocal run_loop_task
                 _logger.error('user interrupted with ctrl-\\ (SIGQUIT), terminating...')
                 _on_sigterm(signum, frame)
 
@@ -341,6 +342,11 @@ class LaunchService:
                     pass
                 except asyncio.CancelledError:
                     _logger.error('asyncio run loop was canceled')
+                except Exception as exc:
+                    msg = 'Caught exception in launch (see debug for traceback): {}'.format(exc)
+                    _logger.error(msg)
+                    _logger.debug(traceback.format_exc())
+                    self._shutdown(reason=msg, due_to_sigint=False)
         finally:
             # No matter what happens, unset the loop and set running to false.
             with self.__loop_from_run_thread_lock:
