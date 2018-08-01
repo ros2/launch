@@ -21,7 +21,7 @@ from .local_substitution import LocalSubstitution
 from .python_expression import PythonExpression
 from .substitution_failure import SubstitutionFailure
 from .text_substitution import TextSubstitution
-from .this_launch_file_path import ThisLaunchFileDir
+from .this_launch_file_dir import ThisLaunchFileDir
 
 __all__ = [
     'EnvironmentVariable',
