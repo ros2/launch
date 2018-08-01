@@ -14,6 +14,10 @@
 
 """Tests for the IncludeLaunchDescription action class."""
 
+import os
+
+from launch import Action
+from launch import LaunchContext
 from launch import LaunchDescription
 from launch import LaunchDescriptionSource
 from launch.actions import IncludeLaunchDescription
@@ -25,16 +29,13 @@ def test_include_launch_description_constructors():
 
 
 def test_include_launch_description_methods():
-    """Test the methods of the Action class."""
-    class MockLaunchContext:
-        ...
-
+    """Test the methods of the IncludeLaunchDescription class."""
     ld = LaunchDescription()
     action = IncludeLaunchDescription(LaunchDescriptionSource(ld))
     assert 'IncludeLaunchDescription' in action.describe()
     assert isinstance(action.describe_sub_entities(), list)
     assert isinstance(action.describe_conditional_sub_entities(), list)
-    assert action.visit(MockLaunchContext()) == [ld]
+    assert action.visit(LaunchContext()) == [ld]
     assert action.get_asyncio_future() is None
 
     ld2 = LaunchDescription([action])
@@ -42,5 +43,29 @@ def test_include_launch_description_methods():
     assert 'IncludeLaunchDescription' in action2.describe()
     assert isinstance(action2.describe_sub_entities(), list)
     assert isinstance(action2.describe_conditional_sub_entities(), list)
-    assert action2.visit(MockLaunchContext()) == [ld2]
+    assert action2.visit(LaunchContext()) == [ld2]
+    assert action2.get_asyncio_future() is None
+
+
+def test_include_launch_description_launch_file_location():
+    """Test the ability of the IncludeLaunchDescription class to set the launch file location."""
+    ld = LaunchDescription()
+    action = IncludeLaunchDescription(LaunchDescriptionSource(ld, '<script>'))
+    assert 'IncludeLaunchDescription' in action.describe()
+    assert isinstance(action.describe_sub_entities(), list)
+    assert isinstance(action.describe_conditional_sub_entities(), list)
+    lc1 = LaunchContext()
+    assert action.visit(lc1) == [ld]
+    assert lc1.locals.current_launch_file_directory == '<script>'
+    assert action.get_asyncio_future() is None
+
+    this_file = os.path.abspath(__file__)
+    ld2 = LaunchDescription()
+    action2 = IncludeLaunchDescription(LaunchDescriptionSource(ld2, this_file))
+    assert 'IncludeLaunchDescription' in action2.describe()
+    assert isinstance(action2.describe_sub_entities(), list)
+    assert isinstance(action2.describe_conditional_sub_entities(), list)
+    lc2 = LaunchContext()
+    assert action2.visit(lc2) == [ld2]
+    assert lc2.locals.current_launch_file_directory == os.path.dirname(this_file)
     assert action2.get_asyncio_future() is None
