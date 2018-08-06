@@ -14,19 +14,20 @@
 
 """Python package for the ros2 launch api implementation."""
 
-from importlib.machinery import SourceFileLoader
 import os
 
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.packages import PackageNotFoundError
 import launch
+from launch.launch_description_sources import get_launch_description_from_python_launch_file
+from launch.launch_description_sources import InvalidPythonLaunchFileError
+from launch.launch_description_sources import load_python_launch_file_as_module
 import launch_ros
 
-
-class InvalidPythonLaunchFileError(Exception):
-    """Exception raised when the given Python launch file is not valid."""
-
-    ...
+# forward functions into this module's default namespace (useful for some autocompletion tools)
+get_launch_description_from_python_launch_file = get_launch_description_from_python_launch_file
+InvalidPythonLaunchFileError = InvalidPythonLaunchFileError
+load_python_launch_file_as_module = load_python_launch_file_as_module
 
 
 class MultipleLaunchFilesError(Exception):
@@ -77,40 +78,6 @@ def get_python_launch_file_paths(*, path):
     return python_launch_file_paths
 
 
-def load_python_launch_file_as_module(python_launch_file_path):
-    """Load a given Python launch file (by path) as a Python module."""
-    loader = SourceFileLoader('python_launch_file', python_launch_file_path)
-    return loader.load_module()
-
-
-def get_launch_description_from_python_launch_file(python_launch_file_path):
-    """
-    Load a given Python launch file (by path), and return the launch description from it.
-
-    Python launch files are expected to have a `.py` extension and must provide
-    a function within the module called `generate_launch_description()`.
-    This function is called after loading the module to get the single
-    :class:`launch.LaunchDescription` class from it.
-    The signature of the function should be as follows:
-
-    .. code-block:: python
-
-        def generate_launch_description() -> launch.LaunchDescription:
-            ...
-
-    The Python launch file, as much as possible, should avoid side-effects.
-    Keep in mind that the reason it is being loaded may be just to introspect
-    the launch description and not necessarily to execute the launch itself.
-    """
-    launch_file_module = load_python_launch_file_as_module(python_launch_file_path)
-    if not hasattr(launch_file_module, 'generate_launch_description'):
-        raise InvalidPythonLaunchFileError(
-            "launch file at '{}' does not contain the required function '{}'".format(
-                python_launch_file_path, 'generate_launch_description()'
-            ))
-    return launch_file_module.generate_launch_description()
-
-
 def print_a_python_launch_file(*, python_launch_file_path):
     """Print the description of a Python launch file to the console."""
     launch_description = get_launch_description_from_python_launch_file(python_launch_file_path)
@@ -119,10 +86,17 @@ def print_a_python_launch_file(*, python_launch_file_path):
 
 def launch_a_python_launch_file(*, python_launch_file_path, launch_file_arguments, debug=False):
     """Launch a given Python launch file (by path) and pass it the given launch file arguments."""
-    launch_description = get_launch_description_from_python_launch_file(python_launch_file_path)
     launch_service = launch.LaunchService(argv=launch_file_arguments, debug=debug)
     launch_service.include_launch_description(
         launch_ros.get_default_launch_description(prefix_output_with_name=False))
+    # Include the user provided launch file using IncludeLaunchDescription so that the
+    # location of the current launch file is set.
+    launch_description = launch.LaunchDescription([
+        launch.actions.IncludeLaunchDescription(
+            launch.launch_description_sources.PythonLaunchDescriptionSource(
+                python_launch_file_path
+            ))
+    ])
     launch_service.include_launch_description(launch_description)
     return launch_service.run()
 

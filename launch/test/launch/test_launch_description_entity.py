@@ -25,7 +25,7 @@ def test_launch_description_entity_constructors():
 
 
 def test_launch_description_entity_methods():
-    """Test the moethods of the LaunchDescriptionEntity class."""
+    """Test the methods of the LaunchDescriptionEntity class."""
     class MockLaunchContext:
         ...
 

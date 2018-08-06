@@ -14,6 +14,7 @@
 
 """Module for the IncludeLaunchDescription action."""
 
+import os
 from typing import List
 
 from ..action import Action
@@ -37,4 +38,15 @@ class IncludeLaunchDescription(Action):
 
     def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Override visit to return an Entity rather than an action."""
-        return [self.__launch_description_source.launch_description]
+        launch_description = self.__launch_description_source.get_launch_description(context)
+        launch_file_location = os.path.abspath(self.__launch_description_source.location)
+        if os.path.exists(launch_file_location):
+            launch_file_location = os.path.dirname(launch_file_location)
+        else:
+            # If the location does not exist, then it's likely set to '<script>' or something
+            # so just pass it along.
+            launch_file_location = self.__launch_description_source.location
+        context.extend_locals({
+            'current_launch_file_directory': launch_file_location,
+        })
+        return [launch_description]
