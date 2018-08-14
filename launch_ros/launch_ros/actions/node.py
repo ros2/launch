@@ -96,14 +96,20 @@ class Node(ExecuteProcess):
         # The substitutions will get expanded when the action is executed.
         ros_args_index = 0
         if node_name is not None:
-            cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
+            cmd += [LocalSubstitution(
+                'ros_specific_arguments[{}]'.format(ros_args_index), description='node name')]
             ros_args_index += 1
         if node_namespace is not None:
-            cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
+            cmd += [LocalSubstitution(
+                'ros_specific_arguments[{}]'.format(ros_args_index), description='node namespace')]
             ros_args_index += 1
         if remappings is not None:
+            i = 0
             for k, v in remappings:
-                cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
+                i += 1
+                cmd += [LocalSubstitution(
+                    'ros_specific_arguments[{}]'.format(ros_args_index),
+                    description='remppaing {}'.format(i))]
                 ros_args_index += 1
         super().__init__(cmd=cmd, **kwargs)
         self.__package = package
