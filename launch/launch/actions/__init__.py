@@ -14,6 +14,7 @@
 
 """actions Module."""
 
+from .declare_launch_argument import DeclareLaunchArgument
 from .emit_event import EmitEvent
 from .execute_process import ExecuteProcess
 from .include_launch_description import IncludeLaunchDescription
@@ -24,6 +25,7 @@ from .set_launch_configuration import SetLaunchConfiguration
 from .timer_action import TimerAction
 
 __all__ = [
+    'DeclareLaunchArgument',
     'EmitEvent',
     'ExecuteProcess',
     'IncludeLaunchDescription',
