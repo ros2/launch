@@ -151,14 +151,15 @@ class Node(ExecuteProcess):
                 self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
             validate_namespace(self.__expanded_node_namespace)
         except Exception:
-            print("Error while expanding or validating node name or namespace for '{}':".format(
-                'package={}, node_executable={}, name={}, namespace={}'.format(
+            _logger.error(
+                "Error while expanding or validating node name or namespace for '{}':"
+                .format('package={}, node_executable={}, name={}, namespace={}'.format(
                     self.__package,
                     self.__node_executable,
                     self.__node_name,
                     self.__node_namespace,
-                )
-            ))
+                ))
+            )
             raise
         self.__final_node_name = ''
         if self.__expanded_node_namespace not in ['', '/']:
