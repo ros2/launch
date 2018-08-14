@@ -16,11 +16,10 @@
 
 import os
 from typing import List
-from typing import overload
 from typing import Text
-from typing import Union
 
 from ..launch_context import LaunchContext
+from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
 
@@ -31,17 +30,7 @@ class EnvironmentVariable(Substitution):
     If the environment variable is not found, it returns empty string.
     """
 
-    @overload
-    def __init__(self, *, name: Text) -> None:
-        """Construct with just Text (unicode string)."""
-        ...
-
-    @overload  # noqa: F811
-    def __init__(self, *, name: List[Union[Text, Substitution]]) -> None:
-        """Construct with list of Text and Substitutions."""
-        ...
-
-    def __init__(self, *, name):  # noqa: F811
+    def __init__(self, name: SomeSubstitutionsType) -> None:
         """Constructor."""
         super().__init__()
 
@@ -52,6 +41,10 @@ class EnvironmentVariable(Substitution):
     def name(self) -> List[Substitution]:
         """Getter for name."""
         return self.__name
+
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return 'EnvVar({})'.format(' + '.join([sub.describe() for sub in self.name]))
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by looking up the environment variable."""

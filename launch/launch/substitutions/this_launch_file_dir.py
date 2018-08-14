@@ -28,6 +28,10 @@ class ThisLaunchFileDir(Substitution):
         """Constructor."""
         super().__init__()
 
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return 'ThisLaunchFileDir()'
+
     def perform(self, context: LaunchContext) -> Text:
         """
         Perform the substitution by returning the path to the current launch file.

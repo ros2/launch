@@ -24,6 +24,15 @@ if False:
 class Substitution:
     """Encapsulates a substitution to be performed at runtime."""
 
+    def describe(self) -> Text:
+        """
+        Return a description of this substitution as a string.
+
+        When inherited from, calling this base class's default method is not
+        required.
+        """
+        return repr(self)
+
     # Note: LaunchContext is in a string here to break a circular import.
     def perform(self, context: 'LaunchContext') -> Text:
         """

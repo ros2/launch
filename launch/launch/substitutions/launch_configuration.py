@@ -36,7 +36,7 @@ class LaunchConfiguration(Substitution):
         self,
         variable_name: SomeSubstitutionsType,
         *,
-        default: Optional[Union[Any, Iterable[Any]]] = None
+        default: Optional[Union[Any, Iterable[Any]]] = None,
     ) -> None:
         """Constructor."""
         super().__init__()
@@ -69,6 +69,10 @@ class LaunchConfiguration(Substitution):
     def variable_name(self) -> List[Substitution]:
         """Getter for variable_name."""
         return self.__variable_name
+
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return 'LaunchConfig({})'.format(' + '.join([s.describe() for s in self.variable_name]))
 
     def perform(self, context: LaunchContext) -> Text:
         """

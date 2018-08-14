@@ -14,6 +14,7 @@
 
 """Module for the LocalSubstitution substitution."""
 
+from typing import Optional
 from typing import Text
 
 from ..launch_context import LaunchContext
@@ -24,18 +25,29 @@ from ..utilities import ensure_argument_type
 class LocalSubstitution(Substitution):
     """Substitution that can access contextual local variables."""
 
-    def __init__(self, expression: Text) -> None:
+    def __init__(self, expression: Text, description: Optional[Text] = None) -> None:
         """Constructor."""
         super().__init__()
 
         ensure_argument_type(expression, str, 'expression', 'LocalSubstitution')
 
         self.__expression = expression
+        self.__description = description
 
     @property
     def expression(self) -> Text:
         """Getter for expression."""
         return self.__expression
+
+    @property
+    def description(self) -> Optional[Text]:
+        """Getter for description."""
+        return self.__description
+
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        msg = self.expression if self.description is None else self.description
+        return "LocalVar('{}')".format(msg)
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by retrieving the local variable."""

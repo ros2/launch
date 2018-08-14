@@ -15,14 +15,13 @@
 """Module for the FindExecutable substitution."""
 
 from typing import List
-from typing import overload
 from typing import Text
-from typing import Union
 
 from osrf_pycommon.process_utils import which
 
 from .substitution_failure import SubstitutionFailure
 from ..launch_context import LaunchContext
+from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
 
@@ -33,17 +32,7 @@ class FindExecutable(Substitution):
     :raise: SubstitutionFailure when executable not found
     """
 
-    @overload
-    def __init__(self, *, name: Text) -> None:
-        """Construct with just Text (unicode string)."""
-        ...
-
-    @overload  # noqa: F811
-    def __init__(self, *, name: List[Union[Text, Substitution]]) -> None:
-        """Construct with list of Text and Substitutions."""
-        ...
-
-    def __init__(self, *, name):  # noqa: F811
+    def __init__(self, *, name: SomeSubstitutionsType) -> None:
         """Constructor."""
         super().__init__()
 
@@ -54,6 +43,10 @@ class FindExecutable(Substitution):
     def name(self) -> List[Substitution]:
         """Getter for name."""
         return self.__name
+
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return 'FindExec({})'.format(' + '.join([sub.describe() for sub in self.name]))
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by locating the executable on the PATH."""
