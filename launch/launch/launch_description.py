@@ -19,6 +19,7 @@ from typing import List
 from typing import Optional
 
 from .action import Action
+from .actions import DeclareLaunchArgument
 from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
 
@@ -29,11 +30,21 @@ class LaunchDescription(LaunchDescriptionEntity):
 
     The description is expressed by a collection of entities which represent
     the system architect's intentions.
+
+    The description may also have arguments, which are declared by
+    :py:class:`launch.actions.DeclareLaunchArgument` actions within this
+    launch description.
+
+    Arguments for this description may be accessed via the
+    :py:meth:`get_launch_arguments` method.
+    The arguments are gathered by searching through the entities in this
+    launch description and the descriptions of each entity (which may include
+    entities yielded by those entities).
     """
 
     def __init__(
         self,
-        initial_entities: Optional[Iterable[LaunchDescriptionEntity]] = None
+        initial_entities: Optional[Iterable[LaunchDescriptionEntity]] = None,
     ) -> None:
         """Constructor."""
         self.__entities = list(initial_entities) if initial_entities is not None else []
@@ -41,6 +52,45 @@ class LaunchDescription(LaunchDescriptionEntity):
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
         return self.__entities
+
+    def get_launch_arguments(self) -> List[DeclareLaunchArgument]:
+        """
+        Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
+
+        This list is generated (never cached) by searching through this launch
+        description for any instances of the action that declares launch
+        arguments.
+
+        It will use :py:meth:`launch.LaunchDescriptionEntity.describe_sub_entities`
+        and :py:meth:`launch.LaunchDescriptionEntity.describe_conditional_sub_entities`
+        in order to discover as many instances of the declare launch argument
+        actions as is possible.
+
+        Duplicate declarations of an argument are ignored, therefore the
+        default value and description from the first instance of the argument
+        declaration is used.
+        """
+        declared_launch_arguments = []  # type: List[DeclareLaunchArgument]
+
+        def process_entities(entities, *, conditional_inclusion):
+            for entity in entities:
+                if isinstance(entity, DeclareLaunchArgument):
+                    # Avoid duplicate entries with the same name.
+                    if entity.name in [e.name for e in declared_launch_arguments]:
+                        continue
+                    # Stuff this contextual information into the class for
+                    # potential use in command-line descriptions or errors.
+                    entity._conditionally_included = conditional_inclusion
+                    declared_launch_arguments.append(entity)
+                else:
+                    process_entities(
+                        entity.describe_sub_entities(), conditional_inclusion=False)
+                    process_entities(
+                        entity.describe_conditional_sub_entities(), conditional_inclusion=True)
+
+        process_entities(self.entities, conditional_inclusion=False)
+
+        return declared_launch_arguments
 
     @property
     def entities(self) -> List[LaunchDescriptionEntity]:
