@@ -344,8 +344,8 @@ class LaunchService:
                     _logger.error('asyncio run loop was canceled')
                 except Exception as exc:
                     msg = 'Caught exception in launch (see debug for traceback): {}'.format(exc)
+                    _logger.error(traceback.format_exc())
                     _logger.error(msg)
-                    _logger.debug(traceback.format_exc())
                     self._shutdown(reason=msg, due_to_sigint=False)
         finally:
             # No matter what happens, unset the loop and set running to false.
