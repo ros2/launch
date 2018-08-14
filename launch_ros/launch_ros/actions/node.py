@@ -142,7 +142,7 @@ class Node(ExecuteProcess):
             if self.__node_name is not None:
                 self.__expanded_node_name = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_name))
-                validate_node_name(self.__node_name)
+                validate_node_name(self.__expanded_node_name)
             self.__expanded_node_name.lstrip('/')
             if self.__node_namespace is not None:
                 self.__expanded_node_namespace = perform_substitutions(
