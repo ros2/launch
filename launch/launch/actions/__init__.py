@@ -19,6 +19,8 @@ from .execute_process import ExecuteProcess
 from .include_launch_description import IncludeLaunchDescription
 from .log_info import LogInfo
 from .opaque_function import OpaqueFunction
+from .pop_launch_configurations import PopLaunchConfigurations
+from .push_launch_configurations import PushLaunchConfigurations
 from .register_event_handler import RegisterEventHandler
 from .set_launch_configuration import SetLaunchConfiguration
 from .timer_action import TimerAction
@@ -29,6 +31,8 @@ __all__ = [
     'IncludeLaunchDescription',
     'LogInfo',
     'OpaqueFunction',
+    'PopLaunchConfigurations',
+    'PushLaunchConfigurations',
     'RegisterEventHandler',
     'SetLaunchConfiguration',
     'TimerAction',
