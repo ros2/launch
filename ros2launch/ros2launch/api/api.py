@@ -14,7 +14,11 @@
 
 """Python package for the ros2 launch api implementation."""
 
+from collections import OrderedDict
 import os
+from typing import List
+from typing import Text
+from typing import Tuple
 
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.packages import PackageNotFoundError
@@ -84,18 +88,52 @@ def print_a_python_launch_file(*, python_launch_file_path):
     print(launch.LaunchIntrospector().format_launch_description(launch_description))
 
 
+def print_arguments_of_python_launch_file(*, python_launch_file_path):
+    """Print the arguments of a Python launch file to the console."""
+    launch_description = get_launch_description_from_python_launch_file(python_launch_file_path)
+    print(
+        "Arguments for launch file '{}' (pass arguments as '<name>:=<value>'):"
+        .format(os.path.basename(python_launch_file_path)))
+    for argument_action in launch_description.get_launch_arguments():
+        msg = '  '
+        msg += argument_action.name
+        if argument_action.default_value is not None:
+            default_str = ' + '.join([token.describe() for token in argument_action.default_value])
+            msg += ' (default: {})'.format(default_str)
+        msg += ':\n    '
+        msg += argument_action.description
+        print(msg)
+
+
+def parse_launch_arguments(launch_arguments: List[Text]) -> List[Tuple[Text, Text]]:
+    """Parse the given launch arguments from the command line, into list of tuples for launch."""
+    parsed_launch_arguments = OrderedDict()  # type: ignore
+    for argument in launch_arguments:
+        count = argument.count(':=')
+        if count == 0 or argument.startswith(':=') or (count == 1 and argument.endswith(':=')):
+            raise RuntimeError(
+                "malformed launch argument '{}', expected format '<name>:=<value>'"
+                .format(argument))
+        name, value = argument.split(':=', maxsplit=1)
+        parsed_launch_arguments[name] = value  # last one wins is intentional
+    return parsed_launch_arguments.items()
+
+
 def launch_a_python_launch_file(*, python_launch_file_path, launch_file_arguments, debug=False):
     """Launch a given Python launch file (by path) and pass it the given launch file arguments."""
     launch_service = launch.LaunchService(argv=launch_file_arguments, debug=debug)
     launch_service.include_launch_description(
         launch_ros.get_default_launch_description(prefix_output_with_name=False))
+    parsed_launch_arguments = parse_launch_arguments(launch_file_arguments)
     # Include the user provided launch file using IncludeLaunchDescription so that the
     # location of the current launch file is set.
     launch_description = launch.LaunchDescription([
         launch.actions.IncludeLaunchDescription(
             launch.launch_description_sources.PythonLaunchDescriptionSource(
                 python_launch_file_path
-            ))
+            ),
+            launch_arguments=parsed_launch_arguments,
+        ),
     ])
     launch_service.include_launch_description(launch_description)
     return launch_service.run()
