@@ -76,6 +76,7 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
     def _shutdown(self, event: launch.Event, context: launch.LaunchContext):
         self.__shutting_down = True
         self.__rclpy_spin_thread.join()
+        self.__launch_ros_node.destroy_node()
 
     def _run(self):
         executor = rclpy.get_global_executor()
