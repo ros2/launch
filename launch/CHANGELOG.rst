@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.0 (2018-08-20)
+------------------
 * Added a way to include other Python launch files (`#122 <https://github.com/ros2/launch/issues/122>`_)
   * Signed-off-by: William Woodall <william@osrfoundation.org>
 * Implemented the concept of Action conditions (`#121 <https://github.com/ros2/launch/issues/121>`_)

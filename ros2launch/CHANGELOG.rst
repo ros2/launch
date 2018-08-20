@@ -2,8 +2,8 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.0 (2018-08-20)
+------------------
 * add way to include other Python launch files (`#122 <https://github.com/ros2/launch/issues/122>`_)
   * Signed-off-by: William Woodall <william@osrfoundation.org>
 * Contributors: William Woodall
