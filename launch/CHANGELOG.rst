@@ -2,6 +2,17 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added a way to include other Python launch files (`#122 <https://github.com/ros2/launch/issues/122>`_)
+  * Signed-off-by: William Woodall <william@osrfoundation.org>
+* Implemented the concept of Action conditions (`#121 <https://github.com/ros2/launch/issues/121>`_)
+  * Signed-off-by: William Woodall <william@osrfoundation.org>
+* Added IncludeLaunchDescription action (`#120 <https://github.com/ros2/launch/issues/120>`_)
+  * fixes `#115 <https://github.com/ros2/launch/issues/115>`_
+  * Signed-off-by: William Woodall <william@osrfoundation.org>
+* Contributors: William Woodall
+
 0.5.2 (2018-07-17)
 ------------------
 * Made a change to avoid reentrancy of signal handlers (`#99 <https://github.com/ros2/launch/issues/99>`_)
