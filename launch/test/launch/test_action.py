@@ -15,15 +15,17 @@
 """Tests for the Action class."""
 
 from launch import Action
+from launch import Condition
 
 
 def test_action_constructors():
     """Test the constructors for Action class."""
     Action()
+    Action(condition=Condition(predicate=lambda context: True))
 
 
 def test_action_methods():
-    """Test the moethods of the Action class."""
+    """Test the methods of the Action class."""
     class MockLaunchContext:
         ...
 
@@ -36,8 +38,8 @@ def test_action_methods():
 
     class CustomAction(Action):
 
-        def __init__(self):
-            super().__init__()
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
             self.execute_called = False
 
         def execute(self, context):
@@ -50,3 +52,11 @@ def test_action_methods():
     assert custom_action.visit(MockLaunchContext()) is None
     assert custom_action.execute_called is True
     assert custom_action.get_asyncio_future() is None
+
+    custom_action2 = CustomAction(condition=Condition(predicate=lambda context: False))
+    assert custom_action2.visit(MockLaunchContext()) is None
+    assert custom_action2.execute_called is False
+
+    custom_action3 = CustomAction(condition=Condition(predicate=lambda context: True))
+    assert custom_action3.visit(MockLaunchContext()) is None
+    assert custom_action3.execute_called is True

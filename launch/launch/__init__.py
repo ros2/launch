@@ -15,14 +15,17 @@
 """Main entry point for the `launch` package."""
 
 from . import actions
+from . import conditions
 from . import events
 from . import legacy
 from .action import Action
+from .condition import Condition
 from .event import Event
 from .event_handler import EventHandler
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
+from .launch_description_source import LaunchDescriptionSource
 from .launch_introspector import LaunchIntrospector
 from .launch_service import LaunchService
 from .some_actions_type import SomeActionsType
@@ -33,14 +36,17 @@ from .substitution import Substitution
 
 __all__ = [
     'actions',
+    'conditions',
     'events',
     'legacy',
     'Action',
+    'Condition',
     'Event',
     'EventHandler',
     'LaunchContext',
     'LaunchDescription',
     'LaunchDescriptionEntity',
+    'LaunchDescriptionSource',
     'LaunchIntrospector',
     'LaunchService',
     'SomeActionsType',

@@ -29,6 +29,7 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple  # noqa: F401
 
 from osrf_pycommon.process_utils import async_execute_process
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
@@ -71,16 +72,20 @@ class ExecuteProcess(Action):
     """Action that begins executing a process and sets up event handlers for the process."""
 
     def __init__(
-        self, *,
+        self,
+        *,
         cmd: Iterable[SomeSubstitutionsType],
         cwd: Optional[SomeSubstitutionsType] = None,
         env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         shell: bool = False,
-        sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration('sigterm_timeout', default=5),
-        sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration('sigkill_timeout', default=5),
+        sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration(
+            'sigterm_timeout', default = 5),
+        sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
+            'sigkill_timeout', default = 5),
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Optional[Text] = None,
-        log_cmd: bool = False
+        log_cmd: bool = False,
+        **kwargs
     ) -> None:
         """
         Construct an ExecuteProcess action.
@@ -154,10 +159,10 @@ class ExecuteProcess(Action):
             process, which is useful for debugging when substitutions are
             involved.
         """
-        super().__init__()
+        super().__init__(**kwargs)
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
-        self.__env = None  # type: Optional[Dict[List[Substitution], List[Substitution]]]
+        self.__env = None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
         if env is not None:
             self.__env = []
             for key, value in env.items():
