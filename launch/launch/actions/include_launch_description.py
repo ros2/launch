@@ -64,7 +64,7 @@ class IncludeLaunchDescription(Action):
         *,
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
-        ] = None,
+        ] = None
     ) -> None:
         """Constructor."""
         super().__init__()
