@@ -372,7 +372,14 @@ class LaunchService:
         # Assumption is that this method is only called when running.
         if not self.__shutting_down:
             shutdown_event = Shutdown(reason=reason, due_to_sigint=due_to_sigint)
-            if self.__loop_from_run_thread == asyncio.get_event_loop():
+            asyncio_event_loop = None
+            try:
+                asyncio_event_loop = asyncio.get_event_loop()
+            except (RuntimeError, AssertionError):
+                # If no event loop is set for this thread, asyncio will raise an exception.
+                # The exception type depends on the version of Python, so just catch both.
+                pass
+            if self.__loop_from_run_thread == asyncio_event_loop:
                 # If in the thread of the loop.
                 self.__loop_from_run_thread.create_task(self.__context.emit_event(shutdown_event))
             else:
