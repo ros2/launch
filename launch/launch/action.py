@@ -44,6 +44,11 @@ class Action(LaunchDescriptionEntity):
         """
         self.__condition = condition
 
+    @property
+    def condition(self) -> Optional[Condition]:
+        """Getter for condition."""
+        return self.__condition
+
     def describe(self) -> Text:
         """Return a description of this Action."""
         return self.__repr__()
