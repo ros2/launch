@@ -20,8 +20,6 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 
-from .pop_launch_configurations import PopLaunchConfigurations
-from .push_launch_configurations import PushLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
 from ..launch_context import LaunchContext
@@ -120,10 +118,5 @@ class IncludeLaunchDescription(Action):
         for name, value in self.launch_arguments:
             set_launch_configuration_actions.append(SetLaunchConfiguration(name, value))
 
-        # Push configs, set arguments as configs, include launch description, pop configs.
-        return [
-            PushLaunchConfigurations(),
-            *set_launch_configuration_actions,
-            launch_description,
-            PopLaunchConfigurations()
-        ]
+        # Set launch arguments as launch configurations and then include the launch description.
+        return [*set_launch_configuration_actions, launch_description]
