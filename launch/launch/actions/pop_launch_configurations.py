@@ -20,9 +20,9 @@ from ..launch_context import LaunchContext
 
 class PopLaunchConfigurations(Action):
     """
-    Action that pushes the current state of launch configurations to a stack.
+    Action that pops the state of launch configurations from a stack.
 
-    The state can be restored by popping the stack with the
+    The state can be stored initially by pushing onto the stack with the
     :py:class:`launch.actions.PopLaunchConfigurations` action.
     """
 
