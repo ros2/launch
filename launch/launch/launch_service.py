@@ -235,7 +235,7 @@ class LaunchService:
             else:
                 await process_one_event_task
 
-    def run(self, *, shutdown_when_idle=True) -> None:
+    def run(self, *, shutdown_when_idle=True) -> int:
         """
         Start the event loop and visit all entities of all included LaunchDescriptions.
 
