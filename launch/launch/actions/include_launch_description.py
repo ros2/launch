@@ -92,6 +92,11 @@ class IncludeLaunchDescription(Action):
             launch_file_location = self.__launch_description_source.location
         return launch_file_location
 
+    def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
+        """Override describe_sub_entities from LaunchDescriptionEntity to return sub entities."""
+        ret = self.__launch_description_source.try_get_launch_description_without_context()
+        return [ret] if ret is not None else []
+
     def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Override visit to return an Entity rather than an action."""
         launch_description = self.__launch_description_source.get_launch_description(context)

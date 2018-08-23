@@ -44,6 +44,15 @@ class LaunchDescriptionSource:
         self.__location = location
         self.__method = method
 
+    def try_get_launch_description_without_context(self) -> Optional[LaunchDescription]:
+        """
+        Attempt to load the LaunchDescription without a context, return None if unsuccessful.
+
+        This method is useful for trying to introspect the included launch
+        description without visiting the user of this source.
+        """
+        return self.__launch_description
+
     def get_launch_description(self, context: LaunchContext) -> LaunchDescription:
         """Get the LaunchDescription, loading it if necessary."""
         if self.__launch_description is None:

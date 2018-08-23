@@ -53,7 +53,11 @@ class LaunchDescription(LaunchDescriptionEntity):
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
         return self.__entities
 
-    def get_launch_arguments(self) -> List[DeclareLaunchArgument]:
+    def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
+        """Override describe_sub_entities from LaunchDescriptionEntity to return sub entities."""
+        return self.__entities
+
+    def get_launch_arguments(self, conditional_inclusion=False) -> List[DeclareLaunchArgument]:
         """
         Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
 
@@ -65,6 +69,15 @@ class LaunchDescription(LaunchDescriptionEntity):
         and :py:meth:`launch.LaunchDescriptionEntity.describe_conditional_sub_entities`
         in order to discover as many instances of the declare launch argument
         actions as is possible.
+        Also, specifically in the case of the
+        :py:class:`launch.actions.IncludeLaunchDescription` action, the method
+        :py:meth:`launch.LaunchDescriptionSource.try_get_launch_description_without_context`
+        is used to attempt to load launch descriptions without the "runtime"
+        context available.
+        This function may fail, e.g. if the path to the launch file to include
+        uses the values of launch configurations that have not been set yet,
+        and in that case the failure is ignored and the arugments defined in
+        those launch files will not be seen either.
 
         Duplicate declarations of an argument are ignored, therefore the
         default value and description from the first instance of the argument
@@ -72,7 +85,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         """
         declared_launch_arguments = []  # type: List[DeclareLaunchArgument]
 
-        def process_entities(entities, *, conditional_inclusion):
+        def process_entities(entities, *, _conditional_inclusion):
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
@@ -80,15 +93,16 @@ class LaunchDescription(LaunchDescriptionEntity):
                         continue
                     # Stuff this contextual information into the class for
                     # potential use in command-line descriptions or errors.
-                    entity._conditionally_included = conditional_inclusion
+                    entity._conditionally_included = _conditional_inclusion
+                    entity._conditionally_included |= entity.condition is not None
                     declared_launch_arguments.append(entity)
                 else:
                     process_entities(
-                        entity.describe_sub_entities(), conditional_inclusion=False)
+                        entity.describe_sub_entities(), _conditional_inclusion=False)
                     process_entities(
-                        entity.describe_conditional_sub_entities(), conditional_inclusion=True)
+                        entity.describe_conditional_sub_entities(), _conditional_inclusion=True)
 
-        process_entities(self.entities, conditional_inclusion=False)
+        process_entities(self.entities, _conditional_inclusion=conditional_inclusion)
 
         return declared_launch_arguments
 
