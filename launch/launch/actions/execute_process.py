@@ -75,6 +75,7 @@ class ExecuteProcess(Action):
         self,
         *,
         cmd: Iterable[SomeSubstitutionsType],
+        name: Optional[SomeSubstitutionsType] = None,
         cwd: Optional[SomeSubstitutionsType] = None,
         env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         shell: bool = False,
@@ -138,6 +139,9 @@ class ExecuteProcess(Action):
             are arguments to the executable, each item may be a string or a
             list of strings and Substitutions to be resolved at runtime
         :param: cwd the directory in which to run the executable
+        :param: name the label used to represent the process, as a string or a
+            Substitution to be resolved at runtime, defaults to the basename of
+            the executable
         :param: env dictionary of environment variables to be used
         :param: shell if True, a shell is used to execute the cmd
         :param: sigterm_timeout time until shutdown should escalate to SIGTERM,
@@ -161,6 +165,7 @@ class ExecuteProcess(Action):
         """
         super().__init__(**kwargs)
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
+        self.__name = name if name is None else normalize_to_list_of_substitutions(name)
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
         self.__env = None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
         if env is not None:
@@ -366,7 +371,8 @@ class ExecuteProcess(Action):
     def __expand_substitutions(self, context):
         # expand substitutions in arguments to async_execute_process()
         cmd = [perform_substitutions(context, x) for x in self.__cmd]
-        name = os.path.basename(cmd[0])
+        name = os.path.basename(cmd[0]) if self.__name is None \
+            else perform_substitutions(context, self.__name)
         cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
         with _global_process_counter_lock:
             global _global_process_counter
