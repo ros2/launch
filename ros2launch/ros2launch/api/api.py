@@ -91,18 +91,28 @@ def print_a_python_launch_file(*, python_launch_file_path):
 def print_arguments_of_python_launch_file(*, python_launch_file_path):
     """Print the arguments of a Python launch file to the console."""
     launch_description = get_launch_description_from_python_launch_file(python_launch_file_path)
-    print(
-        "Arguments for launch file '{}' (pass arguments as '<name>:=<value>'):"
-        .format(os.path.basename(python_launch_file_path)))
-    for argument_action in launch_description.get_launch_arguments():
-        msg = '  '
+    print("Arguments (pass arguments as '<name>:=<value>'):")
+    launch_arguments = launch_description.get_launch_arguments()
+    any_conditional_arguments = False
+    for argument_action in launch_arguments:
+        msg = "\n    '"
         msg += argument_action.name
+        msg += "':"
+        if argument_action._conditionally_included:
+            any_conditional_arguments = True
+            msg += '*'
+        msg += '\n        '
+        msg += argument_action.description
         if argument_action.default_value is not None:
             default_str = ' + '.join([token.describe() for token in argument_action.default_value])
-            msg += ' (default: {})'.format(default_str)
-        msg += ':\n    '
-        msg += argument_action.description
+            msg += '\n        (default: {})'.format(default_str)
         print(msg)
+
+    if len(launch_arguments) > 0:
+        if any_conditional_arguments:
+            print('\n* argument(s) which are only used if specific conditions occur')
+    else:
+        print('\n  No arguments.')
 
 
 def parse_launch_arguments(launch_arguments: List[Text]) -> List[Tuple[Text, Text]]:
