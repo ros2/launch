@@ -28,9 +28,6 @@ from .event_handler import EventHandler
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
 from .some_substitutions_type import SomeSubstitutionsType
-from .substitutions import EnvironmentVariable
-from .substitutions import FindExecutable
-from .substitutions import TextSubstitution
 from .utilities import is_a
 from .utilities import normalize_to_list_of_substitutions
 
