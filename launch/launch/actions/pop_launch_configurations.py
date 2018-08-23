@@ -23,7 +23,7 @@ class PopLaunchConfigurations(Action):
     Action that pops the state of launch configurations from a stack.
 
     The state can be stored initially by pushing onto the stack with the
-    :py:class:`launch.actions.PopLaunchConfigurations` action.
+    :py:class:`launch.actions.PushLaunchConfigurations` action.
     """
 
     def __init__(self, **kwargs) -> None:
