@@ -21,12 +21,12 @@ from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 
 # for backward compatibility
-from launch_testing.legacy import InMemoryHandler  # noqa: F401
-from launch_testing.legacy import UnmatchedOutputError  # noqa: F401
 from launch_testing.legacy import create_handler  # noqa: F401
 from launch_testing.legacy import get_default_filtered_patterns  # noqa: F401
 from launch_testing.legacy import get_default_filtered_prefixes  # noqa: F401
 from launch_testing.legacy import get_rmw_output_filter  # noqa: F401
+from launch_testing.legacy import InMemoryHandler  # noqa: F401
+from launch_testing.legacy import UnmatchedOutputError  # noqa: F401
 
 
 class LaunchTestService():
@@ -66,7 +66,7 @@ class LaunchTestService():
 
     def run(self, launch_service, *args, **kwargs):
         """
-        Invokes the `run` method of the launch service.
+        Invoke the `run` method of the launch service.
 
         :returns: If the return value of the parent method is zero but any of
           the test processes exited with a non-zero return code the return of
