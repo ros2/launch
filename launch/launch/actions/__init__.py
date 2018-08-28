@@ -16,6 +16,7 @@
 
 from .emit_event import EmitEvent
 from .execute_process import ExecuteProcess
+from .group_action import GroupAction
 from .include_launch_description import IncludeLaunchDescription
 from .log_info import LogInfo
 from .opaque_function import OpaqueFunction
@@ -28,6 +29,7 @@ from .timer_action import TimerAction
 __all__ = [
     'EmitEvent',
     'ExecuteProcess',
+    'GroupAction',
     'IncludeLaunchDescription',
     'LogInfo',
     'OpaqueFunction',
