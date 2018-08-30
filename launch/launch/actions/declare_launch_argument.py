@@ -41,7 +41,7 @@ class DeclareLaunchArgument(Action):
     will be exposed as arguments when that launch description is included, e.g.
     as additional parameters in the
     :py:class:`launch.actions.IncludeLaunchDescription` action or as
-    command-line arguments when launch with ``ros2 launch ...``.
+    command-line arguments when launched with ``ros2 launch ...``.
 
     In addition to the name, which is also where the argument result is stored,
     launch arguments may have a default value and a description.
