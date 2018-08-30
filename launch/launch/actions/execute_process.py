@@ -451,25 +451,35 @@ class ExecuteProcess(Action):
         if self.__shutdown_received:
             # If shutdown starts before execution can start, don't start execution.
             return None
-        # TODO(wjwwood): unregister event handlers when that is possible
-        context.register_event_handler(EventHandler(
-            matcher=lambda event: is_a_subclass(event, ShutdownProcess),
-            entities=OpaqueFunction(function=self.__on_shutdown_process_event),
-        ))
-        context.register_event_handler(EventHandler(
-            matcher=lambda event: is_a_subclass(event, SignalProcess),
-            entities=OpaqueFunction(function=self.__on_signal_process_event),
-        ))
-        context.register_event_handler(EventHandler(
-            matcher=lambda event: is_a_subclass(event, ProcessStdin),
-            entities=OpaqueFunction(function=self.__on_process_stdin_event),
-        ))
-        context.register_event_handler(OnShutdown(
-            on_shutdown=self.__on_shutdown,
-        ))
-        self.__completed_future = create_future(context.asyncio_loop)
-        self.__expand_substitutions(context)
-        context.asyncio_loop.create_task(self.__execute_process(context))
+
+        event_handlers = [
+            EventHandler(
+                matcher=lambda event: is_a_subclass(event, ShutdownProcess),
+                entities=OpaqueFunction(function=self.__on_shutdown_process_event),
+            ),
+            EventHandler(
+                matcher=lambda event: is_a_subclass(event, SignalProcess),
+                entities=OpaqueFunction(function=self.__on_signal_process_event),
+            ),
+            EventHandler(
+                matcher=lambda event: is_a_subclass(event, ProcessStdin),
+                entities=OpaqueFunction(function=self.__on_process_stdin_event),
+            ),
+            OnShutdown(
+                on_shutdown=self.__on_shutdown,
+            ),
+        ]
+        for event_handler in event_handlers:
+            context.register_event_handler(event_handler)
+
+        try:
+            self.__completed_future = create_future(context.asyncio_loop)
+            self.__expand_substitutions(context)
+            context.asyncio_loop.create_task(self.__execute_process(context))
+        except Exception:
+            for event_handler in event_handlers:
+                context.unregister_event_handler(event_handler)
+            raise
         return None
 
     def get_asyncio_future(self) -> Optional[asyncio.Future]:
