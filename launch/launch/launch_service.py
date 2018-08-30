@@ -347,6 +347,8 @@ class LaunchService:
                     _logger.error(traceback.format_exc())
                     _logger.error(msg)
                     self._shutdown(reason=msg, due_to_sigint=False)
+                    # restart run loop to let it shutdown properly
+                    run_loop_task = self.__loop_from_run_thread.create_task(self.__run_loop())
         finally:
             # No matter what happens, unset the loop and set running to false.
             with self.__loop_from_run_thread_lock:
