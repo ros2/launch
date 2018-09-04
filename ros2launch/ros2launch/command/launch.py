@@ -16,6 +16,7 @@ from argparse import REMAINDER
 import os
 import sys
 
+from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
 from ros2cli.command import CommandExtension
 from ros2launch.api import get_share_file_path_from_package
@@ -24,6 +25,7 @@ from ros2launch.api import launch_a_python_launch_file
 from ros2launch.api import LaunchFileNameCompleter
 from ros2launch.api import MultipleLaunchFilesError
 from ros2launch.api import print_a_python_launch_file
+from ros2launch.api import print_arguments_of_python_launch_file
 from ros2pkg.api import package_name_completer
 
 
@@ -35,9 +37,13 @@ class LaunchCommand(CommandExtension):
         parser.add_argument(
             '-d', '--debug', default=False, action='store_true',
             help='Put the launch system in debug mode, provides more verbose output.')
-        parser.add_argument(
+        command_group = parser.add_mutually_exclusive_group()
+        command_group.add_argument(
             '-p', '--print', '--print-description', default=False, action='store_true',
             help='Print the launch description to the console without launching it.')
+        command_group.add_argument(
+            '-s', '--show-args', '--show-arguments', default=False, action='store_true',
+            help='Show arguments that may be given to the launch file.')
         arg = parser.add_argument(
             'package_name',
             help='Name of the ROS package which contains the launch file')
@@ -47,6 +53,10 @@ class LaunchCommand(CommandExtension):
             # TODO(wjwwood) make this not optional when full launch path is supported.
             nargs='?',
             help='Name of the launch file')
+        arg = parser.add_argument(
+            'launch_arguments',
+            nargs='*',
+            help="Arguments to the launch file; '<name>:=<value>' (for duplicates, last one wins)")
         arg.completer = LaunchFileNameCompleter()
         parser.add_argument(
             'argv', nargs=REMAINDER,
@@ -54,14 +64,34 @@ class LaunchCommand(CommandExtension):
 
     def main(self, *, parser, args):
         """Entry point for CLI program."""
+        mode = 'pkg file'
         if args.launch_file_name is None:
+            # If only one argument passed, use single file mode.
+            mode = 'single file'
+        else:
+            # Test if first argument is a package, and if not change to single
+            # file mode, but only if the file exists.
+            try:
+                get_package_prefix(args.package_name)
+            except PackageNotFoundError:
+                if os.path.exists(args.package_name):
+                    mode = 'single file'
+
+        path = None
+        launch_arguments = []
+        if mode == 'single file':
             # TODO(wjwwood): figure out how to have argparse and argcomplete
             # handle this, for now, hidden feature.
             if os.path.exists(args.package_name):
                 path = args.package_name
             else:
                 return 'No launch file supplied'
-        else:
+
+            if args.launch_file_name is not None:
+                # Since in single file mode, the "launch file" argument is
+                # actually part of the launch arguments, if set.
+                launch_arguments.append(args.launch_file_name)
+        elif mode == 'pkg file':
             try:
                 path = get_share_file_path_from_package(
                     package_name=args.package_name,
@@ -71,13 +101,18 @@ class LaunchCommand(CommandExtension):
                     "Package '{}' not found: {}".format(args.package_name, exc))
             except (FileNotFoundError, MultipleLaunchFilesError) as exc:
                 raise RuntimeError(str(exc))
+        else:
+            raise RuntimeError('unexpected mode')
+        launch_arguments.extend(args.launch_arguments)
         try:
             if args.print:
                 return print_a_python_launch_file(python_launch_file_path=path)
+            elif args.show_args:
+                return print_arguments_of_python_launch_file(python_launch_file_path=path)
             else:
                 return launch_a_python_launch_file(
                     python_launch_file_path=path,
-                    launch_file_arguments=args.argv,
+                    launch_file_arguments=launch_arguments,
                     debug=args.debug
                 )
         except SyntaxError:

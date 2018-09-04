@@ -28,9 +28,6 @@ from .event_handler import EventHandler
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
 from .some_substitutions_type import SomeSubstitutionsType
-from .substitutions import EnvironmentVariable
-from .substitutions import FindExecutable
-from .substitutions import TextSubstitution
 from .utilities import is_a
 from .utilities import normalize_to_list_of_substitutions
 
@@ -83,20 +80,7 @@ def format_entities(entities: List[LaunchDescriptionEntity]) -> List[Text]:
 def format_substitutions(substitutions: SomeSubstitutionsType) -> Text:
     """Return a text representation of some set of substitutions."""
     normalized_substitutions = normalize_to_list_of_substitutions(substitutions)
-    result = ''
-    for sub in normalized_substitutions:
-        result += ' + '
-        if is_a(sub, TextSubstitution):
-            result += "'{}'".format(cast(TextSubstitution, sub).text)
-        elif is_a(sub, EnvironmentVariable):
-            result += 'EnvVarSub({})'.format(
-                format_substitutions(cast(EnvironmentVariable, sub).name))
-        elif is_a(sub, FindExecutable):
-            result += 'FindExecSub({})'.format(
-                format_substitutions(cast(FindExecutable, sub).name))
-        else:
-            result += "Substitution('{}')".format(sub)
-    return result[3:]
+    return ' + '.join([sub.describe() for sub in normalized_substitutions])
 
 
 def format_event_handler(event_handler: EventHandler) -> List[Text]:
@@ -126,7 +110,7 @@ def format_action(action: Action) -> List[Text]:
             ),
             typed_action.env if typed_action.env is None else '{' + ', '.join(
                 ['{}: {}'.format(format_substitutions(k), format_substitutions(v))
-                 for k, v in typed_action.env.items()] + '}'),
+                 for k, v in typed_action.env.items()]) + '}',
             typed_action.shell,
         )
         return [msg]

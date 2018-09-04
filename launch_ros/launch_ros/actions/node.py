@@ -96,14 +96,20 @@ class Node(ExecuteProcess):
         # The substitutions will get expanded when the action is executed.
         ros_args_index = 0
         if node_name is not None:
-            cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
+            cmd += [LocalSubstitution(
+                'ros_specific_arguments[{}]'.format(ros_args_index), description='node name')]
             ros_args_index += 1
         if node_namespace is not None:
-            cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
+            cmd += [LocalSubstitution(
+                'ros_specific_arguments[{}]'.format(ros_args_index), description='node namespace')]
             ros_args_index += 1
         if remappings is not None:
+            i = 0
             for k, v in remappings:
-                cmd += [LocalSubstitution('ros_specific_arguments[{}]'.format(ros_args_index))]
+                i += 1
+                cmd += [LocalSubstitution(
+                    'ros_specific_arguments[{}]'.format(ros_args_index),
+                    description='remppaing {}'.format(i))]
                 ros_args_index += 1
         super().__init__(cmd=cmd, **kwargs)
         self.__package = package
@@ -136,7 +142,7 @@ class Node(ExecuteProcess):
             if self.__node_name is not None:
                 self.__expanded_node_name = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_name))
-                validate_node_name(self.__node_name)
+                validate_node_name(self.__expanded_node_name)
             self.__expanded_node_name.lstrip('/')
             if self.__node_namespace is not None:
                 self.__expanded_node_namespace = perform_substitutions(
@@ -145,14 +151,15 @@ class Node(ExecuteProcess):
                 self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
             validate_namespace(self.__expanded_node_namespace)
         except Exception:
-            print("Error while expanding or validating node name or namespace for '{}':".format(
-                'package={}, node_executable={}, name={}, namespace={}'.format(
+            _logger.error(
+                "Error while expanding or validating node name or namespace for '{}':"
+                .format('package={}, node_executable={}, name={}, namespace={}'.format(
                     self.__package,
                     self.__node_executable,
                     self.__node_name,
                     self.__node_namespace,
-                )
-            ))
+                ))
+            )
             raise
         self.__final_node_name = ''
         if self.__expanded_node_namespace not in ['', '/']:

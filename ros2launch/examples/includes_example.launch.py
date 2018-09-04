@@ -27,7 +27,8 @@ def generate_launch_description():
         LogInfo(msg=[
             'Including launch file located at: ', ThisLaunchFileDir(), '/example.launch.py'
         ]),
-        IncludeLaunchDescription(PythonLaunchDescriptionSource(
-            [ThisLaunchFileDir(), '/example.launch.py']
-        )),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/example.launch.py']),
+            launch_arguments={'node_prefix': 'FOO'}.items(),
+        ),
     ])

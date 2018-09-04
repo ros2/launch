@@ -70,6 +70,10 @@ class LaunchConfiguration(Substitution):
         """Getter for variable_name."""
         return self.__variable_name
 
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return 'LaunchConfig({})'.format(' + '.join([s.describe() for s in self.variable_name]))
+
     def perform(self, context: LaunchContext) -> Text:
         """
         Perform the substitution by retrieving the launch configuration, as a string.

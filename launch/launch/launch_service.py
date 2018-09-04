@@ -235,7 +235,7 @@ class LaunchService:
             else:
                 await process_one_event_task
 
-    def run(self, *, shutdown_when_idle=True) -> None:
+    def run(self, *, shutdown_when_idle=True) -> int:
         """
         Start the event loop and visit all entities of all included LaunchDescriptions.
 
@@ -344,9 +344,11 @@ class LaunchService:
                     _logger.error('asyncio run loop was canceled')
                 except Exception as exc:
                     msg = 'Caught exception in launch (see debug for traceback): {}'.format(exc)
-                    _logger.error(msg)
                     _logger.debug(traceback.format_exc())
+                    _logger.error(msg)
                     self._shutdown(reason=msg, due_to_sigint=False)
+                    # restart run loop to let it shutdown properly
+                    run_loop_task = self.__loop_from_run_thread.create_task(self.__run_loop())
         finally:
             # No matter what happens, unset the loop and set running to false.
             with self.__loop_from_run_thread_lock:
@@ -372,7 +374,14 @@ class LaunchService:
         # Assumption is that this method is only called when running.
         if not self.__shutting_down:
             shutdown_event = Shutdown(reason=reason, due_to_sigint=due_to_sigint)
-            if self.__loop_from_run_thread == asyncio.get_event_loop():
+            asyncio_event_loop = None
+            try:
+                asyncio_event_loop = asyncio.get_event_loop()
+            except (RuntimeError, AssertionError):
+                # If no event loop is set for this thread, asyncio will raise an exception.
+                # The exception type depends on the version of Python, so just catch both.
+                pass
+            if self.__loop_from_run_thread == asyncio_event_loop:
                 # If in the thread of the loop.
                 self.__loop_from_run_thread.create_task(self.__context.emit_event(shutdown_event))
             else:

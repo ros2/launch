@@ -39,6 +39,10 @@ class TextSubstitution(Substitution):
         """Getter for text."""
         return self.__text
 
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return "'{}'".format(self.text)
+
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by returning the string itself."""
         return self.text

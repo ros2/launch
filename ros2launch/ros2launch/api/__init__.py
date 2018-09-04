@@ -20,6 +20,7 @@ from .api import launch_a_python_launch_file
 from .api import LaunchFileNameCompleter
 from .api import MultipleLaunchFilesError
 from .api import print_a_python_launch_file
+from .api import print_arguments_of_python_launch_file
 
 __all__ = [
     'get_share_file_path_from_package',
@@ -28,4 +29,5 @@ __all__ = [
     'launch_a_python_launch_file',
     'MultipleLaunchFilesError',
     'print_a_python_launch_file',
+    'print_arguments_of_python_launch_file',
 ]

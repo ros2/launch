@@ -12,25 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Launch a talker and a listener."""
+"""Fixture for tests."""
 
 from launch import LaunchDescription
 import launch.actions
-import launch.substitutions
-import launch_ros.actions
 
 
 def generate_launch_description():
-    """Launch a talker and a listener."""
+    """Fixture for tests."""
     return LaunchDescription([
         launch.actions.DeclareLaunchArgument(
-            'node_prefix',
-            default_value=[launch.substitutions.EnvironmentVariable('USER'), '_'],
-            description='prefix for node names'),
-        launch_ros.actions.Node(
-            package='demo_nodes_cpp', node_executable='talker', output='screen',
-            node_name=[launch.substitutions.LaunchConfiguration('node_prefix'), 'talker']),
-        launch_ros.actions.Node(
-            package='demo_nodes_cpp', node_executable='listener', output='screen',
-            node_name=[launch.substitutions.LaunchConfiguration('node_prefix'), 'listener']),
+            'example',
+            default_value='example',
+            description='example argument'),
     ])

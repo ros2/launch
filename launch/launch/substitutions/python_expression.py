@@ -50,6 +50,10 @@ class PythonExpression(Substitution):
         """Getter for expression."""
         return self.__expression
 
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return 'PythonExpr({})'.format(' + '.join([sub.describe() for sub in self.expression]))
+
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by evaluating the expression."""
         from ..utilities import perform_substitutions

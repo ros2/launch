@@ -58,6 +58,12 @@ class ExecutableInPackage(Substitution):
         """Getter for package."""
         return self.__package
 
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        exec_str = ' + '.join([sub.describe() for sub in self.executable])
+        pkg_str = ' + '.join([sub.describe() for sub in self.package])
+        return 'ExecInPkg(pkg={}, exec={})'.format(pkg_str, exec_str)
+
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by locating the executable."""
         executable = perform_substitutions(context, self.executable)
