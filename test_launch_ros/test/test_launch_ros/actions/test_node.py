@@ -34,8 +34,9 @@ def test_launch_node():
     """Test launching a node."""
     ld = LaunchDescription([
         launch_ros.actions.Node(
-            # TODO(dhood): fix cyclical package dependency
-            package='demo_nodes_cpp', node_executable='talker', output='screen'),
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            arguments=['--number_of_cycles', '5'],
+        ),
     ])
     ls = LaunchService()
     ls.include_launch_description(ld)
@@ -46,8 +47,8 @@ def test_launch_node_with_parameters():
     """Test launching a node with parameters."""
     ld = LaunchDescription([
         launch_ros.actions.Node(
-            # TODO(dhood): fix cyclical package dependency
-            package='demo_nodes_cpp', node_executable='talker', output='screen',
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            arguments=['--number_of_cycles', '5'],
             parameters=['/home/dhood/ros2_ws/demo_parameters.yaml'],
         ),
     ])
