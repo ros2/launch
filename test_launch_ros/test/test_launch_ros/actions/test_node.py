@@ -14,10 +14,12 @@
 
 """Tests for the Node Action."""
 
+import os
 import pathlib
 
 from launch import LaunchDescription
 from launch import LaunchService
+from launch.substitutions import EnvironmentVariable
 import launch_ros.actions.node
 
 
@@ -47,15 +49,27 @@ def test_launch_node():
 
 def test_launch_node_with_parameters():
     """Test launching a node with parameters."""
+    parameters_file_dir = pathlib.Path(__file__).resolve().parent
+    parameters_file_path = parameters_file_dir / 'example_parameters.yaml'
+    # Pass parameter files to node in a variety of forms.
+    # It is the same file because the objective is to test the different parameter types.
     node_action = launch_ros.actions.Node(
         package='demo_nodes_py', node_executable='talker_qos', output='screen',
         arguments=['--number_of_cycles', '5'],
-        parameters=['/home/dhood/ros2_ws/demo_parameters.yaml'],
+        parameters=[
+            parameters_file_path,
+            str(parameters_file_path),
+            [EnvironmentVariable(name='FILE_PATH'), os.sep, 'example_parameters.yaml'],
+        ],
+        env={'FILE_PATH': str(parameters_file_path)},
     )
     ld = LaunchDescription([node_action])
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+
     # Check the expanded parameters.
     expanded_parameters = node_action._Node__expanded_parameters
-    assert expanded_parameters is not None
+    assert len(expanded_parameters) == 3
+    for i in range(3):
+        assert expanded_parameters[i] == str(parameters_file_path)
