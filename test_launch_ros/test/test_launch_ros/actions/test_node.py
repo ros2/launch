@@ -24,59 +24,56 @@ from launch.substitutions import EnvironmentVariable
 import launch_ros.actions.node
 
 
-def test_launch_invalid_node():
-    """Test launching an invalid node."""
-    ld = LaunchDescription([
-        launch_ros.actions.Node(
-            package='nonexistent_package', node_executable='node', output='screen'),
-    ])
-    ls = LaunchService()
-    ls.include_launch_description(ld)
-    assert 0 != ls.run()
+class TestNode(unittest.TestCase):
 
+    def test_launch_invalid_node(self):
+        """Test launching an invalid node."""
+        ld = LaunchDescription([
+            launch_ros.actions.Node(
+                package='nonexistent_package', node_executable='node', output='screen'),
+        ])
+        ls = LaunchService()
+        ls.include_launch_description(ld)
+        assert 0 != ls.run()
 
-def test_launch_node():
-    """Test launching a node."""
-    ld = LaunchDescription([
-        launch_ros.actions.Node(
+    def test_launch_node(self):
+        """Test launching a node."""
+        ld = LaunchDescription([
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                arguments=['--number_of_cycles', '5'],
+            ),
+        ])
+        ls = LaunchService()
+        ls.include_launch_description(ld)
+        assert 0 == ls.run()
+
+    def test_launch_node_with_parameters(self):
+        """Test launching a node with parameters."""
+        parameters_file_dir = pathlib.Path(__file__).resolve().parent
+        parameters_file_path = parameters_file_dir / 'example_parameters.yaml'
+        # Pass parameter files to node in a variety of forms.
+        # It is redundant to pass the same file, but the goal is to test different parameter types.
+        os.environ['FILE_PATH'] = str(parameters_file_dir)
+        node_action = launch_ros.actions.Node(
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
             arguments=['--number_of_cycles', '5'],
-        ),
-    ])
-    ls = LaunchService()
-    ls.include_launch_description(ld)
-    assert 0 == ls.run()
+            parameters=[
+                parameters_file_path,
+                str(parameters_file_path),
+                [EnvironmentVariable(name='FILE_PATH'), os.sep, 'example_parameters.yaml'],
+            ],
+        )
+        ld = LaunchDescription([node_action])
+        ls = LaunchService()
+        ls.include_launch_description(ld)
+        assert 0 == ls.run()
 
-
-def test_launch_node_with_parameters():
-    """Test launching a node with parameters."""
-    parameters_file_dir = pathlib.Path(__file__).resolve().parent
-    parameters_file_path = parameters_file_dir / 'example_parameters.yaml'
-    # Pass parameter files to node in a variety of forms.
-    # It is redundant to pass the same file, but the goal is to test the different parameter types.
-    os.environ['FILE_PATH'] = str(parameters_file_dir)
-    node_action = launch_ros.actions.Node(
-        package='demo_nodes_py', node_executable='talker_qos', output='screen',
-        arguments=['--number_of_cycles', '5'],
-        parameters=[
-            parameters_file_path,
-            str(parameters_file_path),
-            [EnvironmentVariable(name='FILE_PATH'), os.sep, 'example_parameters.yaml'],
-        ],
-    )
-    ld = LaunchDescription([node_action])
-    ls = LaunchService()
-    ls.include_launch_description(ld)
-    assert 0 == ls.run()
-
-    # Check the expanded parameters.
-    expanded_parameters = node_action._Node__expanded_parameters
-    assert len(expanded_parameters) == 3
-    for i in range(3):
-        assert expanded_parameters[i] == str(parameters_file_path)
-
-
-class TestNode(unittest.TestCase):
+        # Check the expanded parameters.
+        expanded_parameters = node_action._Node__expanded_parameters
+        assert len(expanded_parameters) == 3
+        for i in range(3):
+            assert expanded_parameters[i] == str(parameters_file_path)
 
     def test_launch_node_with_invalid_parameters(self):
         """Test launching a node with invalid parameters."""
