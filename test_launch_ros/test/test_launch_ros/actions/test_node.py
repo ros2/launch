@@ -53,6 +53,7 @@ def test_launch_node_with_parameters():
     parameters_file_path = parameters_file_dir / 'example_parameters.yaml'
     # Pass parameter files to node in a variety of forms.
     # It is the same file because the objective is to test the different parameter types.
+    os.environ['FILE_PATH'] = str(parameters_file_dir)
     node_action = launch_ros.actions.Node(
         package='demo_nodes_py', node_executable='talker_qos', output='screen',
         arguments=['--number_of_cycles', '5'],
@@ -61,7 +62,6 @@ def test_launch_node_with_parameters():
             str(parameters_file_path),
             [EnvironmentVariable(name='FILE_PATH'), os.sep, 'example_parameters.yaml'],
         ],
-        env={'FILE_PATH': str(parameters_file_path)},
     )
     ld = LaunchDescription([node_action])
     ls = LaunchService()
