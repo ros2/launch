@@ -16,6 +16,7 @@
 
 import logging
 import os
+import pathlib
 from typing import Dict  # noqa: F401
 from typing import Iterable
 from typing import List
@@ -113,7 +114,7 @@ class Node(ExecuteProcess):
             # All arguments are paths to files with parameters (or substitutions that evaluate
             # to paths).
             # TODO(dhood): add support for parameter dicts.
-            parameter_types = SomeSubstitutionsType_types_tuple
+            parameter_types = list(SomeSubstitutionsType_types_tuple) + [pathlib.Path]
             i = 0
             for param in parameters:
                 ensure_argument_type(param, parameter_types, 'parameters[{}]'.format(i), 'Node')
@@ -190,6 +191,8 @@ class Node(ExecuteProcess):
         if self.__parameters is not None:
             self.__expanded_parameters = []
             for param_file_path in self.__parameters:
+                if isinstance(param_file_path, pathlib.Path):
+                    param_file_path = str(param_file_path)
                 expanded_param_file_path = perform_substitutions(
                     context, normalize_to_list_of_substitutions(param_file_path))
                 if not os.path.isfile(expanded_param_file_path):
