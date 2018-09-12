@@ -346,6 +346,7 @@ class LaunchService:
                     msg = 'Caught exception in launch (see debug for traceback): {}'.format(exc)
                     _logger.debug(traceback.format_exc())
                     _logger.error(msg)
+                    self.__return_code = 1
                     self._shutdown(reason=msg, due_to_sigint=False)
                     # restart run loop to let it shutdown properly
                     run_loop_task = self.__loop_from_run_thread.create_task(self.__run_loop())
