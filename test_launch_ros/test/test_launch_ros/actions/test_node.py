@@ -14,6 +14,8 @@
 
 """Tests for the Node Action."""
 
+import pathlib
+
 from launch import LaunchDescription
 from launch import LaunchService
 import launch_ros.actions.node
@@ -45,13 +47,15 @@ def test_launch_node():
 
 def test_launch_node_with_parameters():
     """Test launching a node with parameters."""
-    ld = LaunchDescription([
-        launch_ros.actions.Node(
-            package='demo_nodes_py', node_executable='talker_qos', output='screen',
-            arguments=['--number_of_cycles', '5'],
-            parameters=['/home/dhood/ros2_ws/demo_parameters.yaml'],
-        ),
-    ])
+    node_action = launch_ros.actions.Node(
+        package='demo_nodes_py', node_executable='talker_qos', output='screen',
+        arguments=['--number_of_cycles', '5'],
+        parameters=['/home/dhood/ros2_ws/demo_parameters.yaml'],
+    )
+    ld = LaunchDescription([node_action])
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+    # Check the expanded parameters.
+    expanded_parameters = node_action._Node__expanded_parameters
+    assert expanded_parameters is not None
