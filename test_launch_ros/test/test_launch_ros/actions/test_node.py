@@ -16,6 +16,7 @@
 
 import os
 import pathlib
+import unittest
 
 from launch import LaunchDescription
 from launch import LaunchService
@@ -52,7 +53,7 @@ def test_launch_node_with_parameters():
     parameters_file_dir = pathlib.Path(__file__).resolve().parent
     parameters_file_path = parameters_file_dir / 'example_parameters.yaml'
     # Pass parameter files to node in a variety of forms.
-    # It is the same file because the objective is to test the different parameter types.
+    # It is redundant to pass the same file, but the goal is to test the different parameter types.
     os.environ['FILE_PATH'] = str(parameters_file_dir)
     node_action = launch_ros.actions.Node(
         package='demo_nodes_py', node_executable='talker_qos', output='screen',
@@ -73,3 +74,23 @@ def test_launch_node_with_parameters():
     assert len(expanded_parameters) == 3
     for i in range(3):
         assert expanded_parameters[i] == str(parameters_file_path)
+
+
+class TestNode(unittest.TestCase):
+
+    def test_launch_node_with_invalid_parameters(self):
+        """Test launching a node with invalid parameters."""
+        with self.assertRaises(TypeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                arguments=['--number_of_cycles', '5'],
+                parameters=[5.0],  # Invalid list values.
+            )
+
+        parameter_file_path = pathlib.Path(__file__).resolve().parent / 'example_parameters.yaml'
+        with self.assertRaises(TypeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                arguments=['--number_of_cycles', '5'],
+                parameters=str(parameter_file_path),  # Valid path, but not in a list.
+            )
