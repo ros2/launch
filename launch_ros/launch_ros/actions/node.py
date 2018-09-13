@@ -126,7 +126,9 @@ class Node(ExecuteProcess):
         if remappings is not None:
             ensure_argument_type(remappings, (list), 'remappings', 'Node')
             i = 0
-            for k, v in remappings:
+            for remapping in remappings:
+                ensure_argument_type(remapping, (tuple), 'remappings[{}]'.format(i), 'Node')
+                k, v = remapping
                 i += 1
                 cmd += [LocalSubstitution(
                     'ros_specific_arguments[{}]'.format(ros_args_index),

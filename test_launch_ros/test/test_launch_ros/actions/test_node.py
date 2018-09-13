@@ -80,7 +80,14 @@ class TestNode(unittest.TestCase):
             launch_ros.actions.Node(
                 package='demo_nodes_py', node_executable='talker_qos', output='screen',
                 arguments=['--number_of_cycles', '5'],
-                remappings={'chatter': 'new_chatter'},
+                remappings={'chatter': 'new_chatter'},  # Not a list.
+            )
+
+        with self.assertRaises(TypeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                arguments=['--number_of_cycles', '5'],
+                remappings=[{'chatter': 'new_chatter'}],  # List with elements of wrong type.
             )
 
     def test_launch_node_with_parameters(self):
