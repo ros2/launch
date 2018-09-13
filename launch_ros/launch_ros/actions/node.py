@@ -145,7 +145,7 @@ class Node(ExecuteProcess):
         self.__expanded_node_namespace = '/'
         self.__final_node_name = None  # type: Optional[Text]
         self.__expanded_parameters = None  # type: Optional[List[Text]]
-        self.__expanded_remappings = None  # type: Optional[Dict[Text, Text]]
+        self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
 
         self.__substitutions_performed = False
 
