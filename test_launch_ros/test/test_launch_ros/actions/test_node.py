@@ -48,6 +48,48 @@ class TestNode(unittest.TestCase):
         ls.include_launch_description(ld)
         assert 0 == ls.run()
 
+    def test_launch_node_with_remappings(self):
+        """Test launching a node with remappings."""
+        # Pass remapping rules to node in a variety of forms.
+        # It is redundant to pass the same rule, but the goal is to test different parameter types.
+        os.environ['TOPIC_NAME'] = 'chatter'
+        topic_prefix = 'new_'
+        node_action = launch_ros.actions.Node(
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            arguments=['--number_of_cycles', '5'],
+            remappings=[
+                ('chatter', 'new_chatter'),
+                (EnvironmentVariable(name='TOPIC_NAME'), [
+                    topic_prefix, EnvironmentVariable(name='TOPIC_NAME')])
+            ],
+        )
+        ld = LaunchDescription([node_action])
+        ls = LaunchService()
+        ls.include_launch_description(ld)
+        assert 0 == ls.run()
+
+        # Check the expanded parameters.
+        expanded_remappings = node_action._Node__expanded_remappings
+        assert len(expanded_remappings) == 2
+        for i in range(2):
+            assert expanded_remappings[i] == ('chatter', 'new_chatter')
+
+    def test_launch_node_with_invalid_remappings(self):
+        """Test launching a node with invalid remappings."""
+        with self.assertRaises(TypeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                arguments=['--number_of_cycles', '5'],
+                remappings={'chatter': 'new_chatter'},  # Not a list.
+            )
+
+        with self.assertRaises(TypeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                arguments=['--number_of_cycles', '5'],
+                remappings=[{'chatter': 'new_chatter'}],  # List with elements of wrong type.
+            )
+
     def test_launch_node_with_parameters(self):
         """Test launching a node with parameters."""
         parameters_file_dir = pathlib.Path(__file__).resolve().parent

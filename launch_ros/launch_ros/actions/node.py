@@ -52,7 +52,7 @@ class Node(ExecuteProcess):
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[List[SomeSubstitutionsType]] = None,
-        remappings: Optional[Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]] = None,
+        remappings: Optional[List[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
@@ -124,12 +124,15 @@ class Node(ExecuteProcess):
                     description='parameter {}'.format(i))]
                 ros_args_index += 1
         if remappings is not None:
+            ensure_argument_type(remappings, (list), 'remappings', 'Node')
             i = 0
-            for k, v in remappings:
+            for remapping in remappings:
+                ensure_argument_type(remapping, (tuple), 'remappings[{}]'.format(i), 'Node')
+                k, v = remapping
                 i += 1
                 cmd += [LocalSubstitution(
                     'ros_specific_arguments[{}]'.format(ros_args_index),
-                    description='remppaing {}'.format(i))]
+                    description='remapping {}'.format(i))]
                 ros_args_index += 1
         super().__init__(cmd=cmd, **kwargs)
         self.__package = package
@@ -144,7 +147,7 @@ class Node(ExecuteProcess):
         self.__expanded_node_namespace = '/'
         self.__final_node_name = None  # type: Optional[Text]
         self.__expanded_parameters = None  # type: Optional[List[Text]]
-        self.__expanded_remappings = None  # type: Optional[Dict[Text, Text]]
+        self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
 
         self.__substitutions_performed = False
 
@@ -203,11 +206,11 @@ class Node(ExecuteProcess):
                 self.__expanded_parameters.append(expanded_param_file_path)
         # expand remappings too
         if self.__remappings is not None:
-            self.__expanded_remappings = {}
+            self.__expanded_remappings = []
             for k, v in self.__remappings:
                 key = perform_substitutions(context, normalize_to_list_of_substitutions(k))
                 value = perform_substitutions(context, normalize_to_list_of_substitutions(v))
-                self.__expanded_remappings[key] = value
+                self.__expanded_remappings.append((key, value))
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """
@@ -227,7 +230,7 @@ class Node(ExecuteProcess):
             for param_file_path in self.__expanded_parameters:
                 ros_specific_arguments.append('__params:={}'.format(param_file_path))
         if self.__expanded_remappings is not None:
-            for remapping_from, remapping_to in self.__remappings:
+            for remapping_from, remapping_to in self.__expanded_remappings:
                 ros_specific_arguments.append('{}:={}'.format(remapping_from, remapping_to))
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         return super().execute(context)
