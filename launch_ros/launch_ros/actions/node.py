@@ -197,7 +197,7 @@ class Node(ExecuteProcess):
                     context, normalize_to_list_of_substitutions(param_file_path))
                 if not os.path.isfile(expanded_param_file_path):
                     _logger.warn(
-                        'Parameter file path is not valid: {}'.format(expanded_param_file_path))
+                        'Parameter file path is not file: {}'.format(expanded_param_file_path))
                     # Don't skip adding the file to the parameter list since space has been
                     # reserved for it in the ros_specific_arguments.
                 self.__expanded_parameters.append(expanded_param_file_path)
