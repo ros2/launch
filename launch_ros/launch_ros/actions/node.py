@@ -203,11 +203,11 @@ class Node(ExecuteProcess):
                 self.__expanded_parameters.append(expanded_param_file_path)
         # expand remappings too
         if self.__remappings is not None:
-            self.__expanded_remappings = {}
+            self.__expanded_remappings = []
             for k, v in self.__remappings:
                 key = perform_substitutions(context, normalize_to_list_of_substitutions(k))
                 value = perform_substitutions(context, normalize_to_list_of_substitutions(v))
-                self.__expanded_remappings[key] = value
+                self.__expanded_remappings.append((key, value))
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """
