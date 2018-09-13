@@ -162,6 +162,44 @@ class Node(ExecuteProcess):
             raise RuntimeError("cannot access 'node_name' before executing action")
         return self.__final_node_name
 
+    def _create_params_file_from_dict(self, context, params):
+        with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
+            param_file_path = h.name
+
+            def expand_dict(input_dict):
+                expanded_dict = {}
+                for k, v in input_dict.items():
+                    # Key can only be a string (parameter/group name).
+                    expanded_key = perform_substitutions(
+                        context, normalize_to_list_of_substitutions(k))
+                    if isinstance(v, dict):
+                        # Expand the nested dict.
+                        expanded_value = expand_dict(v)
+                    elif isinstance(v, tuple) or isinstance(v, list):
+                        # Expand each element.
+                        # TODO(dhood): Allow passing a list of Substitutions that will
+                        # be concatenated to form a string, not stored as a list.
+                        expanded_value = [perform_substitutions(
+                            context, normalize_to_list_of_substitutions(e)) for e in v]
+                    else:
+                        # Value might be e.g. a number, which can't be expanded.
+                        try:
+                            expanded_value = perform_substitutions(
+                                context, normalize_to_list_of_substitutions(v))
+                        except TypeError:
+                            expanded_value = v
+                    expanded_dict[expanded_key] = expanded_value
+                return expanded_dict
+
+            expanded_dict = expand_dict(params)
+            param_dict = {
+                self.__expanded_node_name: {'ros__parameters': expanded_dict}}
+            if self.__expanded_node_namespace:
+                param_dict = {self.__expanded_node_namespace: param_dict}
+            yaml.dump(param_dict, h, default_flow_style=False)
+            print(param_dict)
+            return param_file_path
+
     def _perform_substitutions(self, context: LaunchContext) -> None:
         try:
             if self.__substitutions_performed:
@@ -199,34 +237,7 @@ class Node(ExecuteProcess):
             self.__expanded_parameter_files = []
             for params in self.__parameters:
                 if isinstance(params, dict):
-                    with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
-                        param_file_path = h.name
-
-                        def expand_dict(input_dict):
-                            expanded_dict = {}
-                            for k, v in input_dict.items():
-                                # Key can only be a string (parameter/group name).
-                                expanded_key = perform_substitutions(
-                                    context, normalize_to_list_of_substitutions(k))
-                                if isinstance(v, dict):
-                                    # Expand the nested dict.
-                                    expanded_value = expand_dict(v)
-                                else:
-                                    # Value might be e.g. a number, which can't be expanded.
-                                    try:
-                                        expanded_value = perform_substitutions(
-                                            context, normalize_to_list_of_substitutions(v))
-                                    except TypeError:
-                                        expanded_value = v
-                                expanded_dict[expanded_key] = expanded_value
-                            return expanded_dict
-
-                        expanded_dict = expand_dict(params)
-                        param_dict = {
-                            self.__expanded_node_name: {'ros__parameters': expanded_dict}}
-                        if self.__expanded_node_namespace:
-                            param_dict = {self.__expanded_node_namespace: param_dict}
-                        yaml.dump(param_dict, h, default_flow_style=False)
+                    param_file_path = self._create_params_file_from_dict(context, params)
                 else:
                     if isinstance(params, pathlib.Path):
                         param_file_path = str(params)
