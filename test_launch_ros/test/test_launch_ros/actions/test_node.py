@@ -104,6 +104,7 @@ class TestNode(unittest.TestCase):
                 parameters_file_path,
                 str(parameters_file_path),
                 [EnvironmentVariable(name='FILE_PATH'), os.sep, 'example_parameters.yaml'],
+                {'param1': 5},
             ],
         )
         ld = LaunchDescription([node_action])

@@ -17,6 +17,7 @@
 import logging
 import os
 import pathlib
+from tempfile import NamedTemporaryFile
 from typing import Dict  # noqa: F401
 from typing import Iterable
 from typing import List
@@ -38,6 +39,8 @@ from launch_ros.substitutions import ExecutableInPackage
 
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
+
+import yaml
 
 _logger = logging.getLogger(name='launch_ros')
 
@@ -91,7 +94,9 @@ class Node(ExecuteProcess):
         :param: node_executable the name of the executable to find
         :param: node_name the name of the node
         :param: node_namespace the ros namespace for this Node
-        :param: parameters list of names of yaml files with parameter rules
+        :param: parameters list of names of yaml files with parameter rules,
+            or dictionaries of parameters. They will be applied in order (last
+            one wins).
         :param: remappings ordered list of 'to' and 'from' string pairs to be
             passed to the node as ROS remapping rules
         :param: arguments list of extra arguments for the node
@@ -111,10 +116,9 @@ class Node(ExecuteProcess):
             ros_args_index += 1
         if parameters is not None:
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
-            # All arguments are paths to files with parameters (or substitutions that evaluate
-            # to paths).
-            # TODO(dhood): add support for parameter dicts.
-            parameter_types = list(SomeSubstitutionsType_types_tuple) + [pathlib.Path]
+            # All elements in the list are paths to files with parameters (or substitutions that
+            # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
+            parameter_types = list(SomeSubstitutionsType_types_tuple) + [pathlib.Path, dict]
             i = 0
             for param in parameters:
                 ensure_argument_type(param, parameter_types, 'parameters[{}]'.format(i), 'Node')
@@ -146,7 +150,7 @@ class Node(ExecuteProcess):
         self.__expanded_node_name = '<node_name_unspecified>'
         self.__expanded_node_namespace = '/'
         self.__final_node_name = None  # type: Optional[Text]
-        self.__expanded_parameters = None  # type: Optional[List[Text]]
+        self.__expanded_parameter_files = None  # type: Optional[List[Text]]
         self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
 
         self.__substitutions_performed = False
@@ -192,18 +196,41 @@ class Node(ExecuteProcess):
         self.__final_node_name += '/' + self.__expanded_node_name
         # expand parameters too
         if self.__parameters is not None:
-            self.__expanded_parameters = []
-            for param_file_path in self.__parameters:
-                if isinstance(param_file_path, pathlib.Path):
-                    param_file_path = str(param_file_path)
-                expanded_param_file_path = perform_substitutions(
-                    context, normalize_to_list_of_substitutions(param_file_path))
-                if not os.path.isfile(expanded_param_file_path):
+            self.__expanded_parameter_files = []
+            for params in self.__parameters:
+                if isinstance(params, dict):
+                    with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
+                        param_file_path = h.name
+                        expanded_dict = {}
+                        for k, v in params.items():
+                            try:
+                                expanded_key = perform_substitutions(
+                                    context, normalize_to_list_of_substitutions(k))
+                            except TypeError:
+                                expanded_key = k
+                            try:
+                                expanded_value = perform_substitutions(
+                                    context, normalize_to_list_of_substitutions(v))
+                            except TypeError:
+                                expanded_value = v
+                            expanded_dict[expanded_key] = expanded_value
+                        param_dict = {
+                            self.__expanded_node_name: {'ros__parameters': expanded_dict}}
+                        if self.__expanded_node_namespace:
+                            param_dict = {self.__expanded_node_namespace: param_dict}
+                        yaml.dump(param_dict, h, default_flow_style=False)
+                else:
+                    if isinstance(params, pathlib.Path):
+                        param_file_path = str(params)
+                    else:
+                        param_file_path = perform_substitutions(
+                            context, normalize_to_list_of_substitutions(params))
+                if not os.path.isfile(param_file_path):
                     _logger.warn(
-                        'Parameter file path is not a file: {}'.format(expanded_param_file_path))
+                        'Parameter file path is not a file: {}'.format(param_file_path))
                     # Don't skip adding the file to the parameter list since space has been
                     # reserved for it in the ros_specific_arguments.
-                self.__expanded_parameters.append(expanded_param_file_path)
+                self.__expanded_parameter_files.append(param_file_path)
         # expand remappings too
         if self.__remappings is not None:
             self.__expanded_remappings = []
@@ -226,8 +253,8 @@ class Node(ExecuteProcess):
             ros_specific_arguments.append('__node:={}'.format(self.__expanded_node_name))
         if self.__node_namespace is not None:
             ros_specific_arguments.append('__ns:={}'.format(self.__expanded_node_namespace))
-        if self.__expanded_parameters is not None:
-            for param_file_path in self.__expanded_parameters:
+        if self.__expanded_parameter_files is not None:
+            for param_file_path in self.__expanded_parameter_files:
                 ros_specific_arguments.append('__params:={}'.format(param_file_path))
         if self.__expanded_remappings is not None:
             for remapping_from, remapping_to in self.__expanded_remappings:
