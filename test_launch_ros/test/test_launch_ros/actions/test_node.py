@@ -74,6 +74,15 @@ class TestNode(unittest.TestCase):
         for i in range(2):
             assert expanded_remappings[i] == ('chatter', 'new_chatter')
 
+    def test_launch_node_with_invalid_remappings(self):
+        """Test launching a node with invalid remappings."""
+        with self.assertRaises(TypeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                arguments=['--number_of_cycles', '5'],
+                remappings={'chatter': 'new_chatter'},
+            )
+
     def test_launch_node_with_parameters(self):
         """Test launching a node with parameters."""
         parameters_file_dir = pathlib.Path(__file__).resolve().parent

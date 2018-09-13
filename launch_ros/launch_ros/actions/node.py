@@ -52,7 +52,7 @@ class Node(ExecuteProcess):
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[List[SomeSubstitutionsType]] = None,
-        remappings: Optional[Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]] = None,
+        remappings: Optional[List[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
@@ -124,6 +124,7 @@ class Node(ExecuteProcess):
                     description='parameter {}'.format(i))]
                 ros_args_index += 1
         if remappings is not None:
+            ensure_argument_type(remappings, (list), 'remappings', 'Node')
             i = 0
             for k, v in remappings:
                 i += 1
