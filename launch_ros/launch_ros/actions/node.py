@@ -227,7 +227,7 @@ class Node(ExecuteProcess):
             for param_file_path in self.__expanded_parameters:
                 ros_specific_arguments.append('__params:={}'.format(param_file_path))
         if self.__expanded_remappings is not None:
-            for remapping_from, remapping_to in self.__remappings:
+            for remapping_from, remapping_to in self.__expanded_remappings:
                 ros_specific_arguments.append('{}:={}'.format(remapping_from, remapping_to))
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         return super().execute(context)
