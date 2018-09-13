@@ -201,19 +201,27 @@ class Node(ExecuteProcess):
                 if isinstance(params, dict):
                     with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
                         param_file_path = h.name
-                        expanded_dict = {}
-                        for k, v in params.items():
-                            try:
+
+                        def expand_dict(input_dict):
+                            expanded_dict = {}
+                            for k, v in input_dict.items():
+                                # Key can only be a string (parameter/group name).
                                 expanded_key = perform_substitutions(
                                     context, normalize_to_list_of_substitutions(k))
-                            except TypeError:
-                                expanded_key = k
-                            try:
-                                expanded_value = perform_substitutions(
-                                    context, normalize_to_list_of_substitutions(v))
-                            except TypeError:
-                                expanded_value = v
-                            expanded_dict[expanded_key] = expanded_value
+                                if isinstance(v, dict):
+                                    # Expand the nested dict.
+                                    expanded_value = expand_dict(v)
+                                else:
+                                    # Value might be e.g. a number, which can't be expanded.
+                                    try:
+                                        expanded_value = perform_substitutions(
+                                            context, normalize_to_list_of_substitutions(v))
+                                    except TypeError:
+                                        expanded_value = v
+                                expanded_dict[expanded_key] = expanded_value
+                            return expanded_dict
+
+                        expanded_dict = expand_dict(params)
                         param_dict = {
                             self.__expanded_node_name: {'ros__parameters': expanded_dict}}
                         if self.__expanded_node_namespace:
