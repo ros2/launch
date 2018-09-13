@@ -9,7 +9,6 @@ setup(
         'setuptools',
         'demo_nodes_py',
         'launch_ros',
-        'ros2param',
     ],
     zip_safe=True,
     author='William Woodall',
