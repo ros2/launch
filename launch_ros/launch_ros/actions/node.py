@@ -129,7 +129,7 @@ class Node(ExecuteProcess):
                 i += 1
                 cmd += [LocalSubstitution(
                     'ros_specific_arguments[{}]'.format(ros_args_index),
-                    description='remppaing {}'.format(i))]
+                    description='remapping {}'.format(i))]
                 ros_args_index += 1
         super().__init__(cmd=cmd, **kwargs)
         self.__package = package
