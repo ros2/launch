@@ -91,13 +91,28 @@ class Node(ExecuteProcess):
         If no node_namespace is given, then the default namespace `/` is
         assumed.
 
+        The parameters are passed as a list, with each element either a yaml
+        file that contains parameter rules (string or pathlib.Path to the full
+        path of the file), or a dictionary that specifies parameter rules.
+        Keys of the dictionary can be strings or an iterable of Substitutions
+        that will be expanded to a string.
+        Values in the dictionary can be strings, integers, floats, or tuples
+        of Substitutions that will be expanded to a string.
+        Additionally, values in the dictionary can be lists of the
+        aforementioned types, or another dictionary with the same properties.
+        A yaml file with the resulting parameters from the dictionary will be
+        written to a temporary file, the path to which will be passed to the
+        node.
+        Multiple dictionaries/files can be passed: each file path will be
+        passed in in order to the node (where the last definition of a
+        parameter takes effect).
+
         :param: package the package in which the node executable can be found
         :param: node_executable the name of the executable to find
         :param: node_name the name of the node
         :param: node_namespace the ros namespace for this Node
         :param: parameters list of names of yaml files with parameter rules,
-            or dictionaries of parameters. They will be applied in order (last
-            one wins).
+            or dictionaries of parameters.
         :param: remappings ordered list of 'to' and 'from' string pairs to be
             passed to the node as ROS remapping rules
         :param: arguments list of extra arguments for the node
@@ -187,7 +202,8 @@ class Node(ExecuteProcess):
             def expand_dict(input_dict):
                 expanded_dict = {}
                 for k, v in input_dict.items():
-                    # Key can only be a string (parameter/group name).
+                    # Key (parameter/group name) can only be a string/Substitutions that evaluates
+                    # to a string.
                     expanded_key = perform_substitutions(
                         context, normalize_to_list_of_substitutions(k))
                     if isinstance(v, dict):
@@ -221,7 +237,6 @@ class Node(ExecuteProcess):
             if self.__expanded_node_namespace:
                 param_dict = {self.__expanded_node_namespace: param_dict}
             yaml.dump(param_dict, h, default_flow_style=False)
-            print(param_dict)
             return param_file_path
 
     def _perform_substitutions(self, context: LaunchContext) -> None:
