@@ -22,6 +22,7 @@ from launch import LaunchDescription
 from launch import LaunchService
 from launch.substitutions import EnvironmentVariable
 import launch_ros.actions.node
+import yaml
 
 
 class TestNode(unittest.TestCase):
@@ -41,6 +42,7 @@ class TestNode(unittest.TestCase):
     def _create_node(self, *, parameters=None, remappings=None):
         return launch_ros.actions.Node(
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            node_name='my_node', node_namespace='my_ns',  # This is required to parameters dicts.
             arguments=['--number_of_cycles', '1'],
             parameters=parameters,
             remappings=remappings,
@@ -91,8 +93,8 @@ class TestNode(unittest.TestCase):
             remappings=[{'chatter': 'new_chatter'}],  # List with elements not tuple.
         )
 
-    def test_launch_node_with_parameters(self):
-        """Test launching a node with parameters."""
+    def test_launch_node_with_parameter_files(self):
+        """Test launching a node with parameters specified in yaml files."""
         parameters_file_dir = pathlib.Path(__file__).resolve().parent
         parameters_file_path = parameters_file_dir / 'example_parameters.yaml'
         # Pass parameter files to node in a variety of forms.
@@ -108,10 +110,35 @@ class TestNode(unittest.TestCase):
         self._assert_launch_no_errors([node_action])
 
         # Check the expanded parameters.
-        expanded_parameters = node_action._Node__expanded_parameter_files
-        assert len(expanded_parameters) == 3
+        expanded_parameter_files = node_action._Node__expanded_parameter_files
+        assert len(expanded_parameter_files) == 3
         for i in range(3):
-            assert expanded_parameters[i] == str(parameters_file_path)
+            assert expanded_parameter_files[i] == str(parameters_file_path)
+
+    def test_launch_node_with_parameter_dict(self):
+        """Test launching a node with parameters specified in a dictionary."""
+        os.environ['PARAM1_VALUE'] = 'param1_value'
+        node_action = self._create_node(
+            parameters=[
+                {'param1': EnvironmentVariable(name='PARAM1_VALUE')},
+            ],
+        )
+        self._assert_launch_no_errors([node_action])
+
+        # Check the expanded parameters (will be written to a file).
+        expanded_parameter_files = node_action._Node__expanded_parameter_files
+        assert len(expanded_parameter_files) == 1
+        with open(expanded_parameter_files[0], 'r') as h:
+            expanded_parameters_dict = yaml.load(h)
+            assert expanded_parameters_dict == {
+                '/my_ns': {
+                    'my_node': {
+                        'ros__parameters': {
+                            'param1': 'param1_value'
+                        }
+                    }
+                }
+            }
 
     def test_create_node_with_invalid_parameters(self):
         """Test launching a node with invalid parameters."""

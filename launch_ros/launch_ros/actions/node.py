@@ -180,7 +180,6 @@ class Node(ExecuteProcess):
                     # Key can only be a string (parameter/group name).
                     expanded_key = perform_substitutions(
                         context, normalize_to_list_of_substitutions(k))
-                    expanded_value = v
                     if isinstance(v, dict):
                         # Expand the nested dict.
                         expanded_value = expand_dict(v)
@@ -201,6 +200,8 @@ class Node(ExecuteProcess):
                                 'parameter dictionary tuple entry', 'Node')
                         expanded_value = perform_substitutions(
                             context, normalize_to_list_of_substitutions(v))
+                    else:
+                        expanded_value = perform_substitution_if_applicable(context, v)
                     expanded_dict[expanded_key] = expanded_value
                 return expanded_dict
 
