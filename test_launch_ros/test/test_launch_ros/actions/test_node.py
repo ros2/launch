@@ -118,10 +118,18 @@ class TestNode(unittest.TestCase):
     def test_launch_node_with_parameter_dict(self):
         """Test launching a node with parameters specified in a dictionary."""
         os.environ['PARAM1_VALUE'] = 'param1_value'
+        os.environ['PARAM2'] = 'param2'
         node_action = self._create_node(
-            parameters=[
-                {'param1': EnvironmentVariable(name='PARAM1_VALUE')},
-            ],
+            parameters=[{
+                'param1': EnvironmentVariable(name='PARAM1_VALUE'),
+                EnvironmentVariable(name='PARAM2'): (EnvironmentVariable(name='PARAM2'), '_value'),
+                'param_group1': {
+                    'list_params': [1.2, 3.4],
+                    'param_group2': {
+                        (EnvironmentVariable('PARAM2'), '_values'): ['param2_value'],
+                    }
+                }
+            }],
         )
         self._assert_launch_no_errors([node_action])
 
@@ -134,7 +142,14 @@ class TestNode(unittest.TestCase):
                 '/my_ns': {
                     'my_node': {
                         'ros__parameters': {
-                            'param1': 'param1_value'
+                            'param1': 'param1_value',
+                            'param2': 'param2_value',
+                            'param_group1': {
+                                'list_params': [1.2, 3.4],
+                                'param_group2': {
+                                    'param2_values': ['param2_value'],
+                                }
+                            }
                         }
                     }
                 }
