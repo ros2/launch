@@ -25,6 +25,7 @@ from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple
 
+from launch import Substitution
 from launch.action import Action
 from launch.actions import ExecuteProcess
 from launch.launch_context import LaunchContext
@@ -167,12 +168,21 @@ class Node(ExecuteProcess):
             param_file_path = h.name
 
             def perform_substitution_if_applicable(context, var):
-                # Value might be e.g. a number, which can't be expanded.
-                try:
-                    return perform_substitutions(
-                        context, normalize_to_list_of_substitutions(var))
-                except TypeError:
+                if isinstance(var, (int, float, str)):
+                    # No substitution necessary.
                     return var
+                if isinstance(var, Substitution):
+                    return perform_substitutions(context, normalize_to_list_of_substitutions(var))
+                if isinstance(var, tuple):
+                    try:
+                        return perform_substitutions(
+                            context, normalize_to_list_of_substitutions(var))
+                    except TypeError as e:
+                        raise TypeError('Invalid element received in parameters dictionary '
+                           '(not all tuple elements are Substitutions): {}'.format(var))
+                else:
+                    raise TypeError('Unsupported type received in parameters dictionary: {}'
+                        .format(type(var)))
 
             def expand_dict(input_dict):
                 expanded_dict = {}
