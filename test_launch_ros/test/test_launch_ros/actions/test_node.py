@@ -41,7 +41,7 @@ class TestNode(unittest.TestCase):
         ld = LaunchDescription([
             launch_ros.actions.Node(
                 package='demo_nodes_py', node_executable='talker_qos', output='screen',
-                arguments=['--number_of_cycles', '5'],
+                arguments=['--number_of_cycles', '1'],
             ),
         ])
         ls = LaunchService()
@@ -56,7 +56,7 @@ class TestNode(unittest.TestCase):
         topic_prefix = 'new_'
         node_action = launch_ros.actions.Node(
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
-            arguments=['--number_of_cycles', '5'],
+            arguments=['--number_of_cycles', '1'],
             remappings=[
                 ('chatter', 'new_chatter'),
                 (EnvironmentVariable(name='TOPIC_NAME'), [
@@ -79,14 +79,14 @@ class TestNode(unittest.TestCase):
         with self.assertRaises(TypeError):
             launch_ros.actions.Node(
                 package='demo_nodes_py', node_executable='talker_qos', output='screen',
-                arguments=['--number_of_cycles', '5'],
+                arguments=['--number_of_cycles', '1'],
                 remappings={'chatter': 'new_chatter'},  # Not a list.
             )
 
         with self.assertRaises(TypeError):
             launch_ros.actions.Node(
                 package='demo_nodes_py', node_executable='talker_qos', output='screen',
-                arguments=['--number_of_cycles', '5'],
+                arguments=['--number_of_cycles', '1'],
                 remappings=[{'chatter': 'new_chatter'}],  # List with elements of wrong type.
             )
 
@@ -99,12 +99,11 @@ class TestNode(unittest.TestCase):
         os.environ['FILE_PATH'] = str(parameters_file_dir)
         node_action = launch_ros.actions.Node(
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
-            arguments=['--number_of_cycles', '5'],
+            arguments=['--number_of_cycles', '1'],
             parameters=[
                 parameters_file_path,
                 str(parameters_file_path),
                 [EnvironmentVariable(name='FILE_PATH'), os.sep, 'example_parameters.yaml'],
-                {'param1': 5},
             ],
         )
         ld = LaunchDescription([node_action])
@@ -113,24 +112,57 @@ class TestNode(unittest.TestCase):
         assert 0 == ls.run()
 
         # Check the expanded parameters.
-        expanded_parameters = node_action._Node__expanded_parameters
+        expanded_parameters = node_action._Node__expanded_parameter_files
         assert len(expanded_parameters) == 3
         for i in range(3):
             assert expanded_parameters[i] == str(parameters_file_path)
 
-    def test_launch_node_with_invalid_parameters(self):
-        """Test launching a node with invalid parameters."""
+    def _assert_invalid_parameters(self, parameters):
         with self.assertRaises(TypeError):
             launch_ros.actions.Node(
                 package='demo_nodes_py', node_executable='talker_qos', output='screen',
-                arguments=['--number_of_cycles', '5'],
-                parameters=[5.0],  # Invalid list values.
+                arguments=['--number_of_cycles', '1'],
+                parameters=parameters,
             )
 
+    def test_launch_node_with_invalid_parameters(self):
+        """Test launching a node with invalid parameters."""
+        self._assert_invalid_parameters([5.0])  # Invalid list values.
+
         parameter_file_path = pathlib.Path(__file__).resolve().parent / 'example_parameters.yaml'
-        with self.assertRaises(TypeError):
-            launch_ros.actions.Node(
-                package='demo_nodes_py', node_executable='talker_qos', output='screen',
-                arguments=['--number_of_cycles', '5'],
-                parameters=str(parameter_file_path),  # Valid path, but not in a list.
-            )
+        self._assert_invalid_parameters(str(parameter_file_path))  # Valid path, but not in a list.
+
+    def test_launch_node_with_invalid_parameter_dicts(self):
+        """Test launching a node with invalid parameter dicts."""
+        # Check invalid parameters are detected at both the top-level and at a nested level in the
+        # dictionary.
+
+        # Key must be a string/Substitution evaluating to a string.
+        self._assert_invalid_parameters({5: 'asdf'})
+        self._assert_invalid_parameters({
+            'param_group': {
+                'param_subgroup': {
+                    5: 'asdf',
+                },
+            },
+        })
+
+        # Nested lists are not supported.
+        self._assert_invalid_parameters({'param': [1, 2, [3, 4]]})
+        self._assert_invalid_parameters({
+            'param_group': {
+                'param_subgroup': {
+                    'param': [1, 2, [3, 4]],
+                },
+            },
+        })
+
+        # Tuples are only supported for Substitutions.
+        self._assert_invalid_parameters({'param': (1, 2)})
+        self._assert_invalid_parameters({
+            'param_group': {
+                'param_subgroup': {
+                    'param': (1, 2),
+                },
+            },
+        })
