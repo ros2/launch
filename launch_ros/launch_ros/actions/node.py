@@ -166,6 +166,14 @@ class Node(ExecuteProcess):
         with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
             param_file_path = h.name
 
+            def perform_substitution_if_applicable(context, var):
+                # Value might be e.g. a number, which can't be expanded.
+                try:
+                    return perform_substitutions(
+                        context, normalize_to_list_of_substitutions(var))
+                except TypeError:
+                    return var
+
             def expand_dict(input_dict):
                 expanded_dict = {}
                 for k, v in input_dict.items():
@@ -175,19 +183,20 @@ class Node(ExecuteProcess):
                     if isinstance(v, dict):
                         # Expand the nested dict.
                         expanded_value = expand_dict(v)
-                    elif isinstance(v, tuple) or isinstance(v, list):
+                    elif isinstance(v, list):
                         # Expand each element.
-                        # TODO(dhood): Allow passing a list of Substitutions that will
-                        # be concatenated to form a string, not stored as a list.
-                        expanded_value = [perform_substitutions(
-                            context, normalize_to_list_of_substitutions(e)) for e in v]
-                    else:
-                        # Value might be e.g. a number, which can't be expanded.
-                        try:
-                            expanded_value = perform_substitutions(
-                                context, normalize_to_list_of_substitutions(v))
-                        except TypeError:
-                            expanded_value = v
+                        # NOTE(dhood): Nested lists are not supported for paramters.
+                        # TODO(dhood): Error on nested lists.
+                        expanded_value = [
+                            perform_substitution_if_applicable(context, e) for e in v]
+                    # NOTE(dhood): Tuples are treated as Substitution(s) to be concatenated.
+                    elif isinstance(v, tuple):
+                        for e in v:
+                            ensure_argument_type(
+                                e, SomeSubstitutionsType_types_tuple,
+                                'parameter dictionary tuple entry', 'Node')
+                        expanded_value = perform_substitutions(
+                            context, normalize_to_list_of_substitutions(v))
                     expanded_dict[expanded_key] = expanded_value
                 return expanded_dict
 
