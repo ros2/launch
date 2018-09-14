@@ -180,16 +180,20 @@ class Node(ExecuteProcess):
                     # Key can only be a string (parameter/group name).
                     expanded_key = perform_substitutions(
                         context, normalize_to_list_of_substitutions(k))
+                    expanded_value = v
                     if isinstance(v, dict):
                         # Expand the nested dict.
                         expanded_value = expand_dict(v)
                     elif isinstance(v, list):
                         # Expand each element.
-                        # NOTE(dhood): Nested lists are not supported for paramters.
-                        # TODO(dhood): Error on nested lists.
-                        expanded_value = [
-                            perform_substitution_if_applicable(context, e) for e in v]
-                    # NOTE(dhood): Tuples are treated as Substitution(s) to be concatenated.
+                        expanded_value = []
+                        for e in v:
+                            if isinstance(e, list):
+                                raise TypeError(
+                                    'Nested lists are not supported for parameters: {} found in {}'
+                                    .format(e, v))
+                            expanded_value.append(perform_substitution_if_applicable(context, e))
+                    # Tuples are treated as Substitution(s) to be concatenated.
                     elif isinstance(v, tuple):
                         for e in v:
                             ensure_argument_type(
