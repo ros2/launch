@@ -15,6 +15,7 @@
   <test_depend>demo_nodes_py</test_depend>
   <test_depend>launch_ros</test_depend>
   <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-yaml</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

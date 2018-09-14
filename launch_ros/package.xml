@@ -14,6 +14,7 @@
   <depend>lifecycle_msgs</depend>
   <depend>osrf_pycommon</depend>
   <depend>rclpy</depend>
+  <depend>python3-yaml</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
