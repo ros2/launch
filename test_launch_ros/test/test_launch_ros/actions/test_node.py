@@ -225,13 +225,13 @@ class TestNode(unittest.TestCase):
 
         # Other types are not supported.
         self._assert_launch_errors(actions=[
-            self._create_node(parameters=[{'param': set([1, 2])}])
+            self._create_node(parameters=[{'param': {1, 2}}])
         ])
         self._assert_launch_errors(actions=[
             self._create_node(parameters=[{
                 'param_group': {
                     'param_subgroup': {
-                        'param': set([1, 2]),
+                        'param': {1, 2},
                     },
                 },
             }])
