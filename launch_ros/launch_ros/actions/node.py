@@ -139,8 +139,9 @@ class Node(ExecuteProcess):
             for param in parameters:
                 ensure_argument_type(param, parameter_types, 'parameters[{}]'.format(i), 'Node')
                 if isinstance(param, dict) and node_name is None:
-                    raise RuntimeError('If a dictionary of parameters is specified, the node name '
-                        'must also be specified. See https://github.com/ros2/launch/issues/139')
+                    raise RuntimeError(
+                        'If a dictionary of parameters is specified, the node name must also be '
+                        'specified. See https://github.com/ros2/launch/issues/139')
                 i += 1
                 cmd += [LocalSubstitution(
                     'ros_specific_arguments[{}]'.format(ros_args_index),
@@ -196,10 +197,12 @@ class Node(ExecuteProcess):
                         return perform_substitutions(
                             context, normalize_to_list_of_substitutions(var))
                     except TypeError as e:
-                        raise TypeError('Invalid element received in parameters dictionary '
-                           '(not all tuple elements are Substitutions): {}'.format(var))
+                        raise TypeError(
+                            'Invalid element received in parameters dictionary '
+                            '(not all tuple elements are Substitutions): {}'.format(var))
                 else:
-                    raise TypeError('Unsupported type received in parameters dictionary: {}'
+                    raise TypeError(
+                        'Unsupported type received in parameters dictionary: {}'
                         .format(type(var)))
 
             def expand_dict(input_dict):
