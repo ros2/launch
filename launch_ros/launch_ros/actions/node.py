@@ -138,6 +138,9 @@ class Node(ExecuteProcess):
             i = 0
             for param in parameters:
                 ensure_argument_type(param, parameter_types, 'parameters[{}]'.format(i), 'Node')
+                if isinstance(param, dict) and node_name is None:
+                    raise RuntimeError('If a dictionary of parameters is specified, the node name '
+                        'must also be specified. See https://github.com/ros2/launch/issues/139')
                 i += 1
                 cmd += [LocalSubstitution(
                     'ros_specific_arguments[{}]'.format(ros_args_index),

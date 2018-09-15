@@ -42,7 +42,9 @@ class TestNode(unittest.TestCase):
     def _create_node(self, *, parameters=None, remappings=None):
         return launch_ros.actions.Node(
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
-            node_name='my_node', node_namespace='my_ns',  # This is required to parameters dicts.
+            # The node name is required for parameter dicts.
+            # See https://github.com/ros2/launch/issues/139.
+            node_name='my_node', node_namespace='my_ns',
             arguments=['--number_of_cycles', '1'],
             parameters=parameters,
             remappings=remappings,
@@ -163,6 +165,14 @@ class TestNode(unittest.TestCase):
         parameter_file_path = pathlib.Path(__file__).resolve().parent / 'example_parameters.yaml'
         self._assert_type_error_creating_node(
             parameters=str(parameter_file_path))  # Valid path, but not in a list.
+
+        # If a parameter dictionary is specified, the node name must be also.
+        with self.assertRaisesRegex(RuntimeError, 'node name must also be specified'):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                arguments=['--number_of_cycles', '1'],
+                parameters=[{'my_param': 'value'}],
+            )
 
     def test_launch_node_with_invalid_parameter_dicts(self):
         """Test launching a node with invalid parameter dicts."""
