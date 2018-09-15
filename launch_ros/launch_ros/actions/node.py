@@ -185,6 +185,7 @@ class Node(ExecuteProcess):
     def _create_params_file_from_dict(self, context, params):
         with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
             param_file_path = h.name
+            # TODO(dhood): clean up generated parameter files.
 
             def perform_substitution_if_applicable(context, var):
                 if isinstance(var, (int, float, str)):
