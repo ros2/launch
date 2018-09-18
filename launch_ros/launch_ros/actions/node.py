@@ -197,7 +197,7 @@ class Node(ExecuteProcess):
                     try:
                         return perform_substitutions(
                             context, normalize_to_list_of_substitutions(var))
-                    except TypeError as e:
+                    except TypeError:
                         raise TypeError(
                             'Invalid element received in parameters dictionary '
                             '(not all tuple elements are Substitutions): {}'.format(var))
