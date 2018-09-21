@@ -9,6 +9,7 @@ setup(
         'setuptools',
         'demo_nodes_py',
         'launch_ros',
+        'pyyaml',
     ],
     zip_safe=True,
     author='William Woodall',

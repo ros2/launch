@@ -10,6 +10,7 @@ setup(
         'ament_index_python',
         'launch',
         'osrf_pycommon',
+        'pyyaml',
     ],
     zip_safe=True,
     author='William Woodall',
