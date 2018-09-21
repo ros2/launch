@@ -38,7 +38,7 @@ class OnShutdown(EventHandler):
     """Convenience class for handling the launch shutdown event."""
 
     @overload
-    def __init__(self, *, on_shutdown: SomeActionsType) -> None:
+    def __init__(self, *, on_shutdown: SomeActionsType, **kwargs) -> None:
         """Overload which takes just actions."""
         ...
 
@@ -46,16 +46,18 @@ class OnShutdown(EventHandler):
     def __init__(
         self,
         *,
-        on_shutdown: Callable[[Shutdown, 'LaunchContext'], Optional[SomeActionsType]]
+        on_shutdown: Callable[[Shutdown, 'LaunchContext'], Optional[SomeActionsType]],
+        **kwargs
     ) -> None:
         """Overload which takes a callable to handle the shutdown."""
         ...
 
-    def __init__(self, *, on_shutdown):  # noqa: F811
+    def __init__(self, *, on_shutdown, **kwargs):  # noqa: F811
         """Constructor."""
         super().__init__(
             matcher=lambda event: is_a_subclass(event, Shutdown),
             entities=None,  # noop
+            **kwargs,
         )
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
         # the correct signature for a handler in this case

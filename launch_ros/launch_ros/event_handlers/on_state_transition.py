@@ -41,7 +41,8 @@ class OnStateTransition(EventHandler):
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,
         goal_state: Optional[SomeSubstitutionsType] = None,
-        matcher: Optional[Callable[[Event], bool]] = None
+        matcher: Optional[Callable[[Event], bool]] = None,
+        **kwargs
     ) -> None:
         """
         Constructor.
@@ -79,6 +80,7 @@ class OnStateTransition(EventHandler):
         super().__init__(
             matcher=self.__custom_matcher,
             entities=entities,
+            **kwargs
         )
         self.__target_lifecycle_node = target_lifecycle_node
 

@@ -19,11 +19,18 @@ from launch import LaunchContext
 from launch import LaunchDescriptionEntity
 from launch import SomeActionsType_types_tuple
 
+import pytest
+
 
 def test_event_handler_constructors():
     """Test the constructors for EventHandler class."""
     EventHandler(matcher=lambda event: False)
     EventHandler(matcher=lambda event: False, entities=[LaunchDescriptionEntity])
+    EventHandler(matcher=lambda event: True, handle_once=True)
+
+    # Construct with bad type
+    with pytest.raises(TypeError):
+        EventHandler(matcher=lambda event: True, handle_once='Bad type')
 
 
 def test_event_handler_matches_and_handle():
@@ -39,3 +46,40 @@ def test_event_handler_matches_and_handle():
     assert isinstance(entities, SomeActionsType_types_tuple)
     assert len(entities) == 1
     assert context.locals.event == mock_event
+
+
+def test_event_handler_handle_once_property():
+    eh = EventHandler(matcher=lambda event: True, handle_once=True)
+    assert eh.handle_once
+    eh.handle_once = False
+    assert not eh.handle_once
+    # Set bad type
+    with pytest.raises(TypeError):
+        eh.handle_once = 'Not a bool'
+
+
+def test_event_handler_handle_once():
+    """Test the option for handling events once for the EventHandler class."""
+    class MockEvent:
+        ...
+
+    mock_event = MockEvent()
+
+    # Test handling multiple events with handle_once=False (default)
+    eh_multiple = EventHandler(matcher=lambda event: True, handle_once=False)
+    context_multiple = LaunchContext()
+    context_multiple.register_event_handler(eh_multiple)
+    eh_multiple.handle(mock_event, context_multiple)
+    assert context_multiple.locals.event == mock_event
+    # Attempt to handle a second event
+    eh_multiple.handle(mock_event, context_multiple)
+
+    # Test handling multiple events with handle_once=True
+    eh_once = EventHandler(matcher=lambda event: True, handle_once=True)
+    context_once = LaunchContext()
+    context_once.register_event_handler(eh_once)
+    eh_once.handle(mock_event, context_once)
+    assert context_once.locals.event == mock_event
+    # Attempt to handle a second event, this time expect ValueError because it is unregistered
+    with pytest.raises(ValueError):
+        eh_once.handle(mock_event, context_once)

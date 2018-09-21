@@ -39,7 +39,8 @@ class EventHandler:
         self,
         *,
         matcher: Callable[[Event], bool],
-        entities: Optional[SomeActionsType] = None
+        entities: Optional[SomeActionsType] = None,
+        handle_once: bool = False
     ) -> None:
         """
         Constructor.
@@ -48,14 +49,31 @@ class EventHandler:
             the event should be handled by this event handler, False otherwise.
         :param: entities is an LaunchDescriptionEntity or list of them, and is
             returned by handle() unconditionally if matcher returns True.
+        :param: handle_once is a flag that, if True, unregisters this EventHandler
+            after being handled once.
         """
         self.__matcher = matcher
         self.__entities = entities
+        self.handle_once = handle_once
 
     @property
     def entities(self):
         """Getter for entities."""
         return self.__entities
+
+    @property
+    def handle_once(self):
+        """Getter for handle_once flag."""
+        return self.__handle_once
+
+    @handle_once.setter
+    def handle_once(self, value):
+        """Setter for handle_once flag."""
+        if not isinstance(value, bool):
+            raise TypeError(
+                'handle_once expects type "bool", but received {} instead.'.format(type(value))
+            )
+        self.__handle_once = value
 
     # TODO(wjwwood): setup standard interface for describing event handlers
 
@@ -66,4 +84,6 @@ class EventHandler:
     def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
         """Handle the given event."""
         context.extend_locals({'event': event})
+        if self.handle_once:
+            context.unregister_event_handler(self)
         return self.__entities

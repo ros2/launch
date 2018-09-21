@@ -48,7 +48,8 @@ class OnProcessExit(EventHandler):
     def __init__(
         self, *,
         target_action: 'ExecuteProcess' = None,
-        on_exit: SomeActionsType
+        on_exit: SomeActionsType,
+        **kwargs
     ) -> None:
         """Overload which takes just actions."""
         ...
@@ -58,12 +59,13 @@ class OnProcessExit(EventHandler):
         self,
         *,
         target_action: 'ExecuteProcess' = None,
-        on_exit: Callable[[int], Optional[SomeActionsType]]
+        on_exit: Callable[[int], Optional[SomeActionsType]],
+        **kwargs
     ) -> None:
         """Overload which takes a callable to handle the exit."""
         ...
 
-    def __init__(self, *, target_action=None, on_exit) -> None:  # noqa: F811
+    def __init__(self, *, target_action=None, on_exit, **kwargs) -> None:  # noqa: F811
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
@@ -78,6 +80,7 @@ class OnProcessExit(EventHandler):
                 )
             ),
             entities=None,
+            **kwargs,
         )
         self.__target_action = target_action
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches

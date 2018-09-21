@@ -27,7 +27,7 @@ from ..utilities import is_a_subclass
 class OnIncludeLaunchDescription(EventHandler):
     """Event handler used to handle asynchronous requests to include LaunchDescriptions."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """Constructor."""
         from ..actions import OpaqueFunction
         super().__init__(
@@ -35,6 +35,7 @@ class OnIncludeLaunchDescription(EventHandler):
             entities=OpaqueFunction(
                 function=lambda context: [context.locals.event.launch_description]
             ),
+            **kwargs,
         )
 
     def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:

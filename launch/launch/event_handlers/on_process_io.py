@@ -44,13 +44,14 @@ class OnProcessIO(EventHandler):
         target_action: Optional['ExecuteProcess'] = None,
         on_stdin: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         on_stdout: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
-        on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None
+        on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
+        **kwargs
     ) -> None:
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
             raise RuntimeError("OnProcessIO requires an 'ExecuteProcess' action as the target")
-        super().__init__(matcher=self._matcher, entities=None)
+        super().__init__(matcher=self._matcher, entities=None, **kwargs)
         self.__target_action = target_action
         self.__on_stdin = on_stdin
         self.__on_stdout = on_stdout
