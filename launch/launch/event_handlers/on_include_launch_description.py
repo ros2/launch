@@ -14,13 +14,10 @@
 
 """Module for OnIncludeLaunchDescription class."""
 
-from typing import List
 from typing import Text
-from typing import Tuple
 
 from ..event_handler import EventHandler
 from ..events import IncludeLaunchDescription
-from ..launch_description_entity import LaunchDescriptionEntity
 from ..utilities import is_a_subclass
 
 
@@ -38,12 +35,12 @@ class OnIncludeLaunchDescription(EventHandler):
             **kwargs,
         )
 
-    def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
-        return (
-            "OnIncludeLaunchDescription(matcher='{}', handler='{}')".format(
-                'event issubclass of launch.events.IncludeLaunchDescription',
-                'returns the launch_description in the event'
-            ),
-            [],
-        )
+    @property
+    def handler_description(self) -> Text:
+        """Return the string description of the handler."""
+        return 'returns the launch_description in the event'
+
+    @property
+    def matcher_description(self) -> Text:
+        """Return the string description of the matcher."""
+        return 'event issubclass of launch.events.IncludeLaunchDescription'

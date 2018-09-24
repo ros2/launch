@@ -15,7 +15,10 @@
 """Module for EventHandler class."""
 
 from typing import Callable
+from typing import List
 from typing import Optional
+from typing import Text
+from typing import Tuple
 
 from .event import Event
 from .some_actions_type import SomeActionsType
@@ -59,6 +62,8 @@ class EventHandler:
     @property
     def entities(self):
         """Getter for entities."""
+        # if self.__entities is None:
+        #     return []
         return self.__entities
 
     @property
@@ -75,7 +80,35 @@ class EventHandler:
             )
         self.__handle_once = value
 
-    # TODO(wjwwood): setup standard interface for describing event handlers
+    @property
+    def handler_description(self):
+        """
+        Return the string description of the handler.
+
+        This should be overridden.
+        """
+        return None
+
+    @property
+    def matcher_description(self):
+        """
+        Return the string description of the matcher.
+
+        This should be overridden.
+        """
+        return None
+
+    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+        return (
+            "{}(matcher='{}', handler='{}', handle_once={})".format(
+                type(self).__name__,
+                self.matcher_description,
+                self.handler_description,
+                self.handle_once
+            ),
+            self.entities if self.entities is not None else []
+        )
 
     def matches(self, event: Event) -> bool:
         """Return True if the given event should be handled by this event handler."""
