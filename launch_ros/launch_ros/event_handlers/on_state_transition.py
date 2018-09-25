@@ -15,14 +15,11 @@
 """Module for OnStateTransition class."""
 
 from typing import Callable
-from typing import List
 from typing import Optional
 from typing import Text
-from typing import Tuple
 
 from launch.event import Event
 from launch.event_handler import EventHandler
-from launch.launch_description_entity import LaunchDescriptionEntity
 from launch.some_actions_type import SomeActionsType
 from launch.some_substitutions_type import SomeSubstitutionsType
 
@@ -41,7 +38,8 @@ class OnStateTransition(EventHandler):
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,
         goal_state: Optional[SomeSubstitutionsType] = None,
-        matcher: Optional[Callable[[Event], bool]] = None
+        matcher: Optional[Callable[[Event], bool]] = None,
+        **kwargs
     ) -> None:
         """
         Constructor.
@@ -79,15 +77,14 @@ class OnStateTransition(EventHandler):
         super().__init__(
             matcher=self.__custom_matcher,
             entities=entities,
+            **kwargs
         )
         self.__target_lifecycle_node = target_lifecycle_node
 
-    def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
-        return (
-            "OnStateTransition(matcher='{}', handler=<actions>)".format(self.matcher_description),
-            self.entities,
-        )
+    @property
+    def handler_description(self) -> Text:
+        """Return the string description of the handler."""
+        return '<actions>'
 
     @property
     def matcher_description(self):

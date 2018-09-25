@@ -16,16 +16,13 @@
 
 from typing import Callable
 from typing import cast
-from typing import List
 from typing import Optional
 from typing import Text
-from typing import Tuple
 
 from ..event import Event
 from ..event_handler import EventHandler
 from ..events.process import ProcessIO
 from ..launch_context import LaunchContext
-from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 
 if False:
@@ -44,13 +41,14 @@ class OnProcessIO(EventHandler):
         target_action: Optional['ExecuteProcess'] = None,
         on_stdin: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         on_stdout: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
-        on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None
+        on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
+        **kwargs
     ) -> None:
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
             raise RuntimeError("OnProcessIO requires an 'ExecuteProcess' action as the target")
-        super().__init__(matcher=self._matcher, entities=None)
+        super().__init__(matcher=self._matcher, entities=None, **kwargs)
         self.__target_action = target_action
         self.__on_stdin = on_stdin
         self.__on_stdout = on_stdout
@@ -77,8 +75,9 @@ class OnProcessIO(EventHandler):
             return self.__on_stdin(event)
         return None
 
-    def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+    @property
+    def handler_description(self) -> Text:
+        """Return the string description of the handler."""
         handlers = []
         if self.__on_stdin is not None:
             handlers.append("on_stdin: '{}'".format(self.__on_stdin))
@@ -87,15 +86,10 @@ class OnProcessIO(EventHandler):
         if self.__on_stderr is not None:
             handlers.append("on_stderr: '{}'".format(self.__on_stderr))
         handlers_str = '{' + ', '.join(handlers) + '}'
-        return (
-            "OnProcessIO(matcher='{}', handlers={})".format(
-                self.matcher_description, handlers_str
-            ),
-            [],
-        )
+        return handlers_str
 
     @property
-    def matcher_description(self):
+    def matcher_description(self) -> Text:
         """Return the string description of the matcher."""
         if self.__target_action is None:
             return 'event issubclass of ProcessIO'

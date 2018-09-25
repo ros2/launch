@@ -16,16 +16,13 @@
 
 from typing import Callable
 from typing import cast
-from typing import List
 from typing import Optional
 from typing import overload
 from typing import Text
-from typing import Tuple
 
 from ..event import Event
 from ..event_handler import EventHandler
 from ..events import Shutdown
-from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 from ..utilities import is_a_subclass
 
@@ -38,7 +35,7 @@ class OnShutdown(EventHandler):
     """Convenience class for handling the launch shutdown event."""
 
     @overload
-    def __init__(self, *, on_shutdown: SomeActionsType) -> None:
+    def __init__(self, *, on_shutdown: SomeActionsType, **kwargs) -> None:
         """Overload which takes just actions."""
         ...
 
@@ -46,16 +43,18 @@ class OnShutdown(EventHandler):
     def __init__(
         self,
         *,
-        on_shutdown: Callable[[Shutdown, 'LaunchContext'], Optional[SomeActionsType]]
+        on_shutdown: Callable[[Shutdown, 'LaunchContext'], Optional[SomeActionsType]],
+        **kwargs
     ) -> None:
         """Overload which takes a callable to handle the shutdown."""
         ...
 
-    def __init__(self, *, on_shutdown):  # noqa: F811
+    def __init__(self, *, on_shutdown, **kwargs):  # noqa: F811
         """Constructor."""
         super().__init__(
             matcher=lambda event: is_a_subclass(event, Shutdown),
             entities=None,  # noop
+            **kwargs,
         )
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
         # the correct signature for a handler in this case
@@ -68,15 +67,11 @@ class OnShutdown(EventHandler):
         context.extend_locals({'event': event})
         return self.__on_shutdown(cast(Shutdown, event), context)
 
-    def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+    @property
+    def handler_description(self) -> Text:
+        """Return the string description of the handler."""
         # TODO(dhood): print known actions if they were passed in, like in OnProcessExit
-        return (
-            "OnShutdown(matcher='{}', handler={})".format(
-                self.matcher_description,
-                self.__on_shutdown),
-            [],
-        )
+        return '{}'.format(self.__on_shutdown)
 
     @property
     def matcher_description(self):

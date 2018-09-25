@@ -15,7 +15,10 @@
 """Module for EventHandler class."""
 
 from typing import Callable
+from typing import List
 from typing import Optional
+from typing import Text
+from typing import Tuple
 
 from .event import Event
 from .some_actions_type import SomeActionsType
@@ -39,7 +42,8 @@ class EventHandler:
         self,
         *,
         matcher: Callable[[Event], bool],
-        entities: Optional[SomeActionsType] = None
+        entities: Optional[SomeActionsType] = None,
+        handle_once: bool = False
     ) -> None:
         """
         Constructor.
@@ -48,16 +52,52 @@ class EventHandler:
             the event should be handled by this event handler, False otherwise.
         :param: entities is an LaunchDescriptionEntity or list of them, and is
             returned by handle() unconditionally if matcher returns True.
+        :param: handle_once is a flag that, if True, unregisters this EventHandler
+            after being handled once.
         """
         self.__matcher = matcher
         self.__entities = entities
+        self.__handle_once = handle_once
 
     @property
     def entities(self):
         """Getter for entities."""
         return self.__entities
 
-    # TODO(wjwwood): setup standard interface for describing event handlers
+    @property
+    def handle_once(self):
+        """Getter for handle_once flag."""
+        return self.__handle_once
+
+    @property
+    def handler_description(self):
+        """
+        Return the string description of the handler.
+
+        This should be overridden.
+        """
+        return None
+
+    @property
+    def matcher_description(self):
+        """
+        Return the string description of the matcher.
+
+        This should be overridden.
+        """
+        return None
+
+    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+        return (
+            "{}(matcher='{}', handler='{}', handle_once={})".format(
+                type(self).__name__,
+                self.matcher_description,
+                self.handler_description,
+                self.handle_once
+            ),
+            self.entities if self.entities is not None else []
+        )
 
     def matches(self, event: Event) -> bool:
         """Return True if the given event should be handled by this event handler."""
@@ -66,4 +106,6 @@ class EventHandler:
     def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
         """Handle the given event."""
         context.extend_locals({'event': event})
+        if self.handle_once:
+            context.unregister_event_handler(self)
         return self.__entities

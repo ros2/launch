@@ -17,11 +17,9 @@
 import collections
 from typing import Callable
 from typing import cast
-from typing import List
 from typing import Optional
 from typing import overload
 from typing import Text
-from typing import Tuple
 
 from ..event import Event
 from ..event_handler import EventHandler
@@ -48,7 +46,8 @@ class OnProcessExit(EventHandler):
     def __init__(
         self, *,
         target_action: 'ExecuteProcess' = None,
-        on_exit: SomeActionsType
+        on_exit: SomeActionsType,
+        **kwargs
     ) -> None:
         """Overload which takes just actions."""
         ...
@@ -58,12 +57,13 @@ class OnProcessExit(EventHandler):
         self,
         *,
         target_action: 'ExecuteProcess' = None,
-        on_exit: Callable[[int], Optional[SomeActionsType]]
+        on_exit: Callable[[int], Optional[SomeActionsType]],
+        **kwargs
     ) -> None:
         """Overload which takes a callable to handle the exit."""
         ...
 
-    def __init__(self, *, target_action=None, on_exit) -> None:  # noqa: F811
+    def __init__(self, *, target_action=None, on_exit, **kwargs) -> None:  # noqa: F811
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
@@ -78,6 +78,7 @@ class OnProcessExit(EventHandler):
                 )
             ),
             entities=None,
+            **kwargs,
         )
         self.__target_action = target_action
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
@@ -107,24 +108,18 @@ class OnProcessExit(EventHandler):
         """Handle the given event."""
         return self.__on_exit(cast(ProcessExited, event), context)
 
-    def describe(self) -> Tuple[Text, List[LaunchDescriptionEntity]]:
-        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+    @property
+    def handler_description(self) -> Text:
+        """Return the string description of the handler."""
+        # TODO(jacobperron): revisit how to describe known actions that are passed in.
+        #                    It would be nice if the parent class could output their description
+        #                    via the 'entities' property.
         if self.__actions_on_exit:
-            # A list of resulting actions is already known.
-            return (
-                "OnProcessExit(matcher='{}', handler=<actions>)".format(self.matcher_description),
-                self.__actions_on_exit,
-            )
-        # A callable handler has been provided.
-        return (
-            "OnProcessExit(matcher='{}', handler={})".format(
-                self.matcher_description,
-                self.__on_exit),
-            [],
-        )
+            return '<actions>'
+        return '{}'.format(self.__on_exit)
 
     @property
-    def matcher_description(self):
+    def matcher_description(self) -> Text:
         """Return the string description of the matcher."""
         if self.__target_action is None:
             return 'event == ProcessExited'
