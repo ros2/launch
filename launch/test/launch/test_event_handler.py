@@ -27,10 +27,7 @@ def test_event_handler_constructors():
     EventHandler(matcher=lambda event: False)
     EventHandler(matcher=lambda event: False, entities=[LaunchDescriptionEntity])
     EventHandler(matcher=lambda event: True, handle_once=True)
-
-    # Construct with bad type
-    with pytest.raises(TypeError):
-        EventHandler(matcher=lambda event: True, handle_once='Bad type')
+    EventHandler(matcher=lambda event: True, entities=None, handle_once=False)
 
 
 def test_event_handler_matches_and_handle():
@@ -46,16 +43,6 @@ def test_event_handler_matches_and_handle():
     assert isinstance(entities, SomeActionsType_types_tuple)
     assert len(entities) == 1
     assert context.locals.event == mock_event
-
-
-def test_event_handler_handle_once_property():
-    eh = EventHandler(matcher=lambda event: True, handle_once=True)
-    assert eh.handle_once
-    eh.handle_once = False
-    assert not eh.handle_once
-    # Set bad type
-    with pytest.raises(TypeError):
-        eh.handle_once = 'Not a bool'
 
 
 def test_event_handler_handle_once():

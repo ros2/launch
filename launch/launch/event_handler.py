@@ -57,28 +57,17 @@ class EventHandler:
         """
         self.__matcher = matcher
         self.__entities = entities
-        self.handle_once = handle_once
+        self.__handle_once = handle_once
 
     @property
     def entities(self):
         """Getter for entities."""
-        # if self.__entities is None:
-        #     return []
         return self.__entities
 
     @property
     def handle_once(self):
         """Getter for handle_once flag."""
         return self.__handle_once
-
-    @handle_once.setter
-    def handle_once(self, value):
-        """Setter for handle_once flag."""
-        if not isinstance(value, bool):
-            raise TypeError(
-                'handle_once expects type "bool", but received {} instead.'.format(type(value))
-            )
-        self.__handle_once = value
 
     @property
     def handler_description(self):

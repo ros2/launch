@@ -112,7 +112,7 @@ class OnProcessExit(EventHandler):
     def handler_description(self) -> Text:
         """Return the string description of the handler."""
         # TODO(jacobperron): revisit how to describe known actions that are passed in.
-        #                    It would be nice if the parent class could output their desciption
+        #                    It would be nice if the parent class could output their description
         #                    via the 'entities' property.
         if self.__actions_on_exit:
             return '<actions>'
