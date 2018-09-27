@@ -27,6 +27,8 @@ from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
 from .launch_description_source import LaunchDescriptionSource
 from .launch_introspector import LaunchIntrospector
+from .launch_logger import LaunchLogger
+from .launch_logger import LoggerLevel
 from .launch_service import LaunchService
 from .some_actions_type import SomeActionsType
 from .some_actions_type import SomeActionsType_types_tuple
@@ -48,7 +50,9 @@ __all__ = [
     'LaunchDescriptionEntity',
     'LaunchDescriptionSource',
     'LaunchIntrospector',
+    'LaunchLogger',
     'LaunchService',
+    'LoggerLevel',
     'SomeActionsType',
     'SomeActionsType_types_tuple',
     'SomeSubstitutionsType',
