@@ -17,9 +17,11 @@
 import asyncio
 import atexit
 import collections.abc
+import functools
 import signal
 import threading
 import traceback
+from typing import cast
 from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Optional
@@ -33,12 +35,15 @@ import osrf_pycommon.process_utils
 
 from .event import Event
 from .event_handlers import OnIncludeLaunchDescription
+from .event_handlers import OnProcessIO
 from .event_handlers import OnShutdown
 from .events import IncludeLaunchDescription
 from .events import Shutdown
+from .events.process import ProcessIO
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
+from .launch_logger import LaunchLogger
 from .some_actions_type import SomeActionsType
 from .utilities import install_signal_handlers
 from .utilities import on_sigint
@@ -100,6 +105,13 @@ class LaunchService:
         self.__context = LaunchContext(argv=self.__argv)
         self.__context.register_event_handler(OnIncludeLaunchDescription())
         self.__context.register_event_handler(OnShutdown(on_shutdown=self.__on_shutdown))
+        # Add handler for output from processes.
+        self.__context.register_event_handler(OnProcessIO(
+            on_stdout=functools.partial(
+                self._on_process_output, file_name='stdout'),
+            on_stderr=functools.partial(
+                self._on_process_output, file_name='stderr'),
+        ))
 
         # Setup storage for state.
         self._entity_future_pairs = \
@@ -146,6 +158,13 @@ class LaunchService:
         This method is thread-safe.
         """
         self.emit_event(IncludeLaunchDescription(launch_description))
+
+    def _on_process_output(self, event: Event, *, file_name: Text):
+        typed_event = cast(ProcessIO, event)
+        text = typed_event.text.decode()
+        # TODO(jacobperron): Select between logging debug/info/error
+        for line in text.splitlines():
+            self.__logger.info(typed_event.process_name, line)
 
     def _prune_and_count_entity_future_pairs(self):
         needs_prune = False
@@ -199,7 +218,8 @@ class LaunchService:
             else:
                 pass
                 # Keep this commented for now, since it's very chatty.
-                # _logger.debug(
+                # self.__logger.debug(
+                #     'launch.LaunchService',
                 #     "processing event: '{}' x '{}'".format(event, event_handler))
 
     async def __run_loop(self) -> None:
@@ -367,6 +387,9 @@ class LaunchService:
             on_sigint(None)
             on_sigterm(None)
             on_sigquit(None)
+
+            # Flush the logging buffer
+            self.__logger.shutdown()
 
             with self.__running_lock:
                 self.__running = False

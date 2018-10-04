@@ -14,7 +14,6 @@
 
 """Module for the LaunchIntrospector class."""
 
-import logging
 from typing import cast
 from typing import List
 from typing import Text
@@ -30,8 +29,6 @@ from .launch_description_entity import LaunchDescriptionEntity
 from .some_substitutions_type import SomeSubstitutionsType
 from .utilities import is_a
 from .utilities import normalize_to_list_of_substitutions
-
-_logger = logging.getLogger(name='launch')
 
 
 def indent(lines: List[Text], indention: Text = '    ') -> List[Text]:

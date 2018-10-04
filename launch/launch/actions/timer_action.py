@@ -15,8 +15,7 @@
 """Module for the TimerAction action."""
 
 import asyncio
-import collections.abc
-import logging
+import collections
 from typing import Any  # noqa: F401
 from typing import cast
 from typing import Dict  # noqa: F401
@@ -32,6 +31,7 @@ from ..event_handler import EventHandler
 from ..events import TimerEvent
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
+from ..launch_logger import LaunchLogger
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..some_substitutions_type import SomeSubstitutionsType_types_tuple
@@ -42,7 +42,6 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 _event_handler_has_been_installed = False
-_logger = logging.getLogger('launch.timer_action')
 
 
 class TimerAction(Action):
@@ -73,6 +72,7 @@ class TimerAction(Action):
         self.__completed_future = None  # type: Optional[asyncio.Future]
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
+        self.__logger = LaunchLogger()
 
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(
@@ -129,8 +129,9 @@ class TimerAction(Action):
 
         if self.__canceled:
             # In this case, the action was canceled before being executed.
-            _logger.debug(
-                'timer {} not waiting because it was canceled before being executed'.format(self)
+            self.__logger.debug(
+                __name__,
+                'timer {} not waiting because it was canceled before being executed'.format(self),
             )
             self.__completed_future.set_result(None)
             return None

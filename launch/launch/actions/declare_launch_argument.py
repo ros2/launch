@@ -14,19 +14,17 @@
 
 """Module for the DeclareLaunchArgument action."""
 
-import logging
 from typing import List
 from typing import Optional
 from typing import Text
 
 from ..action import Action
 from ..launch_context import LaunchContext
+from ..launch_logger import LaunchLogger
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-
-_logger = logging.getLogger('launch.actions.DeclareLaunchArgument')
 
 
 class DeclareLaunchArgument(Action):
@@ -88,6 +86,8 @@ class DeclareLaunchArgument(Action):
             self.__default_value = normalize_to_list_of_substitutions(default_value)
         self.__description = description
 
+        self.__logger = LaunchLogger()
+
         # This is used later to determine if this launch argument will be
         # conditionally visited.
         # Its value will be read and set at different times and so the value
@@ -114,9 +114,10 @@ class DeclareLaunchArgument(Action):
         if self.name not in context.launch_configurations:
             if self.default_value is None:
                 # Argument not already set and no default value given, error.
-                _logger.error(
-                    "Required launch argument '{}' (description: '{}') was not provided"
-                    .format(self.name, self.description)
+                self.__logger.error(
+                    __name__,
+                    "Required launch argument '{}' (description: '{}') was not provided".format(
+                        self.name, self.description)
                 )
                 raise RuntimeError(
                     "Required launch argument '{}' was not provided.".format(self.name))
