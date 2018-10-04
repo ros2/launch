@@ -16,7 +16,6 @@
 
 import asyncio
 import collections
-import logging
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -26,9 +25,8 @@ from typing import Text
 
 from .event import Event
 from .event_handler import EventHandler
+from .launch_logger import LaunchLogger
 from .substitution import Substitution
-
-_logger = logging.getLogger(name='launch')
 
 
 class LaunchContext:
@@ -56,6 +54,8 @@ class LaunchContext:
 
         self.__is_shutdown = False
         self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
+
+        self.__logger = LaunchLogger()
 
     @property
     def argv(self):
@@ -170,12 +170,12 @@ class LaunchContext:
 
     def emit_event_sync(self, event: Event) -> None:
         """Emit an event synchronously."""
-        _logger.debug("emitting event synchronously: '{}'".format(event.name))
+        self.__logger.debug(__name__, "emitting event synchronously: '{}'".format(event.name))
         self._event_queue.put_nowait(event)
 
     async def emit_event(self, event: Event) -> None:
         """Emit an event."""
-        _logger.debug("emitting event: '{}'".format(event.name))
+        self.__logger.debug(__name__, "emitting event: '{}'".format(event.name))
         await self._event_queue.put(event)
 
     def perform_substitution(self, substitution: Substitution) -> Text:

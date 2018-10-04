@@ -15,7 +15,6 @@
 """Module for the ExecuteProcess action."""
 
 import asyncio
-import logging
 import os
 import platform
 import shlex
@@ -55,6 +54,7 @@ from ..events.process import ShutdownProcess
 from ..events.process import SignalProcess
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
+from ..launch_logger import LaunchLogger
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution  # noqa: F401
@@ -64,8 +64,6 @@ from ..utilities import create_future
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-
-_logger = logging.getLogger(name='launch')
 
 _global_process_counter_lock = threading.Lock()
 _global_process_counter = 0  # in Python3, this number is unbounded (no rollover)
@@ -87,7 +85,7 @@ class ExecuteProcess(Action):
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
         prefix: Optional[SomeSubstitutionsType] = None,
-        output: Optional[Text] = None,
+        output: Text = 'log',
         log_cmd: bool = False,
         on_exit: Optional[Union[
             SomeActionsType,
@@ -162,10 +160,11 @@ class ExecuteProcess(Action):
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'
-        :param: output either 'log' or 'screen'; if 'screen' stderr is directed
+        :param: output either 'log', 'screen', or 'both'; if 'screen' stderr is directed
             to stdout and stdout is printed to the screen; if 'log' stderr is
             directed to the screen and both stdout and stderr are directed to
-            a log file; the default is 'log'
+            a log file; if 'both' stdout and stderr are directed to screen and a log file;
+            the default is 'log'
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
@@ -188,15 +187,8 @@ class ExecuteProcess(Action):
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
-        self.__output = output if output is not None else 'log'
-        allowed_output_options = ['log', 'screen']
-        if self.__output not in allowed_output_options:
-            raise ValueError(
-                "output argument to ExecuteProcess is '{}', expected one of [{}]".format(
-                    self.__output,
-                    allowed_output_options,
-                )
-            )
+        self.__output = output
+
         self.__log_cmd = log_cmd
         self.__on_exit = on_exit
 
@@ -257,19 +249,23 @@ class ExecuteProcess(Action):
             raise RuntimeError('Signal event received before subprocess transport available.')
         if self._subprocess_protocol.complete.done():
             # the process is done or is cleaning up, no need to signal
-            _logger.debug("signal '{}' not sent to '{}' because it is already closing".format(
-                typed_event.signal_name, self.process_details['name']
-            ))
+            self.__logger.debug(
+                self.__name,
+                "signal '{}' not set to '{}' because it is already closing".format(
+                    typed_event.signal_name, self.process_details['name']),
+            )
             return None
         if platform.system() == 'Windows' and typed_event.signal_name == 'SIGINT':
             # TODO(wjwwood): remove this when/if SIGINT is fixed on Windows
-            _logger.warning(
+            self.__logger.warning(
+                self.__name,
                 "'SIGINT' sent to process[{}] not supported on Windows, escalating to 'SIGTERM'"
-                .format(self.process_details['name']))
+                    .format(self.process_details['name']),
+            )
             typed_event = SignalProcess(
                 signal_number=signal.SIGTERM,
                 process_matcher=lambda process: True)
-        _logger.info("sending signal '{}' to process[{}]".format(
+        self.__logger.info(self.__name, "sending signal '{}' to process[{}]".format(
             typed_event.signal_name, self.process_details['name']
         ))
         try:
@@ -288,7 +284,10 @@ class ExecuteProcess(Action):
         event: Event,
         context: LaunchContext
     ) -> Optional[LaunchDescription]:
-        _logger.warning("in ExecuteProcess('{}').__on_process_stdin_event()".format(id(self)))
+        self.__logger.warning(
+            self.__name,
+            "in ExecuteProcess('{}').__on_process_stdin_event()".format(id(self)),
+        )
         cast(ProcessStdin, event)
         return None
 
@@ -303,7 +302,7 @@ class ExecuteProcess(Action):
             "process[{}] failed to terminate '{}' seconds after receiving '{}', escalating to '{}'"
 
         def printer(context, msg, timeout_substitutions):
-            _logger.error(msg.format(
+            self.__logger.error(self.__name, msg.format(
                 context.locals.process_name,
                 perform_substitutions(context, timeout_substitutions),
             ))
@@ -377,12 +376,13 @@ class ExecuteProcess(Action):
             self.__context = context
             self.__action = action
             self.__process_event_args = process_event_args
+            self.__logger = LaunchLogger()
 
         def connection_made(self, transport):
-            _logger.info('process[{}]: started with pid [{}]'.format(
+            self.__logger.info(
                 self.__process_event_args['name'],
-                transport.get_pid(),
-            ))
+                'process started with pid [{}]'.format(transport.get_pid()),
+            )
             super().connection_made(transport)
             self.__process_event_args['pid'] = transport.get_pid()
             self.__action._subprocess_transport = transport
@@ -402,7 +402,7 @@ class ExecuteProcess(Action):
         with _global_process_counter_lock:
             global _global_process_counter
             _global_process_counter += 1
-            name = '{}-{}'.format(name, _global_process_counter)
+            self.__name = '{}-{}'.format(name, _global_process_counter)
         cwd = None
         if self.__cwd is not None:
             cwd = ''.join([context.perform_substitution(x) for x in self.__cwd])
@@ -416,7 +416,7 @@ class ExecuteProcess(Action):
         # store packed kwargs for all ProcessEvent based events
         self.__process_event_args = {
             'action': self,
-            'name': name,
+            'name': self.__name,
             'cmd': cmd,
             'cwd': cwd,
             'env': env,
@@ -432,8 +432,8 @@ class ExecuteProcess(Action):
         cwd = process_event_args['cwd']
         env = process_event_args['env']
         if self.__log_cmd:
-            _logger.info("process[{}] details: cmd=[{}], cwd='{}', custom_env?={}".format(
-                name, ', '.join(cmd), cwd, 'True' if env is not None else 'False'
+            self.__logger.info(name, "process details: cmd=[{}], cwd='{}', custom_env?={}".format(
+                ', '.join(cmd), cwd, 'True' if env is not None else 'False'
             ))
         try:
             transport, self._subprocess_protocol = await async_execute_process(
@@ -448,8 +448,7 @@ class ExecuteProcess(Action):
                 stderr_to_stdout=(self.__output == 'screen'),
             )
         except Exception:
-            _logger.error('exception occurred while executing process[{}]:\n{}'.format(
-                name,
+            self.__logger.error(name, 'exception occurred while executing process:\n{}'.format(
                 traceback.format_exc()
             ))
             self.__cleanup()
@@ -461,10 +460,10 @@ class ExecuteProcess(Action):
 
         returncode = await self._subprocess_protocol.complete
         if returncode == 0:
-            _logger.info('process[{}]: process has finished cleanly'.format(name))
+            self.__logger.info(name, 'process has finished cleanly [pid {}]'.format(pid))
         else:
-            _logger.error("process[{}] process has died [pid {}, exit code {}, cmd '{}'].".format(
-                name, pid, returncode, ' '.join(cmd)
+            self.__logger.error(name, "process has died [pid {}, exit code {}, cmd '{}'].".format(
+                pid, returncode, ' '.join(cmd)
             ))
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
         self.__cleanup()
@@ -477,6 +476,7 @@ class ExecuteProcess(Action):
         - register an event handler for the shutdown process event
         - register an event handler for the signal process event
         - register an event handler for the stdin event
+        - configures logging for the IO process event
         - create a task for the coroutine that monitors the process
         """
         if self.__shutdown_received:
@@ -510,6 +510,8 @@ class ExecuteProcess(Action):
         try:
             self.__completed_future = create_future(context.asyncio_loop)
             self.__expand_substitutions(context)
+            self.__logger = LaunchLogger()
+            self.__logger.configure_logger(self.__name, self.__output)
             context.asyncio_loop.create_task(self.__execute_process(context))
         except Exception:
             for event_handler in event_handlers:
