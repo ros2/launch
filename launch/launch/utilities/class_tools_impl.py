@@ -35,4 +35,7 @@ def is_a_subclass(obj, entity_type):
     """Return True if obj is an instance of the entity_type class or one of its subclass types."""
     if is_a(obj, entity_type):
         return True
-    return issubclass(obj.__class__, entity_type)
+    try:
+        return issubclass(obj, entity_type)
+    except TypeError:
+        return False
