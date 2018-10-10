@@ -14,12 +14,9 @@
 
 """Module containing the default LaunchDescription for ROS."""
 
-import functools
-import logging
 import threading
-from typing import cast
 from typing import Dict  # noqa: F401
-from typing import Text
+from typing import Text  # noqa: F401
 from typing import TextIO  # noqa: F401
 
 import launch
@@ -28,41 +25,7 @@ import launch.events
 
 import rclpy
 
-_logger = logging.getLogger('launch_ros')
 _process_log_files = {}  # type: Dict[Text, TextIO]
-
-
-def _on_process_started(context: launch.LaunchContext):
-    typed_event = cast(launch.events.process.ProcessStarted, context.locals.event)
-    if typed_event.execute_process_action.output == 'log':
-        # TODO(wjwwood): implement file logging
-        _logger.warn("process '{}' asked for 'output=log', but that's not currently implemented.")
-
-
-def _on_process_exited(context: launch.LaunchContext):
-    typed_event = cast(launch.events.process.ProcessExited, context.locals.event)
-    if typed_event.execute_process_action.output == 'log':
-        # TODO(wjwwood): implement file logging
-        pass
-
-
-def _on_process_output(event: launch.Event, *, file_name: Text, prefix_output: bool):
-    typed_event = cast(launch.events.process.ProcessIO, event)
-    text = event.text.decode()
-    if typed_event.execute_process_action.output == 'screen':
-        if prefix_output:
-            for line in text.splitlines():
-                print('[{}] {}'.format(event.process_name, line))
-        else:
-            print(text, end='')
-    elif typed_event.execute_process_action.output == 'log':
-        if file_name == 'stderr':
-            if prefix_output:
-                for line in text.splitlines():
-                    print('[{}:{}] {}'.format(event.process_name, file_name, line))
-            else:
-                print(text, end='')
-        # TODO(wjwwood): implement file logging
 
 
 class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
@@ -122,22 +85,5 @@ def get_default_launch_description(*, prefix_output_with_name=False):
     default_ros_launch_description = launch.LaunchDescription([
         # ROS initialization (create node and other stuff).
         ROSSpecificLaunchStartup(),
-        # Handle process starts.
-        launch.actions.RegisterEventHandler(launch.EventHandler(
-            matcher=lambda event: isinstance(event, launch.events.process.ProcessStarted),
-            entities=[launch.actions.OpaqueFunction(function=_on_process_started)],
-        )),
-        # Handle process exit.
-        launch.actions.RegisterEventHandler(launch.EventHandler(
-            matcher=lambda event: isinstance(event, launch.events.process.ProcessExited),
-            entities=[launch.actions.OpaqueFunction(function=_on_process_exited)],
-        )),
-        # Add default handler for output from processes.
-        launch.actions.RegisterEventHandler(launch.event_handlers.OnProcessIO(
-            on_stdout=functools.partial(
-                _on_process_output, file_name='stdout', prefix_output=prefix_output_with_name),
-            on_stderr=functools.partial(
-                _on_process_output, file_name='stderr', prefix_output=prefix_output_with_name),
-        )),
     ])
     return default_ros_launch_description
