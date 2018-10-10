@@ -14,12 +14,9 @@
 
 """Module containing the default LaunchDescription for ROS."""
 
-import functools
-import logging
 import threading
-from typing import cast
 from typing import Dict  # noqa: F401
-from typing import Text
+from typing import Text  # noqa: F401
 from typing import TextIO  # noqa: F401
 
 import launch
@@ -28,43 +25,6 @@ import launch.events
 
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
-
-_logger = logging.getLogger('launch_ros')
-_process_log_files = {}  # type: Dict[Text, TextIO]
-
-
-def _on_process_started(context: launch.LaunchContext):
-    typed_event = cast(launch.events.process.ProcessStarted, context.locals.event)
-    if typed_event.execute_process_action.output == 'log':
-        # TODO(wjwwood): implement file logging
-        _logger.warning(
-            "process '{}' asked for 'output=log', but that's not currently implemented.")
-
-
-def _on_process_exited(context: launch.LaunchContext):
-    typed_event = cast(launch.events.process.ProcessExited, context.locals.event)
-    if typed_event.execute_process_action.output == 'log':
-        # TODO(wjwwood): implement file logging
-        pass
-
-
-def _on_process_output(event: launch.Event, *, file_name: Text, prefix_output: bool):
-    typed_event = cast(launch.events.process.ProcessIO, event)
-    text = event.text.decode()
-    if typed_event.execute_process_action.output == 'screen':
-        if prefix_output:
-            for line in text.splitlines():
-                print('[{}] {}'.format(event.process_name, line))
-        else:
-            print(text, end='')
-    elif typed_event.execute_process_action.output == 'log':
-        if file_name == 'stderr':
-            if prefix_output:
-                for line in text.splitlines():
-                    print('[{}:{}] {}'.format(event.process_name, file_name, line))
-            else:
-                print(text, end='')
-        # TODO(wjwwood): implement file logging
 
 
 class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
@@ -116,13 +76,10 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
         self.__rclpy_spin_thread.start()
 
 
-def get_default_launch_description(*, prefix_output_with_name=False, rclpy_context=None):
+def get_default_launch_description(*, rclpy_context=None):
     """
     Return a LaunchDescription to be included before user descriptions.
 
-    :param: prefix_output_with_name if True, each line of output is prefixed
-        with the name of the process as `[process_name] `, else it is printed
-        unmodified
     :param: rclpy_context Provide a context other than the default rclpy context
         to pass down to rclpy.init.
         The context is expected to have already been initialized by the caller
@@ -130,23 +87,6 @@ def get_default_launch_description(*, prefix_output_with_name=False, rclpy_conte
     """
     default_ros_launch_description = launch.LaunchDescription([
         # ROS initialization (create node and other stuff).
-        ROSSpecificLaunchStartup(rclpy_context=rclpy_context),
-        # Handle process starts.
-        launch.actions.RegisterEventHandler(launch.EventHandler(
-            matcher=lambda event: isinstance(event, launch.events.process.ProcessStarted),
-            entities=[launch.actions.OpaqueFunction(function=_on_process_started)],
-        )),
-        # Handle process exit.
-        launch.actions.RegisterEventHandler(launch.EventHandler(
-            matcher=lambda event: isinstance(event, launch.events.process.ProcessExited),
-            entities=[launch.actions.OpaqueFunction(function=_on_process_exited)],
-        )),
-        # Add default handler for output from processes.
-        launch.actions.RegisterEventHandler(launch.event_handlers.OnProcessIO(
-            on_stdout=functools.partial(
-                _on_process_output, file_name='stdout', prefix_output=prefix_output_with_name),
-            on_stderr=functools.partial(
-                _on_process_output, file_name='stderr', prefix_output=prefix_output_with_name),
-        )),
+        ROSSpecificLaunchStartup(rclpy_context=rclpy_context)
     ])
     return default_ros_launch_description

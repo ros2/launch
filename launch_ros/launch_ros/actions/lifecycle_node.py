@@ -15,7 +15,6 @@
 """Module for the LifecycleNode action."""
 
 import functools
-import logging
 from typing import cast
 from typing import List
 from typing import Optional
@@ -23,6 +22,7 @@ from typing import Text
 
 import launch
 from launch.action import Action
+from launch.launch_logger import LaunchLogger
 
 import lifecycle_msgs.msg
 import lifecycle_msgs.srv
@@ -30,8 +30,6 @@ import lifecycle_msgs.srv
 from .node import Node
 from ..events.lifecycle import ChangeState
 from ..events.lifecycle import StateTransition
-
-_logger = logging.getLogger(name='launch_ros')
 
 
 class LifecycleNode(Node):
@@ -62,6 +60,7 @@ class LifecycleNode(Node):
             to change state, see its documentation for more details.
         """
         super().__init__(node_name=node_name, **kwargs)
+        self.__logger = LaunchLogger()
         self.__rclpy_subscription = None
         self.__current_state = \
             ChangeState.valid_states[lifecycle_msgs.msg.State.PRIMARY_STATE_UNKNOWN]
@@ -72,21 +71,28 @@ class LifecycleNode(Node):
             self.__current_state = ChangeState.valid_states[msg.goal_state.id]
             context.asyncio_loop.call_soon_threadsafe(lambda: context.emit_event_sync(event))
         except Exception as exc:
-            _logger.error(
+            self.__logger.error(
+                __name__,
                 "Exception in handling of 'lifecycle.msg.TransitionEvent': {}".format(exc))
 
     def _call_change_state(self, request, context: launch.LaunchContext):
         while not self.__rclpy_change_state_client.wait_for_service(timeout_sec=1.0):
             if context.is_shutdown:
-                _logger.warning("Abandoning wait for the '{}' service, due to shutdown.".format(
-                    self.__rclpy_change_state_client.srv_name))
+                self.___logger.warning(
+                    __name__,
+                    "Abandoning wait for the '{}' service, due to shutdown.".format(
+                        self.__rclpy_change_state_client.srv_name),
+                )
                 return
         response = self.__rclpy_change_state_client.call(request)
         if not response.success:
-            _logger.error("Failed to make transition '{}' for LifecycleNode '{}'".format(
-                ChangeState.valid_transitions[request.transition.id],
-                self.node_name,
-            ))
+            self.__logger.error(
+                __name__,
+                "Failed to make transition '{}' for LifecycleNode '{}'".format(
+                    ChangeState.valid_transitions[request.transition.id],
+                    self.node_name,
+                )
+            )
 
     def _on_change_state_event(self, context: launch.LaunchContext) -> None:
         typed_event = cast(ChangeState, context.locals.event)
