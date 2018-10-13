@@ -179,7 +179,7 @@ class LaunchLogger:
     def __init__(
         self,
         *,
-        level: int = logging.INFO,
+        level: int = LoggerLevel.INFO,
         log_dir: Text = os.path.join(os.path.expanduser('~'), '.ros/log'),
         screen_timestamps: bool = False
     ):
