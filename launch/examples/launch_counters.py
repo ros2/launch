@@ -71,7 +71,7 @@ def main(argv=sys.argv[1:]):
         whoami_cmd = [launch.substitutions.FindExecutable(name='whoami')]
     whoami_action = launch.actions.ExecuteProcess(
         cmd=whoami_cmd,
-        shell=(platform.system() == 'Windows')
+        shell=True
     )
     ld.add_action(whoami_action)
     # Make event handler that uses the output.
