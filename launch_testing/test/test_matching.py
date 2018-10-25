@@ -32,7 +32,7 @@ def test_matching():
     output_file = tempdir + os.sep + 'testfile'
     full_output_file = output_file + '.regex'
     with open(full_output_file, 'w+') as f:
-        f.write('this is line \d\nthis is line [a-z]')
+        f.write(r'this is line \d\nthis is line [a-z]')
 
     name = 'test_executable_0'
 
