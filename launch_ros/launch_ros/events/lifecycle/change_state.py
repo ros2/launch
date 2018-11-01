@@ -36,7 +36,15 @@ class ChangeState(Event):
         (lifecycle_msgs.msg.Transition.TRANSITION_CLEANUP, 'TRANSITION_CLEANUP'),
         (lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE, 'TRANSITION_ACTIVATE'),
         (lifecycle_msgs.msg.Transition.TRANSITION_DEACTIVATE, 'TRANSITION_DEACTIVATE'),
-        (lifecycle_msgs.msg.Transition.TRANSITION_SHUTDOWN, 'TRANSITION_SHUTDOWN'),
+        (
+            lifecycle_msgs.msg.Transition.TRANSITION_UNCONFIGURED_SHUTDOWN,
+            'TRANSITION_UNCONFIGURED_SHUTDOWN',
+        ),
+        (
+            lifecycle_msgs.msg.Transition.TRANSITION_INACTIVE_SHUTDOWN,
+            'TRANSITION_INACTIVE_SHUTDOWN',
+        ),
+        (lifecycle_msgs.msg.Transition.TRANSITION_ACTIVE_SHUTDOWN, 'TRANSITION_ACTIVE_SHUTDOWN'),
         (lifecycle_msgs.msg.Transition.TRANSITION_DESTROY, 'TRANSITION_DESTROY'),
     ])
     valid_states = collections.OrderedDict([
