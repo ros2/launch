@@ -300,7 +300,7 @@ class LaunchService:
                 if not sigint_received:
                     _logger.warn(base_msg)
                     ret = self._shutdown(reason='ctrl-c (SIGINT)', due_to_sigint=True)
-                    assert(ret is None)
+                    assert ret is None, ret
                     sigint_received = True
                 else:
                     _logger.warn('{} again, ignoring...'.format(base_msg))
@@ -350,8 +350,8 @@ class LaunchService:
                     _logger.debug(traceback.format_exc())
                     _logger.error(msg)
                     self.__return_code = 1
-                    ret = self._shutdown(reason=msg, due_to_sigint=False)
-                    assert(ret is None)
+                    ret = self._shutdown(reason=msg, due_to_sigint=False, force_sync=True)
+                    assert ret is None, ret
                     # restart run loop to let it shutdown properly
                     run_loop_task = self.__loop_from_run_thread.create_task(self.__run_loop())
         finally:
@@ -375,7 +375,7 @@ class LaunchService:
         self.__shutting_down = True
         return None
 
-    def _shutdown(self, *, reason, due_to_sigint):
+    def _shutdown(self, *, reason, due_to_sigint, force_sync=False):
         # Assumption is that this method is only called when running.
         retval = None
         if not self.__shutting_down:
@@ -387,7 +387,9 @@ class LaunchService:
                 # If no event loop is set for this thread, asyncio will raise an exception.
                 # The exception type depends on the version of Python, so just catch both.
                 pass
-            if self.__loop_from_run_thread == asyncio_event_loop:
+            if force_sync:
+                self.__context.emit_event_sync(shutdown_event)
+            elif self.__loop_from_run_thread == asyncio_event_loop:
                 # If in the thread of the loop.
                 retval = self.__context.emit_event(shutdown_event)
             else:
@@ -410,4 +412,4 @@ class LaunchService:
         with self.__loop_from_run_thread_lock:
             if self.__loop_from_run_thread is not None:
                 ret = self._shutdown(reason='LaunchService.shutdown() called', due_to_sigint=False)
-                assert(ret is None)
+                assert ret is None, ret
