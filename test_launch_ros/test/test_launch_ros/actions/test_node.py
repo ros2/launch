@@ -57,7 +57,7 @@ class TestNode(unittest.TestCase):
     def test_launch_invalid_node(self):
         """Test launching an invalid node."""
         node_action = launch_ros.actions.Node(
-            package='nonexistent_package', node_executable='node', output='screen'),
+            package='nonexistent_package', node_executable='node', output='screen')
         self._assert_launch_errors([node_action])
 
     def test_launch_node(self):
