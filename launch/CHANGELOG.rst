@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.1 (2018-11-16)
+------------------
 * Fixed setup.py versions (`#155 <https://github.com/ros2/launch/issues/155>`_)
 * Contributors: Steven! Ragnarök
 
