@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='ros2launch',
-    version='0.5.1',
+    version='0.7.0',
     packages=find_packages(exclude=['test']),
     install_requires=['ros2cli'],
     zip_safe=True,
