@@ -2,8 +2,8 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2018-11-16)
+------------------
 * Renamed transitions to match changes in ``lifecycle_msgs`` (`#153 <https://github.com/ros2/launch/issues/153>`_)
   * TRANSITION_SHUTDOWN was deleted in ``lifecycle_msgs/msg/Transition.msg``
   * Align with the code changes from https://github.com/ros2/rcl_interfaces/commit/852a37ba3ae0f7e58f4314fa432a8ea7f0cbf639

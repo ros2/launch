@@ -2,8 +2,8 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2018-11-16)
+------------------
 * Added ability to define and pass launch arguments to launch files (`#123 <https://github.com/ros2/launch/issues/123>`_)
   * See changelog in ``launch`` for details.
   * Signed-off-by: William Woodall <william@osrfoundation.org>

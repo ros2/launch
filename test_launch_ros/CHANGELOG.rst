@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2018-11-16)
+------------------
 * Fixed a bug to ensure that shutdown event is handled correctly (`#154 <https://github.com/ros2/launch/issues/154>`_)
   * There was a potential race condition in between when the shutdown event is emitted and the rest of the shutdown handling code.
   * This introduces an additional await to ensure that the event is emitted before proceeding.

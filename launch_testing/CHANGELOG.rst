@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2018-11-16)
+------------------
 * Fixed lint warnings from invalid escape sequences (`#151 <https://github.com/ros2/launch/issues/151>`_)
   Use raw strings for regex patterns to avoid warnings.
 * Fixed linter errors from `#131 <https://github.com/ros2/launch/issues/131>`_. (`#132 <https://github.com/ros2/launch/issues/132>`_)
