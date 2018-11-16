@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed setup.py versions (`#155 <https://github.com/ros2/launch/issues/155>`_)
+* Contributors: Steven! Ragnarök
+
 0.7.0 (2018-11-16)
 ------------------
 * Fixed a bug to ensure that shutdown event is handled correctly (`#154 <https://github.com/ros2/launch/issues/154>`_)

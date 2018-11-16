@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed setup.py versions (`#155 <https://github.com/ros2/launch/issues/155>`_)
+* Contributors: Steven! Ragnarök
+
 0.7.0 (2018-11-16)
 ------------------
 * Fixed lint warnings from invalid escape sequences (`#151 <https://github.com/ros2/launch/issues/151>`_)

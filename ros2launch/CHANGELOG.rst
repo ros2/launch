@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed setup.py versions (`#155 <https://github.com/ros2/launch/issues/155>`_)
+* Contributors: Steven! Ragnarök
+
 0.7.0 (2018-11-16)
 ------------------
 * Added ability to define and pass launch arguments to launch files (`#123 <https://github.com/ros2/launch/issues/123>`_)
