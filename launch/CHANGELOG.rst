@@ -2,6 +2,37 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed a bug to ensure that shutdown event is handled correctly (`#154 <https://github.com/ros2/launch/issues/154>`_)
+  * There was a potential race condition in between when the shutdown event is emitted and the rest of the shutdown handling code.
+  * This introduces an additional await to ensure that the event is emitted before proceeding.
+* Fixed example to always use shell to avoid inconsistency of time being a shell command or executable (`#150 <https://github.com/ros2/launch/issues/150>`_)
+* Added tests for class_tools module and fix is_a_subclass() (`#142 <https://github.com/ros2/launch/issues/142>`_)
+* Added tests for the utilities module (`#143 <https://github.com/ros2/launch/issues/143>`_)
+* Added 'handle_once' property for unregistering an EventHandler after one event (`#141 <https://github.com/ros2/launch/issues/141>`_)
+* Added UnregisterEventHandler action (`#110 <https://github.com/ros2/launch/issues/110>`_)
+* Changed LaunchService so that it returns ``1`` on caught exceptions from within launch (`#136 <https://github.com/ros2/launch/issues/136>`_)
+* Added ability to define and pass launch arguments to launch files (`#123 <https://github.com/ros2/launch/issues/123>`_)
+  * Added self descriptions for substitutions
+  * Added tracebacks back to the output by default
+  * Added new actions for declaring launch arguments
+  * Added new method on LaunchDescription which gets all declared arguments within
+  * Added ability to pass arguments when including a launch description
+  * Added description for local variables used in Node action
+  * Added ability to show and pass launch arguments on the command line
+  * Added an accessor for the Condition of an Action
+  * Signed-off-by: William Woodall <william@osrfoundation.org>
+* Added UnsetLaunchConfiguration action and tests (`#134 <https://github.com/ros2/launch/issues/134>`_)
+  * Signed-off-by: William Woodall <william@osrfoundation.org>
+* Added GroupAction for conditionally including other actions and scoping (`#133 <https://github.com/ros2/launch/issues/133>`_)
+  * Signed-off-by: William Woodall <william@osrfoundation.org>
+* Added optional name argument to ExecuteProcess (`#129 <https://github.com/ros2/launch/issues/129>`_)
+  * Signed-off-by: William Woodall <william@osrfoundation.org>
+* Added a new pair of actions for pushing and popping launch configurations (`#128 <https://github.com/ros2/launch/issues/128>`_)
+  * Signed-off-by: William Woodall <william@osrfoundation.org>
+* Contributors: Dirk Thomas, Jacob Perron, Michael Carroll, William Woodall, dhood
+
 0.6.0 (2018-08-20)
 ------------------
 * Added a way to include other Python launch files (`#122 <https://github.com/ros2/launch/issues/122>`_)

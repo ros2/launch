@@ -2,6 +2,15 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed lint warnings from invalid escape sequences (`#151 <https://github.com/ros2/launch/issues/151>`_)
+  Use raw strings for regex patterns to avoid warnings.
+* Fixed linter errors from `#131 <https://github.com/ros2/launch/issues/131>`_. (`#132 <https://github.com/ros2/launch/issues/132>`_)
+* Added class to provide some limitted testing options (`#131 <https://github.com/ros2/launch/issues/131>`_)
+* Moved ``launch_testing`` into ``launch_testing.legacy`` namespace (`#130 <https://github.com/ros2/launch/issues/130>`_)
+* Contributors: Dirk Thomas, Jacob Perron, Steven! Ragnarök
+
 0.6.0 (2018-08-20)
 ------------------
 
