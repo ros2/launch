@@ -299,7 +299,7 @@ class LaunchService:
                 base_msg = 'user interrupted with ctrl-c (SIGINT)'
                 if not sigint_received:
                     _logger.warn(base_msg)
-                    ret = self._shutdown(reason='ctrl-c (SIGINT)', due_to_sigint=True)
+                    ret = self._shutdown(reason='ctrl-c (SIGINT)', due_to_sigint=True, force_sync=True)
                     assert ret is None, ret
                     sigint_received = True
                 else:
