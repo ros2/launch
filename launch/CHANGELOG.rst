@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Changed the signit handler os it executes the shutdown event synchronously (`#156 <https://github.com/ros2/launch/issues/156>`_)
+* Contributors: Jonathan Chapple, Steven! Ragnarök, William Woodall
+
 0.7.1 (2018-11-16)
 ------------------
 * Fixed setup.py versions (`#155 <https://github.com/ros2/launch/issues/155>`_)
