@@ -14,7 +14,7 @@
 
 """Tests for the LaunchDescription class."""
 
-import collections
+import collections.abc
 import logging
 import os
 
@@ -103,6 +103,6 @@ def test_launch_description_visit():
         ...
 
     result = ld.visit(MockLaunchContext())
-    assert isinstance(result, collections.Iterable)
+    assert isinstance(result, collections.abc.Iterable)
     for entity in result:
         assert isinstance(entity, LaunchDescriptionEntity)

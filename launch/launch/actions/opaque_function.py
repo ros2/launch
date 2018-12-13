@@ -14,7 +14,7 @@
 
 """Module for the OpaqueFunction action."""
 
-import collections
+import collections.abc
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -58,7 +58,8 @@ class OpaqueFunction(Action):
             raise TypeError("OpaqueFunction expected a callable for 'function', got '{}'".format(
                 type(function)
             ))
-        ensure_argument_type(args, (collections.Iterable, type(None)), 'args', 'OpaqueFunction')
+        ensure_argument_type(
+            args, (collections.abc.Iterable, type(None)), 'args', 'OpaqueFunction')
         ensure_argument_type(kwargs, (dict, type(None)), 'kwargs', 'OpaqueFunction')
         self.__function = function
         self.__args = []  # type: Iterable

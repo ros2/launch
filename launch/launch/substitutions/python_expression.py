@@ -14,7 +14,7 @@
 
 """Module for the PythonExpression substitution."""
 
-import collections
+import collections.abc
 from typing import List
 from typing import Text
 
@@ -38,7 +38,7 @@ class PythonExpression(Substitution):
 
         ensure_argument_type(
             expression,
-            (str, Substitution, collections.Iterable),
+            (str, Substitution, collections.abc.Iterable),
             'expression',
             'PythonExpression')
 

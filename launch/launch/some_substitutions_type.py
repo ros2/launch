@@ -14,7 +14,7 @@
 
 """Module for SomeSubstitutionsType type."""
 
-import collections
+import collections.abc
 from typing import Iterable
 from typing import Text
 from typing import Union
@@ -30,5 +30,5 @@ SomeSubstitutionsType = Union[
 SomeSubstitutionsType_types_tuple = (
     str,
     Substitution,
-    collections.Iterable,
+    collections.abc.Iterable,
 )
