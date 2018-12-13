@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>test_launch_ros</name>
-  <version>0.7.2</version>
+  <version>0.7.3</version>
   <description>Tests for ROS specific extensions to the launch tool.</description>
   <maintainer email="william@osrfoundation.org">William Woodall</maintainer>
   <license>Apache License 2.0</license>
