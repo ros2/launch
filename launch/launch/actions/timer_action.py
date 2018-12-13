@@ -15,7 +15,7 @@
 """Module for the TimerAction action."""
 
 import asyncio
-import collections
+import collections.abc
 import logging
 from typing import Any  # noqa: F401
 from typing import cast
@@ -63,7 +63,7 @@ class TimerAction(Action):
         super().__init__(**kwargs)
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
         ensure_argument_type(period, period_types, 'period', 'TimerAction')
-        ensure_argument_type(actions, collections.Iterable, 'actions', 'TimerAction')
+        ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'TimerAction')
         if isinstance(period, float):
             self.__period = normalize_to_list_of_substitutions([str(period)])
         else:

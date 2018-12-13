@@ -14,7 +14,7 @@
 
 """Module for the ensure_argument_type() utility function."""
 
-import collections
+import collections.abc
 import inspect
 from typing import Any
 from typing import Iterable
@@ -36,11 +36,11 @@ def ensure_argument_type(
     The caller is included in the error message if given and not None.
     """
     error_msg_template = "{}xpected '{}' to be one of [{}], but got '{}' of type '{}'"
-    if not isinstance(types, collections.Iterable) and not isinstance(types, type):
+    if not isinstance(types, collections.abc.Iterable) and not isinstance(types, type):
         raise TypeError(error_msg_template.format(
             "'ensure_argument_type()' e",
             'types',
-            'type, collections.Iterable of type',
+            'type, collections.abc.Iterable of type',
             types,
             type(types),
         ))
@@ -68,7 +68,7 @@ def ensure_argument_type(
             result |= issubclass(argument.__class__, type_var)
         return result
 
-    list_of_types = types if isinstance(types, collections.Iterable) else [types]
+    list_of_types = types if isinstance(types, collections.abc.Iterable) else [types]
     if not any(check_argument(argument, type_var) for type_var in list_of_types):
         raise TypeError(error_msg_template.format(
             'E' if caller is None else "'{}' e".format(caller),

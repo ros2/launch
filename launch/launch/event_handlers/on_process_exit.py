@@ -14,9 +14,10 @@
 
 """Module for OnProcessExit class."""
 
-import collections
+import collections.abc
 from typing import Callable
 from typing import cast
+from typing import List  # noqa
 from typing import Optional
 from typing import overload
 from typing import Text
@@ -92,7 +93,7 @@ class OnProcessExit(EventHandler):
             pass
         else:
             # Otherwise, setup self.__actions_on_exit
-            if isinstance(on_exit, collections.Iterable):
+            if isinstance(on_exit, collections.abc.Iterable):
                 for entity in on_exit:
                     if not isinstance(entity, LaunchDescriptionEntity):
                         raise ValueError(

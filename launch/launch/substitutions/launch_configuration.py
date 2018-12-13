@@ -14,7 +14,7 @@
 
 """Module for the LaunchConfiguration substitution."""
 
-import collections
+import collections.abc
 from typing import Any
 from typing import Iterable
 from typing import List
@@ -51,7 +51,7 @@ class LaunchConfiguration(Substitution):
             # convert any items in default that are not a Substitution or str to a str
             str_normalized_default = []  # type: List[Union[Text, Substitution]]
             definitely_iterable_default = ((),)  # type: Iterable[Any]
-            if isinstance(default, collections.Iterable):
+            if isinstance(default, collections.abc.Iterable):
                 definitely_iterable_default = default
             else:
                 definitely_iterable_default = (default,)

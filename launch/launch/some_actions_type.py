@@ -14,7 +14,7 @@
 
 """Module for SomeActionsType type."""
 
-import collections
+import collections.abc
 from typing import Iterable
 from typing import Union
 
@@ -28,5 +28,5 @@ SomeActionsType = Union[
 
 SomeActionsType_types_tuple = (
     LaunchDescriptionEntity,
-    collections.Iterable,
+    collections.abc.Iterable,
 )

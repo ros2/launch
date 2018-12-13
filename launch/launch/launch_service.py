@@ -16,7 +16,7 @@
 
 import asyncio
 import atexit
-import collections
+import collections.abc
 import logging
 import signal
 import threading
@@ -186,7 +186,8 @@ class LaunchService:
                     "processing event: '{}' ✓ '{}'".format(event, event_handler))
                 self.__context._push_locals()
                 entities = event_handler.handle(event, self.__context)
-                entities = entities if isinstance(entities, collections.Iterable) else (entities,)
+                entities = \
+                    entities if isinstance(entities, collections.abc.Iterable) else (entities,)
                 for entity in [e for e in entities if e is not None]:
                     from .utilities import is_a_subclass
                     if not is_a_subclass(entity, LaunchDescriptionEntity):
