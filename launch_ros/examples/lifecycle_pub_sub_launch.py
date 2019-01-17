@@ -31,8 +31,7 @@ import launch_ros.events.lifecycle
 import lifecycle_msgs.msg
 
 
-def main(argv=sys.argv[1:]):
-    """Main."""
+def generate_launch_description() -> launch.LaunchDescription:
     ld = launch.LaunchDescription()
 
     # Prepare the talker node.
@@ -83,6 +82,14 @@ def main(argv=sys.argv[1:]):
     ld.add_action(register_event_handler_for_talker_reaches_active_state)
     ld.add_action(talker_node)
     ld.add_action(emit_event_to_request_that_talker_does_configure_transition)
+
+    return ld
+
+
+def main(argv=sys.argv[1:]):
+    """Main."""
+
+    ld = generate_launch_description()
 
     print('Starting introspection of launch description...')
     print('')

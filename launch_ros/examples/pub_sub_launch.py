@@ -19,6 +19,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # noqa
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'launch'))  # noqa
 
+import launch
+
 from launch import LaunchDescription
 from launch import LaunchIntrospector
 from launch import LaunchService
@@ -27,16 +29,23 @@ from launch_ros import get_default_launch_description
 import launch_ros.actions
 
 
+def generate_launch_description() -> LaunchDescription:
+    return LaunchDescription([
+        launch_ros.actions.Node(
+            package='demo_nodes_cpp', node_executable='talker',
+            output='screen', remappings=[('chatter', 'my_chatter')]
+        ),
+        launch_ros.actions.Node(
+            package='demo_nodes_cpp', node_executable='listener',
+            output='screen', remappings=[('chatter', 'my_chatter')]
+        ),
+    ])
+
+
 def main(argv=sys.argv[1:]):
     """Main."""
-    ld = LaunchDescription([
-        launch_ros.actions.Node(
-            package='demo_nodes_cpp', node_executable='talker', output='screen',
-            remappings=[('chatter', 'my_chatter')]),
-        launch_ros.actions.Node(
-            package='demo_nodes_cpp', node_executable='listener', output='screen',
-            remappings=[('chatter', 'my_chatter')]),
-    ])
+
+    ld = generate_launch_description()
 
     print('Starting introspection of launch description...')
     print('')
