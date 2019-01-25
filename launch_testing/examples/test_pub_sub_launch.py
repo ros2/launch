@@ -13,26 +13,18 @@
 # limitations under the License.
 
 """
-Some example tests around ROS 2 talker/listener nodes.
-
-.. note::
-
-To maximize code reuse, this test assumes that execution and executable
-abstractions are decoupled (see https://github.com/ros2/launch/issues/114).
+Some example tests for ROS-aware launch descriptions.
 """
 
 import sys
 import pytest
 
 from launch import LaunchDescription
-from launch.actions import Execute
 from launch.events.process import ProcessStarted
 from launch.launch_description_sources import \
     get_launch_description_from_python_launch_file
 from launch_ros import get_default_launch_description
-from launch_ros.executables import Node
-from launch_ros.executables import ComposableNode
-from launch_ros.executables import ComposableNodeProcess
+from launch_ros.actions import Node
 import launch_ros.events.lifecycle as lifecyle
 
 from launch_testing import TestLaunchService
@@ -82,20 +74,12 @@ def test_pub_sub_launch(ros_test_launch_service, pub_sub_launch_description):
     # Launches a pytest that also happens to be a node with
     # a 30s timeout.
     pub_sub_launch_description.add_action(
-        # TODO(hidmic): allow launching non-installed
-        # executables within the current package.
-        PyTest(Node(
-            node_executable='pub_test.py',
-            remappings=[('chatter', 'my_chatter')]
-        ), timeout=30)
+        PyTest(path='pub_test.py', timeout=30)
     )
     # Launches a gtest that also happens to be a node with
     # a 30s timeout.
     pub_sub_launch_description.add_action(
-        GTest(Node(
-            node_executable='sub_test',
-            remappings=[('chatter', 'my_chatter')]
-        ), timeout=30)
+        GTest(path='sub_test', timeout=30)
     )
 
     ros_test_launch_service.include_launch_description(pub_sub_launch_description)
@@ -153,20 +137,18 @@ def test_pub_sub(ros_test_launch_service):
     Tests a basic pub/sub setup for proper output matching.
     """
     ld = launch.LaunchDescription()
-    talker_node_action = Execute(
-        launch_ros.actions.Node(
-            package='demo_nodes_cpp',
-            node_executable='talker',
-            remappings=[('chatter', 'my_chatter')]
-        ), output='screen'
+    talker_node_action = launch_ros.actions.Node(
+        package='demo_nodes_cpp',
+        node_executable='talker',
+        remappings=[('chatter', 'my_chatter')],
+        output='screen'
     )
     ld.add_action(talker_node_action)
-    listener_node_action = Execute(
-        launch_ros.actions.Node(
-            package='demo_nodes_py',
-            node_executable='listener',
-            remappings=[('chatter', 'my_chatter')]
-        ),  output='screen'
+    listener_node_action = launch_ros.actions.Node(
+        package='demo_nodes_py',
+        node_executable='listener',
+        remappings=[('chatter', 'my_chatter')],
+        output='screen'
     )
     ld.add_action(listener_node_action)
     # Asserts that not a single talker screen output
@@ -190,38 +172,6 @@ def test_pub_sub(ros_test_launch_service):
             pattern='I heard.*', flags=None
         )) > 0, message='No message received!', timeout=10)
     )
-    ros_test_launch_service.include_launch_description(ld)
-
-    # TODO(hidmic): implement launch_testing specific pytest plugin to
-    # aggregate all test result information at the launch system-level
-    # and below.
-    assert ros_test_launch_service.run() == 0
-
-
-def test_intra_comm_pub_sub(ros_test_launch_service):
-    """
-    Tests a intra process communication between composable
-    pub/sub nodes via gtest.
-    """
-    # Launches a gtest that happens to be a container
-    # for composable nodes.
-    ld = LaunchDescription([
-        GTest(ComposableNodeProcess(
-            container_executable='intra_proc_comm_test_container',
-            composable_node_descriptions=[
-                ComposableNode(
-                    package_name='composition',
-                    node_plugin_name='talker_component',
-                    name='my_talker_component'
-                ),
-                ComposableNode(
-                    package_name='composition',
-                    node_plugin_name='listener_component'
-                    name='my_listener_component'
-                ),
-            ]
-        ), timeout=40),
-    ])
     ros_test_launch_service.include_launch_description(ld)
 
     # TODO(hidmic): implement launch_testing specific pytest plugin to

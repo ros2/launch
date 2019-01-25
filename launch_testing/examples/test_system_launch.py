@@ -12,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Some example tests for ROS-agnostic launch descriptions.
+"""
+
+
 import sys
 import pytest
 
 from datetime import timedelta
 
 from launch import LaunchDescription
-from launch.actions import Execute
 from launch.actions import RegisterEventHandler
-from launch.executables import Process
+from launch.actions import ExecuteProcess
 from launch.event_handlers import OnProcessExited
 from launch_testing import TestLaunchService
 from launch_testing.actions import AssertOnce
@@ -40,16 +44,22 @@ def launch_service() -> TestLaunchService:
 
 
 def test_file_compression(launch_service):
+    """
+    Tests that a post-condition holds for an executable's
+    outcome, a compression command in this case.
+    """
     ld = LaunchDescription()
 
-    prelist_bags_action = Execute(Process(
-        cmd='ls *.bag', cwd='/var/log/bags', shell=True
-    ), output='screen')
+    prelist_bags_action = ExecuteProcess(
+        cmd='ls *.bag', cwd='/var/log/bags',
+        shell=True, output='screen'
+    )
     ld.add_action(prelist_bags_action)
 
-    compression_action = Execute(Process(
-        cmd='bzip2 /var/log/bags/*.bag', shell=True
-    ), output='screen', prefix='time')
+    compression_action = ExecuteProcess(
+        cmd='bzip2 /var/log/bags/*.bag', shell=True,
+        output='screen', prefix='time'
+    )
     ld.add_action(compression_action)
 
     @predicates.custom
@@ -75,9 +85,10 @@ def test_file_compression(launch_service):
         )
     )
 
-    postlist_bags_action = Execute(Process(
-        cmd='ls *.bag.bz2', cwd='/var/log/bags', shell=True
-    ), output='screen')
+    postlist_bags_action = ExecuteProcess(
+        cmd='ls *.bag.bz2', cwd='/var/log/bags',
+        shell=True, output='screen'
+    )
     assert_all_bags_compressed = AssertOnce(
         predicates.count(variables.Output(postlist_bags_action))
         == predicates.count(variables.Output(prelist_bags_action))
@@ -87,4 +98,7 @@ def test_file_compression(launch_service):
         on_exit=[postlist_bags_action, assert_all_bags_compressed]
     )))
 
+    # TODO(hidmic): implement launch_testing specific pytest plugin to
+    # aggregate all test result information at the launch system-level
+    # and below.
     assert launch_service.run() == 0
