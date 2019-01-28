@@ -42,7 +42,7 @@ from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnShutdown
 from ..events import Shutdown
-from ..events.process import matches_action
+from ..events import matches_action
 from ..events.process import ProcessExited
 from ..events.process import ProcessStarted
 from ..events.process import ProcessStderr

@@ -34,7 +34,7 @@ class ProcessTargetedEvent(Event):
 
         Some standard matchers are also available, like:
 
-        - :func:`launch.events.process.matches_action()`
+        - :func:`launch.events.matches_action()`
         - :func:`launch.events.process.matches_pid()`
         - :func:`launch.events.process.matches_name()`
         - :func:`launch.events.process.matches_executable()`
