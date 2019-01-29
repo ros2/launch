@@ -34,7 +34,29 @@ class LaunchTestService():
 
     def __init__(self):
         self.__test_action_complete = OrderedDict()
-        self.__test_action_rc = OrderedDict()
+        self.__test_processes_rc = OrderedDict()
+
+    def add_fixture_action(self, launch_description, action):
+        """
+        Add action used as testing fixture.
+
+        If a process action and it exits, a shutdown event is emitted.
+        """
+
+        launch_description.add_action(action)
+        if isinstance(action, ExecuteProcess):
+            def on_fixture_process_exit(event, context):
+                self.__test_processes_rc[event.action] = event.returncode
+                return EmitEvent(event=Shutdown(
+                    reason='{} fixture process died!'.format(
+                        event.action.process_details['name']
+                    )
+                ))
+            launch_description.add_action(
+                RegisterEventHandler(OnProcessExit(
+                    target_action=action, on_exit=on_fixture_process_exit
+                ))
+            )
 
     def add_test_action(self, launch_description, action):
         """
@@ -47,9 +69,9 @@ class LaunchTestService():
         self.__test_action_complete[action] = False
         if isinstance(action, ExecuteProcess):
             def on_test_process_exit(event, context):
-                self.__test_action_rc[event.action] = event.returncode
                 if event.returncode != 0:
-                    return EmitEvent(Shutdown(
+                    self.__test_processes_rc[event.action] = event.returncode
+                    return EmitEvent(event=Shutdown(
                         reason='{} test action failed!'.format(
                             event.action.process_details['name']
                         )
@@ -57,7 +79,9 @@ class LaunchTestService():
 
                 self.__test_action_complete[event.action] = True
                 if all(self.__test_action_complete.values()):
-                    return EmitEvent(Shutdown(reason='all test actions finished'))
+                    return EmitEvent(event=Shutdown(
+                        reason='all test actions finished'
+                    ))
 
             launch_description.add_action(
                 RegisterEventHandler(OnProcessExit(
@@ -68,7 +92,9 @@ class LaunchTestService():
             def on_test_action_complete(event, context):
                 self.__test_action_complete[event.action] = True
                 if all(self.__test_action_complete.values()):
-                    return EmitEvent(Shutdown(reason='all test actions finished'))
+                    return EmitEvent(event=Shutdown(
+                        reason='all test actions finished'
+                    ))
 
             launch_description.add_action(
                 RegisterEventHandler(OnExecutionComplete(
@@ -85,6 +111,6 @@ class LaunchTestService():
           the first failed test process is returned.
         """
         rc = launch_service.run(*args, **kwargs)
-        if not rc:
-            rc = next((rc for rc in self.__test_action_rc.values() if rc), rc)
+        if rc == 0:
+            rc = next((rc for rc in self.__test_processes_rc.values() if rc), rc)
         return rc
