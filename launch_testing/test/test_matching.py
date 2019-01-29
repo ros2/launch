@@ -40,7 +40,7 @@ def test_matching():
     ld = LaunchDescription()
     launch_test = LaunchTestService()
     action = launch_test.add_fixture_action(
-        ld, ExecuteProcess(cmd=executable_command)
+        ld, ExecuteProcess(cmd=executable_command, output='screen')
     )
     launch_test.add_output_test(ld, action, output_file)
 

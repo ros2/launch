@@ -69,7 +69,7 @@ def create_output_lines_filter(filtered_prefixes, filtered_patterns,
 
 
 def create_output_check(output_file, filtered_prefixes, filtered_patterns,
-                        filtered_rmw_implementation=None):
+                        filtered_rmw_implementation):
     filter_output_lines = create_output_lines_filter(
         filtered_prefixes, filtered_patterns, filtered_rmw_implementation
     )
@@ -99,7 +99,7 @@ def create_output_check(output_file, filtered_prefixes, filtered_patterns,
             return pattern.search(output.getvalue()) is not None
 
         with open(regex_file, 'rb') as f:
-            patterns = map(re.compile, f.read().splitlines())
+            patterns = [re.compile(regex) for regex in f.read().splitlines()]
         return io.BytesIO(), _collate, _match, patterns
 
     raise RuntimeError('could not find output check file: {}'.format(output_file))

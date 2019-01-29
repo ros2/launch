@@ -127,15 +127,17 @@ class LaunchTestService():
         """
         assert isinstance(action, ExecuteProcess)
         test_name = 'test_{}_output'.format(id(action))
-
         output, collate_output, match_output, match_patterns = create_output_check(
             output_file, filtered_prefixes, filtered_patterns, filtered_rmw_implementation
         )
+        assert any(match_patterns)
 
-        def on_process_exit(event):
+        def on_process_exit(event, context):
             nonlocal match_patterns
             if any(match_patterns):
-                return self._fail(test_name)
+                process_name = event.action.process_details['name']
+                reason = 'not all {} output matched!'.format(process_name)
+                return self._fail(test_name, reason)
 
         def on_process_stdout(event):
             nonlocal output
