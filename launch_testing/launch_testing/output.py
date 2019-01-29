@@ -96,7 +96,7 @@ def create_output_check(output_file, filtered_prefixes, filtered_patterns,
             return output
 
         def _match(output, pattern):
-            return bool(pattern.search(output))
+            return pattern.search(output.getvalue()) is not None
 
         with open(regex_file, 'rb') as f:
             patterns = map(re.compile, f.read().splitlines())

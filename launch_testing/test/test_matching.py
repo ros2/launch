@@ -16,51 +16,38 @@ import os
 import sys
 import tempfile
 
-from launch.legacy import LaunchDescriptor
-from launch.legacy.exit_handler import ignore_exit_handler
-from launch.legacy.launcher import DefaultLauncher
-from launch_testing import create_handler
+from launch import LaunchDescription
+from launch import LaunchService
+from launch.actions import ExecuteProcess
+from launch_testing import LaunchTestService
 
 
 def test_matching():
-    output_handlers = []
-
-    launch_descriptor = LaunchDescriptor()
-
-    # This temporary directory and files contained in it will be deleted when the process ends.
+    # This temporary directory and files contained in it
+    # will be deleted when the process ends.
     tempdir = tempfile.mkdtemp()
     output_file = tempdir + os.sep + 'testfile'
     full_output_file = output_file + '.regex'
     with open(full_output_file, 'w+') as f:
         f.write(r'this is line \d\nthis is line [a-z]')
 
-    name = 'test_executable_0'
-
-    handler = create_handler(name, launch_descriptor, output_file)
-
-    assert handler, 'Cannot find appropriate handler for %s' % output_file
-
-    output_handlers.append(handler)
-
     executable_command = [
-        sys.executable,
-        os.path.join(os.path.abspath(os.path.dirname(__file__)), 'matching.py')]
+        sys.executable, os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), 'matching.py'
+        )
+    ]
 
-    launch_descriptor.add_process(
-        cmd=executable_command,
-        name=name,
-        exit_handler=ignore_exit_handler,
-        output_handlers=output_handlers)
+    ld = LaunchDescription()
+    launch_test = LaunchTestService()
+    action = launch_test.add_fixture_action(
+        ld, ExecuteProcess(cmd=executable_command)
+    )
+    launch_test.add_output_test(ld, action, output_file)
 
-    launcher = DefaultLauncher()
-    launcher.add_launch_descriptor(launch_descriptor)
-    rc = launcher.launch()
-
-    assert rc == 0, \
-        "The launch file failed with exit code '" + str(rc) + "'. "
-
-    for handler in output_handlers:
-        handler.check()
+    launch_service = LaunchService()
+    launch_service.include_launch_description(ld)
+    return_code = launch_test.run(launch_service)
+    assert return_code == 0, 'Launch failed with exit code %r' % (return_code,)
 
 
 if __name__ == '__main__':
