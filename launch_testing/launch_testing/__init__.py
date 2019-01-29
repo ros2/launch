@@ -18,6 +18,7 @@ from launch.actions import EmitEvent
 from launch.actions import ExecuteProcess
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
+from launch.event_handlers import OnExecutionComplete
 from launch.events import Shutdown
 
 # for backward compatibility
@@ -32,37 +33,48 @@ from launch_testing.legacy import UnmatchedOutputError  # noqa: F401
 class LaunchTestService():
 
     def __init__(self):
-        self.__test_processes = []
-        self.__test_returncodes = OrderedDict()
+        self.__test_action_complete = OrderedDict()
+        self.__test_action_rc = OrderedDict()
 
     def add_test_action(self, launch_description, action):
         """
         Add action used for testing.
 
-        If either all test actions exited with a return code of zero or any
-        test action exited with a non-zero return code a shutdown event is
-        emitted.
+        If either all test actions have completed or a process action has
+        exited with a non-zero return code, a shutdown event is emitted.
         """
-        assert isinstance(action, ExecuteProcess), \
-            'The passed action must be a ExecuteProcess action'
+        launch_description.add_action(action)
+        self.__test_action_complete[action] = False
+        if isinstance(action, ExecuteProcess):
+            def on_test_process_exit(event, context):
+                self.__test_action_rc[event.action] = event.returncode
+                if event.returncode != 0:
+                    return EmitEvent(Shutdown(
+                        reason='{} test action failed!'.format(
+                            event.action.process_details['name']
+                        )
+                    ))
 
-        self.__test_processes.append(action)
+                self.__test_action_complete[event.action] = True
+                if all(self.__test_action_complete.values()):
+                    return EmitEvent(Shutdown(reason='all test actions finished'))
 
-        def on_test_process_exit(event, context):
-            nonlocal action
-            nonlocal self
-            self.__test_returncodes[action] = event.returncode
+            launch_description.add_action(
+                RegisterEventHandler(OnProcessExit(
+                    target_action=action, on_exit=on_test_process_exit
+                ))
+            )
+        else:
+            def on_test_action_complete(event, context):
+                self.__test_action_complete[event.action] = True
+                if all(self.__test_action_complete.values()):
+                    return EmitEvent(Shutdown(reason='all test actions finished'))
 
-            if len(self.__test_returncodes) == len(self.__test_processes):
-                shutdown_event = Shutdown(
-                    reason='all test processes finished')
-                return EmitEvent(event=shutdown_event)
-
-        launch_description.add_action(
-            RegisterEventHandler(OnProcessExit(
-                target_action=action, on_exit=on_test_process_exit,
-            ))
-        )
+            launch_description.add_action(
+                RegisterEventHandler(OnExecutionComplete(
+                    target_action=action, on_completion=on_test_action_complete
+                ))
+            )
 
     def run(self, launch_service, *args, **kwargs):
         """
@@ -74,8 +86,5 @@ class LaunchTestService():
         """
         rc = launch_service.run(*args, **kwargs)
         if not rc:
-            for test_process_rc in self.__test_returncodes.values():
-                if test_process_rc:
-                    rc = test_process_rc
-                    break
+            rc = next((rc for rc in self.__test_action_rc.values() if rc), rc)
         return rc
