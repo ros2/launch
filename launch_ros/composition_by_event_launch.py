@@ -42,12 +42,15 @@ def main(argv=sys.argv[1:]):
     ld.add_action(launch.actions.RegisterEventHandler(launch.event_handlers.OnProcessStart(
         target_action=container_action,
         on_start=[
-            launch_ros.actions.ComposableNode(
-                package_name='composition', node_plugin_name='talker',
-                name='my_talker', target_container=container_action),
-            launch_ros.descriptions.ComposableNode(
-                package_name='composition', node_plugin_name='listener'
-                name='my_listener', target_container=container_action)
+            launch_ros.actions.LoadComposableNodes(
+                nodes=[
+                    launch_ros.descriptions.ComposableNode(
+                        package_name='composition', node_plugin_name='talker',
+                        name='my_talker'),
+                    launch_ros.descriptions.ComposableNode(
+                        package_name='composition', node_plugin_name='listener'
+                        name='my_listener'),
+                ], target_container=container_action)
             ]
         )
     ])
