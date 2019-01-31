@@ -47,7 +47,8 @@ class OnProcessExit(EventHandler):
         self,
         *,
         target_action: 'ExecuteProcess' = None,
-        on_exit: Union[SomeActionsType, Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]],
+        on_exit: Union[SomeActionsType,
+                       Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]],
         **kwargs
     ) -> None:
         """Constructor."""
