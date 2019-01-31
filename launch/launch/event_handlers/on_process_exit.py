@@ -19,8 +19,8 @@ from typing import Callable
 from typing import cast
 from typing import List  # noqa
 from typing import Optional
-from typing import overload
 from typing import Text
+from typing import Union
 
 from ..event import Event
 from ..event_handler import EventHandler
@@ -43,28 +43,13 @@ class OnProcessExit(EventHandler):
     or to handle all exited processes.
     """
 
-    @overload
-    def __init__(
-        self, *,
-        target_action: 'ExecuteProcess' = None,
-        on_exit: SomeActionsType,
-        **kwargs
-    ) -> None:
-        """Overload which takes just actions."""
-        ...
-
-    @overload  # noqa: F811
     def __init__(
         self,
         *,
         target_action: 'ExecuteProcess' = None,
-        on_exit: Callable[[int], Optional[SomeActionsType]],
+        on_exit: Union[SomeActionsType, Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]],
         **kwargs
     ) -> None:
-        """Overload which takes a callable to handle the exit."""
-        ...
-
-    def __init__(self, *, target_action=None, on_exit, **kwargs) -> None:  # noqa: F811
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
@@ -82,15 +67,14 @@ class OnProcessExit(EventHandler):
             **kwargs,
         )
         self.__target_action = target_action
+        self.__actions_on_exit = []  # type: List[LaunchDescriptionEntity]
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
         # the correct signature for a handler in this case
-        self.__on_exit = on_exit
-        self.__actions_on_exit = []  # type: List[LaunchDescriptionEntity]
         if callable(on_exit):
             # Then on_exit is a function or lambda, so we can just call it, but
             # we don't put anything in self.__actions_on_exit because we cannot
             # know what the function will return.
-            pass
+            self.__on_exit = on_exit
         else:
             # Otherwise, setup self.__actions_on_exit
             if isinstance(on_exit, collections.abc.Iterable):
@@ -102,11 +86,11 @@ class OnProcessExit(EventHandler):
                 self.__actions_on_exit = list(on_exit)  # Outside list is to ensure type is List
             else:
                 self.__actions_on_exit = [on_exit]
-            # Then return it from a lambda and use that as the self.__on_exit callback.
-            self.__on_exit = lambda event, context: self.__actions_on_exit
 
     def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
+        if self.__actions_on_exit:
+            return self.__actions_on_exit
         return self.__on_exit(cast(ProcessExited, event), context)
 
     @property
