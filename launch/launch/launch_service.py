@@ -38,6 +38,8 @@ from .events import Shutdown
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
+from .launch_logger import LoggerLevel
+from .launch_logger import LaunchLogger
 from .some_actions_type import SomeActionsType
 from .utilities import install_signal_handlers
 from .utilities import on_sigint
@@ -81,6 +83,18 @@ class LaunchService:
         :param: argv stored in the context for access by the entities, None results in []
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
+<<<<<<< Updated upstream
+=======
+        self.__debug = debug
+
+        # Setup logging
+        # TODO(jacobperron) check that this is the first place the logger is instantiated
+        # TODO(jacobperron): Expose log directory
+        self.__logger = LaunchLogger(
+            level=LoggerLevel.DEBUG if self.__debug else LoggerLevel.INFO
+        )
+
+>>>>>>> Stashed changes
         # Install signal handlers if not already installed, will raise if not
         # in main-thread, call manually in main-thread to avoid this.
         install_signal_handlers()
