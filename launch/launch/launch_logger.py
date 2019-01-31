@@ -27,6 +27,7 @@ from typing import Text
 class LoggerLevel:
     """Verbosity levels for loggers."""
 
+    NOTSET = logging.NOTSET
     DEBUG = logging.DEBUG
     INFO = logging.INFO
     WARNING = logging.WARNING
@@ -48,6 +49,16 @@ class LaunchLogger:
     be configured with multiple calls to the constructor.
     The log directory can only be configured with the first call to the constructor.
     """
+
+    class __LevelFilter:
+
+        def __init__(self, *, level):
+            self.level = level
+            self.names = set()
+
+        def filter(self, record):
+            return (not any(record.name.startswith(name) for name in self.names)
+                    or record.levelno >= self.level)
 
     class __LaunchLogger:
 
@@ -80,15 +91,18 @@ class LaunchLogger:
                 self.file_handler = logging.FileHandler(self.__log_filename)
             self.stdout_handler = logging.StreamHandler(sys.stdout)
 
+            self.__stdout_filter = LaunchLogger.__LevelFilter(level=LoggerLevel.ERROR)
+            self.stdout_handler.addFilter(self.__stdout_filter)
+
             # Establish formats for log file and screen
             # TODO(jacobperron): Add fixed padding to 'created' time
-            screen_timestamp_format = '{created} ' if screen_timestamps else ''
             self.__log_formatter = logging.Formatter(
-                '{created} [{name}]: {msg}',
+                '{created:.7f} [{levelname}] [{name}]: {msg}',
                 style='{',
             )
+            screen_timestamp_format = '{created:.7f}' if screen_timestamps else ''
             self.__screen_formatter = logging.Formatter(
-                '{}[{{name}}]: {{msg}}'.format(screen_timestamp_format),
+                screen_timestamp_format + '[{levelname}] [{name}]: {msg}',
                 style='{',
             )
             self.file_handler.setFormatter(self.__log_formatter)
@@ -102,9 +116,9 @@ class LaunchLogger:
 
             :param: name of the logger.
             :param: output type of the logger. Can be one of 'screen', 'log', or 'both';
-                'screen' directs logger output to the screen; 'log' directs logger output to
-                a log file; 'both' directs logger output to both the screen and a log file.
-                Defaults to 'log'.
+                'screen' directs all logger output to the screen; 'log' directs all logger
+                output to a log file and error logs only to the screen; 'both' directs all
+                logger output to both the screen and a log file. Defaults to 'log'.
             :param: level of verbosity for the logger.
             """
             allowed_output_options = ['screen', 'log', 'both']
@@ -120,13 +134,26 @@ class LaunchLogger:
             if level is not None:
                 logger.setLevel(level)
 
+            if 'log' == output:
+                self.__stdout_filter.names.add(name)
+            elif name in self.__stdout_filter.names:
+                self.__stdout_filter.names.remove(name)
+
             # Avoid adding handlers more than once
-            if (self.file_handler not in logger.handlers and
-                    ('log' == output or 'both' == output)):
+            if self.file_handler not in logger.handlers:
                 logger.addHandler(self.file_handler)
-            if (self.stdout_handler not in logger.handlers and
-                    ('screen' == output or 'both' == output)):
+            if self.stdout_handler not in logger.handlers:
                 logger.addHandler(self.stdout_handler)
+
+        def log(self, name: Text, level: int, message: Text) -> None:
+            """
+            Log a message with the given level for a process or module.
+
+            :param: name of the process or module.
+            :param: level of verbosity for the message.
+            :param: message to log.
+            """
+            logging.getLogger(name).log(level, message)
 
         def debug(self, name: Text, message: Text) -> None:
             """
@@ -137,15 +164,6 @@ class LaunchLogger:
             """
             logging.getLogger(name).debug(message)
 
-        def error(self, name: Text, message: Text) -> None:
-            """
-            Log an error message for a process or module.
-
-            :param: name of the process or module.
-            :param: message to log.
-            """
-            logging.getLogger(name).error(message)
-
         def info(self, name: Text, message: Text) -> None:
             """
             Log an info message for a process or module.
@@ -155,11 +173,6 @@ class LaunchLogger:
             """
             logging.getLogger(name).info(message)
 
-        @property
-        def log_filename(self) -> Text:
-            """Get the log filename."""
-            return self.__log_filename
-
         def warning(self, name: Text, message: Text) -> None:
             """
             Log a warning message for a process or module.
@@ -168,6 +181,20 @@ class LaunchLogger:
             :param: message to log.
             """
             logging.getLogger(name).warning(message)
+
+        def error(self, name: Text, message: Text) -> None:
+            """
+            Log an error message for a process or module.
+
+            :param: name of the process or module.
+            :param: message to log.
+            """
+            logging.getLogger(name).error(message)
+
+        @property
+        def log_filename(self) -> Text:
+            """Get the log filename."""
+            return self.__log_filename
 
         def shutdown(self) -> None:
             """Perform an orderly shutdown, flushing and closing all handlers."""
