@@ -42,10 +42,12 @@ from ..action import Action
 from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
+from ..event_handlers import OnProcessIO
 from ..event_handlers import OnShutdown
 from ..events import matches_action
 from ..events import Shutdown
 from ..events.process import ProcessExited
+from ..events.process import ProcessIO
 from ..events.process import ProcessStarted
 from ..events.process import ProcessStderr
 from ..events.process import ProcessStdin
@@ -54,6 +56,7 @@ from ..events.process import ShutdownProcess
 from ..events.process import SignalProcess
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
+from ..launch_logger import LoggerLevel
 from ..launch_logger import LaunchLogger
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
@@ -160,11 +163,11 @@ class ExecuteProcess(Action):
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'
-        :param: output either 'log', 'screen', or 'both'; if 'screen' stderr is directed
-            to stdout and stdout is printed to the screen; if 'log' stderr is
-            directed to the screen and both stdout and stderr are directed to
-            a log file; if 'both' stdout and stderr are directed to screen and a log file;
-            the default is 'log'
+        :param: output either 'log', 'screen', or 'both'; if 'screen' stdout and
+            stderr are directed to the screen; if 'log' stderr is directed to the
+            screen and both stdout and stderr are directed to a log file; if 'both'
+            stdout and stderr are directed to screen and a log file; the default is
+           'log'
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
@@ -279,17 +282,28 @@ class ExecuteProcess(Action):
                 typed_event.signal_name, self.process_details['name']
             ))
 
-    def __on_process_stdin_event(
+    def __on_process_input(
         self,
-        event: Event,
-        context: LaunchContext
-    ) -> Optional[LaunchDescription]:
+        event: ProcessIO
+    ) -> Optional[SomeActionsType]:
         self.__logger.warning(
             self.__name,
             "in ExecuteProcess('{}').__on_process_stdin_event()".format(id(self)),
         )
         cast(ProcessStdin, event)
         return None
+
+    def __on_process_output(
+        self, event: ProcessIO
+    ) -> Optional[SomeActionsType]:
+        name = self.process_details['name']
+        level = LoggerLevel.ERROR if event.from_stderr else LoggerLevel.INFO
+        output = '\n'.join(['---', *map(
+            lambda line: ' ' + line, event.text.decode().splitlines()
+        ), '---'])
+        self.__logger.log(name, level, 'process has {} output:\n{}'.format(
+            'stderr' if event.from_stderr else 'stdout', output
+        ))
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         return self.__shutdown_process(
@@ -445,7 +459,6 @@ class ExecuteProcess(Action):
                 env=env,
                 shell=self.__shell,
                 emulate_tty=False,
-                stderr_to_stdout=(self.__output == 'screen'),
             )
         except Exception:
             self.__logger.error(name, 'exception occurred while executing process:\n{}'.format(
@@ -492,9 +505,11 @@ class ExecuteProcess(Action):
                 matcher=lambda event: is_a_subclass(event, SignalProcess),
                 entities=OpaqueFunction(function=self.__on_signal_process_event),
             ),
-            EventHandler(
-                matcher=lambda event: is_a_subclass(event, ProcessStdin),
-                entities=OpaqueFunction(function=self.__on_process_stdin_event),
+            OnProcessIO(
+                target_action=self,
+                on_stdin=self.__on_process_input,
+                on_stdout=self.__on_process_output,
+                on_stderr=self.__on_process_output,
             ),
             OnShutdown(
                 on_shutdown=self.__on_shutdown,
