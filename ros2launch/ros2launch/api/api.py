@@ -88,9 +88,8 @@ def print_a_python_launch_file(*, python_launch_file_path):
     print(launch.LaunchIntrospector().format_launch_description(launch_description))
 
 
-def print_arguments_of_python_launch_file(*, python_launch_file_path):
-    """Print the arguments of a Python launch file to the console."""
-    launch_description = get_launch_description_from_python_launch_file(python_launch_file_path)
+def print_arguments_of_launch_description(*, launch_description):
+    """Print the arguments of a LaunchDescription to the console."""
     print("Arguments (pass arguments as '<name>:=<value>'):")
     launch_arguments = launch_description.get_launch_arguments()
     any_conditional_arguments = False
@@ -113,6 +112,12 @@ def print_arguments_of_python_launch_file(*, python_launch_file_path):
             print('\n* argument(s) which are only used if specific conditions occur')
     else:
         print('\n  No arguments.')
+
+
+def print_arguments_of_python_launch_file(*, python_launch_file_path):
+    """Print the arguments of a Python launch file to the console."""
+    launch_description = get_launch_description_from_python_launch_file(python_launch_file_path)
+    print_arguments_of_launch_description(launch_description)
 
 
 def parse_launch_arguments(launch_arguments: List[Text]) -> List[Tuple[Text, Text]]:
