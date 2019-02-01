@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>apex_rostest_cmake</name>
+  <version>1.0.0</version>
+  <description>A package providing cmake functions for running apex_rostest from the build.</description>
+  <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
+  <license>Apex.AI Proprietary License</license>
+
+  <buildtool_depend>ament_cmake_core</buildtool_depend>
+
+  <buildtool_export_depend>ament_cmake_test</buildtool_export_depend>
+  <buildtool_export_depend>apex_rostest</buildtool_export_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+
+from apex_rostest import apex_rostest_main
+
+apex_rostest_main()
