@@ -36,7 +36,9 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
+from launch_ros.remap_rule_type import SomeRemapRules
 from launch_ros.substitutions import ExecutableInPackage
+from launch_ros.utilities import normalize_remap_rules
 
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
@@ -56,7 +58,7 @@ class Node(ExecuteProcess):
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[List[SomeSubstitutionsType]] = None,
-        remappings: Optional[List[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]] = None,
+        remappings: Optional[SomeRemapRules] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
@@ -148,10 +150,8 @@ class Node(ExecuteProcess):
                     description='parameter {}'.format(i))]
                 ros_args_index += 1
         if remappings is not None:
-            ensure_argument_type(remappings, (list), 'remappings', 'Node')
             i = 0
-            for remapping in remappings:
-                ensure_argument_type(remapping, (tuple), 'remappings[{}]'.format(i), 'Node')
+            for remapping in normalize_remap_rules(remappings):
                 k, v = remapping
                 i += 1
                 cmd += [LocalSubstitution(
