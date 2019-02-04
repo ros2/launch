@@ -85,6 +85,24 @@ class TestNode(unittest.TestCase):
         for i in range(2):
             assert expanded_remappings[i] == ('chatter', 'new_chatter')
 
+    def test_launch_required_node(self):
+        # This node will never exit on its own, it'll keep publishing forever.
+        long_running_node = launch_ros.actions.Node(
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            node_namespace='my_ns2',
+        )
+
+        # This node will exit after publishing a single message. It is required, which
+        # means that, once it exits, it should bring down the whole launched system,
+        # including the above node that will never exit on its own.
+        required_node = launch_ros.actions.Node(
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            node_namespace='my_ns', arguments=['--number_of_cycles', '1'], required=True
+        )
+
+        # If the "required" functionality breaks, this will never return.
+        self._assert_launch_no_errors([required_node, long_running_node])
+
     def test_create_node_with_invalid_remappings(self):
         """Test creating a node with invalid remappings."""
         self._assert_type_error_creating_node(

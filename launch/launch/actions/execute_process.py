@@ -86,6 +86,7 @@ class ExecuteProcess(Action):
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Optional[Text] = None,
         log_cmd: bool = False,
+        required: bool = False,
         **kwargs
     ) -> None:
         """
@@ -132,6 +133,10 @@ class ExecuteProcess(Action):
             - emitted when the process produces data on either the stdout or stderr pipes
             - event contains the data from the pipe
 
+        - launch.events.Shutdown:
+
+            - emitted when the process exits if it was specified as required
+
         Note that output is just stored in this class and has to be properly
         implemented by the event handlers for the process's ProcessIO events.
 
@@ -162,6 +167,7 @@ class ExecuteProcess(Action):
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
+        :param: required if True, emits a Shutdown event when cmd exits.
         """
         super().__init__(**kwargs)
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
@@ -190,6 +196,7 @@ class ExecuteProcess(Action):
                 )
             )
         self.__log_cmd = log_cmd
+        self.__required = required
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
@@ -436,12 +443,15 @@ class ExecuteProcess(Action):
 
         returncode = await self._subprocess_protocol.complete
         if returncode == 0:
-            _logger.info('process[{}]: process has finished cleanly'.format(name, pid))
+            _logger.info('process[{}]: process has finished cleanly'.format(name))
         else:
             _logger.error("process[{}] process has died [pid {}, exit code {}, cmd '{}'].".format(
                 name, pid, returncode, ' '.join(cmd)
             ))
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
+        if self.__required:
+            _logger.info('process[{}] was required: shutting down launched system'.format(name))
+            await context.emit_event(Shutdown(reason="Required process {!r} exited".format(name)))
         self.__cleanup()
 
     def execute(self, context: LaunchContext) -> Optional[List['Action']]:
