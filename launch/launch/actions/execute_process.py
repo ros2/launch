@@ -23,6 +23,7 @@ import signal
 import threading
 import traceback
 from typing import Any  # noqa: F401
+from typing import Callable
 from typing import cast
 from typing import Dict
 from typing import Iterable
@@ -30,6 +31,7 @@ from typing import List
 from typing import Optional
 from typing import Text
 from typing import Tuple  # noqa: F401
+from typing import Union
 
 from osrf_pycommon.process_utils import async_execute_process
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
@@ -40,6 +42,7 @@ from .timer_action import TimerAction
 from ..action import Action
 from ..event import Event
 from ..event_handler import EventHandler
+from ..event_handlers import OnProcessExit
 from ..event_handlers import OnShutdown
 from ..events import Shutdown
 from ..events.process import matches_action
@@ -86,6 +89,9 @@ class ExecuteProcess(Action):
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Optional[Text] = None,
         log_cmd: bool = False,
+        on_exit: Optional[Union[SomeActionsType,
+                          Callable[
+                              [ProcessExited, LaunchContext], Optional[SomeActionsType]]]] = None,
         **kwargs
     ) -> None:
         """
@@ -162,6 +168,7 @@ class ExecuteProcess(Action):
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
+        :param: on_exit list of actions to execute upon process exit.
         """
         super().__init__(**kwargs)
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
@@ -190,6 +197,7 @@ class ExecuteProcess(Action):
                 )
             )
         self.__log_cmd = log_cmd
+        self.__on_exit = on_exit
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
@@ -436,7 +444,7 @@ class ExecuteProcess(Action):
 
         returncode = await self._subprocess_protocol.complete
         if returncode == 0:
-            _logger.info('process[{}]: process has finished cleanly'.format(name, pid))
+            _logger.info('process[{}]: process has finished cleanly'.format(name))
         else:
             _logger.error("process[{}] process has died [pid {}, exit code {}, cmd '{}'].".format(
                 name, pid, returncode, ' '.join(cmd)
@@ -473,6 +481,10 @@ class ExecuteProcess(Action):
             ),
             OnShutdown(
                 on_shutdown=self.__on_shutdown,
+            ),
+            OnProcessExit(
+                target_action=self,
+                on_exit=self.__on_exit,
             ),
         ]
         for event_handler in event_handlers:

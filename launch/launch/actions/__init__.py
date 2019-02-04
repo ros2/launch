@@ -25,6 +25,7 @@ from .pop_launch_configurations import PopLaunchConfigurations
 from .push_launch_configurations import PushLaunchConfigurations
 from .register_event_handler import RegisterEventHandler
 from .set_launch_configuration import SetLaunchConfiguration
+from .shutdown_action import Shutdown
 from .timer_action import TimerAction
 from .unregister_event_handler import UnregisterEventHandler
 from .unset_launch_configuration import UnsetLaunchConfiguration
@@ -41,6 +42,7 @@ __all__ = [
     'PushLaunchConfigurations',
     'RegisterEventHandler',
     'SetLaunchConfiguration',
+    'Shutdown',
     'TimerAction',
     'UnregisterEventHandler',
     'UnsetLaunchConfiguration',
