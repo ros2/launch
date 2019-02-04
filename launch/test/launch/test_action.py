@@ -16,6 +16,7 @@
 
 from launch import Action
 from launch import Condition
+from launch import LaunchContext
 
 
 def test_action_constructors():
@@ -26,7 +27,7 @@ def test_action_constructors():
 
 def test_action_methods():
     """Test the methods of the Action class."""
-    class MockLaunchContext:
+    class MockLaunchContext(LaunchContext):
         ...
 
     action = Action()

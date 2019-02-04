@@ -19,6 +19,7 @@ import threading
 
 from launch import LaunchDescription
 from launch import LaunchService
+from launch.events import ExecutionComplete
 from launch.utilities import install_signal_handlers
 
 # Install the signal handlers here, in the hope that this is executed in the
@@ -55,7 +56,7 @@ def test_launch_service_emit_event():
     handled_events = queue.Queue()
     ld = LaunchDescription([
         RegisterEventHandler(EventHandler(
-            matcher=lambda event: True,
+            matcher=lambda event: not isinstance(event, ExecutionComplete),
             entities=OpaqueFunction(
                 function=lambda context: handled_events.put(context.locals.event),
             ),

@@ -31,23 +31,41 @@ class LaunchTestService():
         self.__tests = OrderedDict()
         self.__processes_rc = OrderedDict()
 
-    def _arm(self, test_name):
+    def _arm(
+        self,
+        test_name
+    ):
+        """Prepare for test execution."""
         assert test_name not in self.__tests
         self.__tests[test_name] = 'armed'
 
-    def _fail(self, test_name, reason):
+    def _fail(
+        self,
+        test_name,
+        reason
+    ):
+        """Mark test as a failure and shutdown, dropping the tests that are still ongoing."""
         self.__tests[test_name] = 'failed'
         for test_name in self.__tests:
             if self.__tests[test_name] == 'armed':
                 self.__tests[test_name] = 'dropped'
         return EmitEvent(event=Shutdown(reason=reason))
 
-    def _succeed(self, test_name):
+    def _succeed(
+        self,
+        test_name
+    ):
+        """Mark test as a success and shutdown if all other tests have succeeded too."""
         self.__tests[test_name] = 'succeeded'
         if all(status == 'succeeded' for status in self.__tests.values()):
             return EmitEvent(event=Shutdown(reason='all tests finished'))
 
-    def add_fixture_action(self, launch_description, action, required=False):
+    def add_fixture_action(
+        self,
+        launch_description,
+        action,
+        required=False
+    ):
         """
         Add action used as testing fixture.
 
@@ -70,14 +88,17 @@ class LaunchTestService():
             )
         return action
 
-    def add_test_action(self, launch_description, action):
+    def add_test_action(
+        self,
+        launch_description,
+        action
+    ):
         """
         Add action used for testing.
 
         If either all test actions have completed or a process action has
         exited with a non-zero return code, a shutdown event is emitted.
         """
-        launch_description.add_action(action)
         test_name = 'test_{}'.format(id(action))
         if isinstance(action, ExecuteProcess):
             def on_test_process_exit(event, context):
@@ -104,12 +125,19 @@ class LaunchTestService():
                     )
                 ))
             )
+        launch_description.add_action(action)
         self._arm(test_name)
         return action
 
-    def add_output_test(self, launch_description, action, output_file,
-                        filtered_prefixes=None, filtered_patterns=None,
-                        filtered_rmw_implementation=None):
+    def add_output_test(
+        self,
+        launch_description,
+        action,
+        output_file,
+        filtered_prefixes=None,
+        filtered_patterns=None,
+        filtered_rmw_implementation=None
+    ):
         """
         Test an action process' output against text or regular expressions.
 
@@ -164,7 +192,12 @@ class LaunchTestService():
 
         return action
 
-    def run(self, launch_service, *args, **kwargs):
+    def run(
+        self,
+        launch_service,
+        *args,
+        **kwargs
+    ):
         """
         Invoke the `run` method of the launch service.
 

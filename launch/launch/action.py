@@ -60,17 +60,15 @@ class Action(LaunchDescriptionEntity):
                 return cast(Optional[List[LaunchDescriptionEntity]], self.execute(context))
             finally:
                 from .events import ExecutionComplete  # noqa
-                future = self.get_asyncio_future()
-                if future is not None:
-                    future.add_done_callback(
-                        lambda _: context.emit_event_sync(
-                            ExecutionComplete(action=self)
+                event = ExecutionComplete(action=self)
+                if context.would_handle_event(event):
+                    future = self.get_asyncio_future()
+                    if future is not None:
+                        future.add_done_callback(
+                            lambda _: context.emit_event_sync(event)
                         )
-                    )
-                else:
-                    context.emit_event_sync(
-                        ExecutionComplete(action=self)
-                    )
+                    else:
+                        context.emit_event_sync(event)
         return None
 
     def execute(self, context: LaunchContext) -> Optional[List['Action']]:

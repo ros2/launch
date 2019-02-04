@@ -25,7 +25,10 @@ from typing import Optional
 from typing import Text
 
 from ..action import Action
+from ..event import Event
+from ..event_handlers import OnShutdown
 from ..launch_context import LaunchContext
+from ..some_actions_type import SomeActionsType
 from ..utilities import ensure_argument_type
 
 
@@ -56,9 +59,11 @@ class OpaqueCoroutine(Action):
         """Constructor."""
         super().__init__(**left_over_kwargs)
         if not asyncio.iscoroutinefunction(coroutine):
-            raise TypeError("OpaqueCoroutine expected a couroutine function for 'couroutine', got '{}'".format(
-                type(function)
-            ))
+            raise TypeError(
+                "OpaqueCoroutine expected a couroutine for 'couroutine', got '{}'".format(
+                    type(coroutine)
+                )
+            )
         ensure_argument_type(
             args, (collections.abc.Iterable, type(None)), 'args', 'OpaqueCoroutine'
         )
@@ -74,6 +79,12 @@ class OpaqueCoroutine(Action):
         self.__ignore_context = ignore_context  # type: bool
         self.__future = None  # type: Optional[asyncio.Future]
 
+    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+        """Cancel ongoing coroutine upon shutdown."""
+        if self.__future is not None:
+            self.__future.cancel()
+        return None
+
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """Execute the action."""
         args = self.__args
@@ -81,6 +92,9 @@ class OpaqueCoroutine(Action):
             args = [context, *self.__args]
         self.__future = context.asyncio_loop.create_task(
             self.__coroutine(*args, **self.__kwargs)
+        )
+        context.register_event_handler(
+            OnShutdown(on_shutdown=self.__on_shutdown)
         )
         return None
 

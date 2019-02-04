@@ -21,8 +21,8 @@ from typing import overload
 from typing import Text
 
 from ..event import Event
-from ..events import ExecutionComplete
 from ..event_handler import EventHandler
+from ..events import ExecutionComplete
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
