@@ -451,7 +451,7 @@ class ExecuteProcess(Action):
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
         if self.__required:
             _logger.info('process[{}] was required: shutting down launched system'.format(name))
-            await context.emit_event(Shutdown(reason="Required process {!r} exited".format(name)))
+            await context.emit_event(Shutdown(reason='Required process {!r} exited'.format(name)))
         self.__cleanup()
 
     def execute(self, context: LaunchContext) -> Optional[List['Action']]:
