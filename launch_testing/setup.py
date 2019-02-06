@@ -5,7 +5,12 @@ setup(
     name='launch_testing',
     version='0.7.3',
     packages=find_packages(exclude=['test']),
-    install_requires=['setuptools'],
+    install_requires=[
+        'setuptools',
+        'ament_index_python',
+        'launch',
+        'osrf_pycommon',
+    ],
     zip_safe=True,
     author='Esteve Fernandez',
     author_email='esteve@osrfoundation.org',

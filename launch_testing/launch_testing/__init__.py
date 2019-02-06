@@ -23,6 +23,12 @@ from launch.event_handlers import OnProcessIO
 from launch.event_handlers import OnShutdown
 from launch.events import Shutdown
 
+from . import actions
+
+__all__ = [
+    'actions',
+]
+
 
 class LaunchTestService():
 
