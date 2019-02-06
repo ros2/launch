@@ -62,8 +62,9 @@ class OnShutdown(EventHandler):
         if not callable(on_shutdown):
             self.__on_shutdown = (lambda event, context: on_shutdown)
 
-    def _handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
+    def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
         """Handle the given event."""
+        super().handle(event, context)
         return self.__on_shutdown(cast(Shutdown, event), context)
 
     @property

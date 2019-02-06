@@ -64,8 +64,10 @@ class OnProcessIO(EventHandler):
             )
         )
 
-    def _handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
+        super().handle(event, context)
+
         event = cast(ProcessIO, event)
         if event.from_stdout and self.__on_stdout is not None:
             return self.__on_stdout(event)

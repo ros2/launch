@@ -36,9 +36,6 @@ class EventHandler:
     via the context's locals, e.g. `context.locals.event`
     As another example, getting the name of the event as a Substitution:
     `launch.substitutions.LocalSubstitution('event.name')`.
-
-    Child classes should implement the _handle(event: Event, context: 'LaunchContext')
-    function instead of overriding the handle() function.
     """
 
     def __init__(
@@ -111,8 +108,4 @@ class EventHandler:
         context.extend_locals({'event': event})
         if self.handle_once:
             context.unregister_event_handler(self)
-
-        try:
-            return self._handle(event, context)
-        except AttributeError:
-            return self.entities
+        return self.entities

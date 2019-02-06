@@ -88,8 +88,10 @@ class OnProcessExit(EventHandler):
             else:
                 self.__actions_on_exit = [on_exit]
 
-    def _handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
+        super().handle(event, context)
+
         if self.__actions_on_exit:
             return self.__actions_on_exit
         return self.__on_exit(cast(ProcessExited, event), context)

@@ -85,8 +85,10 @@ class OnProcessStart(EventHandler):
         else:
             raise TypeError('on_start with type {} not allowed'.format(repr(on_start)))
 
-    def _handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
+        super().handle(event, context)
+
         if self.__actions_on_start:
             return self.__actions_on_start
         return self.__on_start(cast(ProcessStarted, event), context)
