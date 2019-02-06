@@ -20,8 +20,8 @@ from typing import Text
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
-
 from launch.launch_context import LaunchContext
+from launch.substitutions import FindExecutable
 
 
 class PyTest(ExecuteProcess):
@@ -35,11 +35,13 @@ class PyTest(ExecuteProcess):
         **kwargs
     ) -> None:
         """
-        TODO(ivanpauno) Write documentation
+        TODO(ivanpauno).
+
+        Write documentation.
         """
-        cmd = ["python3", "-m pytest", path]
+        cmd = [FindExecutable(name='python3'), '-m pytest', path]
         if timeout:
-            cmd.append("--timeout={:10.6f}".format(timeout))
+            cmd.append('--timeout={:.6f}'.format(timeout))
         super().__init__(cmd=cmd, shell=True, **kwargs)
         self.__path = path
         self.__timeout = timeout

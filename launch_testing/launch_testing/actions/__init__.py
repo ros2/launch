@@ -12,24 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the PyTest Action."""
+"""Test actions Module."""
 
-import os
+from .gtest import GTest
+from .pytest import PyTest
 
-from launch import LaunchDescription
-from launch import LaunchService
-from launch_testing.actions import PyTest
-
-
-def test_pytest():
-    """Test running a gtest with timeout."""
-    path = os.path.dirname(os.path.realpath(__file__)) \
-        + '/../../dummy_tests/locking.py'
-    ld = LaunchDescription([
-        PyTest(
-            path=path, timeout=5.0,
-        ),
-    ])
-    ls = LaunchService()
-    ls.include_launch_description(ld)
-    assert 0 == ls.run()
+__all__ = [
+    'GTest',
+    'PyTest',
+]

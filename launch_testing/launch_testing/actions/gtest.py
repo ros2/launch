@@ -15,6 +15,7 @@
 """Module for the GTest action."""
 
 import signal
+
 from typing import List
 from typing import Optional
 from typing import Text
@@ -23,10 +24,10 @@ from launch.action import Action
 from launch.actions import EmitEvent
 from launch.actions import ExecuteProcess
 from launch.actions import TimerAction
-from launch.events.process import matches_action
+from launch.events import matches_action
 from launch.events.process import SignalProcess
-
 from launch.launch_context import LaunchContext
+from launch.substitutions import FindExecutable
 
 
 class GTest(ExecuteProcess):
@@ -40,13 +41,13 @@ class GTest(ExecuteProcess):
         **kwargs
     ) -> None:
         """
-        TODO(ivanpauno) Write documentation
+        TODO(ivanpauno).
+
+        Write documentation.
         """
-        # cmd += [] if arguments is None else arguments
-        super().__init__(cmd=path, **kwargs)
-        self.__path = path
+        self.__cmd = [FindExecutable(name=path)]
+        super().__init__(cmd=self.__cmd, **kwargs)
         self.__timeout = timeout
-        # self.__substitutions_performed = False
 
     @property
     def path(self):
@@ -65,15 +66,16 @@ class GTest(ExecuteProcess):
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
         actions = super().execute(context)
-
         if not self.__timeout:
             return actions
-
-        # Setup a timer to send us a SIGTERM if we don't shutdown quickly.
+        # Setup a timer to send us a SIGKILL if the test locks
         sigkill_timer = TimerAction(period=self.__timeout, actions=[
             EmitEvent(event=SignalProcess(
                 signal_number=signal.SIGKILL,
                 process_matcher=matches_action(self)
             )),
         ])
+        if not actions:
+            return [sigkill_timer]
+
         return actions.append(sigkill_timer)

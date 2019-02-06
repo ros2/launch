@@ -14,20 +14,27 @@
 
 """Tests for the GTest Action."""
 
-from launch import LaunchDescription
-from launch import LaunchService
+import os
 import subprocess
-from launch_testing.actions.gtest import GTest
+
+from launch import LaunchDescription
+from launch import LaunchIntrospector
+from launch import LaunchService
+from launch_testing.actions import GTest
 
 
 def test_gtest():
     """Test running a gtest with timeout."""
-    subprocess.run(['cd ../../dummy_tests && mkdir build && cd build '
+    dir_path = os.path.dirname(os.path.realpath(__file__)) \
+        + '/../../dummy_tests'
+    path = dir_path + '/locking'
+    print(path)
+    subprocess.run(['cd ' + dir_path + '&& mkdir build && cd build '
                     '&& cmake .. && make install && cd .. && rm -r build'],
                    shell=True)
     ld = LaunchDescription([
         GTest(
-            path='../../dummy_tests/locking', timeout=30.0,
+            path=path, timeout=5.0,
         )
     ])
     ls = LaunchService()
