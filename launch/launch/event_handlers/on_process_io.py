@@ -47,7 +47,7 @@ class OnProcessIO(EventHandler):
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
-            raise RuntimeError("OnProcessIO requires an 'ExecuteProcess' action as the target")
+            raise TypeError("OnProcessIO requires an 'ExecuteProcess' action as the target")
         super().__init__(matcher=self._matcher, entities=None, **kwargs)
         self.__target_action = target_action
         self.__on_stdin = on_stdin
@@ -64,7 +64,7 @@ class OnProcessIO(EventHandler):
             )
         )
 
-    def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def _handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
         event = cast(ProcessIO, event)
         if event.from_stdout and self.__on_stdout is not None:

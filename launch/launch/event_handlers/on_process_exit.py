@@ -54,7 +54,7 @@ class OnProcessExit(EventHandler):
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
-            raise RuntimeError("OnProcessExit requires an 'ExecuteProcess' action as the target")
+            raise TypeError("OnProcessExit requires an 'ExecuteProcess' action as the target")
         super().__init__(
             matcher=(
                 lambda event: (
@@ -88,7 +88,7 @@ class OnProcessExit(EventHandler):
             else:
                 self.__actions_on_exit = [on_exit]
 
-    def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def _handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
         if self.__actions_on_exit:
             return self.__actions_on_exit
