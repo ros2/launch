@@ -28,7 +28,7 @@ if False:
     from .launch_context import LaunchContext  # noqa
 
 
-class EventHandler:
+class BaseEventHandler:
     """
     Base class for event handlers, which handle events in the launch system.
 
@@ -38,31 +38,17 @@ class EventHandler:
     `launch.substitutions.LocalSubstitution('event.name')`.
     """
 
-    def __init__(
-        self,
-        *,
-        matcher: Callable[[Event], bool],
-        entities: Optional[SomeActionsType] = None,
-        handle_once: bool = False
-    ) -> None:
+    def __init__(self, *, matcher: Callable[[Event], bool], handle_once: bool = False):
         """
         Constructor.
 
         :param: matcher is a callable that takes an event and returns True if
             the event should be handled by this event handler, False otherwise.
-        :param: entities is an LaunchDescriptionEntity or list of them, and is
-            returned by handle() unconditionally if matcher returns True.
         :param: handle_once is a flag that, if True, unregisters this EventHandler
             after being handled once.
         """
         self.__matcher = matcher
-        self.__entities = entities
         self.__handle_once = handle_once
-
-    @property
-    def entities(self):
-        """Getter for entities."""
-        return self.__entities
 
     @property
     def handle_once(self):
@@ -87,6 +73,10 @@ class EventHandler:
         """
         return None
 
+    def matches(self, event: Event) -> bool:
+        """Return True if the given event should be handled by this event handler."""
+        return self.__matcher(event)
+
     def describe(self) -> Tuple[Text, List[SomeActionsType]]:
         """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         return (
@@ -96,16 +86,56 @@ class EventHandler:
                 self.handler_description,
                 self.handle_once
             ),
-            self.entities if self.entities is not None else []
+            []
         )
 
-    def matches(self, event: Event) -> bool:
-        """Return True if the given event should be handled by this event handler."""
-        return self.__matcher(event)
-
     def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
-        """Handle the given event."""
+        """
+        Handle the given event.
+
+        This implementation should always be called by child classes in order to properly
+        support common event handler functionality.
+        """
         context.extend_locals({'event': event})
         if self.handle_once:
             context.unregister_event_handler(self)
+
+
+class EventHandler(BaseEventHandler):
+    def __init__(
+        self,
+        *,
+        matcher: Callable[[Event], bool],
+        entities: Optional[SomeActionsType] = None,
+        handle_once: bool = False
+    ) -> None:
+        """
+        Constructor.
+
+        :param: matcher is a callable that takes an event and returns True if
+            the event should be handled by this event handler, False otherwise.
+        :param: entities is an LaunchDescriptionEntity or list of them, and is
+            returned by handle() unconditionally if matcher returns True.
+        :param: handle_once is a flag that, if True, unregisters this EventHandler
+            after being handled once.
+        """
+        super().__init__(matcher=matcher, handle_once=handle_once)
+
+        self.__entities = entities
+
+    @property
+    def entities(self):
+        """Getter for entities."""
+        return self.__entities
+
+    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+        text, actions = super().describe()
+        if self.entities:
+            actions.extend(self.entities)
+        return (text, actions)
+
+    def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
+        """Handle the given event."""
+        super().handle(event, context)
         return self.entities

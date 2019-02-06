@@ -23,7 +23,7 @@ from typing import Text
 from typing import Union
 
 from ..event import Event
-from ..event_handler import EventHandler
+from ..event_handler import BaseEventHandler
 from ..events.process import ProcessExited
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
@@ -35,7 +35,7 @@ if False:
     from ..actions import ExecuteProcess  # noqa
 
 
-class OnProcessExit(EventHandler):
+class OnProcessExit(BaseEventHandler):
     """
     Convenience class for handling a process exited event.
 
@@ -64,7 +64,6 @@ class OnProcessExit(EventHandler):
                     )
                 )
             ),
-            entities=None,
             **kwargs,
         )
         self.__target_action = target_action
