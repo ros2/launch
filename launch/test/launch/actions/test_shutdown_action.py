@@ -44,3 +44,14 @@ def test_shutdown_execute_conditional():
     assert context._event_queue.qsize() == 1
     event = context._event_queue.get_nowait()
     assert isinstance(event, ShutdownEvent)
+
+
+def test_shutdown_reason():
+    """Test the execute (or visit) of a Shutdown class that has a reason."""
+    action = Shutdown(reason='test reason')
+    context = LaunchContext()
+    assert action.visit(context) is None
+    assert context._event_queue.qsize() == 1
+    event = context._event_queue.get_nowait()
+    assert isinstance(event, ShutdownEvent)
+    assert event.reason == 'test reason'
