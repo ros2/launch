@@ -21,7 +21,7 @@ from typing import overload
 from typing import Text
 
 from ..event import Event
-from ..event_handler import EventHandler
+from ..event_handler import BaseEventHandler
 from ..events import Shutdown
 from ..some_actions_type import SomeActionsType
 from ..utilities import is_a_subclass
@@ -31,7 +31,7 @@ if False:
     from ..launch_context import LaunchContext  # noqa
 
 
-class OnShutdown(EventHandler):
+class OnShutdown(BaseEventHandler):
     """Convenience class for handling the launch shutdown event."""
 
     @overload
@@ -53,7 +53,6 @@ class OnShutdown(EventHandler):
         """Constructor."""
         super().__init__(
             matcher=lambda event: is_a_subclass(event, Shutdown),
-            entities=None,  # noop
             **kwargs,
         )
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
@@ -64,7 +63,7 @@ class OnShutdown(EventHandler):
 
     def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
         """Handle the given event."""
-        context.extend_locals({'event': event})
+        super().handle(event, context)
         return self.__on_shutdown(cast(Shutdown, event), context)
 
     @property

@@ -23,7 +23,7 @@ from typing import Text
 from typing import Union
 
 from ..event import Event
-from ..event_handler import EventHandler
+from ..event_handler import BaseEventHandler
 from ..events.process import ProcessExited
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
@@ -35,7 +35,7 @@ if False:
     from ..actions import ExecuteProcess  # noqa
 
 
-class OnProcessExit(EventHandler):
+class OnProcessExit(BaseEventHandler):
     """
     Convenience class for handling a process exited event.
 
@@ -54,7 +54,7 @@ class OnProcessExit(EventHandler):
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
-            raise RuntimeError("OnProcessExit requires an 'ExecuteProcess' action as the target")
+            raise TypeError("OnProcessExit requires an 'ExecuteProcess' action as the target")
         super().__init__(
             matcher=(
                 lambda event: (
@@ -64,7 +64,6 @@ class OnProcessExit(EventHandler):
                     )
                 )
             ),
-            entities=None,
             **kwargs,
         )
         self.__target_action = target_action
@@ -90,6 +89,8 @@ class OnProcessExit(EventHandler):
 
     def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
+        super().handle(event, context)
+
         if self.__actions_on_exit:
             return self.__actions_on_exit
         return self.__on_exit(cast(ProcessExited, event), context)

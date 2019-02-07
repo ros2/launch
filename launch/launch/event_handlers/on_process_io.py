@@ -20,7 +20,7 @@ from typing import Optional
 from typing import Text
 
 from ..event import Event
-from ..event_handler import EventHandler
+from ..event_handler import BaseEventHandler
 from ..events.process import ProcessIO
 from ..launch_context import LaunchContext
 from ..some_actions_type import SomeActionsType
@@ -30,7 +30,7 @@ if False:
     from ..actions import ExecuteProcess  # noqa
 
 
-class OnProcessIO(EventHandler):
+class OnProcessIO(BaseEventHandler):
     """Convenience class for handling I/O from processes via events."""
 
     # TODO(wjwwood): make the __init__ more flexible like OnProcessExit, so
@@ -47,8 +47,8 @@ class OnProcessIO(EventHandler):
         """Constructor."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
-            raise RuntimeError("OnProcessIO requires an 'ExecuteProcess' action as the target")
-        super().__init__(matcher=self._matcher, entities=None, **kwargs)
+            raise TypeError("OnProcessIO requires an 'ExecuteProcess' action as the target")
+        super().__init__(matcher=self._matcher, **kwargs)
         self.__target_action = target_action
         self.__on_stdin = on_stdin
         self.__on_stdout = on_stdout
@@ -66,6 +66,8 @@ class OnProcessIO(EventHandler):
 
     def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Handle the given event."""
+        super().handle(event, context)
+
         event = cast(ProcessIO, event)
         if event.from_stdout and self.__on_stdout is not None:
             return self.__on_stdout(event)
