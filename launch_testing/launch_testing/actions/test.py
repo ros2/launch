@@ -17,6 +17,7 @@
 import signal
 from typing import List
 from typing import Optional
+from typing import Union
 
 from launch.action import Action
 from launch.actions import EmitEvent
@@ -25,6 +26,7 @@ from launch.actions import TimerAction
 from launch.events import matches_action
 from launch.events.process import SignalProcess
 from launch.launch_context import LaunchContext
+from launch.some_substitutions_type import SomeSubstitutionsType
 
 
 class Test(ExecuteProcess):
@@ -33,7 +35,7 @@ class Test(ExecuteProcess):
     def __init__(
         self,
         *,
-        timeout: Optional[float] = None,
+        timeout: Optional[Union[float, SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
         """
@@ -43,11 +45,6 @@ class Test(ExecuteProcess):
         """
         super().__init__(**kwargs)
         self.__timeout = timeout
-
-    @property
-    def path(self):
-        """Getter for path."""
-        return self.__path
 
     @property
     def timeout(self):

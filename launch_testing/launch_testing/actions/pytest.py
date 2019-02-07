@@ -14,8 +14,7 @@
 
 """Module for the GTest action."""
 
-from typing import Text
-
+from launch import SomeSubstitutionsType
 from launch.substitutions import FindExecutable
 
 from .test import Test
@@ -27,7 +26,7 @@ class PyTest(Test):
     def __init__(
         self,
         *,
-        path: Text,
+        path: SomeSubstitutionsType,
         **kwargs
     ) -> None:
         """

@@ -14,8 +14,7 @@
 
 """Module for the GTest action."""
 
-from typing import Text
-
+from launch import SomeSubstitutionsType
 from launch.substitutions import FindExecutable
 
 from .test import Test
@@ -27,7 +26,7 @@ class GTest(Test):
     def __init__(
         self,
         *,
-        path: Text,
+        path: SomeSubstitutionsType,
         **kwargs
     ) -> None:
         """
@@ -35,9 +34,9 @@ class GTest(Test):
 
         Write documentation.
         """
-        self.__path = path
         cmd = [FindExecutable(name=path)]
         super().__init__(cmd=cmd, **kwargs)
+        self.__path = path
 
     @property
     def path(self):
