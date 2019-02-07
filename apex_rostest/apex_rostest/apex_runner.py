@@ -6,10 +6,13 @@ import threading
 import unittest
 
 import rclpy
+import launch
 from launch import LaunchService
+from launch import LaunchDescription
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 from launch.event_handlers import OnProcessIO
+from ros2launch.api.api import parse_launch_arguments
 
 from .io_handler import ActiveIoHandler
 from .loader import PostShutdownTestLoader, PreShutdownTestLoader
@@ -27,7 +30,8 @@ class ApexRunner(object):
 
     def __init__(self,
                  gen_launch_description_fn,
-                 test_module):
+                 test_module,
+                 launch_file_arguments=[]):
         """
         Create an ApexRunner object.
 
@@ -40,6 +44,7 @@ class ApexRunner(object):
         self._launch_service = LaunchService()
         self._nodes_launched = threading.Event()  # To signal when all nodes started
         self._tests_completed = threading.Event()  # To signal when all the tests have finished
+        self._launch_file_arguments = launch_file_arguments
 
         # Can't run LaunchService.run on another thread :-(
         # See https://github.com/ros2/launch/issues/126
@@ -50,6 +55,11 @@ class ApexRunner(object):
             daemon=True
         )
 
+    def get_launch_args(self):
+        launch_description = self._gen_launch_description_fn(lambda: None)
+        launch_arguments = launch_description.get_launch_arguments()
+        return launch_arguments
+
     def run(self):
         """
         Launch the nodes under test and run the tests.
@@ -57,26 +67,33 @@ class ApexRunner(object):
         :return: A tuple of two unittest.Results - one for tests that ran while nodes were
         active, and another set for tests that ran after nodes were shutdown
         """
-        launch_description = self._gen_launch_description_fn(lambda: self._nodes_launched.set())
+        test_ld = self._gen_launch_description_fn(lambda: self._nodes_launched.set())
 
         # Data to squirrel away for post-shutdown tests
         self.proc_info = ActiveProcInfoHandler()
         self.proc_output = ActiveIoHandler()
+        parsed_launch_arguments = parse_launch_arguments(self._launch_file_arguments)
+        self.test_args = {}
+        for k, v in parsed_launch_arguments:
+            self.test_args[k] = v
 
-        launch_description.add_entity(
+        # Wrap the test_ld in another launch description so we can bind command line arguments to
+        # the test and add our own event handlers for process IO and process exit:
+        launch_description = LaunchDescription([
+            launch.actions.IncludeLaunchDescription(
+                launch.LaunchDescriptionSource(launch_description=test_ld),
+                launch_arguments=parsed_launch_arguments
+            ),
             RegisterEventHandler(
                 OnProcessExit(on_exit=lambda info, unused: self.proc_info.append(info))
-            )
-        )
-
-        launch_description.add_entity(
+            ),
             RegisterEventHandler(
                 OnProcessIO(
                     on_stdout=self.proc_output.append,
                     on_stderr=self.proc_output.append,
                 )
-            )
-        )
+            ),
+        ])
 
         self._launch_service.include_launch_description(
             launch_description
@@ -99,6 +116,7 @@ class ApexRunner(object):
         inactive_suite = PostShutdownTestLoader().loadTestsFromModule(self._test_module)
         self._give_attribute_to_tests(self.proc_info, "proc_info", inactive_suite)
         self._give_attribute_to_tests(self.proc_output._io_handler, "proc_output", inactive_suite)
+        self._give_attribute_to_tests(self.test_args, "test_args", inactive_suite)
         inactive_results = unittest.TextTestRunner(verbosity=2).run(inactive_suite)
 
         return self._results, inactive_results
@@ -130,6 +148,7 @@ class ApexRunner(object):
             self._give_attribute_to_tests(node, "node", active_suite)
             self._give_attribute_to_tests(self.proc_output, "proc_output", active_suite)
             self._give_attribute_to_tests(self.proc_info, "proc_info", active_suite)
+            self._give_attribute_to_tests(self.test_args, "test_args", active_suite)
 
             # Run the tests
             self._results = unittest.TextTestRunner(verbosity=2).run(active_suite)

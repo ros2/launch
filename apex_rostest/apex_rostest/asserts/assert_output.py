@@ -23,7 +23,7 @@ def _assertInStdoutByProcessAction(
         if msg in output.text.decode('ascii'):
             return
     else:
-        assert False, "Did not find '{}' in output for {} {}".format(
+        assert False, "Did not find '{}' in output for {}".format(
             msg,
             _proc_to_name_and_args(process_action)
         )

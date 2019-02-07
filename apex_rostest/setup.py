@@ -14,8 +14,9 @@ setup(
     author_email='pete.baughman@apex.ai',
 
     data_files=[
+        ('share/ament_index/resource_index/packages', ['resource/apex_rostest']),
         ('lib/' + package_name, glob.glob('example_nodes/**')),
-        ('share/' + package_name + '/examples', glob.glob('examples/**')),
+        ('share/' + package_name + '/examples', glob.glob('examples/[!_]**')),
         ('bin', ['scripts/apex_rostest']),
     ],
     packages=[
