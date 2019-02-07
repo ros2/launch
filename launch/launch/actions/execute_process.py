@@ -89,9 +89,10 @@ class ExecuteProcess(Action):
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Optional[Text] = None,
         log_cmd: bool = False,
-        on_exit: Optional[Union[SomeActionsType,
-                          Callable[
-                              [ProcessExited, LaunchContext], Optional[SomeActionsType]]]] = None,
+        on_exit: Optional[Union[
+            SomeActionsType,
+            Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]
+        ]] = None,
         **kwargs
     ) -> None:
         """
