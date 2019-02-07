@@ -16,7 +16,7 @@
 
 import logging
 
-from ..action import Action
+from .emit_event import EmitEvent
 from ..events import Shutdown as ShutdownEvent
 from ..events.process import ProcessExited
 from ..launch_context import LaunchContext
@@ -24,8 +24,11 @@ from ..launch_context import LaunchContext
 _logger = logging.getLogger(name='launch')
 
 
-class Shutdown(Action):
+class Shutdown(EmitEvent):
     """Action that shuts down a launched system by emitting Shutdown when executed."""
+
+    def __init__(self, **kwargs):
+        super().__init__(event=ShutdownEvent(), **kwargs)
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
@@ -38,4 +41,4 @@ class Shutdown(Action):
             _logger.info('process[{}] was required: shutting down launched system'.format(
                 event.process_name))
 
-        context.emit_event_sync(ShutdownEvent())
+        super().execute(context)
