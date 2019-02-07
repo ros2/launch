@@ -140,5 +140,9 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         assertInStdout(self.proc_output, txt, "terminating_node", NO_CMD_ARGS)
 
     def test_asserts_on_missing_text(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
             assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, "terminating", NO_CMD_ARGS)
+
+    def test_asserts_on_missing_text_by_node(self):
+        with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
+            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, self.node_2)
