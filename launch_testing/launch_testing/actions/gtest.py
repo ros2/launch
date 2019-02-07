@@ -14,30 +14,20 @@
 
 """Module for the GTest action."""
 
-import signal
-
-from typing import List
-from typing import Optional
 from typing import Text
 
-from launch.action import Action
-from launch.actions import EmitEvent
-from launch.actions import ExecuteProcess
-from launch.actions import TimerAction
-from launch.events import matches_action
-from launch.events.process import SignalProcess
-from launch.launch_context import LaunchContext
 from launch.substitutions import FindExecutable
 
+from .test import Test
 
-class GTest(ExecuteProcess):
+
+class GTest(Test):
     """Action that runs a GTest."""
 
     def __init__(
         self,
         *,
         path: Text,
-        timeout: Optional[float] = None,
         **kwargs
     ) -> None:
         """
@@ -45,37 +35,11 @@ class GTest(ExecuteProcess):
 
         Write documentation.
         """
-        self.__cmd = [FindExecutable(name=path)]
-        super().__init__(cmd=self.__cmd, **kwargs)
-        self.__timeout = timeout
+        self.__path = path
+        cmd = [FindExecutable(name=path)]
+        super().__init__(cmd=cmd, **kwargs)
 
     @property
     def path(self):
         """Getter for path."""
         return self.__path
-
-    @property
-    def timeout(self):
-        """Getter for timeout."""
-        return self.__timeout
-
-    def execute(self, context: LaunchContext) -> Optional[List[Action]]:
-        """
-        Execute the action.
-
-        Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
-        """
-        actions = super().execute(context)
-        if not self.__timeout:
-            return actions
-        # Setup a timer to send us a SIGKILL if the test locks
-        sigkill_timer = TimerAction(period=self.__timeout, actions=[
-            EmitEvent(event=SignalProcess(
-                signal_number=signal.SIGKILL,
-                process_matcher=matches_action(self)
-            )),
-        ])
-        if not actions:
-            return [sigkill_timer]
-
-        return actions.append(sigkill_timer)

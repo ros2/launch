@@ -1,0 +1,52 @@
+cmake_minimum_required(VERSION 3.5)
+
+project(launch_testing)
+
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
+
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+
+ament_export_dependencies(ament_cmake)
+
+ament_python_install_package(${PROJECT_NAME})
+
+add_executable(locking dummy_tests/locking.cpp)
+
+install(
+  TARGETS locking
+  RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/dummy_tests
+)
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
+  ament_add_pytest_test(test_pytest_py "test/launch_testing/test_pytest.py"
+    PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
+  )
+
+  ament_add_pytest_test(test_gtest_py "test/launch_testing/test_gtest.py"
+    PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
+  )
+
+  # ament_add_pytest_test(test_env_passing_py "test/test_env_passing.py"
+  #   PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
+  # )
+
+  # ament_add_pytest_test(test_matching_py "test/test_matching.py"
+  #   PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
+  # )
+endif()
+
+ament_package()

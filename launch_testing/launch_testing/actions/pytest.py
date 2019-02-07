@@ -14,24 +14,20 @@
 
 """Module for the GTest action."""
 
-from typing import List
-from typing import Optional
 from typing import Text
 
-from launch.action import Action
-from launch.actions import ExecuteProcess
-from launch.launch_context import LaunchContext
 from launch.substitutions import FindExecutable
 
+from .test import Test
 
-class PyTest(ExecuteProcess):
+
+class PyTest(Test):
     """Action that runs a GTest."""
 
     def __init__(
         self,
         *,
         path: Text,
-        timeout: Optional[float] = None,
         **kwargs
     ) -> None:
         """
@@ -40,26 +36,10 @@ class PyTest(ExecuteProcess):
         Write documentation.
         """
         cmd = [FindExecutable(name='python3'), '-m pytest', path]
-        if timeout:
-            cmd.append('--timeout={:.6f}'.format(timeout))
         super().__init__(cmd=cmd, shell=True, **kwargs)
         self.__path = path
-        self.__timeout = timeout
 
     @property
     def path(self):
         """Getter for path."""
         return self.__path
-
-    @property
-    def timeout(self):
-        """Getter for timeout."""
-        return self.__timeout
-
-    def execute(self, context: LaunchContext) -> Optional[List[Action]]:
-        """
-        Execute the action.
-
-        Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
-        """
-        return super().execute(context)
