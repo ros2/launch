@@ -30,9 +30,13 @@ class GTest(Test):
         **kwargs
     ) -> None:
         """
-        TODO(ivanpauno).
+        Constructor.
 
-        Write documentation.
+        timeout argument is passed to :class:`launch_testing.Test`.
+        The other arguments are passed to :class:`launch.ExecuteProcess`, so
+        see the documentation for the class for additional details.
+
+        :param: path the path of the test to be executed.
         """
         cmd = [FindExecutable(name=path)]
         super().__init__(cmd=cmd, **kwargs)

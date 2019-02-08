@@ -39,9 +39,12 @@ class Test(ExecuteProcess):
         **kwargs
     ) -> None:
         """
-        TODO(ivanpauno).
+        Constructor.
 
-        Write documentation.
+        Many arguments are passed to :class:`launch.ExecuteProcess`, so
+        see the documentation for the class for additional details.
+
+        :param: timeout the test will be killed after timeout seconds.
         """
         super().__init__(**kwargs)
         self.__timeout = timeout
