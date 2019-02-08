@@ -20,6 +20,7 @@ import unittest
 
 from launch import LaunchDescription
 from launch import LaunchService
+from launch.actions import Shutdown
 from launch.substitutions import EnvironmentVariable
 import launch_ros.actions.node
 import yaml
@@ -84,6 +85,26 @@ class TestNode(unittest.TestCase):
         assert len(expanded_remappings) == 2
         for i in range(2):
             assert expanded_remappings[i] == ('chatter', 'new_chatter')
+
+    def test_launch_required_node(self):
+        # This node will never exit on its own, it'll keep publishing forever.
+        long_running_node = launch_ros.actions.Node(
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            node_namespace='my_ns',
+        )
+
+        # This node will exit after publishing a single message. It is required, so we
+        # tie on_exit to the Shutdown action which means that, once it exits, it should
+        # bring down the whole launched system, including the above node that will never
+        # exit on its own.
+        required_node = launch_ros.actions.Node(
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            node_namespace='my_ns2', arguments=['--number_of_cycles', '1'],
+            on_exit=Shutdown()
+        )
+
+        # If the on_exit functionality or Shutdown action breaks, this will never return.
+        self._assert_launch_no_errors([required_node, long_running_node])
 
     def test_create_node_with_invalid_remappings(self):
         """Test creating a node with invalid remappings."""
