@@ -17,12 +17,11 @@ from collections import OrderedDict
 from launch.actions import EmitEvent
 from launch.actions import ExecuteProcess
 from launch.actions import RegisterEventHandler
+from launch.actions import UnregisterEventHandler
 from launch.event_handlers import OnExecutionComplete
 from launch.event_handlers import OnProcessExit
 from launch.event_handlers import OnProcessIO
 from launch.events import Shutdown
-
-from .output import create_output_check
 
 
 class LaunchTestService():
@@ -49,22 +48,27 @@ class LaunchTestService():
         for test_name in self.__tests:
             if self.__tests[test_name] == 'armed':
                 self.__tests[test_name] = 'dropped'
-        return EmitEvent(event=Shutdown(reason=reason))
+        return [EmitEvent(event=Shutdown(reason=reason))]
 
     def _succeed(
         self,
-        test_name
+        test_name,
+        side_effect=None
     ):
         """Mark test as a success and shutdown if all other tests have succeeded too."""
         self.__tests[test_name] = 'succeeded'
         if all(status == 'succeeded' for status in self.__tests.values()):
-            return EmitEvent(event=Shutdown(reason='all tests finished'))
+            return [EmitEvent(event=Shutdown(reason='all tests finished'))]
+        if side_effect == 'shutdown':
+            return [EmitEvent(event=Shutdown(reason='shutdown after test'))]
+        return []
 
     def add_fixture_action(
         self,
         launch_description,
         action,
-        required=False
+        exit_allowed=[0],
+        ignore_returncode=False
     ):
         """
         Add action used as testing fixture.
@@ -75,9 +79,13 @@ class LaunchTestService():
         if isinstance(action, ExecuteProcess):
             def on_fixture_process_exit(event, context):
                 process_name = event.action.process_details['name']
-                if required or event.returncode != 0:
-                    rc = event.returncode if event.returncode else 1
-                    self.__processes_rc[process_name] = rc
+                allowed_to_exit = exit_allowed
+                if isinstance(exit_allowed, list):
+                    allowed_to_exit = event.returncode in exit_allowed
+                if not allowed_to_exit:
+                    if not ignore_returncode:
+                        rc = event.returncode if event.returncode else 1
+                        self.__processes_rc[process_name] = rc
                     return EmitEvent(event=Shutdown(
                         reason='{} fixture process died!'.format(process_name)
                     ))
@@ -133,31 +141,28 @@ class LaunchTestService():
         self,
         launch_description,
         action,
-        output_file,
-        filtered_prefixes=None,
-        filtered_patterns=None,
-        filtered_rmw_implementation=None
+        output_test,
+        test_suffix='output',
+        output_filter=None,
+        side_effect=None,
     ):
         """
-        Test an action process' output against text or regular expressions.
+        Test an action process' output against a given test.
 
         :param launch_description: test launch description that owns the given action.
         :param action: launch action to test whose output is to be tested.
-        :param output_file: basename (i.e. w/o extension) of either a .txt file containing the
-        lines to be matched or a .regex file containing patterns to be searched for.
-        :param filtered_prefixes: A list of byte strings representing prefixes that will cause
-        output lines to be ignored if they start with one of the prefixes. By default lines
-        starting with the process ID (`b'pid'`) and return code (`b'rc'`) will be ignored.
-        :param filtered_patterns: A list of byte strings representing regexes that will cause
-        output lines to be ignored if they match one of the regexes.
-        :param filtered_rmw_implementation: RMW implementation for which the output will be
-        ignored in addition to the `filtered_prefixes`/`filtered_patterns`.
+        :param output_test: test tuple as returned by launch_testing.output.create_* functions.
+        :param test_suffix: an optional test suffix to disambiguate multiple test instances, defaults
+        to 'output'.
+        :param output_filter: an optional function to filter out i.e. ignore output lines for the test.
+        :param side_effect: an optional side effect of a passing test, currently only 'shutdown'
+        is supported.
         """
         assert isinstance(action, ExecuteProcess)
-        test_name = 'test_{}_output'.format(id(action))
-        output, collate_output, match_output, match_patterns = create_output_check(
-            output_file, filtered_prefixes, filtered_patterns, filtered_rmw_implementation
-        )
+        test_name = 'test_{}_{}'.format(id(action), test_suffix)
+        output, collate_output, match_output, match_patterns = output_test
+        if not output_filter:
+            output_filter = (lambda x: x)
         assert any(match_patterns)
 
         def on_process_exit(event, context):
@@ -165,28 +170,40 @@ class LaunchTestService():
             if any(match_patterns):
                 process_name = event.action.process_details['name']
                 reason = 'not all {} output matched!'.format(process_name)
-                return self._fail(test_name, reason)
+                return [
+                    UnregisterEventHandler(on_output),
+                    UnregisterEventHandler(on_exit),
+                    *self._fail(test_name, reason)
+                ]
+
+        on_exit = OnProcessExit(
+            target_action=action, on_exit=on_process_exit
+        )
+
+        launch_description.add_action(
+            RegisterEventHandler(on_exit)
+        )
 
         def on_process_stdout(event):
             nonlocal output
             nonlocal match_patterns
-            output = collate_output(output, event.text)
+            output = collate_output(output, output_filter(event.text))
             match_patterns = [
                 pattern for pattern in match_patterns
                 if not match_output(output, pattern)
             ]
             if not any(match_patterns):
-                return self._succeed(test_name)
+                return [
+                    UnregisterEventHandler(on_output),
+                    UnregisterEventHandler(on_exit),
+                    *self._succeed(test_name, side_effect)
+                ]
 
-        launch_description.add_action(
-            RegisterEventHandler(OnProcessExit(
-                target_action=action, on_exit=on_process_exit
-            ))
+        on_output = OnProcessIO(
+            target_action=action, on_stdout=on_process_stdout
         )
         launch_description.add_action(
-            RegisterEventHandler(OnProcessIO(
-                target_action=action, on_stdout=on_process_stdout
-            ))
+            RegisterEventHandler(on_output)
         )
         self._arm(test_name)
 

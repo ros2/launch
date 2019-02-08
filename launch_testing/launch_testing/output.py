@@ -32,19 +32,22 @@ def get_rmw_output_filter(rmw_implementation, filter_type):
     return [str.encode(l) for l in rmw_output_filter.splitlines()]
 
 
-def get_expected_output(output_file):
-    literal_file = output_file + '.txt'
-    if os.path.isfile(literal_file):
-        with open(literal_file, 'rb') as f:
-            return f.read().splitlines()
-    regex_file = output_file + '.regex'
-    if os.path.isfile(regex_file):
-        with open(regex_file, 'rb') as f:
-            return f.read().splitlines()
+def create_output_lines_filter(
+    filtered_prefixes=None,
+    filtered_patterns=None,
+    filtered_rmw_implementation=None
+):
+    """
+    Create a line filtering function to help output testing.
 
-
-def create_output_lines_filter(filtered_prefixes, filtered_patterns,
-                               filtered_rmw_implementation):
+    :param filtered_prefixes: A list of byte strings representing prefixes that will cause
+    output lines to be ignored if they start with one of the prefixes. By default lines
+    starting with the process ID (`b'pid'`) and return code (`b'rc'`) will be ignored.
+    :param filtered_patterns: A list of byte strings representing regexes that will cause
+    output lines to be ignored if they match one of the regexes.
+    :param filtered_rmw_implementation: RMW implementation for which the output will be
+    ignored in addition to the `filtered_prefixes`/`filtered_patterns`.
+    """
     filtered_prefixes = filtered_prefixes or get_default_filtered_prefixes()
     filtered_patterns = filtered_patterns or get_default_filtered_patterns()
     if filtered_rmw_implementation:
@@ -57,6 +60,7 @@ def create_output_lines_filter(filtered_prefixes, filtered_patterns,
     filtered_patterns = map(re.compile, filtered_patterns)
 
     def _filter(output):
+        filtered_output = []
         for line in output.splitlines():
             # Filter out stdout that comes from underlying DDS implementation
             # Note: we do not currently support matching filters across multiple stdout lines.
@@ -64,42 +68,60 @@ def create_output_lines_filter(filtered_prefixes, filtered_patterns,
                 continue
             if any(pattern.match(line) for pattern in filtered_patterns):
                 continue
-            yield line
+            filtered_output.append(line)
+        if output.endswith(b'\n'):
+            filtered_output.append(b'\n')
+        return b'\n'.join(filtered_output)
     return _filter
 
 
-def create_output_check(output_file, filtered_prefixes, filtered_patterns,
-                        filtered_rmw_implementation):
-    filter_output_lines = create_output_lines_filter(
-        filtered_prefixes, filtered_patterns, filtered_rmw_implementation
-    )
+def create_output_lines_test(expected_lines):
+    """
+    Create output test given a list of expected lines.
+    """
+    def _collate(output, addendum):
+        output.extend(addendum.splitlines())
+        return output
 
+    def _match(output, pattern):
+        print(output, pattern, pattern in output)
+        return any(pattern in line for line in output)
+
+    return [], _collate, _match, expected_lines
+
+
+def create_output_regex_test(expected_patterns):
+    """
+    Create output test given a list of expected matching regular
+    expressions.
+    """
+    def _collate(output, addendum):
+        output.write(addendum)
+        return output
+
+    def _match(output, pattern):
+        return pattern.search(output.getvalue()) is not None
+
+    return io.BytesIO(), _collate, _match, expected_patterns
+
+
+def create_output_test_from_file(output_file):
+    """
+    Create output test using the given file content.
+
+    :param output_file: basename (i.e. w/o extension) of either a .txt file containing the
+    lines to be matched or a .regex file containing patterns to be searched for.
+    """
     literal_file = output_file + '.txt'
     if os.path.isfile(literal_file):
-        def _collate(output, addendum):
-            output.extend(filter_output_lines(addendum))
-            return output
-
-        def _match(output, pattern):
-            return pattern in output
-
         with open(literal_file, 'rb') as f:
             expected_output = f.read().splitlines()
-        return [], _collate, _match, expected_output
+        return create_output_lines_test(expected_output)
 
     regex_file = output_file + '.regex'
     if os.path.isfile(regex_file):
-        def _collate(output, addendum):
-            output.write(b'\n'.join(
-                filter_output_lines(addendum)
-            ))
-            return output
-
-        def _match(output, pattern):
-            return pattern.search(output.getvalue()) is not None
-
         with open(regex_file, 'rb') as f:
             patterns = [re.compile(regex) for regex in f.read().splitlines()]
-        return io.BytesIO(), _collate, _match, patterns
+        return create_output_regex_test(patterns)
 
     raise RuntimeError('could not find output check file: {}'.format(output_file))

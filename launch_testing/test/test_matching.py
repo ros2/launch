@@ -20,7 +20,7 @@ from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import ExecuteProcess
 from launch_testing import LaunchTestService
-
+from launch_testing.output import create_output_test_from_file
 
 def test_matching():
     # This temporary directory and files contained in it
@@ -42,7 +42,9 @@ def test_matching():
     action = launch_test.add_fixture_action(
         ld, ExecuteProcess(cmd=executable_command, output='screen')
     )
-    launch_test.add_output_test(ld, action, output_file)
+    launch_test.add_output_test(
+        ld, action, create_output_test_from_file(output_file)
+    )
 
     launch_service = LaunchService()
     launch_service.include_launch_description(ld)
