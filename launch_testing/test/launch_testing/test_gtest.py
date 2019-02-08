@@ -14,20 +14,20 @@
 
 """Tests for the GTest Action."""
 
-import os
+from pathlib import Path
 
 from launch import LaunchDescription
 from launch import LaunchService
+
 from launch_testing.actions import GTest
 
 
 def test_gtest():
     """Test running a gtest with timeout."""
-    path = os.path.dirname(os.path.realpath(__file__)) \
-        + '/../../dummy_tests/locking'
+    path = Path(__file__).resolve().parents[2] / 'dummy_tests/locking'
     ld = LaunchDescription([
         GTest(
-            path=path, timeout=5.0,
+            path=str(path), timeout=5.0,
         )
     ])
     ls = LaunchService()

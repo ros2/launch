@@ -14,20 +14,20 @@
 
 """Tests for the PyTest Action."""
 
-import os
+from pathlib import Path
 
 from launch import LaunchDescription
 from launch import LaunchService
+
 from launch_testing.actions import PyTest
 
 
 def test_pytest():
     """Test running a gtest with timeout."""
-    path = os.path.dirname(os.path.realpath(__file__)) \
-        + '/../../dummy_tests/locking.py'
+    path = Path(__file__).resolve().parents[2] / 'dummy_tests/locking.py'
     ld = LaunchDescription([
         PyTest(
-            path=path, timeout=5.0,
+            path=str(path), timeout=5.0,
         ),
     ])
     ls = LaunchService()
