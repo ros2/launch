@@ -29,6 +29,7 @@ from typing import Union
 
 from ..action import Action
 from ..event_handler import EventHandler
+from ..events import Shutdown
 from ..events import TimerEvent
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
@@ -40,6 +41,7 @@ from ..utilities import ensure_argument_type
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
+from .opaque_function import OpaqueFunction
 
 _logger = logging.getLogger('launch.timer_action')
 
@@ -56,6 +58,7 @@ class TimerAction(Action):
         *,
         period: Union[float, SomeSubstitutionsType],
         actions: Iterable[LaunchDescriptionEntity],
+        cancel_on_shutdown: bool = True,
         **kwargs
     ) -> None:
         """Constructor."""
@@ -72,6 +75,7 @@ class TimerAction(Action):
         self.__completed_future = None  # type: Optional[asyncio.Future]
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
+        self.__cancel_on_shutdown = cancel_on_shutdown
 
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(
@@ -136,7 +140,6 @@ class TimerAction(Action):
 
         # Once per context, install the general purpose OnTimerEvent event handler.
         if not hasattr(context, '_TimerAction__event_handler_has_been_installed'):
-            from ..actions import OpaqueFunction
             context.register_event_handler(EventHandler(
                 matcher=lambda event: is_a_subclass(event, TimerEvent),
                 entities=OpaqueFunction(
@@ -150,6 +153,17 @@ class TimerAction(Action):
         # Capture the current context locals so the yielded actions can make use of them too.
         self.__context_locals = dict(context.get_locals_as_dict())  # Capture a copy
         context.asyncio_loop.create_task(self.__wait_to_fire_event(context))
+
+        # By default, the 'shutdown' event will cause timers to cancel so they don't hold up the
+        # launch process
+        if self.__cancel_on_shutdown:
+            context.register_event_handler(
+                EventHandler(
+                    matcher=lambda event: is_a_subclass(event, Shutdown),
+                    entities=OpaqueFunction(function=lambda context: self.cancel())
+                )
+            )
+
         return None
 
     def get_asyncio_future(self) -> Optional[asyncio.Future]:
