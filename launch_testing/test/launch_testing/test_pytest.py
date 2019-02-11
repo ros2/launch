@@ -24,7 +24,7 @@ from launch_testing.actions import PyTest
 
 def test_pytest():
     """Test running a gtest with timeout."""
-    path = Path(__file__).resolve().parents[2] / 'dummy_tests/locking.py'
+    path = Path(__file__).resolve().parents[1] / 'dummy_tests/locking.py'
     ld = LaunchDescription([
         PyTest(
             path=str(path), timeout=5.0,

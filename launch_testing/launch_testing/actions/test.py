@@ -15,6 +15,7 @@
 """Module for the GTest action."""
 
 import signal
+
 from typing import List
 from typing import Optional
 from typing import Union
@@ -36,6 +37,7 @@ class Test(ExecuteProcess):
         self,
         *,
         timeout: Optional[Union[float, SomeSubstitutionsType]] = None,
+        kill_timeout: Union[float, SomeSubstitutionsType] = 5.0,
         **kwargs
     ) -> None:
         """
@@ -48,6 +50,7 @@ class Test(ExecuteProcess):
         """
         super().__init__(**kwargs)
         self.__timeout = timeout
+        self.__kill_timeout = kill_timeout
 
     @property
     def timeout(self):
@@ -63,14 +66,25 @@ class Test(ExecuteProcess):
         actions = super().execute(context)
         if not self.__timeout:
             return actions
-        # Setup a timer to send us a SIGKILL if the test locks
-        sigkill_timer = TimerAction(period=self.__timeout, actions=[
+
+        # Setup a timer to send us a SIGKILL, if SIGINT didn't work
+        sigkill_timer = TimerAction(period=self.__kill_timeout, actions=[
             EmitEvent(event=SignalProcess(
-                signal_number=signal.SIGKILL,
+                signal_number='SIGKILL',
                 process_matcher=matches_action(self)
             )),
         ])
-        if not actions:
-            return [sigkill_timer]
 
-        return actions.append(sigkill_timer)
+        # Setup a timer to send us a SIGINT, if the test locks
+        sigint_timer = TimerAction(period=self.__timeout, actions=[
+            EmitEvent(event=SignalProcess(
+                signal_number=signal.SIGINT,
+                process_matcher=matches_action(self)
+            )),
+            sigkill_timer
+        ])
+
+        if not actions:
+            return [sigint_timer]
+
+        return actions.append(sigint_timer)

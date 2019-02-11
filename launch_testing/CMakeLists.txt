@@ -20,11 +20,11 @@ ament_export_dependencies(ament_cmake)
 
 ament_python_install_package(${PROJECT_NAME})
 
-add_executable(locking dummy_tests/locking.cpp)
+add_executable(locking test/dummy_tests/locking.cpp)
 
 install(
   TARGETS locking
-  RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/dummy_tests
+  RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/test/dummy_tests
 )
 
 if(BUILD_TESTING)
