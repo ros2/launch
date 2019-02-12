@@ -76,9 +76,7 @@ def create_output_lines_filter(
 
 
 def create_output_lines_test(expected_lines):
-    """
-    Create output test given a list of expected lines.
-    """
+    """Create output test given a list of expected lines."""
     def _collate(output, addendum):
         output.extend(addendum.splitlines())
         return output
@@ -91,10 +89,7 @@ def create_output_lines_test(expected_lines):
 
 
 def create_output_regex_test(expected_patterns):
-    """
-    Create output test given a list of expected matching regular
-    expressions.
-    """
+    """Create output test given a list of expected matching regular expressions."""
     def _collate(output, addendum):
         output.write(addendum)
         return output

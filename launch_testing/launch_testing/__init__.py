@@ -152,9 +152,10 @@ class LaunchTestService():
         :param launch_description: test launch description that owns the given action.
         :param action: launch action to test whose output is to be tested.
         :param output_test: test tuple as returned by launch_testing.output.create_* functions.
-        :param test_suffix: an optional test suffix to disambiguate multiple test instances, defaults
-        to 'output'.
-        :param output_filter: an optional function to filter out i.e. ignore output lines for the test.
+        :param test_suffix: an optional test suffix to disambiguate multiple test instances,
+        defaults to 'output'.
+        :param output_filter: an optional function to filter out i.e. ignore output lines for
+        the test.
         :param side_effect: an optional side effect of a passing test, currently only 'shutdown'
         is supported.
         """
