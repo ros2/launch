@@ -68,7 +68,6 @@ class LaunchTestService():
         launch_description,
         action,
         exit_allowed=[0],
-        ignore_returncode=False
     ):
         """
         Add action used as testing fixture.
@@ -82,10 +81,9 @@ class LaunchTestService():
                 allowed_to_exit = exit_allowed
                 if isinstance(exit_allowed, list):
                     allowed_to_exit = event.returncode in exit_allowed
-                if not allowed_to_exit:
-                    if not ignore_returncode:
-                        rc = event.returncode if event.returncode else 1
-                        self.__processes_rc[process_name] = rc
+                if not context.is_shutdown and not allowed_to_exit:
+                    rc = event.returncode if event.returncode else 1
+                    self.__processes_rc[process_name] = rc
                     return EmitEvent(event=Shutdown(
                         reason='{} fixture process died!'.format(process_name)
                     ))
