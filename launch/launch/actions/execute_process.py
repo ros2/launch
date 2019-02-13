@@ -218,7 +218,7 @@ class ExecuteProcess(Action):
         """Getter for the process details, e.g. name, pid, cmd, etc., or None if not started."""
         return self.__process_event_args
 
-    def __shutdown_process(self, context, *, send_sigint):
+    def _shutdown_process(self, context, *, send_sigint):
         if self.__shutdown_received:
             # Do not handle shutdown more than once.
             return None
@@ -241,7 +241,7 @@ class ExecuteProcess(Action):
         self,
         context: LaunchContext
     ) -> Optional[LaunchDescription]:
-        return self.__shutdown_process(context, send_sigint=True)
+        return self._shutdown_process(context, send_sigint=True)
 
     def __on_signal_process_event(
         self,
@@ -293,7 +293,7 @@ class ExecuteProcess(Action):
         return None
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
-        return self.__shutdown_process(
+        return self._shutdown_process(
             context,
             send_sigint=(not cast(Shutdown, event).due_to_sigint),
         )

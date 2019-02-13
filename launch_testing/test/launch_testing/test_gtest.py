@@ -18,6 +18,10 @@ from pathlib import Path
 
 from launch import LaunchDescription
 from launch import LaunchService
+from launch.actions import EmitEvent
+from launch.actions import RegisterEventHandler
+from launch.event_handlers import OnProcessExit
+from launch.events import Shutdown
 
 from launch_testing.actions import GTest
 
@@ -25,11 +29,20 @@ from launch_testing.actions import GTest
 def test_gtest():
     """Test running a gtest with timeout."""
     path = Path(__file__).resolve().parents[1] / 'dummy_tests/locking'
+    gtest_action = GTest(
+                    path=str(path), timeout=5.0,
+                )
+
+    def on_gtest_exited(event, context):
+        return EmitEvent(event=Shutdown())
+
     ld = LaunchDescription([
-        GTest(
-            path=str(path), timeout=5.0,
-        )
+        gtest_action,
+        RegisterEventHandler(OnProcessExit(
+                on_exit=on_gtest_exited,
+                target_action=gtest_action
+            ))
     ])
-    ls = LaunchService()
+    ls = LaunchService(debug=True)
     ls.include_launch_description(ld)
     assert 0 == ls.run()

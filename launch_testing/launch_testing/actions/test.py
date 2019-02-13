@@ -14,20 +14,19 @@
 
 """Module for the GTest action."""
 
-import signal
-
 from typing import List
 from typing import Optional
 from typing import Union
 
+from launch import LaunchContext
+from launch import SomeActionsType
+from launch import SomeSubstitutionsType
 from launch.action import Action
-from launch.actions import EmitEvent
 from launch.actions import ExecuteProcess
+from launch.actions import OpaqueFunction
 from launch.actions import TimerAction
-from launch.events import matches_action
-from launch.events.process import SignalProcess
-from launch.launch_context import LaunchContext
-from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.event import Event
+from launch.event_handlers import OnProcessExit
 
 
 class Test(ExecuteProcess):
@@ -50,12 +49,17 @@ class Test(ExecuteProcess):
         """
         super().__init__(**kwargs)
         self.__timeout = timeout
-        self.__kill_timeout = kill_timeout
+        self.__timer = None
 
     @property
     def timeout(self):
         """Getter for timeout."""
         return self.__timeout
+
+    def __on_process_exit(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+        """On shutdown event."""
+        if self.__timer:
+            self.__timer.cancel()
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """
@@ -66,25 +70,17 @@ class Test(ExecuteProcess):
         actions = super().execute(context)
         if not self.__timeout:
             return actions
-
-        # Setup a timer to send us a SIGKILL, if SIGINT didn't work
-        sigkill_timer = TimerAction(period=self.__kill_timeout, actions=[
-            EmitEvent(event=SignalProcess(
-                signal_number='SIGKILL',
-                process_matcher=matches_action(self)
-            )),
-        ])
-
-        # Setup a timer to send us a SIGINT, if the test locks
-        sigint_timer = TimerAction(period=self.__timeout, actions=[
-            EmitEvent(event=SignalProcess(
-                signal_number=signal.SIGINT,
-                process_matcher=matches_action(self)
-            )),
-            sigkill_timer
-        ])
-
+        self.__timer = TimerAction(
+            period=self.__timeout,
+            actions=[OpaqueFunction(
+                function=self._shutdown_process,
+                kwargs={'send_sigint': True})])
+        on_process_exit_event = OnProcessExit(
+                on_exit=self.__on_process_exit,
+                target_action=self
+            )
+        context.register_event_handler(on_process_exit_event)
         if not actions:
-            return [sigint_timer]
+            return [self.__timer]
 
-        return actions.append(sigint_timer)
+        return actions.append(self.__timer)
