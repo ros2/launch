@@ -134,7 +134,7 @@ class TimerAction(Action):
             self.__completed_future.set_result(None)
             return None
 
-        # Once globally, install the general purpose OnTimerEvent event handler.
+        # Once per context, install the general purpose OnTimerEvent event handler.
         if not hasattr(context, "_TimerAction__event_handler_has_been_installed"):
             from ..actions import OpaqueFunction
             context.register_event_handler(EventHandler(
