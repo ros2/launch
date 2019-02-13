@@ -41,7 +41,6 @@ from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
-_event_handler_has_been_installed = False
 _logger = logging.getLogger('launch.timer_action')
 
 
@@ -136,8 +135,7 @@ class TimerAction(Action):
             return None
 
         # Once globally, install the general purpose OnTimerEvent event handler.
-        global _event_handler_has_been_installed
-        if not _event_handler_has_been_installed:
+        if not hasattr(context, "_TimerAction__event_handler_has_been_installed"):
             from ..actions import OpaqueFunction
             context.register_event_handler(EventHandler(
                 matcher=lambda event: is_a_subclass(event, TimerEvent),
@@ -147,7 +145,7 @@ class TimerAction(Action):
                     )
                 ),
             ))
-            _event_handler_has_been_installed = True
+            setattr(context, "_TimerAction__event_handler_has_been_installed", True)
 
         # Capture the current context locals so the yielded actions can make use of them too.
         self.__context_locals = dict(context.get_locals_as_dict())  # Capture a copy
