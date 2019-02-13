@@ -37,4 +37,5 @@ def test_multiple_launch_with_timers():
 
     ls = launch.LaunchService()
     ls.include_launch_description(generate_launch_description())
-    assert 0 == ls.run(shutdown_when_idle=False)  # Hangs forever before BUG183 is fixed
+    # Next line hangs forever before https://github.com/ros2/launch/issues/183 was fixed.
+    assert 0 == ls.run(shutdown_when_idle=False)
