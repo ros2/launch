@@ -17,10 +17,10 @@ from collections import OrderedDict
 from launch.actions import EmitEvent
 from launch.actions import ExecuteProcess
 from launch.actions import RegisterEventHandler
-from launch.actions import UnregisterEventHandler
 from launch.event_handlers import OnExecutionComplete
 from launch.event_handlers import OnProcessExit
 from launch.event_handlers import OnProcessIO
+from launch.event_handlers import OnShutdown
 from launch.events import Shutdown
 
 
@@ -38,12 +38,23 @@ class LaunchTestService():
         assert test_name not in self.__tests
         self.__tests[test_name] = 'armed'
 
+    def _finish(
+        self,
+        test_name
+    ):
+        """Mark test as finished and shutdown if all other tests have finished too."""
+        assert test_name in self.__tests
+        self.__tests[test_name] = 'finished'
+        if all(status != 'armed' for status in self.__tests.values()):
+            return [EmitEvent(event=Shutdown(reason='all tests finished'))]
+
     def _fail(
         self,
         test_name,
         reason
     ):
-        """Mark test as a failure and shutdown, dropping the tests that are still ongoing."""
+        """Mark test as a failure and shutdown, dropping the tests that are still in progress."""
+        assert test_name in self.__tests
         self.__tests[test_name] = 'failed'
         for test_name in self.__tests:
             if self.__tests[test_name] == 'armed':
@@ -55,9 +66,10 @@ class LaunchTestService():
         test_name,
         side_effect=None
     ):
-        """Mark test as a success and shutdown if all other tests have succeeded too."""
+        """Mark test as a success and shutdown if all other tests have finished too."""
+        assert test_name in self.__tests
         self.__tests[test_name] = 'succeeded'
-        if all(status == 'succeeded' for status in self.__tests.values()):
+        if all(status != 'armed' for status in self.__tests.values()):
             return [EmitEvent(event=Shutdown(reason='all tests finished'))]
         if side_effect == 'shutdown':
             return [EmitEvent(event=Shutdown(reason='shutdown after test'))]
@@ -167,20 +179,26 @@ class LaunchTestService():
         def on_process_exit(event, context):
             nonlocal match_patterns
             if any(match_patterns):
-                process_name = event.action.process_details['name']
-                reason = 'not all {} output matched!'.format(process_name)
-                return [
-                    UnregisterEventHandler(on_output),
-                    UnregisterEventHandler(on_exit),
-                    *self._fail(test_name, reason)
-                ]
-
-        on_exit = OnProcessExit(
-            target_action=action, on_exit=on_process_exit
-        )
+                # Finish test instead of failing to prevent process exit
+                # and process output event handlers from racing.
+                return self._finish(test_name)
 
         launch_description.add_action(
-            RegisterEventHandler(on_exit)
+            RegisterEventHandler(OnProcessExit(
+                target_action=action, on_exit=on_process_exit
+            ))
+        )
+
+        def on_shutdown(event, context):
+            nonlocal match_patterns
+            if any(match_patterns):
+                process_name = action.process_details['name']
+                reason = 'not all {} output matched!'.format(process_name)
+                self._fail(test_name, reason)
+            self._succeed(test_name, side_effect)
+
+        launch_description.add_action(
+            RegisterEventHandler(OnShutdown(on_shutdown=on_shutdown))
         )
 
         def on_process_stdout(event):
@@ -192,17 +210,13 @@ class LaunchTestService():
                 if not match_output(output, pattern)
             ]
             if not any(match_patterns):
-                return [
-                    UnregisterEventHandler(on_output),
-                    UnregisterEventHandler(on_exit),
-                    *self._succeed(test_name, side_effect)
-                ]
+                return self._succeed(test_name, side_effect)
+            return None
 
-        on_output = OnProcessIO(
-            target_action=action, on_stdout=on_process_stdout
-        )
         launch_description.add_action(
-            RegisterEventHandler(on_output)
+            RegisterEventHandler(OnProcessIO(
+                target_action=action, on_stdout=on_process_stdout
+            ))
         )
         self._arm(test_name)
 
