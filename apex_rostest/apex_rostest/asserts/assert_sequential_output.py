@@ -4,12 +4,16 @@
 from contextlib import contextmanager
 
 
-class _SequentialOutputChecker:
+class SequentialTextChecker:
+    """Helper class for asserting that text is found in a certain order."""
 
     def __init__(self, output):
         self._output = output
         self._array_index = 0  # Keeps track of how far we are into the output array
         self._substring_index = 0  # Keeps track of how far we are into an individual string
+
+    def assertInText(self, msg):
+        return self.assertInStdout(msg)
 
     def assertInStdout(self, msg):
 
@@ -57,7 +61,7 @@ def assertSequentialStdout(proc_output,
     # Get all the output from the node.  This will be a list of strings.  Each string may contain
     # multiple lines of output
     to_check = [p.text.decode('ascii') for p in proc_output[node]]
-    checker = _SequentialOutputChecker(to_check)
+    checker = SequentialTextChecker(to_check)
 
     try:
         yield checker

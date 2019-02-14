@@ -3,7 +3,7 @@
 
 import unittest
 
-from apex_rostest.asserts.assert_sequential_output import _SequentialOutputChecker
+from apex_rostest.asserts import SequentialTextChecker
 
 
 class TestAssertSequentialStdout(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestAssertSequentialStdout(unittest.TestCase):
             "!@#$%^&*()",  # Help find off by one errors in the substring logic
         ]
 
-        self.dut = _SequentialOutputChecker(self.to_check)
+        self.dut = SequentialTextChecker(self.to_check)
 
     def test_good_sequential_output(self):
 
