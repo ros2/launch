@@ -1,28 +1,13 @@
 # Copyright 2019 Apex.AI, Inc.
 # All rights reserved.
-#
-# This file contains modified code from the following open source projects
-# published under the licenses listed below:
-#
-# Copyright 2018 Open Source Robotics Foundation, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import argparse
 import logging
 from importlib.machinery import SourceFileLoader
 import os
 import sys
+
+from ros2launch.api import print_arguments_of_launch_description
 
 from .apex_runner import ApexRunner
 from .junitxml import unittestResultsToXml
@@ -35,33 +20,6 @@ def _load_python_file_as_module(python_file_path):
     # Taken from apex_core to not introduce a weird dependency thing
     loader = SourceFileLoader('python_launch_file', python_file_path)
     return loader.load_module()
-
-
-def print_launch_arguments(launch_arguments):
-    # TODO (pete baughman) See if OSRF will take a PR to refactor ros2launch.api
-    # so I can call this function without copy/pasting it.  This snippit is the reason
-    # for the extra copyright notice at the top of this file
-    print("Arguments (pass arguments as '<name>:=<value>'):")
-    any_conditional_arguments = False
-    for argument_action in launch_arguments:
-        msg = "\n    '"
-        msg += argument_action.name
-        msg += "':"
-        if argument_action._conditionally_included:
-            any_conditional_arguments = True
-            msg += '*'
-        msg += '\n        '
-        msg += argument_action.description
-        if argument_action.default_value is not None:
-            default_str = ' + '.join([token.describe() for token in argument_action.default_value])
-            msg += '\n        (default: {})'.format(default_str)
-        print(msg)
-
-    if len(launch_arguments) > 0:
-        if any_conditional_arguments:
-            print('\n* argument(s) which are only used if specific conditions occur')
-    else:
-        print('\n  No arguments.')
 
 
 def apex_rostest_main():
@@ -136,7 +94,9 @@ def apex_rostest_main():
         parser.error(e)
 
     if args.show_args:
-        print_launch_arguments(runner.get_launch_args())
+        print_arguments_of_launch_description(
+            launch_description=runner.get_launch_description()
+        )
         sys.exit(0)
 
     _logger_.debug("Running integration test")

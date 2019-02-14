@@ -55,10 +55,8 @@ class ApexRunner(object):
             daemon=True
         )
 
-    def get_launch_args(self):
-        launch_description = self._gen_launch_description_fn(lambda: None)
-        launch_arguments = launch_description.get_launch_arguments()
-        return launch_arguments
+    def get_launch_description(self):
+        return self._gen_launch_description_fn(lambda: None)
 
     def run(self):
         """
