@@ -16,6 +16,7 @@
 import launch
 import launch.actions
 
+
 def test_multiple_launch_with_timers():
     # Regression test for https://github.com/ros2/launch/issues/183
     # Unfortunately, when things aren't working this test just hangs on the second call to
@@ -24,9 +25,9 @@ def test_multiple_launch_with_timers():
     def generate_launch_description():
         return launch.LaunchDescription([
             launch.actions.TimerAction(
-                period="1",
+                period='1',
                 actions=[
-                    launch.actions.Shutdown(reason="Timer expired")
+                    launch.actions.Shutdown(reason='Timer expired')
                 ]
             )
         ])
