@@ -38,8 +38,8 @@ class PyTest(Test):
 
         :param: path the path of the test to be executed.
         """
-        cmd = [FindExecutable(name='python3'), '-m pytest', path]
-        super().__init__(cmd=cmd, shell=True, **kwargs)
+        cmd = [FindExecutable(name='python3'), '-m', 'pytest', path]
+        super().__init__(cmd=cmd, **kwargs)
         self.__path = path
 
     @property

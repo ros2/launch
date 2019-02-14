@@ -26,9 +26,9 @@ from launch.events import Shutdown
 from launch_testing.actions import GTest
 
 
-def test_gtest():
-    """Test running a gtest with timeout."""
-    path = Path(__file__).resolve().parents[1] / 'dummy_tests/locking'
+def run_dummy_test(file):
+    """Utilitie to run both test files."""
+    path = Path(__file__).resolve().parents[1] / 'dummy_tests' / file
     gtest_action = GTest(
                     path=str(path), timeout=5.0,
                 )
@@ -46,3 +46,13 @@ def test_gtest():
     ls = LaunchService(debug=True)
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+
+
+def test_gtest_locking():
+    """Test running a locking gtest with timeout."""
+    run_dummy_test('locking')
+
+
+def test_gtest_non_locking():
+    """Test running a non-locking gtest with timeout."""
+    run_dummy_test('dummy')

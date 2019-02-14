@@ -20,17 +20,19 @@ ament_export_dependencies(ament_cmake)
 
 ament_python_install_package(${PROJECT_NAME})
 
-add_executable(locking test/dummy_tests/locking.cpp)
-
-install(
-  TARGETS locking
-  RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/test/dummy_tests
-)
-
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  find_package(ament_cmake_gtest REQUIRED)
+  add_executable(locking test/dummy_tests/locking.cpp)
+  ament_add_gtest_executable(dummy test/dummy_tests/dummy.cpp)
+
+  install(
+    TARGETS locking dummy
+    RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/test/dummy_tests
+  )
 
   ament_add_pytest_test(test_pytest_py "test/launch_testing/test_pytest.py"
     PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
@@ -43,10 +45,10 @@ if(BUILD_TESTING)
   ament_add_pytest_test(test_env_passing_py "test/test_env_passing.py"
     PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
   )
-  # TODO(ivanpauno): Uncomment this before merging
-  # ament_add_pytest_test(test_matching_py "test/test_matching.py"
-  #   PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
-  # )
+
+  ament_add_pytest_test(test_matching_py "test/test_matching.py"
+    PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
+  )
 endif()
 
 ament_package()
