@@ -17,6 +17,7 @@ from ros2launch.api.api import parse_launch_arguments
 from .io_handler import ActiveIoHandler
 from .loader import PostShutdownTestLoader, PreShutdownTestLoader
 from .proc_info_handler import ActiveProcInfoHandler
+from .test_result import TestResult
 
 
 class _fail_result(unittest.TestResult):
@@ -115,7 +116,10 @@ class ApexRunner(object):
         self._give_attribute_to_tests(self.proc_info, "proc_info", inactive_suite)
         self._give_attribute_to_tests(self.proc_output._io_handler, "proc_output", inactive_suite)
         self._give_attribute_to_tests(self.test_args, "test_args", inactive_suite)
-        inactive_results = unittest.TextTestRunner(verbosity=2).run(inactive_suite)
+        inactive_results = unittest.TextTestRunner(
+            verbosity=2,
+            resultclass=TestResult
+        ).run(inactive_suite)
 
         return self._results, inactive_results
 
@@ -149,7 +153,10 @@ class ApexRunner(object):
             self._give_attribute_to_tests(self.test_args, "test_args", active_suite)
 
             # Run the tests
-            self._results = unittest.TextTestRunner(verbosity=2).run(active_suite)
+            self._results = unittest.TextTestRunner(
+                verbosity=2,
+                resultclass=TestResult
+            ).run(active_suite)
 
         finally:
             self._tests_completed.set()
