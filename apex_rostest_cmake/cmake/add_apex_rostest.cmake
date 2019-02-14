@@ -44,6 +44,8 @@
 # :type file: string
 function(add_apex_rostest file)
 
+  cmake_parse_arguments(_add_apex_rostest "" "" "ARGS" ${ARGN})
+
   set(_file_name _file_name-NOTFOUND)
   if(IS_ABSOLUTE ${file})
     set(_file_name ${file})
@@ -72,6 +74,7 @@ function(add_apex_rostest file)
   set(cmd
     "${apex_rostest_BIN}"
     "${_file_name}"
+    "${_add_apex_rostest_ARGS}"
     "--junit-xml=${result_file}"
   )
   ament_add_test(
