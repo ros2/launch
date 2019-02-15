@@ -103,7 +103,8 @@ def assertInStdout(proc_output,
                    cmd_args=None,
                    *,
                    strict_proc_matching=True):
-    """Assert that 'msg' was found in the standard out of a process.
+    """
+    Assert that 'msg' was found in the standard out of a process.
 
     :param proc_output: The process output captured by apex_launchtest.  This is usually injected
     into test cases as self._proc_output

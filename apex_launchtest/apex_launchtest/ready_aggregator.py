@@ -19,7 +19,8 @@ class ReadyAggregator:
     """Calls a ready_fn parent function on the nth call to a child function."""
 
     def __init__(self, ready_fn, num_to_aggregate):
-        """Create a ReadyAggregator.
+        """
+        Create a ReadyAggregator.
 
         :param callable ready_fn: The function to call after n calls to ReadyAggregator.ready_fn
         :param int num_to_aggregate: Number of calls to ReadyAggregator.ready_fn necessary for

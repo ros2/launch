@@ -1,0 +1,72 @@
+stages:
+  - build
+  - test
+  - report
+
+before_script:
+  - sh -c 'echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
+  - curl http://repo.ros2.org/repos.key | apt-key add -
+  - apt-get update
+  - apt-get install -y python3-colcon-common-extensions
+  - source /opt/ros/crystal/setup.bash
+
+build_launchtest:
+  stage: build
+  image: osrf/ros2:nightly
+  script:
+    - colcon build --packages-up-to apex_launchtest apex_launchtest_cmake
+  artifacts:
+    paths:
+      - .
+
+build_all:
+  stage: build
+  image: osrf/ros2:nightly
+  script:
+    - colcon build
+  artifacts:
+    paths:
+      - .
+
+test_launchtest:
+  stage: test
+  image: osrf/ros2:nightly
+  dependencies:
+    - build_launchtest
+  script:
+    - pip3 install mock
+    - colcon test --packages-select apex_launchtest apex_launchtest_cmake
+    - colcon test-result --verbose
+  artifacts:
+    when: always
+    paths:
+      - log
+
+test_all:
+  stage: test
+  image: osrf/ros2:nightly
+  dependencies:
+    - build_all
+  script:
+    - pip3 install mock
+    - colcon test --pytest-args "--cov"
+    - colcon test-result --verbose
+  artifacts:
+    when: always
+    paths:
+      - .
+
+coverage:
+  stage: report
+  image: osrf/ros2:nightly
+  dependencies:
+    - test_all
+  script:
+    - pip3 install coverage
+    - find . -iname ".coverage" -exec python3 -m coverage combine -a {} \;
+    - python3 -m coverage report --include=*/site-packages/apex*
+    - python3 -m coverage html --include=*/site-packages/apex*
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\%)/'
+  artifacts:
+    paths:
+      - htmlcov
