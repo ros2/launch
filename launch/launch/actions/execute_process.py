@@ -308,27 +308,35 @@ class ExecuteProcess(Action):
             ('float(', *self.__sigterm_timeout, ') + float(', *self.__sigkill_timeout, ')')
         )]
         # Setup a timer to send us a SIGTERM if we don't shutdown quickly.
-        self.__sigterm_timer = TimerAction(period=sigterm_timeout, actions=[
-            OpaqueFunction(
-                function=printer,
-                args=(base_msg.format('{}', '{}', 'SIGINT', 'SIGTERM'), sigterm_timeout)
-            ),
-            EmitEvent(event=SignalProcess(
-                signal_number=signal.SIGTERM,
-                process_matcher=matches_action(self)
-            )),
-        ])
+        self.__sigterm_timer = TimerAction(
+            period=sigterm_timeout,
+            actions=[
+                OpaqueFunction(
+                    function=printer,
+                    args=(base_msg.format('{}', '{}', 'SIGINT', 'SIGTERM'), sigterm_timeout)
+                ),
+                EmitEvent(event=SignalProcess(
+                    signal_number=signal.SIGTERM,
+                    process_matcher=matches_action(self)
+                )),
+            ],
+            cancel_on_shutdown=False,
+        )
         # Setup a timer to send us a SIGKILL if we don't shutdown after SIGTERM.
-        self.__sigkill_timer = TimerAction(period=sigkill_timeout, actions=[
-            OpaqueFunction(
-                function=printer,
-                args=(base_msg.format('{}', '{}', 'SIGTERM', 'SIGKILL'), sigkill_timeout)
-            ),
-            EmitEvent(event=SignalProcess(
-                signal_number='SIGKILL',
-                process_matcher=matches_action(self)
-            ))
-        ])
+        self.__sigkill_timer = TimerAction(
+            period=sigkill_timeout,
+            actions=[
+                OpaqueFunction(
+                    function=printer,
+                    args=(base_msg.format('{}', '{}', 'SIGTERM', 'SIGKILL'), sigkill_timeout)
+                ),
+                EmitEvent(event=SignalProcess(
+                    signal_number='SIGKILL',
+                    process_matcher=matches_action(self)
+                ))
+            ],
+            cancel_on_shutdown=False,
+        )
         return [
             cast(Action, self.__sigterm_timer),
             cast(Action, self.__sigkill_timer),
