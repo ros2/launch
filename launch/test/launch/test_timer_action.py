@@ -137,7 +137,7 @@ def test_timer_can_block_preemption():
         ),
 
         launch.actions.TimerAction(
-            period="2",
+            period='2',
             actions=[
                 launch.actions.Shutdown(reason='slow shutdown')
             ],
