@@ -27,6 +27,7 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
+from .opaque_function import OpaqueFunction
 from ..action import Action
 from ..event_handler import EventHandler
 from ..events import Shutdown
@@ -41,7 +42,6 @@ from ..utilities import ensure_argument_type
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-from .opaque_function import OpaqueFunction
 
 _logger = logging.getLogger('launch.timer_action')
 
