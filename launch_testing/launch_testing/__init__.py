@@ -48,6 +48,14 @@ class LaunchTestService():
         if all(status != 'armed' for status in self.__tests.values()):
             return [EmitEvent(event=Shutdown(reason='all tests finished'))]
 
+    def _drop(
+        self,
+        test_name
+    ):
+        """Mark test as dropped."""
+        assert test_name in self.__tests
+        self.__tests[test_name] = 'dropped'
+
     def _fail(
         self,
         test_name,
@@ -122,7 +130,7 @@ class LaunchTestService():
             def on_test_process_exit(event, context):
                 if event.returncode != 0:
                     process_name = event.action.process_details['name']
-                    self._processes_rc[process_name] = event.returncode
+                    self.__processes_rc[process_name] = event.returncode
                     return self._fail(
                         test_name, reason='{} test failed!'.format(
                             process_name
@@ -136,11 +144,19 @@ class LaunchTestService():
                 ))
             )
         else:
+            def on_test_completion(event, context):
+                future = event.action.get_asyncio_future()
+                if future is not None:
+                    if future.cancelled():
+                        return self._drop(test_name)
+                    exc = future.exception()
+                    if exc is not None:
+                         return self._fail(test_name, str(exc))
+                return self._succeed(test_name)
+
             launch_description.add_action(
                 RegisterEventHandler(OnExecutionComplete(
-                    target_action=action, on_completion=(
-                        lambda *args: self._succeed(test_name)
-                    )
+                    target_action=action, on_completion=on_test_completion
                 ))
             )
         launch_description.add_action(action)

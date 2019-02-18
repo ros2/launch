@@ -68,14 +68,6 @@ _global_process_counter_lock = threading.Lock()
 _global_process_counter = 0  # in Python3, this number is unbounded (no rollover)
 
 
-def _is_process_running(pid):
-    try:
-        os.kill(pid, 0)
-        return True
-    except OSError:
-        return False
-
-
 class ExecuteProcess(Action):
     """Action that begins executing a process and sets up event handlers for the process."""
 
@@ -254,12 +246,9 @@ class ExecuteProcess(Action):
             raise RuntimeError('Signal event received before execution.')
         if self._subprocess_transport is None:
             raise RuntimeError('Signal event received before subprocess transport available.')
-        # if self._subprocess_protocol.complete.done():
-        # disable above's check as this handler may get called *after* the process has
-        # terminated but *before* the asyncio future has been resolved.
-        if not _is_process_running(self._subprocess_transport.get_pid()):
+        if self._subprocess_protocol.complete.done():
             # the process is done or is cleaning up, no need to signal
-            _logger.debug("signal '{}' not set to '{}' because it is already closing".format(
+            _logger.debug("signal '{}' not sent to '{}' because it is already closing".format(
                 typed_event.signal_name, self.process_details['name']
             ))
             return None
@@ -274,11 +263,16 @@ class ExecuteProcess(Action):
         _logger.info("sending signal '{}' to process[{}]".format(
             typed_event.signal_name, self.process_details['name']
         ))
-        if typed_event.signal_name == 'SIGKILL':
-            self._subprocess_transport.kill()  # works on both Windows and POSIX
+        try:
+            if typed_event.signal_name == 'SIGKILL':
+                self._subprocess_transport.kill()  # works on both Windows and POSIX
+                return None
+            self._subprocess_transport.send_signal(typed_event.signal)
             return None
-        self._subprocess_transport.send_signal(typed_event.signal)
-        return None
+        except ProcessLookupError:
+            _logger.debug("signal '{}' not sent to '{}' because it has closed already".format(
+                typed_event.signal_name, self.process_details['name']
+            ))
 
     def __on_process_stdin_event(
         self,

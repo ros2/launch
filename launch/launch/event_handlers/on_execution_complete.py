@@ -110,7 +110,7 @@ class OnExecutionComplete(EventHandler):
         #                    via the 'entities' property.
         if self.__actions_on_completion:
             return '<actions>'
-        return '{}'.format(self.__on_exit)
+        return '{}'.format(self.__on_completion)
 
     @property
     def matcher_description(self) -> Text:

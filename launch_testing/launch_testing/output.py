@@ -58,6 +58,7 @@ def create_output_lines_filter(
             filtered_rmw_implementation, 'patterns'
         ))
     filtered_patterns = map(re.compile, filtered_patterns)
+    encoded_line_sep = os.linesep.encode('ascii')
 
     def _filter(output):
         filtered_output = []
@@ -69,23 +70,22 @@ def create_output_lines_filter(
             if any(pattern.match(line) for pattern in filtered_patterns):
                 continue
             filtered_output.append(line)
-        if output.endswith(b'\n'):
-            filtered_output.append(b'\n')
-        return b'\n'.join(filtered_output)
+        if output.endswith(encoded_line_sep):
+            filtered_output.append(encoded_line_sep)
+        return encoded_line_sep.join(filtered_output)
     return _filter
 
 
 def create_output_lines_test(expected_lines):
     """Create output test given a list of expected lines."""
     def _collate(output, addendum):
-        output.extend(addendum.splitlines())
+        output.write(addendum)
         return output
 
     def _match(output, pattern):
-        print(output, pattern, pattern in output)
-        return any(pattern in line for line in output)
+        return any(pattern in line for line in output.getvalue().splitlines())
 
-    return [], _collate, _match, expected_lines
+    return io.BytesIO(), _collate, _match, expected_lines
 
 
 def create_output_regex_test(expected_patterns):
