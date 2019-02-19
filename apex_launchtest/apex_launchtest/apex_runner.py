@@ -48,13 +48,14 @@ class ApexRunner(object):
         Create an ApexRunner object.
 
         :param callable gen_launch_description_fn: A function that returns a ros2 LaunchDesription
-        for launching the nodes under test.  This function should take a callable as a parameter
-        which will be called when the nodes under test are ready for the test to start
+        for launching the processes under test.  This function should take a callable as a
+        parameter which will be called when the processes under test are ready for the test to
+        start
         """
         self._gen_launch_description_fn = gen_launch_description_fn
         self._test_module = test_module
         self._launch_service = LaunchService(debug=debug)
-        self._nodes_launched = threading.Event()  # To signal when all nodes started
+        self._processes_launched = threading.Event()  # To signal when all processes started
         self._tests_completed = threading.Event()  # To signal when all the tests have finished
         self._launch_file_arguments = launch_file_arguments
 
@@ -72,12 +73,12 @@ class ApexRunner(object):
 
     def run(self):
         """
-        Launch the nodes under test and run the tests.
+        Launch the processes under test and run the tests.
 
-        :return: A tuple of two unittest.Results - one for tests that ran while nodes were
-        active, and another set for tests that ran after nodes were shutdown
+        :return: A tuple of two unittest.Results - one for tests that ran while processes were
+        active, and another set for tests that ran after processes were shutdown
         """
-        test_ld = self._gen_launch_description_fn(lambda: self._nodes_launched.set())
+        test_ld = self._gen_launch_description_fn(lambda: self._processes_launched.set())
 
         # Data to squirrel away for post-shutdown tests
         self.proc_info = ActiveProcInfoHandler()
@@ -114,10 +115,10 @@ class ApexRunner(object):
 
         if not self._tests_completed.wait(timeout=0):
             # LaunchService.run returned before the tests completed.  This can be because the user
-            # did ctrl+c, or because all of the launched nodes died before the tests completed
+            # did ctrl+c, or because all of the launched processes died before the tests completed
 
             # We should treat this as a test failure and return some test results indicating such
-            print("Nodes under test stopped before tests completed")
+            print("Processes under test stopped before tests completed")
             # TODO: This will make the program exit with an exit code, but it's not apparent
             # why.  Consider having apex_launchtest_main print some summary
             return _fail_result(), _fail_result()
@@ -141,12 +142,12 @@ class ApexRunner(object):
         inspect.getcallargs(self._gen_launch_description_fn, lambda: None)
 
     def _run_test(self):
-        # Waits for the DUT nodes to start (signaled by the _nodes_launched
+        # Waits for the DUT processes to start (signaled by the _processes_launched
         # event) and then runs the tests
 
-        if not self._nodes_launched.wait(timeout=15):
-            # Timed out waiting for the nodes to start
-            print("Timed out waiting for nodes to start up")
+        if not self._processes_launched.wait(timeout=15):
+            # Timed out waiting for the processes to start
+            print("Timed out waiting for processes to start up")
             self._launch_service.shutdown()
             return
 
@@ -171,10 +172,10 @@ class ApexRunner(object):
     def _give_attribute_to_tests(self, data, attr_name, test_suite):
         # Test suites can contain other test suites which will eventually contain
         # the actual test classes to run.  This function will recursively drill down until
-        # we find the actual tests and give the tests a reference to the node
+        # we find the actual tests and give the tests a reference to the process
 
-        # The effect of this is that every test will have self.node available to it so that
-        # it can interact with ROS2 or the process exit coes, or whatever data we want
+        # The effect of this is that every test will have `self.attr_name` available to it so that
+        # it can interact with ROS2 or the process exit coes, or IO or whatever data we want
 
         try:
             iter(test_suite)

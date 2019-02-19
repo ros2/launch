@@ -43,32 +43,32 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         # but it takes a few seconds.  We'll do it once and run tests on the same captured
         # IO
 
-        node_env = os.environ.copy()
-        node_env["PYTHONUNBUFFERED"] = "1"
+        proc_env = os.environ.copy()
+        proc_env["PYTHONUNBUFFERED"] = "1"
 
         cls.proc_output = ActiveIoHandler()
 
-        cls.node_1 = launch.actions.ExecuteProcess(
+        cls.proc_1 = launch.actions.ExecuteProcess(
             cmd=[TEST_PROC_PATH],
-            env=node_env
+            env=proc_env
         )
 
-        # This node should be distinguishable by its cmd line args
-        cls.node_2 = launch.actions.ExecuteProcess(
+        # This process should be distinguishable by its cmd line args
+        cls.proc_2 = launch.actions.ExecuteProcess(
             cmd=[TEST_PROC_PATH, '--extra'],
-            env=node_env
+            env=proc_env
         )
 
-        # This node should be distinguishable by its diffetent node name
-        cls.node_3 = launch.actions.ExecuteProcess(
+        # This process should be distinguishable by its different name
+        cls.proc_3 = launch.actions.ExecuteProcess(
             cmd=[TEST_PROC_PATH, 'node:=different_name'],
-            env=node_env
+            env=proc_env
         )
 
         launch_description = launch.LaunchDescription([
-            cls.node_1,
-            cls.node_2,
-            cls.node_3,
+            cls.proc_1,
+            cls.proc_2,
+            cls.proc_3,
             # This plumbs all the output to our IoHandler just like the ApexRunner does
             RegisterEventHandler(
                 OnProcessIO(
@@ -83,7 +83,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         launch_service.run()
 
     def test_all_processes_had_io(self):
-        # Should have three nodes (processes)
+        # Should have three processes
         self.assertEqual(3, len(self.proc_output.processes()))
 
     def test_only_one_process_had_arguments(self):
@@ -93,14 +93,14 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         matches = [t for t in text_lines if "Called with arguments" in t]
         print("Called with arguments: {}".format(matches))
 
-        # Two process have args, because thats how node names are passed down
+        # Two process have args, because thats how process names are passed down
         self.assertEqual(2, len(matches))
 
         matches_extra = [t for t in matches if "--extra" in t]
         self.assertEqual(1, len(matches_extra))
 
-        matches_node_name = [t for t in matches if "node:=different_name" in t]
-        self.assertEqual(1, len(matches_node_name))
+        matches_proc_name = [t for t in matches if "node:=different_name" in t]
+        self.assertEqual(1, len(matches_proc_name))
 
     def test_assert_wait_for_returns_immediately(self):
         # If the output has already been seen, ensure that assertWaitsFor returns right away
@@ -118,14 +118,14 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         self.assertIn("terminating_proc-3", self.proc_output.process_names())
 
     def test_processes(self):
-        self.assertIn(self.node_1, self.proc_output.processes())
-        self.assertIn(self.node_2, self.proc_output.processes())
-        self.assertIn(self.node_3, self.proc_output.processes())
+        self.assertIn(self.proc_1, self.proc_output.processes())
+        self.assertIn(self.proc_2, self.proc_output.processes())
+        self.assertIn(self.proc_3, self.proc_output.processes())
 
     # ---------- Tests for assertInStdout below this line ----------
-    def test_assertInStdout_notices_no_matching_node(self):
+    def test_assertInStdout_notices_no_matching_proc(self):
         with self.assertRaisesRegex(Exception, "Did not find any process") as cm:
-            assertInStdout(self.proc_output, self.EXPECTED_TEXT, "bad_node_name")
+            assertInStdout(self.proc_output, self.EXPECTED_TEXT, "bad_proc_name")
 
         print(cm.exception)
 
@@ -134,7 +134,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         self.assertIn("terminating_proc-2", str(cm.exception))
         self.assertIn("terminating_proc-3", str(cm.exception))
 
-    def test_assertInStdout_notices_too_many_matching_nodes(self):
+    def test_assertInStdout_notices_too_many_matching_procs(self):
         with self.assertRaisesRegex(Exception, "Found multiple processes") as cm:
             assertInStdout(self.proc_output, self.EXPECTED_TEXT, "terminating_proc")
 
@@ -143,12 +143,12 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         self.assertIn("terminating_proc-2", str(cm.exception))
         self.assertIn("terminating_proc-3", str(cm.exception))
 
-    def test_strict_node_matching_false(self):
+    def test_strict_proc_matching_false(self):
         assertInStdout(
             self.proc_output,
             self.EXPECTED_TEXT,
             "terminating_proc",
-            strict_node_matching=False
+            strict_proc_matching=False
         )
 
     def test_arguments_disambiguate_processes(self):
@@ -161,6 +161,6 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
             assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, "terminating", NO_CMD_ARGS)
 
-    def test_asserts_on_missing_text_by_node(self):
+    def test_asserts_on_missing_text_by_proc(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
-            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, self.node_2)
+            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, self.proc_2)

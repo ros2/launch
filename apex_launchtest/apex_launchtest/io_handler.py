@@ -19,7 +19,7 @@ from .asserts.assert_output import assertInStdout
 
 class IoHandler:
     """
-    Holds stdout captured from running nodes.
+    Holds stdout captured from running processes.
 
     This class provides helper methods to enumerate the captured IO by individual processes
     """
@@ -73,7 +73,7 @@ class IoHandler:
 
 class ActiveIoHandler(IoHandler):
     """
-    Holds stdout captured from running nodes.
+    Holds stdout captured from running processes.
 
     The ActiveIoHandler is meant to be used when capturing is still in progress and provides
     additional synchronization, as well as methods to wait on incoming IO
@@ -130,14 +130,14 @@ class ActiveIoHandler(IoHandler):
                 assertInStdout(
                     self._io_handler,  # Use unsynchronized, since this is called from a lock
                     msg=msg,
-                    node="",           # Will match all nodes
+                    proc="",           # Will match all process names
                     cmd_args=None,     # Will match all cmd args
-                    strict_node_matching=False
+                    strict_proc_matching=False
                 )
                 return True
             except Exception:
                 # TODO (pete baughman) This is here to handle the case where
-                # _assertInStdoutByStringProcessName raises an exception because no node has
+                # _assertInStdoutByStringProcessName raises an exception because no proc has
                 # generated output yet.  Perhaps a more specific exception should be used and
                 # then we catch the specific exception type
                 return False

@@ -14,7 +14,7 @@
 
 
 def post_shutdown_test():
-    """Decorate tests that are meant to run after node shutdown."""
+    """Decorate tests that are meant to run after process shutdown."""
     def decorator(test_item):
         if not isinstance(test_item, type):
             raise TypeError("postcondition_test should decorate test classes")

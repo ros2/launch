@@ -15,7 +15,7 @@ setup(
 
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/apex_launchtest']),
-        ('lib/' + package_name, glob.glob('example_nodes/**')),
+        ('lib/' + package_name, glob.glob('example_processes/**')),
         ('share/' + package_name + '/examples', glob.glob('examples/[!_]**')),
         ('bin', ['scripts/apex_launchtest']),
     ],

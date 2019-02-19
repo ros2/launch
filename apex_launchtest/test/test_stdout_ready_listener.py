@@ -26,8 +26,8 @@ class TestStdoutReadyListener(unittest.TestCase):
 
     def setUp(self):
         # Set up a launch description for the tests to use
-        node_env = os.environ.copy()
-        node_env["PYTHONUNBUFFERED"] = "1"
+        proc_env = os.environ.copy()
+        proc_env["PYTHONUNBUFFERED"] = "1"
 
         self.launch_description = launch.LaunchDescription([
             launch.actions.ExecuteProcess(
@@ -38,7 +38,7 @@ class TestStdoutReadyListener(unittest.TestCase):
                         'terminating_proc',
                     )
                 ],
-                env=node_env
+                env=proc_env
             )
         ])
 
@@ -48,7 +48,7 @@ class TestStdoutReadyListener(unittest.TestCase):
         self.launch_description.add_entity(
             launch.actions.RegisterEventHandler(
                 StdoutReadyListener(
-                    node_name="terminating_proc",
+                    proc_name="terminating_proc",
                     ready_txt="Ready",
                     actions=[
                         launch.actions.OpaqueFunction(function=lambda context: data.append('ok'))
@@ -70,7 +70,7 @@ class TestStdoutReadyListener(unittest.TestCase):
         self.launch_description.add_entity(
             launch.actions.RegisterEventHandler(
                 StdoutReadyListener(
-                    node_name="different_node",
+                    proc_name="different_proc",
                     ready_txt="Ready",
                     actions=[
                         launch.actions.OpaqueFunction(function=lambda context: data.append('ok'))
@@ -83,7 +83,7 @@ class TestStdoutReadyListener(unittest.TestCase):
         launch_service.include_launch_description(self.launch_description)
         launch_service.run()
 
-        # We should not get confused by output from another node
+        # We should not get confused by output from another proc
         self.assertNotIn('ok', data)
 
     def test_wait_for_wrong_message(self):
@@ -92,7 +92,7 @@ class TestStdoutReadyListener(unittest.TestCase):
         self.launch_description.add_entity(
             launch.actions.RegisterEventHandler(
                 StdoutReadyListener(
-                    node_name="different_node",
+                    proc_name="different_proc",
                     ready_txt="not_ready",
                     actions=[
                         launch.actions.OpaqueFunction(function=lambda context: data.append('ok'))

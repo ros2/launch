@@ -52,23 +52,23 @@ def generate_test_description(ready_fn):
 
         dut_process,
 
-        # In tests where all of the nodes under tests terminate themselves, it's necessary
+        # In tests where all of the procs under tests terminate themselves, it's necessary
         # to add a dummy process not under test to keep the launch alive.  apex_launchtest
         # provides a simple launch action that does this:
-        apex_launchtest.util.EmptyNode(),
+        apex_launchtest.util.KeepAliveProc(),
 
         launch.actions.OpaqueFunction(function=lambda context: ready_fn())
     ])
 
 
-class TestTerminatingNodeStops(unittest.TestCase):
+class TestTerminatingProcessStops(unittest.TestCase):
 
-    def test_node_terminates(self):
+    def test_proc_terminates(self):
         self.proc_info.assertWaitForShutdown(process=dut_process, timeout=10)
 
 
 @apex_launchtest.post_shutdown_test()
-class TestNodeOutput(unittest.TestCase):
+class TestProcessOutput(unittest.TestCase):
 
     def test_ran_with_arg(self):
         self.assertNotIn(

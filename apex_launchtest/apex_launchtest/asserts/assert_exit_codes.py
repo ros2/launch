@@ -20,7 +20,7 @@ EXIT_SIGSEGV = 139
 
 
 def assertExitCodes(proc_info, allowable_exit_codes=[EXIT_OK]):
-    """Check the exit codes of the nodes under test.
+    """Check the exit codes of the processes under test.
 
     :param iterable proc_info: A list of proc_info objects provided by the test framework to be
     checked

@@ -23,7 +23,7 @@ import launch.actions
 from apex_launchtest import ApexRunner
 
 
-# Run tests on nodes that die early with an exit code and make sure the results returned
+# Run tests on processes that die early with an exit code and make sure the results returned
 # indicate failure
 def test_dut_with_exception():
 

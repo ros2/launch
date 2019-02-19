@@ -23,8 +23,8 @@ def unittestResultsToXml(*, name="apex_launchtest", test_results={}):
     A testSuites element will be the root element of the document.
     """
     # The test_suites element is the top level of the XML result.
-    # apex_launchtest results contain two test suites - one from tests that ran while nodes were
-    # active, and one from tests that ran after nodes were shut down
+    # apex_launchtest results contain two test suites - one from tests that ran while processes
+    # were active, and one from tests that ran after processes were shut down
     test_suites = ET.Element('testsuites')
     test_suites.set('name', name)
     # test_suites.set('time', ????) skipping 'time' attribute

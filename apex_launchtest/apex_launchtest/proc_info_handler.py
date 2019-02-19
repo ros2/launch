@@ -17,13 +17,13 @@ from launch.actions import ExecuteProcess  # noqa
 
 
 class ProcInfoHandler:
-    """Captures exit codes from nodes when they terminate."""
+    """Captures exit codes from processes when they terminate."""
 
     def __init__(self):
         self._proc_info = {}
 
-    def append(self, process_io):
-        self._proc_info[process_io.action] = process_io
+    def append(self, process_info):
+        self._proc_info[process_info.action] = process_info
 
     def __iter__(self):
         return self._proc_info.values().__iter__()
@@ -58,7 +58,7 @@ class ProcInfoHandler:
 
 
 class ActiveProcInfoHandler(ProcInfoHandler):
-    """Allows tests to wait on node termination before proceeding."""
+    """Allows tests to wait on process termination before proceeding."""
 
     def __init__(self):
         self._sync_lock = threading.Condition()
@@ -66,9 +66,9 @@ class ActiveProcInfoHandler(ProcInfoHandler):
         # by composition so we can still give out the unsynchronized version
         self._proc_info_handler = ProcInfoHandler()
 
-    def append(self, process_io):
+    def append(self, process_info):
         with self._sync_lock:
-            self._proc_info_handler.append(process_io)
+            self._proc_info_handler.append(process_info)
             self._sync_lock.notify()
 
     def __iter__(self):

@@ -53,25 +53,25 @@ class SequentialTextChecker:
 
 @contextmanager
 def assertSequentialStdout(proc_output,
-                           node):
+                           proc):
     """
     Create a context manager used to check stdout occured in a specific order.
 
     :param proc_output:  The captured output from a test run
-    :param node: The node that generated the output we intend to check
+    :param proc: The process that generated the output we intend to check
     """
-    # TODO (pete baughman): Unify this node lookup [FTR2549]
-    if isinstance(node, str):
-        for proc in proc_output.processes():
-            if node in proc.process_details['name']:
-                node = proc
+    # TODO (pete baughman): Unify this proc lookup [FTR2549]
+    if isinstance(proc, str):
+        for process_action in proc_output.processes():
+            if proc in process_action.process_details['name']:
+                proc = process_action
                 break
         else:
-            raise Exception("Did not find process matching name '{}'".format(node))
+            raise Exception("Did not find process matching name '{}'".format(proc))
 
-    # Get all the output from the node.  This will be a list of strings.  Each string may contain
-    # multiple lines of output
-    to_check = [p.text.decode('ascii') for p in proc_output[node]]
+    # Get all the output from the process.  This will be a list of strings.  Each string may
+    # contain multiple lines of output
+    to_check = [p.text.decode('ascii') for p in proc_output[proc]]
     checker = SequentialTextChecker(to_check)
 
     try:

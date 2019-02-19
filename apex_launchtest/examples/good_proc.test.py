@@ -30,12 +30,12 @@ TEST_PROC_PATH = os.path.join(
 )
 
 # This is necessary to get unbuffered output from the process under test
-node_env = os.environ.copy()
-node_env["PYTHONUNBUFFERED"] = "1"
+proc_env = os.environ.copy()
+proc_env["PYTHONUNBUFFERED"] = "1"
 
 dut_process = launch.actions.ExecuteProcess(
     cmd=[TEST_PROC_PATH],
-    env=node_env,
+    env=proc_env,
 )
 
 
@@ -63,7 +63,7 @@ class TestGoodProcess(unittest.TestCase):
 
 
 @apex_launchtest.post_shutdown_test()
-class TestNodeOutput(unittest.TestCase):
+class TestProcessOutput(unittest.TestCase):
 
     def test_full_output(self):
         # Using the SequentialStdout context manager asserts that the following stdout
