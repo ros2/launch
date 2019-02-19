@@ -91,7 +91,7 @@ def create_output_lines_test(expected_lines):
 def create_output_regex_test(expected_patterns):
     """Create output test given a list of expected matching regular expressions."""
     def _collate(output, addendum):
-        output.write(addendum)
+        output.write(b'\n'.join(addendum.splitlines()))
         return output
 
     def _match(output, pattern):

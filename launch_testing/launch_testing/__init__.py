@@ -151,7 +151,7 @@ class LaunchTestService():
                         return self._drop(test_name)
                     exc = future.exception()
                     if exc is not None:
-                         return self._fail(test_name, str(exc))
+                        return self._fail(test_name, str(exc))
                 return self._succeed(test_name)
 
             launch_description.add_action(
@@ -221,6 +221,7 @@ class LaunchTestService():
             nonlocal output
             nonlocal match_patterns
             output = collate_output(output, output_filter(event.text))
+            print(output.getvalue())
             match_patterns = [
                 pattern for pattern in match_patterns
                 if not match_output(output, pattern)
