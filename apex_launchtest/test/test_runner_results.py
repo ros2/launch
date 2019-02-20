@@ -25,7 +25,7 @@ from apex_launchtest.apex_runner import ApexRunner
 
 # Run tests on processes that die early with an exit code and make sure the results returned
 # indicate failure
-def test_dut_with_exception():
+def test_dut_that_shuts_down(capsys):
 
     def generate_test_description(ready_fn):
         TEST_PROC_PATH = os.path.join(
@@ -52,6 +52,47 @@ def test_dut_with_exception():
 
         assert not pre_result.wasSuccessful()
         assert not post_result.wasSuccessful()
+
+    # This is the negative version of the test below.  If no exit code, no extra output
+    # is generated
+    out, err = capsys.readouterr()
+    assert "Starting Up" not in out
+
+
+def test_dut_that_has_exception(capsys):
+    # This is the same as above, but we also want to check we get extra output from processes
+    # that had an exit code
+
+    def generate_test_description(ready_fn):
+        TEST_PROC_PATH = os.path.join(
+            ament_index_python.get_package_prefix('apex_launchtest'),
+            'lib/apex_launchtest',
+            'terminating_proc'
+        )
+
+        return launch.LaunchDescription([
+            launch.actions.ExecuteProcess(
+                cmd=[TEST_PROC_PATH, '--exception']
+            ),
+
+            launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
+        ])
+
+    with mock.patch('apex_launchtest.apex_runner.ApexRunner._run_test'):
+        runner = ApexRunner(
+            gen_launch_description_fn=generate_test_description,
+            test_module=None
+        )
+
+        pre_result, post_result = runner.run()
+
+        assert not pre_result.wasSuccessful()
+        assert not post_result.wasSuccessful()
+
+    # Make sure some information about WHY the process died shows up in the output
+    out, err = capsys.readouterr()
+    assert "Starting Up" in out
+    assert "Process had a pretend error" in out  # This is the exception text from exception_node
 
 
 # Run some known good tests to check the nominal-good test path

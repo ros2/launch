@@ -115,12 +115,10 @@ class ApexRunner(object):
 
         if not self._tests_completed.wait(timeout=0):
             # LaunchService.run returned before the tests completed.  This can be because the user
-            # did ctrl+c, or because all of the launched processes died before the tests completed
-
-            # We should treat this as a test failure and return some test results indicating such
+            # did ctrl+c, or because all of the launched nodes died before the tests completed
             print("Processes under test stopped before tests completed")
-            # TODO: This will make the program exit with an exit code, but it's not apparent
-            # why.  Consider having apex_launchtest_main print some summary
+            self._print_process_output_summary()  # <-- Helpful to debug why processes died early
+            # We treat this as a test failure and return some test results indicating such
             return _fail_result(), _fail_result()
 
         # Now, run the post-shutdown tests
@@ -168,6 +166,16 @@ class ApexRunner(object):
         finally:
             self._tests_completed.set()
             self._launch_service.shutdown()
+
+    def _print_process_output_summary(self):
+        failed_procs = [proc for proc in self.proc_info if proc.returncode != 0]
+
+        for process in failed_procs:
+            print("Process '{}' exited with {}".format(process.process_name, process.returncode))
+            print("##### '{}' output #####".format(process.process_name))
+            for io in self.proc_output[process.action]:
+                print("{}".format(io.text.decode('ascii')))
+            print("#" * (len(process.process_name) + 21))
 
     def _give_attribute_to_tests(self, data, attr_name, test_suite):
         # Test suites can contain other test suites which will eventually contain
