@@ -17,7 +17,6 @@
 import asyncio
 import atexit
 import collections.abc
-import logging
 import signal
 import threading
 import traceback
@@ -30,6 +29,8 @@ from typing import Tuple  # noqa: F401
 
 import osrf_pycommon.process_utils
 
+from . import logging
+
 from .event import Event
 from .event_handlers import OnIncludeLaunchDescription
 from .event_handlers import OnShutdown
@@ -38,8 +39,6 @@ from .events import Shutdown
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
-from .launch_logger import LoggerLevel
-from .launch_logger import LaunchLogger
 from .some_actions_type import SomeActionsType
 from .utilities import install_signal_handlers
 from .utilities import on_sigint
@@ -47,7 +46,6 @@ from .utilities import on_sigquit
 from .utilities import on_sigterm
 from .utilities import visit_all_entities_and_collect_futures
 
-_logger = logging.getLogger('launch.LaunchService')
 _g_loops_used = set()  # type: Set
 
 
@@ -83,34 +81,21 @@ class LaunchService:
         :param: argv stored in the context for access by the entities, None results in []
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
-<<<<<<< Updated upstream
-=======
+        # Setup logging and debugging.
+        # TODO(hidmic): should be moved somewhere else maybe?
+        logging.launchConfig(
+            level=logging.DEBUG if debug else logging.INFO
+        )
         self.__debug = debug
 
         # Setup logging
-        # TODO(jacobperron) check that this is the first place the logger is instantiated
-        # TODO(jacobperron): Expose log directory
-        self.__logger = LaunchLogger(
-            level=LoggerLevel.DEBUG if self.__debug else LoggerLevel.INFO
-        )
+        self.__logger = logging.getLogger('launch.LaunchService')
 
->>>>>>> Stashed changes
         # Install signal handlers if not already installed, will raise if not
         # in main-thread, call manually in main-thread to avoid this.
         install_signal_handlers()
 
         self.__argv = argv if argv is not None else []
-
-        # Setup logging and debugging.
-        logging.basicConfig(
-            level=logging.INFO,
-            format='[%(levelname)s] [%(name)s]: %(msg)s',
-        )
-        self.__debug = debug
-        if self.__debug:
-            logging.getLogger('launch').setLevel(logging.DEBUG)
-        else:
-            logging.getLogger('launch').setLevel(logging.INFO)
 
         # Setup context and register a built-in event handler for bootstrapping.
         self.__context = LaunchContext(argv=self.__argv)
@@ -193,10 +178,10 @@ class LaunchService:
         await self.__process_event(next_event)
 
     async def __process_event(self, event: Event) -> None:
-        _logger.debug("processing event: '{}'".format(event))
+        self.__logger.debug("processing event: '{}'".format(event))
         for event_handler in tuple(self.__context._event_handlers):
             if event_handler.matches(event):
-                _logger.debug(
+                self.__logger.debug(
                     "processing event: '{}' ✓ '{}'".format(event, event_handler))
                 self.__context._push_locals()
                 entities = event_handler.handle(event, self.__context)
@@ -248,7 +233,9 @@ class LaunchService:
                             timeout=1.0,
                             return_when=asyncio.FIRST_COMPLETED)
                         if not done:
-                            _logger.debug('still waiting on futures: {}'.format(entity_futures))
+                            self.__logger.debug(
+                                'still waiting on futures: {}'.format(entity_futures)
+                            )
             else:
                 await process_one_event_task
 
@@ -313,13 +300,13 @@ class LaunchService:
                 nonlocal sigint_received
                 base_msg = 'user interrupted with ctrl-c (SIGINT)'
                 if not sigint_received:
-                    _logger.warn(base_msg)
+                    self.__logger.warning(base_msg)
                     ret = self._shutdown(
                         reason='ctrl-c (SIGINT)', due_to_sigint=True, force_sync=True)
                     assert ret is None, ret
                     sigint_received = True
                 else:
-                    _logger.warn('{} again, ignoring...'.format(base_msg))
+                    self.__logger.warning('{} again, ignoring...'.format(base_msg))
 
                 signal.signal(signal.SIGINT, prev_handler)
 
@@ -331,8 +318,8 @@ class LaunchService:
                     return
 
                 # TODO(wjwwood): try to terminate running subprocesses before exiting.
-                _logger.error('using SIGTERM or SIGQUIT can result in orphaned processes')
-                _logger.error('make sure no processes launched are still running')
+                self.__logger.error('using SIGTERM or SIGQUIT can result in orphaned processes')
+                self.__logger.error('make sure no processes launched are still running')
                 nonlocal run_loop_task
                 self.__loop_from_run_thread.call_soon_threadsafe(run_loop_task.cancel)
 
@@ -345,7 +332,7 @@ class LaunchService:
                     # This function has been called re-entrantly.
                     return
 
-                _logger.error('user interrupted with ctrl-\\ (SIGQUIT), terminating...')
+                self.__logger.error('user interrupted with ctrl-\\ (SIGQUIT), terminating...')
                 _on_sigterm(signum, frame)
 
                 signal.signal(signal.SIGQUIT, prev_handler)
@@ -360,11 +347,11 @@ class LaunchService:
                 except KeyboardInterrupt:
                     pass
                 except asyncio.CancelledError:
-                    _logger.error('asyncio run loop was canceled')
+                    self.__logger.error('asyncio run loop was canceled')
                 except Exception as exc:
                     msg = 'Caught exception in launch (see debug for traceback): {}'.format(exc)
-                    _logger.debug(traceback.format_exc())
-                    _logger.error(msg)
+                    self.__logger.debug(traceback.format_exc())
+                    self.__logger.error(msg)
                     self.__return_code = 1
                     ret = self._shutdown(reason=msg, due_to_sigint=False, force_sync=True)
                     assert ret is None, ret
