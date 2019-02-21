@@ -5,11 +5,13 @@
 Usage:
 > apex_launchtest examples/good_proc.test.py
 
-This test launches a python process that spins forever waiting for ctrl+c
-to shut it down.
+This test checks a process called good_proc (source found in the [example_processes folder](../example_processes)).
+good_proc is a simple python process that prints "Loop 1, Loop2, etc. every second until it's terminated with ctrl+c.
+The test will launch the process, wait for a few loops to complete by monitoring stdout, then terminate the process
+and run some post-shutdown checks.
 
 The pre-shutdown tests check that "Loop 1, Loop 2, Loop 3, Loop 4"
-are all printed to stdout.
+are all printed to stdout.  Once this test finishes, the process under test is shut down
 
 After shutdown, we run a similar test that checks more output, and also checks the
 order of the output.  `test_out_of_order` demonstrates that the `assertSequentialStdout`

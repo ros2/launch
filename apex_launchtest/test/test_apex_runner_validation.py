@@ -14,7 +14,7 @@
 
 import unittest
 
-from apex_launchtest import ApexRunner
+from apex_launchtest.apex_runner import ApexRunner
 
 
 class TestApexRunnerValidation(unittest.TestCase):

@@ -5,7 +5,7 @@
   <version>1.0.0</version>
   <description>A package providing cmake functions for running apex_launchtest from the build.</description>
   <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
-  <license>Apex.AI Proprietary License</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_core</buildtool_depend>
 

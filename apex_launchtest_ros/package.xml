@@ -5,7 +5,7 @@
   <version>0.1.0</version>
   <description>A package providing utilities for writing ROS2 enabled apex_launchtests.</description>
   <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
-  <license>Apex.AI Proprietary License</license>
+  <license>Apache License 2.0</license>
 
   <exec_depend>apex_launchtest</exec_depend>
   <exec_depend>launch_ros</exec_depend>

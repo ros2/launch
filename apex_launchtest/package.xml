@@ -5,7 +5,7 @@
   <version>0.2.0</version>
   <description>A package providing a ROS2 integration test framework.</description>
   <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
-  <license>Apex.AI Proprietary License</license>
+  <license>Apache License 2.0</license>
 
   <exec_depend>launch</exec_depend>
   <exec_depend>ros2launch</exec_depend>
