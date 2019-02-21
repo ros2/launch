@@ -4,7 +4,7 @@ stages:
   - report
 
 before_script:
-  - sh -c 'echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
+  - echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list
   - curl http://repo.ros2.org/repos.key | apt-key add -
   - apt-get update
   - apt-get install -y python3-colcon-common-extensions
@@ -17,7 +17,8 @@ build_launchtest:
     - colcon build --packages-up-to apex_launchtest apex_launchtest_cmake
   artifacts:
     paths:
-      - .
+      - build
+      - install 
 
 build_all:
   stage: build
@@ -26,7 +27,8 @@ build_all:
     - colcon build
   artifacts:
     paths:
-      - .
+      - build
+      - install
 
 test_launchtest:
   stage: test
@@ -54,7 +56,10 @@ test_all:
   artifacts:
     when: always
     paths:
-      - .
+      - build
+      - install
+      - log
+      - "*/.coverage"
 
 coverage:
   stage: report
