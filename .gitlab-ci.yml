@@ -58,14 +58,16 @@ test_all:
 
 coverage:
   stage: report
-  image: osrf/ros2:nightly
+  image:
+    name: python:3.6
   dependencies:
     - test_all
+  before_script: []  # Don't need ROS setup for the coverage job
   script:
     - pip3 install coverage
-    - find . -iname ".coverage" -exec python3 -m coverage combine -a {} \;
-    - python3 -m coverage report --include=*/site-packages/apex*
-    - python3 -m coverage html --include=*/site-packages/apex*
+    - find . -iname ".coverage" -exec coverage combine -a {} \;
+    - coverage report --include=*/site-packages/apex*
+    - coverage html --include=*/site-packages/apex*
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\%)/'
   artifacts:
     paths:
