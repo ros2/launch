@@ -24,7 +24,7 @@ build_all:
   stage: build
   image: osrf/ros2:nightly
   script:
-    - colcon build
+    - colcon build --symlink-install
   artifacts:
     paths:
       - build
@@ -71,8 +71,8 @@ coverage:
   script:
     - pip3 install coverage
     - find . -iname ".coverage" -exec coverage combine -a {} \;
-    - coverage report --include=*/site-packages/apex*
-    - coverage html --include=*/site-packages/apex*
+    - coverage report --include=apex_launchtest*
+    - coverage html --include=apex_launchtest*
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\%)/'
   artifacts:
     paths:
