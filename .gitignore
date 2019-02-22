@@ -4,6 +4,7 @@
 *.egg-info
 *.pyc
 *.pytest_cache
+*.coverage
 htmlcov/
 
 build/
