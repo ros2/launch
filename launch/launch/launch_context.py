@@ -23,9 +23,10 @@ from typing import List  # noqa: F401
 from typing import Optional
 from typing import Text
 
+from . import logging
+
 from .event import Event
 from .event_handler import EventHandler
-from .launch_logger import LaunchLogger
 from .substitution import Substitution
 
 
@@ -55,7 +56,7 @@ class LaunchContext:
         self.__is_shutdown = False
         self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
 
-        self.__logger = LaunchLogger()
+        self.__logger = logging.getLogger(__name__)
 
     @property
     def argv(self):
@@ -166,12 +167,12 @@ class LaunchContext:
 
     def emit_event_sync(self, event: Event) -> None:
         """Emit an event synchronously."""
-        self.__logger.debug(__name__, "emitting event synchronously: '{}'".format(event.name))
+        self.__logger.debug("emitting event synchronously: '{}'".format(event.name))
         self._event_queue.put_nowait(event)
 
     async def emit_event(self, event: Event) -> None:
         """Emit an event."""
-        self.__logger.debug(__name__, "emitting event: '{}'".format(event.name))
+        self.__logger.debug("emitting event: '{}'".format(event.name))
         await self._event_queue.put(event)
 
     def perform_substitution(self, substitution: Substitution) -> Text:

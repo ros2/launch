@@ -19,9 +19,10 @@ from typing import overload
 from typing import Text
 from typing import Union
 
+from .. import logging
+
 from ..action import Action
 from ..launch_context import LaunchContext
-from ..launch_logger import LaunchLogger
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 
@@ -44,7 +45,7 @@ class LogInfo(Action):
         super().__init__(**kwargs)
 
         self.__msg = normalize_to_list_of_substitutions(msg)
-        self.__logger = LaunchLogger()
+        self.__logger = logging.getLogger(__name__)
 
     @property
     def msg(self) -> List[Substitution]:
@@ -54,7 +55,6 @@ class LogInfo(Action):
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         self.__logger.info(
-            __name__,
-            ''.join([context.perform_substitution(sub) for sub in self.msg]),
+            ''.join([context.perform_substitution(sub) for sub in self.msg])
         )
         return None

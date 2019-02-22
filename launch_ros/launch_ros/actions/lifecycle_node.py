@@ -22,7 +22,7 @@ from typing import Text
 
 import launch
 from launch.action import Action
-from launch.launch_logger import LaunchLogger
+import launch.logging
 
 import lifecycle_msgs.msg
 import lifecycle_msgs.srv
@@ -60,7 +60,7 @@ class LifecycleNode(Node):
             to change state, see its documentation for more details.
         """
         super().__init__(node_name=node_name, **kwargs)
-        self.__logger = LaunchLogger()
+        self.__logger = launch.logging.getLogger(__name__)
         self.__rclpy_subscription = None
         self.__current_state = \
             ChangeState.valid_states[lifecycle_msgs.msg.State.PRIMARY_STATE_UNKNOWN]
@@ -72,14 +72,12 @@ class LifecycleNode(Node):
             context.asyncio_loop.call_soon_threadsafe(lambda: context.emit_event_sync(event))
         except Exception as exc:
             self.__logger.error(
-                __name__,
                 "Exception in handling of 'lifecycle.msg.TransitionEvent': {}".format(exc))
 
     def _call_change_state(self, request, context: launch.LaunchContext):
         while not self.__rclpy_change_state_client.wait_for_service(timeout_sec=1.0):
             if context.is_shutdown:
                 self.___logger.warning(
-                    __name__,
                     "Abandoning wait for the '{}' service, due to shutdown.".format(
                         self.__rclpy_change_state_client.srv_name),
                 )
@@ -87,7 +85,6 @@ class LifecycleNode(Node):
         response = self.__rclpy_change_state_client.call(request)
         if not response.success:
             self.__logger.error(
-                __name__,
                 "Failed to make transition '{}' for LifecycleNode '{}'".format(
                     ChangeState.valid_transitions[request.transition.id],
                     self.node_name,
