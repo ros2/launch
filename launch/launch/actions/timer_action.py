@@ -27,13 +27,15 @@ from typing import Tuple
 from typing import Union
 
 from .opaque_function import OpaqueFunction
+
+from .. import logging
+
 from ..action import Action
 from ..event_handler import EventHandler
 from ..events import Shutdown
 from ..events import TimerEvent
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
-from ..launch_logger import LaunchLogger
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..some_substitutions_type import SomeSubstitutionsType_types_tuple
@@ -74,7 +76,7 @@ class TimerAction(Action):
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
         self.__cancel_on_shutdown = cancel_on_shutdown
-        self.__logger = LaunchLogger()
+        self.__logger = logging.getLogger(__name__)
 
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(
@@ -132,7 +134,6 @@ class TimerAction(Action):
         if self.__canceled:
             # In this case, the action was canceled before being executed.
             self.__logger.debug(
-                __name__,
                 'timer {} not waiting because it was canceled before being executed'.format(self),
             )
             self.__completed_future.set_result(None)

@@ -18,9 +18,10 @@ from typing import List
 from typing import Optional
 from typing import Text
 
+from .. import logging
+
 from ..action import Action
 from ..launch_context import LaunchContext
-from ..launch_logger import LaunchLogger
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
@@ -86,7 +87,7 @@ class DeclareLaunchArgument(Action):
             self.__default_value = normalize_to_list_of_substitutions(default_value)
         self.__description = description
 
-        self.__logger = LaunchLogger()
+        self.__logger = logging.getLogger(__name__)
 
         # This is used later to determine if this launch argument will be
         # conditionally visited.
@@ -115,7 +116,6 @@ class DeclareLaunchArgument(Action):
             if self.default_value is None:
                 # Argument not already set and no default value given, error.
                 self.__logger.error(
-                    __name__,
                     "Required launch argument '{}' (description: '{}') was not provided".format(
                         self.name, self.description)
                 )

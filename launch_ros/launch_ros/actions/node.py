@@ -29,7 +29,9 @@ from typing import Tuple
 from launch.action import Action
 from launch.actions import ExecuteProcess
 from launch.launch_context import LaunchContext
-from launch.launch_logger import LaunchLogger
+
+import launch.logging
+
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import LocalSubstitution
 from launch.utilities import ensure_argument_type
@@ -175,7 +177,7 @@ class Node(ExecuteProcess):
 
         self.__substitutions_performed = False
 
-        self.__logger = LaunchLogger()
+        self.__logger = launch.logging.getLogger(__name__)
 
     @property
     def node_name(self):
@@ -213,7 +215,6 @@ class Node(ExecuteProcess):
             validate_namespace(self.__expanded_node_namespace)
         except Exception:
             self.__logger.error(
-                __name__,
                 "Error while expanding or validating node name or namespace for '{}':"
                 .format('package={}, node_executable={}, name={}, namespace={}'.format(
                     self.__package,
@@ -240,7 +241,6 @@ class Node(ExecuteProcess):
                     raise RuntimeError('invalid normalized parameters {}'.format(repr(params)))
                 if not os.path.isfile(param_file_path):
                     self.__logger.warning(
-                        __name__,
                         'Parameter file path is not a file: {}'.format(param_file_path),
                     )
                     # Don't skip adding the file to the parameter list since space has been
