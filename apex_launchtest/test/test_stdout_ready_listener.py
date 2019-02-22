@@ -20,6 +20,7 @@ import launch
 import launch.actions
 
 from apex_launchtest.event_handlers import StdoutReadyListener
+from apex_launchtest.util import KeepAliveProc
 
 
 class TestStdoutReadyListener(unittest.TestCase):
@@ -29,17 +30,19 @@ class TestStdoutReadyListener(unittest.TestCase):
         proc_env = os.environ.copy()
         proc_env["PYTHONUNBUFFERED"] = "1"
 
+        self.terminating_proc = launch.actions.ExecuteProcess(
+            cmd=[
+                os.path.join(
+                    ament_index_python.get_package_prefix('apex_launchtest'),
+                    'lib/apex_launchtest',
+                    'terminating_proc',
+                )
+            ],
+            env=proc_env
+        )
+
         self.launch_description = launch.LaunchDescription([
-            launch.actions.ExecuteProcess(
-                cmd=[
-                    os.path.join(
-                        ament_index_python.get_package_prefix('apex_launchtest'),
-                        'lib/apex_launchtest',
-                        'terminating_proc',
-                    )
-                ],
-                env=proc_env
-            )
+            self.terminating_proc,
         ])
 
     def test_wait_for_ready(self):
@@ -48,7 +51,7 @@ class TestStdoutReadyListener(unittest.TestCase):
         self.launch_description.add_entity(
             launch.actions.RegisterEventHandler(
                 StdoutReadyListener(
-                    proc_name="terminating_proc",
+                    target_action=self.terminating_proc,
                     ready_txt="Ready",
                     actions=[
                         launch.actions.OpaqueFunction(function=lambda context: data.append('ok'))
@@ -70,7 +73,7 @@ class TestStdoutReadyListener(unittest.TestCase):
         self.launch_description.add_entity(
             launch.actions.RegisterEventHandler(
                 StdoutReadyListener(
-                    proc_name="different_proc",
+                    target_action=KeepAliveProc(),  # We never launched this process
                     ready_txt="Ready",
                     actions=[
                         launch.actions.OpaqueFunction(function=lambda context: data.append('ok'))
@@ -92,7 +95,7 @@ class TestStdoutReadyListener(unittest.TestCase):
         self.launch_description.add_entity(
             launch.actions.RegisterEventHandler(
                 StdoutReadyListener(
-                    proc_name="different_proc",
+                    target_action=self.terminating_proc,
                     ready_txt="not_ready",
                     actions=[
                         launch.actions.OpaqueFunction(function=lambda context: data.append('ok'))

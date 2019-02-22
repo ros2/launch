@@ -14,6 +14,8 @@
 
 from contextlib import contextmanager
 
+from ..util import resolveProcesses
+
 
 class SequentialTextChecker:
     """Helper class for asserting that text is found in a certain order."""
@@ -53,21 +55,30 @@ class SequentialTextChecker:
 
 @contextmanager
 def assertSequentialStdout(proc_output,
-                           proc):
+                           proc,
+                           cmd_args=None):
     """
     Create a context manager used to check stdout occured in a specific order.
 
     :param proc_output:  The captured output from a test run
-    :param proc: The process that generated the output we intend to check
+
+    :param proc: The process whose output will be searched
+    :type proc: A string (search by process name) or a launch.actions.ExecuteProcess object
+
+    :param cmd_args: Optional.  If 'proc' is a string, cmd_args will be used to disambiguate
+    processes with the same name.  Pass apex_launchtest.asserts.NO_CMD_ARGS to match a proc without
+    command arguments
+    :type cmd_args: string
     """
-    # TODO (pete baughman): Unify this proc lookup [FTR2549]
-    if isinstance(proc, str):
-        for process_action in proc_output.processes():
-            if proc in process_action.process_details['name']:
-                proc = process_action
-                break
-        else:
-            raise Exception("Did not find process matching name '{}'".format(proc))
+    proc = resolveProcesses(
+        proc_output,
+        proc=proc,
+        cmd_args=cmd_args,
+        # There's no good way to sequence output from multiple processes reliably, so we won't
+        # pretend to be able to.  Only allow one matching process for the comination of proc and
+        # cmd_args
+        strict_proc_matching=True,
+    )[0]
 
     # Get all the output from the process.  This will be a list of strings.  Each string may
     # contain multiple lines of output

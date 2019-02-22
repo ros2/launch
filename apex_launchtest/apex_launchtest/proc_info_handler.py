@@ -15,6 +15,9 @@
 import threading
 from launch.actions import ExecuteProcess  # noqa
 
+from .util import resolveProcesses
+from .util import NoMatchingProcessException
+
 
 class ProcInfoHandler:
     """Captures exit codes from processes when they terminate."""
@@ -75,14 +78,14 @@ class ActiveProcInfoHandler(ProcInfoHandler):
         with self._sync_lock:
             return self._proc_info_handler.__iter__()
 
-    def process(self):
+    def processes(self):
         """
         Get the ExecuteProcess launch actions of all recorded processes.
 
         :returns [launch.actions.ExecuteProcess]:
         """
         with self._sync_lock:
-            return list(self._proc_info_handler).processes()
+            return list(self._proc_info_handler.processes())
 
     def process_names(self):
         """
@@ -97,24 +100,30 @@ class ActiveProcInfoHandler(ProcInfoHandler):
         with self._sync_lock:
             return self._proc_info_handler[key]
 
-    def assertWaitForShutdown(
-            self,
-            *,
-            process: 'ExecuteProcess',
-            timeout):
+    def assertWaitForShutdown(self,
+                              proc,
+                              cmd_args=None,
+                              *,
+                              timeout=10):
 
         success = False
 
+        def proc_is_shutdown():
+            try:
+                resolveProcesses(
+                    info_obj=self._proc_info_handler,
+                    proc=proc,
+                    cmd_args=cmd_args,
+                    strict_proc_matching=True
+                )
+                return True
+            except NoMatchingProcessException:
+                return False
+
         with self._sync_lock:
             success = self._sync_lock.wait_for(
-                lambda: process in self._proc_info_handler.processes(),
+                proc_is_shutdown,
                 timeout=timeout
             )
 
-        if not success:
-            if process.process_details is None:
-                assert False, "Process {} was never started".format(process)
-            else:
-                assert False, "Timed out waiting for process '{}' to finish".format(
-                    process.process_details['name']
-                )
+        assert success, "Timed out waiting for process '{}' to finish".format(proc)

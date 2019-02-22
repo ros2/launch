@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Optional
+from typing import Text
+
+from launch.actions import ExecuteProcess
 from launch.event_handlers import OnProcessIO
 from launch.some_actions_type import SomeActionsType
 
@@ -25,19 +29,21 @@ class StdoutReadyListener(OnProcessIO):
     bit of text
     """
 
-    def __init__(self,
-                 proc_name,
-                 ready_txt,
-                 actions: [SomeActionsType]):
-        self.__proc_name = proc_name
+    def __init__(
+        self,
+        *,
+        target_action: Optional[ExecuteProcess] = None,
+        ready_txt: Text,
+        actions: [SomeActionsType]
+    ):
         self.__ready_txt = ready_txt
         self.__actions = actions
 
         super().__init__(
+            target_action=target_action,
             on_stdout=self.__on_stdout
         )
 
     def __on_stdout(self, process_io):
-        if self.__proc_name in process_io.process_name:
-            if self.__ready_txt in process_io.text.decode('ascii'):
-                return self.__actions
+        if self.__ready_txt in process_io.text.decode('ascii'):
+            return self.__actions
