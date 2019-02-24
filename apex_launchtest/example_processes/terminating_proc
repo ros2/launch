@@ -29,6 +29,9 @@ if __name__ == "__main__":
     if sys.argv[1:]:
         print("Called with arguments {}".format(sys.argv[1:]))
 
+    if '--exception' in sys.argv[1:]:
+        raise Exception("Process had a pretend error")
+
     try:
         print("Emulating Work")
         time.sleep(1.0)
