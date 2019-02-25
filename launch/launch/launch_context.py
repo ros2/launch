@@ -23,7 +23,7 @@ from typing import List  # noqa: F401
 from typing import Optional
 from typing import Text
 
-from . import logging
+import launch.logging
 
 from .event import Event
 from .event_handler import EventHandler
@@ -56,7 +56,7 @@ class LaunchContext:
         self.__is_shutdown = False
         self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
 
-        self.__logger = logging.getLogger(__name__)
+        self.__logger = launch.logging.getLogger(__name__)
 
     @property
     def argv(self):

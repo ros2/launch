@@ -31,6 +31,8 @@ from typing import Optional
 from typing import Text
 from typing import Tuple  # noqa: F401
 
+import launch.logging
+
 from osrf_pycommon.process_utils import async_execute_process
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
 
@@ -38,7 +40,6 @@ from .emit_event import EmitEvent
 from .opaque_function import OpaqueFunction
 from .timer_action import TimerAction
 
-from .. import logging
 from ..action import Action
 from ..event import Event
 from ..event_handler import EventHandler
@@ -373,7 +374,7 @@ class ExecuteProcess(Action):
             self.__context = context
             self.__action = action
             self.__process_event_args = process_event_args
-            self.__logger = logging.getLogger(process_event_args['name'])
+            self.__logger = launch.logging.getLogger(process_event_args['name'])
 
         def connection_made(self, transport):
             self.__logger.info(
@@ -502,11 +503,9 @@ class ExecuteProcess(Action):
         try:
             self.__completed_future = create_future(context.asyncio_loop)
             self.__expand_substitutions(context)
-            self.__logger = logging.getLogger(self.__name)
-            self.__logger.addHandler(logging.getScreenHandler())
-            self.__logger.addHandler(logging.getLogFileHandler())
+            self.__logger = launch.logging.getLogger(self.__name)
             self.__stdout_logger, self.__stderr_logger = \
-                logging.getOutputLoggers(self.__name, self.__output)
+                launch.logging.getOutputLoggers(self.__name, self.__output)
             context.asyncio_loop.create_task(self.__execute_process(context))
         except Exception:
             for event_handler in event_handlers:

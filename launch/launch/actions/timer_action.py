@@ -26,7 +26,7 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
-from .. import logging
+import launch.logging
 
 from ..action import Action
 from ..event_handler import EventHandler
@@ -73,7 +73,7 @@ class TimerAction(Action):
         self.__completed_future = None  # type: Optional[asyncio.Future]
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
-        self.__logger = logging.getLogger(__name__)
+        self.__logger = launch.logging.getLogger(__name__)
 
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(
