@@ -61,7 +61,7 @@ class OnExecutionComplete(EventHandler):
         """Constructor."""
         from ..action import Action  # noqa
         if not isinstance(target_action, (Action, type(None))):
-            raise RuntimeError("OnExecutionComplete requires an 'Action' as the target")
+            raise ValueError("OnExecutionComplete requires an 'Action' as the target")
         super().__init__(
             matcher=(
                 lambda event: (

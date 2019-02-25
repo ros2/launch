@@ -41,11 +41,23 @@ class OpaqueCoroutine(Action):
     .. code-block:: python
 
         async def coroutine(
-            context: LaunchContext,  # iff ignore_context is False
+            context: LaunchContext,
             *args,
             **kwargs
         ):
             ...
+
+    if ignore_context is False on construction (currently the default), or
+
+    .. code-block:: python
+
+        async def coroutine(
+            *args,
+            **kwargs
+        ):
+            ...
+
+    if ignore_context is True on construction.
     """
 
     def __init__(
@@ -60,7 +72,7 @@ class OpaqueCoroutine(Action):
         super().__init__(**left_over_kwargs)
         if not asyncio.iscoroutinefunction(coroutine):
             raise TypeError(
-                "OpaqueCoroutine expected a couroutine for 'couroutine', got '{}'".format(
+                "OpaqueCoroutine expected a coroutine for 'coroutine', got '{}'".format(
                     type(coroutine)
                 )
             )
