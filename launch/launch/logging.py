@@ -23,7 +23,6 @@ from logging import ERROR
 from logging import FATAL
 from logging import FileHandler
 from logging import Formatter
-from logging import getLogger
 from logging import Handler
 from logging import INFO
 from logging import Logger
@@ -179,6 +178,19 @@ def launchConfig(*, level=None, log_dir=None, screen_format=None,
         launchConfig.log_dir = log_dir
 
 
+def getLogger(name=None):
+    """Get named logger, configured to output to screen and launch main log file."""
+    import logging
+    logger = logging.getLogger(name)
+    screen_handler = getScreenHandler()
+    if screen_handler not in logger.handlers:
+        logger.addHandler(screen_handler)
+    launch_log_file_handler = getLogFileHandler()
+    if launch_log_file_handler not in logger.handlers:
+        logger.addHandler(launch_log_file_handler)
+    return logger
+
+
 def _normalize_output_configuration(config):
     """
     Normalize output configuration to a dict representation.
@@ -261,9 +273,10 @@ def getOutputLoggers(proc_name, output_config):
     launch log file, and their own separate and combined log files.
     :returns: a tuple with the stdout and stderr output loggers.
     """
+    import logging
     output_config = _normalize_output_configuration(output_config)
     for source in ('stdout', 'stderr'):
-        logger = getLogger('{}-{}'.format(proc_name, source))
+        logger = logging.getLogger('{}-{}'.format(proc_name, source))
         # If a 'screen' output is configured for this source or for
         # 'both' sources, this logger should output to screen.
         if 'screen' in (output_config['both'] | output_config[source]):
@@ -305,8 +318,8 @@ def getOutputLoggers(proc_name, output_config):
             if combined_log_file_handler not in logger.handlers:
                 logger.addHandler(combined_log_file_handler)
     # Retrieve both loggers.
-    return (getLogger(proc_name + '-stdout'),
-            getLogger(proc_name + '-stderr'))
+    return (logging.getLogger(proc_name + '-stdout'),
+            logging.getLogger(proc_name + '-stderr'))
 
 
 def getScreenHandler():

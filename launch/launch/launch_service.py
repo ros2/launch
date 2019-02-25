@@ -27,9 +27,9 @@ from typing import Set  # noqa: F401
 from typing import Text
 from typing import Tuple  # noqa: F401
 
-import osrf_pycommon.process_utils
+import launch.logging
 
-from . import logging
+import osrf_pycommon.process_utils
 
 from .event import Event
 from .event_handlers import OnIncludeLaunchDescription
@@ -83,13 +83,13 @@ class LaunchService:
         """
         # Setup logging and debugging.
         # TODO(hidmic): should be moved somewhere else maybe?
-        logging.launchConfig(
-            level=logging.DEBUG if debug else logging.INFO
+        launch.logging.launchConfig(
+            level=launch.logging.DEBUG if debug else launch.logging.INFO
         )
         self.__debug = debug
 
         # Setup logging
-        self.__logger = logging.getLogger('launch.LaunchService')
+        self.__logger = launch.logging.getLogger('launch')
 
         # Install signal handlers if not already installed, will raise if not
         # in main-thread, call manually in main-thread to avoid this.
