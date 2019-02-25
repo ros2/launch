@@ -18,7 +18,7 @@ from typing import List
 from typing import Optional
 from typing import Text
 
-from .. import logging
+import launch.logging
 
 from ..action import Action
 from ..launch_context import LaunchContext
@@ -87,7 +87,7 @@ class DeclareLaunchArgument(Action):
             self.__default_value = normalize_to_list_of_substitutions(default_value)
         self.__description = description
 
-        self.__logger = logging.getLogger(__name__)
+        self.__logger = launch.logging.getLogger(__name__)
 
         # This is used later to determine if this launch argument will be
         # conditionally visited.

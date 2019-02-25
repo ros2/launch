@@ -19,7 +19,7 @@ from typing import overload
 from typing import Text
 from typing import Union
 
-from .. import logging
+import launch.logging
 
 from ..action import Action
 from ..launch_context import LaunchContext
@@ -45,7 +45,7 @@ class LogInfo(Action):
         super().__init__(**kwargs)
 
         self.__msg = normalize_to_list_of_substitutions(msg)
-        self.__logger = logging.getLogger(__name__)
+        self.__logger = launch.logging.getLogger(__name__)
 
     @property
     def msg(self) -> List[Substitution]:
