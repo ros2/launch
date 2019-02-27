@@ -82,7 +82,6 @@ class LaunchService:
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
         # Setup logging and debugging.
-        # TODO(hidmic): should be moved somewhere else maybe?
         launch.logging.launchConfig(
             level=launch.logging.DEBUG if debug else launch.logging.INFO
         )

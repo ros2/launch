@@ -94,7 +94,7 @@ def with_per_logger_formatting(cls):
     return _trait
 
 
-def singleton(**attr):
+def attributes(**attr):
     """Inject attributes into a function (a singleton by definition)."""
     def _decorator(f):
         for name, value in attr.items():
@@ -103,9 +103,16 @@ def singleton(**attr):
     return _decorator
 
 
-@singleton(screen_handler=None, file_handlers={})
-def launchConfig(*, level=None, log_dir=None, screen_format=None,
-                 log_format=None, screen_style=None, log_style=None):
+@attributes(screen_handler=None, file_handlers={})
+def launchConfig(
+    *,
+    level=None,
+    log_dir=None,
+    screen_format=None,
+    screen_style=None,
+    log_format=None,
+    log_style=None
+):
     """
     Set up launch logging.
 
