@@ -368,9 +368,6 @@ class LaunchService:
             on_sigterm(None)
             on_sigquit(None)
 
-            # Flush the logging buffer
-            logging.reset()
-
             with self.__running_lock:
                 self.__running = False
 
