@@ -73,10 +73,6 @@ _global_process_counter_lock = threading.Lock()
 _global_process_counter = 0  # in Python3, this number is unbounded (no rollover)
 
 
-def default_output_prefix(line: Text, action: 'ExecuteProcess') -> Text:
-    return '[{}] {}'.format(action.name, line)
-
-
 class ExecuteProcess(Action):
     """Action that begins executing a process and sets up event handlers for the process."""
 
@@ -94,7 +90,7 @@ class ExecuteProcess(Action):
             'sigkill_timeout', default=5),
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Text = 'log',
-        output_prefix: Optional[Callable[[Text, Action], Text]] = None,
+        output_format: Text = '[{this.name}] {line}',
         log_cmd: bool = False,
         on_exit: Optional[Union[
             SomeActionsType,
@@ -171,10 +167,11 @@ class ExecuteProcess(Action):
             called 'launch-prefix'
         :param: output configuration for process output logging. Default is 'log' i.e.
             log both stdout and stderr to launch main log file and stderr to the screen.
-            See launch.logging.getOutputLoggers() documentation for further reference
+            See `launch.logging.getOutputLoggers()` documentation for further reference
             on all available options.
-        :param: output_prefix to preprocess each output line before logging it. Defaults
-            to prepending each line with the process name.
+        :param: output_format for logging each output line, supporting `str.format()`
+            substitutions with the following keys in scope: `line` to reference the raw
+            output line and `this` to reference this action instance.
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
@@ -198,10 +195,7 @@ class ExecuteProcess(Action):
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
         self.__output = output
-        # TODO(hidmic): consider implementing this using logging.LoggerAdapter instead
-        if output_prefix is None:
-            output_prefix = default_output_prefix
-        self.__output_prefix = output_prefix
+        self.__output_format = output_format
 
         self.__log_cmd = log_cmd
         self.__on_exit = on_exit
@@ -305,13 +299,17 @@ class ExecuteProcess(Action):
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
         for line in event.text.decode().splitlines():
-            self.__stdout_logger.info(self.__output_prefix(line, self))
+            self.__stdout_logger.info(
+                self.__output_format.format(line=line, this=self)
+            )
 
     def __on_process_stderr(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
         for line in event.text.decode().splitlines():
-            self.__stderr_logger.info(self.__output_prefix(line, self))
+            self.__stderr_logger.info(
+                self.__output_format.format(line=line, this=self)
+            )
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         return self.__shutdown_process(
