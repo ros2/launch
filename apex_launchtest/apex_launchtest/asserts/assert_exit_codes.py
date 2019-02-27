@@ -23,7 +23,7 @@ EXIT_SIGSEGV = 139
 
 def assertExitCodes(proc_info,
                     allowable_exit_codes=[EXIT_OK],
-                    proc=None,  # By default, checks all processes
+                    process=None,  # By default, checks all processes
                     cmd_args=None,
                     *,
                     strict_proc_matching=True):
@@ -39,7 +39,7 @@ def assertExitCodes(proc_info,
 
     to_check = resolveProcesses(
         info_obj=proc_info,
-        proc=proc,
+        process=process,
         cmd_args=cmd_args,
         strict_proc_matching=strict_proc_matching
     )

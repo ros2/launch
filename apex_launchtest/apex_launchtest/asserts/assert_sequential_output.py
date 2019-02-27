@@ -55,24 +55,24 @@ class SequentialTextChecker:
 
 @contextmanager
 def assertSequentialStdout(proc_output,
-                           proc,
+                           process,
                            cmd_args=None):
     """
     Create a context manager used to check stdout occured in a specific order.
 
     :param proc_output:  The captured output from a test run
 
-    :param proc: The process whose output will be searched
-    :type proc: A string (search by process name) or a launch.actions.ExecuteProcess object
+    :param process: The process whose output will be searched
+    :type process: A string (search by process name) or a launch.actions.ExecuteProcess object
 
     :param cmd_args: Optional.  If 'proc' is a string, cmd_args will be used to disambiguate
     processes with the same name.  Pass apex_launchtest.asserts.NO_CMD_ARGS to match a proc without
     command arguments
     :type cmd_args: string
     """
-    proc = resolveProcesses(
+    process = resolveProcesses(
         proc_output,
-        proc=proc,
+        process=process,
         cmd_args=cmd_args,
         # There's no good way to sequence output from multiple processes reliably, so we won't
         # pretend to be able to.  Only allow one matching process for the comination of proc and
@@ -82,7 +82,7 @@ def assertSequentialStdout(proc_output,
 
     # Get all the output from the process.  This will be a list of strings.  Each string may
     # contain multiple lines of output
-    to_check = [p.text.decode('ascii') for p in proc_output[proc]]
+    to_check = [p.text.decode() for p in proc_output[process]]
     checker = SequentialTextChecker(to_check)
 
     try:

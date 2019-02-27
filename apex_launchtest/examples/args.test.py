@@ -64,7 +64,7 @@ def generate_test_description(ready_fn):
 class TestTerminatingProcessStops(unittest.TestCase):
 
     def test_proc_terminates(self):
-        self.proc_info.assertWaitForShutdown(proc=dut_process, timeout=10)
+        self.proc_info.assertWaitForShutdown(process=dut_process, timeout=10)
 
 
 @apex_launchtest.post_shutdown_test()

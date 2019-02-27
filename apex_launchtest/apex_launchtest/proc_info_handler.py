@@ -101,7 +101,7 @@ class ActiveProcInfoHandler(ProcInfoHandler):
             return self._proc_info_handler[key]
 
     def assertWaitForShutdown(self,
-                              proc,
+                              process,
                               cmd_args=None,
                               *,
                               timeout=10):
@@ -112,7 +112,7 @@ class ActiveProcInfoHandler(ProcInfoHandler):
             try:
                 resolveProcesses(
                     info_obj=self._proc_info_handler,
-                    proc=proc,
+                    process=process,
                     cmd_args=cmd_args,
                     strict_proc_matching=True
                 )
@@ -126,4 +126,4 @@ class ActiveProcInfoHandler(ProcInfoHandler):
                 timeout=timeout
             )
 
-        assert success, "Timed out waiting for process '{}' to finish".format(proc)
+        assert success, "Timed out waiting for process '{}' to finish".format(process)

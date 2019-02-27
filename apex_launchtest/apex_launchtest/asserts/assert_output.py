@@ -17,7 +17,7 @@ from ..util import resolveProcesses
 
 def assertInStdout(proc_output,
                    msg,
-                   proc,
+                   process,
                    cmd_args=None,
                    *,
                    strict_proc_matching=True):
@@ -31,10 +31,10 @@ def assertInStdout(proc_output,
     :param msg: The message to search for
     :type msg: string
 
-    :param proc: The process whose output will be searched
-    :type proc: A string (search by process name) or a launch.actions.ExecuteProcess object
+    :param process: The process whose output will be searched
+    :type process: A string (search by process name) or a launch.actions.ExecuteProcess object
 
-    :param cmd_args: Optional.  If 'proc' is a string, cmd_args will be used to disambiguate
+    :param cmd_args: Optional.  If 'process' is a string, cmd_args will be used to disambiguate
     processes with the same name.  Pass apex_launchtest.asserts.NO_CMD_ARGS to match a proc without
     command arguments
     :type cmd_args: string
@@ -46,14 +46,14 @@ def assertInStdout(proc_output,
     """
     resolved_procs = resolveProcesses(
         info_obj=proc_output,
-        proc=proc,
+        process=process,
         cmd_args=cmd_args,
         strict_proc_matching=strict_proc_matching
     )
 
     for proc in resolved_procs:  # Nominally just one matching proc
         for output in proc_output[proc]:
-            if msg in output.text.decode('ascii'):
+            if msg in output.text.decode():
                 return
     else:
         names = ', '.join(sorted([p.process_details['name'] for p in resolved_procs]))

@@ -48,40 +48,53 @@ def _str_name_to_process(info_obj, proc_name, cmd_args):
     return matches
 
 
-def resolveProcesses(info_obj, *, proc=None, cmd_args=None, strict_proc_matching=True):
+def resolveProcesses(info_obj, *, process=None, cmd_args=None, strict_proc_matching=True):
     """
     Resolve a process name and cmd arguments to one or more launch.actions.ExecuteProcess.
 
     :param info_obj: a ProcInfoHandler or an IoHandler that contains processes that could match
 
-    :returns: A list of matching processes
+    :param process:  One or more processes to match.  Pass None to match all processes
+    :type process: A launch.actions.ExecuteProcess object to match a specific process, or a string
+    to search by process name
+
+    :param cmd_args: Optional.  If the process param is a string, the cmd_args will be used to
+    disambiguate processes with the same name.  cmd_args=None will match all command arguments.
+    cmd_args=apex_launchtest.asserts.NO_CMD_ARGS will match a process without command-line
+    arguments
+
+    :param strict_proc_matching:  Optional.  If the process param is a string and matches multiple
+    processes, strict_proc_matching=True will raise an error
+
+    :returns: A list of one or more matching processes taken from the info_obj.  If no processes
+    in info_obj match, a NoMatchingProcessException will be raised.
     """
-    if proc is None:
+    if process is None:
         # We want to search all processes
         all_procs = info_obj.processes()
         if len(all_procs) == 0:
             raise NoMatchingProcessException("No data recorded for any process")
         return all_procs
 
-    if isinstance(proc, launch.actions.ExecuteProcess):
+    if isinstance(process, launch.actions.ExecuteProcess):
         # We want to search a specific process
-        if proc in info_obj.processes():
-            return [proc]
+        if process in info_obj.processes():
+            return [process]
         else:
             raise NoMatchingProcessException(
-                "No data recorded for proc {}".format(_proc_to_name_and_args(proc))
+                "No data recorded for proc {}".format(_proc_to_name_and_args(process))
             )
 
-    elif isinstance(proc, str):
+    elif isinstance(process, str):
         # We want to search one (or more) processes that match a particular string.  The "or more"
         # part is controlled by the strict_proc_matching argument
-        matches = _str_name_to_process(info_obj, proc, cmd_args)
+        matches = _str_name_to_process(info_obj, process, cmd_args)
         if len(matches) == 0:
             names = ', '.join(sorted([_proc_to_name_and_args(p) for p in info_obj.processes()]))
 
             raise NoMatchingProcessException(
                 "Did not find any processes matching name '{}' and args '{}'. Procs: {}".format(
-                    proc,
+                    process,
                     cmd_args,
                     names
                 )
@@ -91,7 +104,7 @@ def resolveProcesses(info_obj, *, proc=None, cmd_args=None, strict_proc_matching
             names = ', '.join(sorted([_proc_to_name_and_args(p) for p in info_obj.processes()]))
             raise Exception(
                 "Found multiple processes matching name '{}' and cmd_args '{}'. Procs: {}".format(
-                    proc,
+                    process,
                     cmd_args,
                     names
                 )
@@ -99,7 +112,7 @@ def resolveProcesses(info_obj, *, proc=None, cmd_args=None, strict_proc_matching
         return list(matches)
 
     else:
-        # Invalid argument passed for 'proc'
+        # Invalid argument passed for 'process'
         raise TypeError(
-            "proc argument must be 'ExecuteProcess' or 'str' not {}".format(type(proc))
+            "proc argument must be 'ExecuteProcess' or 'str' not {}".format(type(process))
         )

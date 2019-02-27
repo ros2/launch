@@ -48,10 +48,7 @@ class IoHandler:
         :returns [launch.actions.ExecuteProcess]:
         """
         return list(
-            map(
-                lambda x: x.action,
-                [self._process_name_dict[name][0] for name in self._process_name_dict]
-            )
+            [val[0].action for val in self._process_name_dict.values()]
         )
 
     def process_names(self):
@@ -128,7 +125,7 @@ class ActiveIoHandler(IoHandler):
 
     def assertWaitFor(self,
                       msg,
-                      proc=None,  # Will wait for IO from all procs by default
+                      process=None,  # Will wait for IO from all procs by default
                       cmd_args=None,
                       *,
                       strict_proc_matching=True,
@@ -140,7 +137,7 @@ class ActiveIoHandler(IoHandler):
                 assertInStdout(
                     self._io_handler,  # Use unsynchronized, since this is called from a lock
                     msg=msg,
-                    proc=proc,
+                    process=process,
                     cmd_args=cmd_args,
                     strict_proc_matching=strict_proc_matching
                 )
@@ -164,7 +161,7 @@ class ActiveIoHandler(IoHandler):
             # Help the user a little.  It's possible that they gave us a bad process name and no
             # had no hope of matching anything.
             matches = resolveProcesses(self,
-                                       proc=proc,
+                                       process=process,
                                        cmd_args=cmd_args,
                                        strict_proc_matching=False)
             if len(matches) == 0:
@@ -172,7 +169,7 @@ class ActiveIoHandler(IoHandler):
                     "After fimeout, found no processes matching '{}'  "
                     "It either doesn't exist, was never launched, "
                     "or didn't generate any output".format(
-                        proc
+                        process
                     )
                 )
 

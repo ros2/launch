@@ -45,5 +45,5 @@ class StdoutReadyListener(OnProcessIO):
         )
 
     def __on_stdout(self, process_io):
-        if self.__ready_txt in process_io.text.decode('ascii'):
+        if self.__ready_txt in process_io.text.decode():
             return self.__actions
