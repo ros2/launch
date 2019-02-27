@@ -22,11 +22,6 @@ if False:
     from ...actions import ExecuteProcess  # noqa
 
 
-def matches_action(execute_process_action: 'ExecuteProcess') -> Callable[['ExecuteProcess'], bool]:
-    """Return a matcher which matches based on an exact given ExecuteProcess action."""
-    return lambda action: action == execute_process_action
-
-
 def matches_pid(pid: int) -> Callable[['ExecuteProcess'], bool]:
     """Return a matcher which matches based on the pid of the process."""
     def matcher(action: 'ExecuteProcess') -> bool:

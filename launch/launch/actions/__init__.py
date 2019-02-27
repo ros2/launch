@@ -20,6 +20,7 @@ from .execute_process import ExecuteProcess
 from .group_action import GroupAction
 from .include_launch_description import IncludeLaunchDescription
 from .log_info import LogInfo
+from .opaque_coroutine import OpaqueCoroutine
 from .opaque_function import OpaqueFunction
 from .pop_launch_configurations import PopLaunchConfigurations
 from .push_launch_configurations import PushLaunchConfigurations
@@ -37,6 +38,7 @@ __all__ = [
     'GroupAction',
     'IncludeLaunchDescription',
     'LogInfo',
+    'OpaqueCoroutine',
     'OpaqueFunction',
     'PopLaunchConfigurations',
     'PushLaunchConfigurations',

@@ -44,8 +44,8 @@ from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
 from ..event_handlers import OnShutdown
+from ..events import matches_action
 from ..events import Shutdown
-from ..events.process import matches_action
 from ..events.process import ProcessExited
 from ..events.process import ProcessStarted
 from ..events.process import ProcessStderr
@@ -257,7 +257,7 @@ class ExecuteProcess(Action):
             raise RuntimeError('Signal event received before subprocess transport available.')
         if self._subprocess_protocol.complete.done():
             # the process is done or is cleaning up, no need to signal
-            _logger.debug("signal '{}' not set to '{}' because it is already closing".format(
+            _logger.debug("signal '{}' not sent to '{}' because it is already closing".format(
                 typed_event.signal_name, self.process_details['name']
             ))
             return None
@@ -272,11 +272,16 @@ class ExecuteProcess(Action):
         _logger.info("sending signal '{}' to process[{}]".format(
             typed_event.signal_name, self.process_details['name']
         ))
-        if typed_event.signal_name == 'SIGKILL':
-            self._subprocess_transport.kill()  # works on both Windows and POSIX
+        try:
+            if typed_event.signal_name == 'SIGKILL':
+                self._subprocess_transport.kill()  # works on both Windows and POSIX
+                return None
+            self._subprocess_transport.send_signal(typed_event.signal)
             return None
-        self._subprocess_transport.send_signal(typed_event.signal)
-        return None
+        except ProcessLookupError:
+            _logger.debug("signal '{}' not sent to '{}' because it has closed already".format(
+                typed_event.signal_name, self.process_details['name']
+            ))
 
     def __on_process_stdin_event(
         self,

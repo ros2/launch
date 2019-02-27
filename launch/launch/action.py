@@ -56,7 +56,19 @@ class Action(LaunchDescriptionEntity):
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity so that it executes."""
         if self.__condition is None or self.__condition.evaluate(context):
-            return cast(Optional[List[LaunchDescriptionEntity]], self.execute(context))
+            try:
+                return cast(Optional[List[LaunchDescriptionEntity]], self.execute(context))
+            finally:
+                from .events import ExecutionComplete  # noqa
+                event = ExecutionComplete(action=self)
+                if context.would_handle_event(event):
+                    future = self.get_asyncio_future()
+                    if future is not None:
+                        future.add_done_callback(
+                            lambda _: context.emit_event_sync(event)
+                        )
+                    else:
+                        context.emit_event_sync(event)
         return None
 
     def execute(self, context: LaunchContext) -> Optional[List['Action']]:

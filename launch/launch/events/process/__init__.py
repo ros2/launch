@@ -16,7 +16,6 @@
 
 from .process_exited import ProcessExited
 from .process_io import ProcessIO
-from .process_matchers import matches_action
 from .process_matchers import matches_executable
 from .process_matchers import matches_name
 from .process_matchers import matches_pid
@@ -30,7 +29,6 @@ from .shutdown_process import ShutdownProcess
 from .signal_process import SignalProcess
 
 __all__ = [
-    'matches_action',
     'matches_executable',
     'matches_name',
     'matches_pid',

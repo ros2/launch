@@ -156,6 +156,10 @@ class LaunchContext:
         """Getter for launch_configurations dictionary."""
         return self.__launch_configurations
 
+    def would_handle_event(self, event: Event) -> bool:
+        """Check whether an event would be handled or not."""
+        return any(handler.matches(event) for handler in self._event_handlers)
+
     def register_event_handler(self, event_handler: EventHandler) -> None:
         """Register a event handler."""
         self._event_handlers.appendleft(event_handler)

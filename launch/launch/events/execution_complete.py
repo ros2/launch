@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Package for events."""
+"""Module for ExecutionComplete event."""
 
-from . import process
-from .execution_complete import ExecutionComplete
-from .include_launch_description import IncludeLaunchDescription
-from .matchers import matches_action
-from .shutdown import Shutdown
-from .timer_event import TimerEvent
+from ..action import Action
+from ..event import Event
 
-__all__ = [
-    'matches_action',
-    'process',
-    'ExecutionComplete',
-    'IncludeLaunchDescription',
-    'Shutdown',
-    'TimerEvent',
-]
+
+class ExecutionComplete(Event):
+    """Event that is emitted on action execution completion."""
+
+    name = 'launch.events.ExecutionComplete'
+
+    def __init__(self, *, action: 'Action') -> None:
+        """Constructor."""
+        self.__action = action
+
+    @property
+    def action(self):
+        """Getter for action."""
+        return self.__action

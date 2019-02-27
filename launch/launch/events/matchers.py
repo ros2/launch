@@ -12,20 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Package for events."""
+"""Module for standard "matchers", which are used with Events."""
 
-from . import process
-from .execution_complete import ExecutionComplete
-from .include_launch_description import IncludeLaunchDescription
-from .matchers import matches_action
-from .shutdown import Shutdown
-from .timer_event import TimerEvent
+from typing import Callable
 
-__all__ = [
-    'matches_action',
-    'process',
-    'ExecutionComplete',
-    'IncludeLaunchDescription',
-    'Shutdown',
-    'TimerEvent',
-]
+from ..action import Action
+
+
+def matches_action(target_action: 'Action') -> Callable[['Action'], bool]:
+    """Return a matcher which matches based on an exact given ExecuteProcess action."""
+    return lambda action: action == target_action

@@ -375,6 +375,7 @@ class LaunchService:
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         self.__shutting_down = True
+        self.__context._set_is_shutdown(True)
         return None
 
     def _shutdown(self, *, reason, due_to_sigint, force_sync=False):
