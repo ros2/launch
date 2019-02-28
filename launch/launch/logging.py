@@ -116,29 +116,34 @@ def launchConfig(
     """
     Set up launch logging.
 
-    This function allows to:
+    This function allows you to:
 
-    - Set the default verbosity level for all loggers.
-    - Configure the location of log files on disk.
-    - Configure screen and log file formats.
+      - Set the default verbosity level for all loggers.
+      - Configure the location of log files on disk.
+      - Configure screen and log file formats.
 
-    Setup only has side effects for the arguments provided. The setup process is
-    idempotent.
+    Setup only has side effects for the arguments provided.
+    The setup process is idempotent.
 
-    :param: level to use as the default for all loggers.
-    :param: log_dir to use as base path for all log file collections.
-    :param: screen_format for logging to the screen, as expected by the
-    `logging.Formatter` constructor. Alternatively, aliases for common
-    formats are available, namely: 'default' to log verbosity level, logger
-    name and logged message or 'default_with_timestamp' to add timestamps to
-    the 'default' format.
-    :param: screen_style the screen format style. No style can be provided
-    if a format alias is given.
-    :param: log_format for logging to the main launch log file, as expected
-    by the `logging.Formatter` constructor. Alternatively, the 'default' alias
-    can be given to log verbosity level, logger name and logged message.
-    :param: log_style the log format style. No style can be provided if a format
-    alias is given.
+    For the ``screen_format`` argument there are a few aliases:
+
+      - 'default' to log verbosity level, logger name and logged message
+      - 'default_with_timestamp' to add timestamps to the 'default' format
+
+    :param level: the default log level used for all loggers.
+    :param log_dir: used as base path for all log file collections.
+    :param screen_format: format specification used when logging to the screen,
+        as expected by the `logging.Formatter` constructor.
+        Alternatively, aliases for common formats are available, see above.
+    :param screen_style: the screen style used if no alias is used for
+        screen_format.
+        No style can be provided if a format alias is given.
+    :param log_format: the format used when logging to the main launch log file,
+        as expected by the `logging.Formatter` constructor.
+        Alternatively, the 'default' alias can be given to log verbosity level,
+        logger name and logged message.
+    :param log_style: the log style used if no alias is given for log_format.
+        No style can be provided if a format alias is given.
     """
     if level is not None:
         root.setLevel(level)
@@ -146,14 +151,16 @@ def launchConfig(
         if screen_format == 'default':
             screen_format = '[{levelname}] [{name}]: {msg}'
             if screen_style is not None:
-                raise ValueError('Cannot set a custom format style '
-                                 'for the "default" screen format.')
+                raise ValueError(
+                    'Cannot set a custom format style for the "default" screen format.'
+                )
         if screen_format == 'default_with_timestamp':
             screen_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
             if screen_style is not None:
-                raise ValueError('Cannot set a custom format style '
-                                 'for the "default_with_timestamp" '
-                                 'screen format.')
+                raise ValueError(
+                    'Cannot set a custom format style for the '
+                    '"default_with_timestamp" screen format.'
+                )
         if screen_style is None:
             screen_style = '{'
         launchConfig.screen_formatter = Formatter(
@@ -165,8 +172,9 @@ def launchConfig(
         if log_format == 'default':
             log_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
             if log_style is not None:
-                raise ValueError('Cannot set a custom format style '
-                                 'for the "default" log format.')
+                raise ValueError(
+                    'Cannot set a custom format style for the "default" log format.'
+                )
         if log_style is None:
             log_style = '{'
         launchConfig.file_formatter = Formatter(
@@ -177,9 +185,10 @@ def launchConfig(
     if log_dir is not None:
         if any(launchConfig.file_handlers):
             import warnings
-            warnings.warn(('Loggers have been already configured '
-                           'to output to log files below {}. Proceed '
-                           'at your own risk').format(launchConfig.log_dir))
+            warnings.warn((
+                'Loggers have been already configured to output to log files below {}. '
+                'Proceed at your own risk.'
+            ).format(launchConfig.log_dir))
         if not os.path.isdir(log_dir):
             raise ValueError('{} is not a directory'.format(log_dir))
         launchConfig.log_dir = log_dir
@@ -261,29 +270,53 @@ def _normalize_output_configuration(config):
     return normalized_config
 
 
-def getOutputLoggers(proc_name, output_config):
+def getOutputLoggers(process_name, output_config):
     """
-    Get the stdout and stderr output loggers for the given process-like action.
+    Get the stdout and stderr output loggers for the given process name.
 
-    :param: proc_action whose outputs want to be logged.
-    :param: output_config for the output loggers i.e. a dictionary with optional 'stdout',
-    'stderr' and 'both' (stdout and stderr combined) process output sources to a set of one
-    or more logging destinations, namely 'screen' to log it to the screen, 'log' to log it
-    to launch main log file and 'own_log' to log it to a separate log file. Separate log file
-    names follow the `<proc_name>-<source>.log` pattern, except when the source is 'both' in
-    which case the log file name follows the `<proc_name>.log` pattern. Alternatively, aliases
-    for common configurations are available, namely: 'screen' for both stdout and stderr to be
-    logged to the screen, 'log' for both stdout and stderr to be logged to launch main log file
-    and stderr to the screen, 'both' for both stdout and stderr to be logged to the screen and
-    to launch main log file, 'own_log' for stdout, stderr and their combination to be logged to
-    their own log files, and 'full' to have stdout and stderr sent to the screen, to the main
-    launch log file, and their own separate and combined log files.
+    The output_config may be a dictionary with one or more of the optional keys
+    'stdout', 'stderr', or 'both' (stdout and stderr combined) which represent
+    the various process output sources, and values for those keys to assign one
+    or more logging destinations to the source.
+    The logging destination values may be:
+
+      - 'screen': log it to the screen,
+      - 'log': log it to launch log file, or
+      - 'own_log': log it to a separate log file.
+
+    When logging the stdout and stderr separately, the log file names follow
+    the ``<process_name>-<source>.log`` pattern where ``<source>`` is either
+    'stdout' or 'stderr'
+    When the 'both' logging destination is used the log file name follows the
+    ``<process_name>.log`` pattern.
+
+    The "launch log file" is a log file which is create for each run of
+    the launch.LaunchService, and at least captures the log output from launch
+    itself, but may also include output from subprocess's if configured so.
+
+    Alternatively, the output_config parameter may be a string which represents
+    one of a couple available aliases for common logging configurations.
+    The available aliases are:
+
+      - 'screen': stdout and stderr are logged to the screen,
+      - 'log': stdout and stderr are logged to launch log file and stderr to
+            the screen,
+      - 'both': both stdout and stderr are logged to the screen and to launch
+            main log file,
+      - 'own_log' for stdout, stderr and their combination to be logged to
+            their own log files, and
+      - 'full' to have stdout and stderr sent to the screen, to the main launch
+            log file, and their own separate and combined log files.
+
+    :param process_name: the process-like action whose outputs want to be logged.
+    :param output_config: configuration for the output loggers,
+        see above for details.
     :returns: a tuple with the stdout and stderr output loggers.
     """
     import logging
     output_config = _normalize_output_configuration(output_config)
     for source in ('stdout', 'stderr'):
-        logger = logging.getLogger('{}-{}'.format(proc_name, source))
+        logger = logging.getLogger('{}-{}'.format(process_name, source))
         # If a 'screen' output is configured for this source or for
         # 'both' sources, this logger should output to screen.
         if 'screen' in (output_config['both'] | output_config[source]):
@@ -310,7 +343,7 @@ def getOutputLoggers(proc_name, output_config):
         # should output to its own log file.
         if 'own_log' in output_config[source]:
             own_log_file_handler = getLogFileHandler(
-                '{}-{}.log'.format(proc_name, source)
+                '{}-{}.log'.format(process_name, source)
             )
             own_log_file_handler.setFormatter(Formatter(fmt=None))
             # Add own log file handler if necessary.
@@ -319,14 +352,16 @@ def getOutputLoggers(proc_name, output_config):
         # If an 'own_log' output is configured for 'both' sources,
         # this logger should output to a combined log file.
         if 'own_log' in output_config['both']:
-            combined_log_file_handler = getLogFileHandler(proc_name + '.log')
+            combined_log_file_handler = getLogFileHandler(process_name + '.log')
             combined_log_file_handler.setFormatter(Formatter('{msg}', style='{'))
             # Add combined log file handler if necessary.
             if combined_log_file_handler not in logger.handlers:
                 logger.addHandler(combined_log_file_handler)
     # Retrieve both loggers.
-    return (logging.getLogger(proc_name + '-stdout'),
-            logging.getLogger(proc_name + '-stderr'))
+    return (
+        logging.getLogger(process_name + '-stdout'),
+        logging.getLogger(process_name + '-stderr')
+    )
 
 
 def getScreenHandler():
