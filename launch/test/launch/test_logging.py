@@ -54,10 +54,6 @@ def test_output_loggers_bad_configuration(log_dir):
         launch.logging.getOutputLoggers('some-proc', {'stdout': {'garbage'}})
 
 
-@pytest.mark.skipif(
-    pytest.config.getoption('-s') != 'no',
-    reason='seems like "-s" option is required to capture stdout from logger'
-)
 @pytest.mark.parametrize('config,checks', [
     ('screen', {'stdout': {'screen'}, 'stderr': {'screen'}}),
     ('log', {'stdout': {'log'}, 'stderr': {'log', 'screen'}}),
@@ -80,7 +76,7 @@ def test_output_loggers_bad_configuration(log_dir):
         },
     )
 ])
-def test_output_loggers_configuration(capfd, log_dir, config, checks):
+def test_output_loggers_configuration(capsys, log_dir, config, checks):
     checks = {'stdout': set(), 'stderr': set(), 'both': set(), **checks}
     launch.logging.reset()
     launch.logging.launchConfig(
@@ -100,7 +96,7 @@ def test_output_loggers_configuration(capfd, log_dir, config, checks):
     stdout_logger.info('foo')
     stderr_logger.info('bar')
 
-    capture = capfd.readouterr()
+    capture = capsys.readouterr()
     lines = list(reversed(capture.out.splitlines()))
     assert '[ERROR] [some-proc]: baz' == lines.pop()
     if 'screen' in (checks['stdout'] | checks['both']):
@@ -164,11 +160,7 @@ def test_output_loggers_configuration(capfd, log_dir, config, checks):
         assert (not os.path.exists(own_log_path) or 0 == os.stat(own_log_path).st_size)
 
 
-@pytest.mark.skipif(
-    pytest.config.getoption('-s') != 'no',
-    reason='seems like "-s" option is required to capture stdout from logger'
-)
-def test_screen_default_format_with_timestamps(capfd, log_dir):
+def test_screen_default_format_with_timestamps(capsys, log_dir):
     """Test screen logging when using the default logs format with timestamps."""
     launch.logging.reset()
     launch.logging.launchConfig(
@@ -182,18 +174,14 @@ def test_screen_default_format_with_timestamps(capfd, log_dir):
 
     logger.debug('foo')
 
-    capture = capfd.readouterr()
+    capture = capsys.readouterr()
     lines = capture.out.splitlines()
     assert 1 == len(lines)
     assert re.match(r'[0-9]+\.[0-9]+ \[DEBUG\] \[some-proc\]: foo', lines[0]) is not None
     assert 0 == len(capture.err)
 
 
-@pytest.mark.skipif(
-    pytest.config.getoption('-s') != 'no',
-    reason='seems like "-s" option is required to capture stdout from logger'
-)
-def test_screen_default_format(capfd):
+def test_screen_default_format(capsys):
     """Test screen logging when using the default logs format."""
     launch.logging.reset()
     launch.logging.launchConfig(
@@ -206,7 +194,7 @@ def test_screen_default_format(capfd):
     assert logger.getEffectiveLevel() == launch.logging.INFO
 
     logger.info('bar')
-    capture = capfd.readouterr()
+    capture = capsys.readouterr()
     lines = capture.out.splitlines()
     assert 1 == len(lines)
     assert '[INFO] [some-proc]: bar' == lines[0]
