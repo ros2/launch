@@ -48,15 +48,15 @@ __all__ = [
     'FATAL',
     'FileHandler',
     'Formatter',
-    'getLogger',
-    'getLogFileHandler',
-    'getLogFilePath',
-    'getOutputLoggers',
-    'getScreenHandler',
+    'get_logger',
+    'get_log_file_handler',
+    'get_log_file_path',
+    'get_output_loggers',
+    'get_screen_handler',
     'Handler',
     'handlers',
     'INFO',
-    'launchConfig',
+    'launch_config',
     'Logger',
     'NOTSET',
     'reset',
@@ -106,7 +106,7 @@ def attributes(**attr):
 
 
 @attributes(screen_handler=None, file_handlers={})
-def launchConfig(
+def launch_config(
     *,
     level=None,
     log_dir=None,
@@ -165,11 +165,11 @@ def launchConfig(
                 )
         if screen_style is None:
             screen_style = '{'
-        launchConfig.screen_formatter = Formatter(
+        launch_config.screen_formatter = Formatter(
             screen_format, style=screen_style
         )
-        if launchConfig.screen_handler is not None:
-            launchConfig.screen_handler.setFormatter(launchConfig.screen_formatter)
+        if launch_config.screen_handler is not None:
+            launch_config.screen_handler.setFormatter(launch_config.screen_formatter)
     if log_format is not None:
         if log_format == 'default':
             log_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
@@ -179,31 +179,31 @@ def launchConfig(
                 )
         if log_style is None:
             log_style = '{'
-        launchConfig.file_formatter = Formatter(
+        launch_config.file_formatter = Formatter(
             log_format, style=log_style
         )
-        for handler in launchConfig.file_handlers.values():
-            handler.setFormatter(launchConfig.file_formatter)
+        for handler in launch_config.file_handlers.values():
+            handler.setFormatter(launch_config.file_formatter)
     if log_dir is not None:
-        if any(launchConfig.file_handlers):
+        if any(launch_config.file_handlers):
             import warnings
             warnings.warn((
                 'Loggers have been already configured to output to log files below {}. '
                 'Proceed at your own risk.'
-            ).format(launchConfig.log_dir))
+            ).format(launch_config.log_dir))
         if not os.path.isdir(log_dir):
             raise ValueError('{} is not a directory'.format(log_dir))
-        launchConfig.log_dir = log_dir
+        launch_config.log_dir = log_dir
 
 
-def getLogger(name=None):
+def get_logger(name=None):
     """Get named logger, configured to output to screen and launch main log file."""
     import logging
     logger = logging.getLogger(name)
-    screen_handler = getScreenHandler()
+    screen_handler = get_screen_handler()
     if screen_handler not in logger.handlers:
         logger.addHandler(screen_handler)
-    launch_log_file_handler = getLogFileHandler()
+    launch_log_file_handler = get_log_file_handler()
     if launch_log_file_handler not in logger.handlers:
         logger.addHandler(launch_log_file_handler)
     return logger
@@ -213,7 +213,7 @@ def _normalize_output_configuration(config):
     """
     Normalize output configuration to a dict representation.
 
-    See getOutputLoggers() documentation for further reference.
+    See get_output_loggers() documentation for further reference.
     """
     normalized_config = {
         'both': set(), 'stdout': set(), 'stderr': set()
@@ -272,7 +272,7 @@ def _normalize_output_configuration(config):
     return normalized_config
 
 
-def getOutputLoggers(process_name, output_config):
+def get_output_loggers(process_name, output_config):
     """
     Get the stdout and stderr output loggers for the given process name.
 
@@ -322,7 +322,7 @@ def getOutputLoggers(process_name, output_config):
         # If a 'screen' output is configured for this source or for
         # 'both' sources, this logger should output to screen.
         if 'screen' in (output_config['both'] | output_config[source]):
-            screen_handler = getScreenHandler()
+            screen_handler = get_screen_handler()
             # Add screen handler if necessary.
             if screen_handler not in logger.handlers:
                 screen_handler.setFormatterFor(
@@ -333,7 +333,7 @@ def getOutputLoggers(process_name, output_config):
         # If a 'log' output is configured for this source or for
         # 'both' sources, this logger should output to launch main log file.
         if 'log' in (output_config['both'] | output_config[source]):
-            launch_log_file_handler = getLogFileHandler()
+            launch_log_file_handler = get_log_file_handler()
             # Add launch main log file handler if necessary.
             if launch_log_file_handler not in logger.handlers:
                 launch_log_file_handler.setFormatterFor(
@@ -344,7 +344,7 @@ def getOutputLoggers(process_name, output_config):
         # If an 'own_log' output is configured for this source, this logger
         # should output to its own log file.
         if 'own_log' in output_config[source]:
-            own_log_file_handler = getLogFileHandler(
+            own_log_file_handler = get_log_file_handler(
                 '{}-{}.log'.format(process_name, source)
             )
             own_log_file_handler.setFormatter(Formatter(fmt=None))
@@ -354,7 +354,7 @@ def getOutputLoggers(process_name, output_config):
         # If an 'own_log' output is configured for 'both' sources,
         # this logger should output to a combined log file.
         if 'own_log' in output_config['both']:
-            combined_log_file_handler = getLogFileHandler(process_name + '.log')
+            combined_log_file_handler = get_log_file_handler(process_name + '.log')
             combined_log_file_handler.setFormatter(Formatter('{msg}', style='{'))
             # Add combined log file handler if necessary.
             if combined_log_file_handler not in logger.handlers:
@@ -366,25 +366,25 @@ def getOutputLoggers(process_name, output_config):
     )
 
 
-def getScreenHandler():
+def get_screen_handler():
     """
     Get the one and only screen logging handler.
 
     See setup() documentation for screen logging configuration
     details.
     """
-    if launchConfig.screen_handler is None:
+    if launch_config.screen_handler is None:
         handler_cls = with_per_logger_formatting(StreamHandler)
-        launchConfig.screen_handler = handler_cls(sys.stdout)
-        launchConfig.screen_handler.setFormatter(launchConfig.screen_formatter)
-    return launchConfig.screen_handler
+        launch_config.screen_handler = handler_cls(sys.stdout)
+        launch_config.screen_handler.setFormatter(launch_config.screen_formatter)
+    return launch_config.screen_handler
 
 
-def getLogFilePath(file_name='launch.log'):
-    return os.path.join(launchConfig.log_dir, file_name)
+def get_log_file_path(file_name='launch.log'):
+    return os.path.join(launch_config.log_dir, file_name)
 
 
-def getLogFileHandler(file_name='launch.log'):
+def get_log_file_handler(file_name='launch.log'):
     """
     Get the logging handler to a log file.
 
@@ -395,8 +395,8 @@ def getLogFileHandler(file_name='launch.log'):
     :return: the logging handler associated to the file (always the same
     once constructed).
     """
-    if file_name not in launchConfig.file_handlers:
-        file_path = getLogFilePath(file_name)
+    if file_name not in launch_config.file_handlers:
+        file_path = get_log_file_path(file_name)
         if os.name != 'nt':
             handler_cls = with_per_logger_formatting(
                 handlers.WatchedFileHandler
@@ -404,9 +404,9 @@ def getLogFileHandler(file_name='launch.log'):
         else:
             handler_cls = with_per_logger_formatting(FileHandler)
         file_handler = handler_cls(file_path)
-        file_handler.setFormatter(launchConfig.file_formatter)
-        launchConfig.file_handlers[file_name] = file_handler
-    return launchConfig.file_handlers[file_name]
+        file_handler.setFormatter(launch_config.file_formatter)
+        launch_config.file_handlers[file_name] = file_handler
+    return launch_config.file_handlers[file_name]
 
 
 def _make_unique_log_dir(*, base_path):
@@ -452,10 +452,10 @@ def reset():
         logger.setLevel(NOTSET)
         del logger.handlers[:]
     # Back to default logging setup
-    launchConfig.log_dir = None
-    launchConfig.file_handlers = {}
-    launchConfig.screen_handler = None
-    launchConfig(
+    launch_config.log_dir = None
+    launch_config.file_handlers = {}
+    launch_config.screen_handler = None
+    launch_config(
         level=INFO, log_dir=default_log_dir,
         log_format='default', screen_format='default'
     )
