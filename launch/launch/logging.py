@@ -25,7 +25,7 @@ from logging import FileHandler
 from logging import Formatter
 from logging import Handler
 from logging import INFO
-from logging import Logger
+from logging import Logger as PythonLoggingLogger
 from logging import NOTSET
 from logging import root
 from logging import setLoggerClass
@@ -38,6 +38,8 @@ import logging.handlers as handlers
 import os
 import socket
 import sys
+
+from typing import List
 
 
 __all__ = [
@@ -429,8 +431,8 @@ def _make_unique_log_dir(*, base_path):
 
 
 # Track all loggers to support module resets
-class Logger(Logger):
-    all_loggers = []
+class Logger(PythonLoggingLogger):
+    all_loggers: List[PythonLoggingLogger] = []
 
     def __new__(cls, *args, **kwargs):
         instance = super(Logger, cls).__new__(cls)
