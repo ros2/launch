@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,20 +54,31 @@ def test_output_loggers_bad_configuration(log_dir):
         launch.logging.getOutputLoggers('some-proc', {'stdout': {'garbage'}})
 
 
-@pytest.mark.skipif(pytest.config.getoption('-s') != 'no',
-                    reason='seems like "-s" option is required to capture stdout from logger')
+@pytest.mark.skipif(
+    pytest.config.getoption('-s') != 'no',
+    reason='seems like "-s" option is required to capture stdout from logger'
+)
 @pytest.mark.parametrize('config,checks', [
     ('screen', {'stdout': {'screen'}, 'stderr': {'screen'}}),
     ('log', {'stdout': {'log'}, 'stderr': {'log', 'screen'}}),
     ('both', {'both': {'log', 'screen'}}),
-    ('own_log', {'stdout': {'own_log'},
-                 'stderr': {'own_log'},
-                 'both': {'own_log'}}),
-    ('full', {'stdout': {'log', 'own_log', 'screen'},
-              'stderr': {'log', 'own_log', 'screen'},
-              'both': {'own_log'}}),
-    ({'stdout': {'screen', 'log'}, 'stderr': {'own_log'}},
-     {'stdout': {'screen', 'log'}, 'stderr': {'own_log'}})
+    ('own_log', {
+        'stdout': {'own_log'},
+        'stderr': {'own_log'},
+        'both': {'own_log'},
+    }),
+    ('full', {
+        'stdout': {'log', 'own_log', 'screen'},
+        'stderr': {'log', 'own_log', 'screen'},
+        'both': {'own_log'},
+    }),
+    (
+        {'stdout': {'screen', 'log'}, 'stderr': {'own_log'}},
+        {
+            'stdout': {'screen', 'log'},
+            'stderr': {'own_log'}
+        },
+    )
 ])
 def test_output_loggers_configuration(capfd, log_dir, config, checks):
     checks = {'stdout': set(), 'stderr': set(), 'both': set(), **checks}
@@ -105,9 +116,7 @@ def test_output_loggers_configuration(capfd, log_dir, config, checks):
     assert 0 != os.stat(main_log_path).st_size
     with open(main_log_path, 'r') as f:
         lines = list(reversed(f.readlines()))
-        assert re.match(
-            r'[0-9]+\.[0-9]+ \[ERROR\] \[some-proc\]: baz', lines.pop()
-        ) is not None
+        assert re.match(r'[0-9]+\.[0-9]+ \[ERROR\] \[some-proc\]: baz', lines.pop()) is not None
         if 'log' in (checks['stdout'] | checks['both']):
             assert re.match(r'[0-9]+\.[0-9]+ foo', lines.pop()) is not None
         if 'log' in (checks['stderr'] | checks['both']):
@@ -125,8 +134,7 @@ def test_output_loggers_configuration(capfd, log_dir, config, checks):
             assert 'foo' == lines[0]
     else:
         own_log_path = launch.logging.getLogFilePath('some-proc-stdout.log')
-        assert (not os.path.exists(own_log_path) or
-                0 == os.stat(own_log_path).st_size)
+        assert (not os.path.exists(own_log_path) or 0 == os.stat(own_log_path).st_size)
 
     if 'own_log' in (checks['stderr'] | checks['both']):
         launch.logging.getLogFileHandler('some-proc-stderr.log').flush()
@@ -139,8 +147,7 @@ def test_output_loggers_configuration(capfd, log_dir, config, checks):
             assert 'bar' == lines[0]
     else:
         own_log_path = launch.logging.getLogFilePath('some-proc-stderr.log')
-        assert (not os.path.exists(own_log_path) or
-                0 == os.stat(own_log_path).st_size)
+        assert (not os.path.exists(own_log_path) or 0 == os.stat(own_log_path).st_size)
 
     if 'own_log' in checks['both']:
         launch.logging.getLogFileHandler('some-proc.log').flush()
@@ -154,17 +161,19 @@ def test_output_loggers_configuration(capfd, log_dir, config, checks):
             assert 'bar' == lines[1]
     else:
         own_log_path = launch.logging.getLogFilePath('some-proc.log')
-        assert (not os.path.exists(own_log_path) or
-                0 == os.stat(own_log_path).st_size)
+        assert (not os.path.exists(own_log_path) or 0 == os.stat(own_log_path).st_size)
 
 
-@pytest.mark.skipif(pytest.config.getoption('-s') != 'no',
-                    reason='seems like "-s" option is required to capture stdout from logger')
+@pytest.mark.skipif(
+    pytest.config.getoption('-s') != 'no',
+    reason='seems like "-s" option is required to capture stdout from logger'
+)
 def test_screen_default_format_with_timestamps(capfd, log_dir):
     """Test screen logging when using the default logs format with timestamps."""
     launch.logging.reset()
     launch.logging.launchConfig(
-        level=launch.logging.DEBUG, log_dir=log_dir,
+        level=launch.logging.DEBUG,
+        log_dir=log_dir,
         screen_format='default_with_timestamp',
     )
     logger = launch.logging.getLogger('some-proc')
@@ -176,14 +185,14 @@ def test_screen_default_format_with_timestamps(capfd, log_dir):
     capture = capfd.readouterr()
     lines = capture.out.splitlines()
     assert 1 == len(lines)
-    assert re.match(
-        r'[0-9]+\.[0-9]+ \[DEBUG\] \[some-proc\]: foo', lines[0]
-    ) is not None
+    assert re.match(r'[0-9]+\.[0-9]+ \[DEBUG\] \[some-proc\]: foo', lines[0]) is not None
     assert 0 == len(capture.err)
 
 
-@pytest.mark.skipif(pytest.config.getoption('-s') != 'no',
-                    reason='seems like "-s" option is required to capture stdout from logger')
+@pytest.mark.skipif(
+    pytest.config.getoption('-s') != 'no',
+    reason='seems like "-s" option is required to capture stdout from logger'
+)
 def test_screen_default_format(capfd):
     """Test screen logging when using the default logs format."""
     launch.logging.reset()
@@ -225,6 +234,4 @@ def test_log_default_format(log_dir):
     with open(launch.logging.getLogFilePath(), 'r') as f:
         lines = f.readlines()
         assert 1 == len(lines)
-        assert re.match(
-            r'[0-9]+\.[0-9]+ \[ERROR\] \[some-proc\]: baz', lines[0]
-        ) is not None
+        assert re.match(r'[0-9]+\.[0-9]+ \[ERROR\] \[some-proc\]: baz', lines[0]) is not None
