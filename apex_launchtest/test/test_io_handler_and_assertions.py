@@ -87,7 +87,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         self.assertEqual(3, len(self.proc_output.processes()))
 
     def test_only_one_process_had_arguments(self):
-        text_lines = [t.text.decode('ascii') for t in self.proc_output]
+        text_lines = [t.text.decode() for t in self.proc_output]
         print("All text: {}".format(text_lines))
 
         matches = [t for t in text_lines if "Called with arguments" in t]
@@ -108,7 +108,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
 
     def test_EXPECTED_TEXT_is_present(self):
         # Sanity check - makes sure the EXPECTED_TEXT is somewhere in the test run
-        text_lines = [t.text.decode('ascii') for t in self.proc_output]
+        text_lines = [t.text.decode() for t in self.proc_output]
         contains_ready = [self.EXPECTED_TEXT in t for t in text_lines]
         self.assertTrue(any(contains_ready))
 

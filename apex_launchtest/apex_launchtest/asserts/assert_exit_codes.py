@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..util import resolveProcesses
+
 EXIT_OK = 0
 EXIT_SIGINT = 130
 EXIT_SIGQUIT = 131
@@ -19,7 +21,12 @@ EXIT_SIGKILL = 137
 EXIT_SIGSEGV = 139
 
 
-def assertExitCodes(proc_info, allowable_exit_codes=[EXIT_OK]):
+def assertExitCodes(proc_info,
+                    allowable_exit_codes=[EXIT_OK],
+                    process=None,  # By default, checks all processes
+                    cmd_args=None,
+                    *,
+                    strict_proc_matching=True):
     """
     Check the exit codes of the processes under test.
 
@@ -30,7 +37,14 @@ def assertExitCodes(proc_info, allowable_exit_codes=[EXIT_OK]):
     for code in allowable_exit_codes:
         assert isinstance(code, int), "Provided exit code {} is not an int".format(code)
 
-    for info in proc_info:
+    to_check = resolveProcesses(
+        info_obj=proc_info,
+        process=process,
+        cmd_args=cmd_args,
+        strict_proc_matching=strict_proc_matching
+    )
+
+    for info in [proc_info[item] for item in to_check]:
         assert info.returncode in allowable_exit_codes, "Proc {} exited with code {}".format(
             info.process_name,
             info.returncode

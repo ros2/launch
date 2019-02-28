@@ -14,42 +14,62 @@
 
 import unittest
 
+from launch.events.process import ProcessExited
+
+from apex_launchtest import ProcInfoHandler
 from apex_launchtest.asserts import assertExitCodes
-
-
-# To make some duck-typed fake data for assertExitCodes, we just need objects that have
-# a 'process_name' string and a 'returncode' integer
-class _dummy_proc_data:
-
-    def __init__(self):
-        self.process_name = ""
-        self.returncode = 0
 
 
 class TestExitCodes(unittest.TestCase):
 
     def setUp(self):
-        self.dummy_proc_info = []
+        self.dummy_proc_info = ProcInfoHandler()
 
-        for n in range(5):
-            proc_data = _dummy_proc_data()
-            proc_data.process_name = "process_{}".format(n)
-            proc_data.returncode = 0
+        for n in range(4):
+            proc_data = ProcessExited(
+                action=object(),
+                name="process_{}".format(n),
+                cmd=["process"],
+                pid=n,
+                returncode=0,
+                cwd=None,
+                env=None,
+            )
             self.dummy_proc_info.append(proc_data)
 
     def test_assert_exit_codes_no_error(self):
         assertExitCodes(self.dummy_proc_info)
 
     def test_assert_exit_codes_notices_error(self):
-        self.dummy_proc_info[2].returncode = 1
+        self.dummy_proc_info.append(
+            ProcessExited(
+                action=object(),
+                name="test_process_1",
+                cmd=["test_process"],
+                pid=10,
+                returncode=1,
+                cwd=None,
+                env=None,
+            )
+        )
 
         with self.assertRaises(AssertionError) as cm:
             assertExitCodes(self.dummy_proc_info)
 
         # Check that the process name made it into the error message
-        self.assertIn("process_2", str(cm.exception))
+        self.assertIn("test_process_1", str(cm.exception))
 
-    def test_assert_exit_code_allows_specifid_codes(self):
-        self.dummy_proc_info[3].returncode = 131
+    def test_assert_exit_code_allows_specific_codes(self):
+        self.dummy_proc_info.append(
+            ProcessExited(
+                action=object(),
+                name="test_process_1",
+                cmd=["test_process"],
+                pid=10,
+                returncode=131,
+                cwd=None,
+                env=None,
+            )
+        )
 
         assertExitCodes(self.dummy_proc_info, allowable_exit_codes=[0, 131])

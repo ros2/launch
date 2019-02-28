@@ -19,9 +19,10 @@ from .assert_exit_codes import EXIT_SIGQUIT
 from .assert_exit_codes import EXIT_SIGKILL
 from .assert_exit_codes import EXIT_SIGSEGV
 from .assert_output import assertInStdout
-from .assert_output import NO_CMD_ARGS
 from .assert_sequential_output import assertSequentialStdout
 from .assert_sequential_output import SequentialTextChecker
+
+from ..util.proc_lookup import NO_CMD_ARGS
 
 __all__ = [
     'assertExitCodes',
