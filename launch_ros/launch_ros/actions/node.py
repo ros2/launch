@@ -149,7 +149,7 @@ class Node(ExecuteProcess):
                     'ros_specific_arguments[{}]'.format(ros_args_index),
                     description='parameter {}'.format(i))]
                 ros_args_index += 1
-            parameters = normalize_parameters(parameters)
+            normalized_params = normalize_parameters(parameters)
         if remappings is not None:
             i = 0
             for remapping in normalize_remap_rules(remappings):
@@ -164,7 +164,7 @@ class Node(ExecuteProcess):
         self.__node_executable = node_executable
         self.__node_name = node_name
         self.__node_namespace = node_namespace
-        self.__parameters = [] if parameters is None else parameters
+        self.__parameters = [] if parameters is None else normalized_params
         self.__remappings = [] if remappings is None else remappings
         self.__arguments = arguments
 

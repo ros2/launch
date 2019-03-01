@@ -20,7 +20,8 @@ from collections.abc import Sequence
 import pathlib
 from typing import cast
 from typing import List  # noqa
-from typing import Optional  # noqa
+from typing import Optional
+from typing import Sequence as SequenceTypeHint
 from typing import Tuple  # noqa
 from typing import Union  # noqa
 
@@ -32,6 +33,7 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 
 from ..parameters_type import ParameterFile
+from ..parameters_type import ParameterName
 from ..parameters_type import Parameters
 from ..parameters_type import ParametersDict
 from ..parameters_type import ParameterValue
@@ -100,7 +102,10 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
         raise TypeError('Value {} must be a sequence'.format(repr(value)))
 
 
-def normalize_parameter_dict(parameters: SomeParametersDict, *, _prefix=None) -> ParametersDict:
+def normalize_parameter_dict(
+    parameters: SomeParametersDict, *,
+    _prefix: Optional[SequenceTypeHint[Substitution]] = None
+) -> ParametersDict:
     """
     Normalize types used to store parameters in a dictionary.
 
@@ -129,13 +134,17 @@ def normalize_parameter_dict(parameters: SomeParametersDict, *, _prefix=None) ->
     if not isinstance(parameters, Mapping):
         raise TypeError('expected dict')
 
-    normalized = {}  # ParametersDict
+    normalized = {}  # type: ParametersDict
     for name, value in parameters.items():
         # First make name a list of substitutions
         name = normalize_to_list_of_substitutions(name)
         if _prefix:
             # Prefix name if there is a recursive dictionary
-            name = _prefix + [TextSubstitution(text='.')] + name
+            # weird looking logic to combine into one list to appease mypy
+            combined = [e for e in _prefix]
+            combined.append(TextSubstitution(text='.'))
+            combined.extend(name)
+            name = combined
 
         # Normalize the value next
         if isinstance(value, Mapping):

@@ -32,7 +32,7 @@ _MultiValueType = Union[
     Sequence[str], Sequence[int], Sequence[float], Sequence[bool], bytes]
 
 SomeParameterFile = Union[SomeSubstitutionsType, pathlib.Path]
-SomeParameterName = Sequence[Substitution]
+SomeParameterName = Sequence[Union[Substitution, str]]
 SomeParameterValue = Union[SomeSubstitutionsType, _SingleValueType, _MultiValueType]
 
 # TODO(sloretz) Recursive type when mypy supports them python/mypy#731
@@ -44,13 +44,14 @@ SomeParametersDict = Mapping[SomeParameterName, Union[SomeParameterValue, _SomeP
 SomeParameters = Sequence[Union[SomeParameterFile, Mapping[SomeParameterName, SomeParameterValue]]]
 
 ParameterFile = Sequence[Substitution]
+ParameterName = Sequence[Substitution]
 ParameterValue = Union[Sequence[Substitution],
                        Sequence[Sequence[Substitution]],
                        _SingleValueType,
                        _MultiValueType]
 
 # Normalized (flattened to avoid having a recursive type) parameter dict
-ParametersDict = Mapping[SomeParameterName, SomeParameterValue]
+ParametersDict = Dict[ParameterName, ParameterValue]
 
 # Normalized parameters
 Parameters = Sequence[Union[ParameterFile, ParametersDict]]
