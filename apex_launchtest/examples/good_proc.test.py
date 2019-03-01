@@ -65,6 +65,11 @@ class TestGoodProcess(unittest.TestCase):
 @apex_launchtest.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
 
+    def test_exit_code(self):
+        # Check that all processes in the launch (in this case, there's just one) exit
+        # with code 0
+        apex_launchtest.asserts.assertExitCodes(self.proc_info)
+
     def test_full_output(self):
         # Using the SequentialStdout context manager asserts that the following stdout
         # happened in the same order that it's checked
