@@ -21,6 +21,7 @@ import pathlib
 from typing import cast
 from typing import Dict
 from typing import List
+from typing import Optional  # noqa
 from typing import Union
 
 from launch.launch_context import LaunchContext
@@ -55,7 +56,7 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
                 if not isinstance(name, tuple):
                     raise TypeError('Expecting tuple of substitutions got {}'.format(repr(name)))
                 evaluated_name = perform_substitutions(context, list(name))  # type: str
-                evaluated_value = None  # type: EvaluatedParameterValue
+                evaluated_value = None  # type: Optional[EvaluatedParameterValue]
 
                 if isinstance(value, tuple) and len(value):
                     if isinstance(value[0], Substitution):
