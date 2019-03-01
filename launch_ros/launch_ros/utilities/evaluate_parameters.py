@@ -55,7 +55,7 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
                 if not isinstance(name, tuple):
                     raise TypeError('Expecting tuple of substitutions got {}'.format(repr(name)))
                 evaluated_name = perform_substitutions(context, list(name))  # type: str
-                evaluated_value = ''  # type: EvaluatedParameterValue
+                evaluated_value = None  # type: EvaluatedParameterValue
 
                 if isinstance(value, tuple) and len(value):
                     if isinstance(value[0], Substitution):
@@ -66,7 +66,7 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
                         output_subvalue = []  # List[str]
                         for subvalue in value:
                             output_subvalue.append(perform_substitutions(context, list(subvalue)))
-                        evalutated_value = tuple(output_subvalue)
+                        evaluated_value = tuple(output_subvalue)
                     else:
                         # Value is an array of the same type, so nothing to evaluate.
                         output_value = []
@@ -78,6 +78,8 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
                     # Value is a singular type, so nothing to evaluate
                     ensure_argument_type(value, (float, int, str, bool, bytes), 'value')
                     evaluated_value = cast(Union[float, int, str, bool, bytes], value)
+                if evaluated_value is None:
+                    raise TypeError('given unnormalized parameters %r, %r' % (name, value))
                 output_dict[evaluated_name] = evaluated_value
             output_params.append(output_dict)
     return tuple(output_params)

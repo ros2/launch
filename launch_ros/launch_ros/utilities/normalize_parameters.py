@@ -33,7 +33,6 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 
 from ..parameters_type import ParameterFile
-from ..parameters_type import ParameterName
 from ..parameters_type import Parameters
 from ..parameters_type import ParametersDict
 from ..parameters_type import ParameterValue
@@ -84,11 +83,11 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
             return tuple(normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, value)))
 
         if target_type == float:
-            return tuple([float(s) for s in value])
+            return tuple(float(s) for s in value)
         elif target_type == int:
-            return tuple([int(s) for s in value])
+            return tuple(int(s) for s in value)
         elif target_type == bool:
-            return tuple([bool(s) for s in value])
+            return tuple(bool(s) for s in value)
         else:
             output_value = []  # type: List[Tuple[Substitution, ...]]
             for subvalue in value:
