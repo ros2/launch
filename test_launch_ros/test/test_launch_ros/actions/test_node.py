@@ -167,12 +167,8 @@ class TestNode(unittest.TestCase):
                         'ros__parameters': {
                             'param1': 'param1_value',
                             'param2': 'param2_value',
-                            'param_group1': {
-                                'list_params': [1.2, 3.4],
-                                'param_group2': {
-                                    'param2_values': ['param2_value'],
-                                }
-                            }
+                            'param_group1.list_params': (1.2, 3.4),
+                            'param_group1.param_group2.param2_values': ('param2_value',),
                         }
                     }
                 }
@@ -199,14 +195,15 @@ class TestNode(unittest.TestCase):
         """Test launching a node with invalid parameter dicts."""
         # Substitutions aren't expanded until the node action is executed, at which time a type
         # error should be raised and cause the launch to fail.
+        # However, the types are checked in Node.__init__()
         # For each type of invalid parameter, check that they are detected at both the top-level
         # and at a nested level in the dictionary.
 
         # Key must be a string/Substitution evaluating to a string.
-        self._assert_launch_errors(actions=[
+        with self.assertRaises(TypeError):
             self._create_node(parameters=[{5: 'asdf'}])
-        ])
-        self._assert_launch_errors(actions=[
+
+        with self.assertRaises(TypeError):
             self._create_node(parameters=[{
                 'param_group': {
                     'param_subgroup': {
@@ -214,13 +211,12 @@ class TestNode(unittest.TestCase):
                     },
                 },
             }])
-        ])
 
         # Nested lists are not supported.
-        self._assert_launch_errors(actions=[
+        with self.assertRaises(TypeError):
             self._create_node(parameters=[{'param': [1, 2, [3, 4]]}])
-        ])
-        self._assert_launch_errors(actions=[
+
+        with self.assertRaises(TypeError):
             self._create_node(parameters=[{
                 'param_group': {
                     'param_subgroup': {
@@ -228,27 +224,12 @@ class TestNode(unittest.TestCase):
                     },
                 },
             }])
-        ])
-
-        # Tuples are only supported for Substitutions.
-        self._assert_launch_errors(actions=[
-            self._create_node(parameters=[{'param': (1, 2)}])
-        ])
-        self._assert_launch_errors(actions=[
-            self._create_node(parameters=[{
-                'param_group': {
-                    'param_subgroup': {
-                        'param': (1, 2),
-                    },
-                },
-            }])
-        ])
 
         # Other types are not supported.
-        self._assert_launch_errors(actions=[
+        with self.assertRaises(TypeError):
             self._create_node(parameters=[{'param': {1, 2}}])
-        ])
-        self._assert_launch_errors(actions=[
+
+        with self.assertRaises(TypeError):
             self._create_node(parameters=[{
                 'param_group': {
                     'param_subgroup': {
@@ -256,11 +237,11 @@ class TestNode(unittest.TestCase):
                     },
                 },
             }])
-        ])
-        self._assert_launch_errors(actions=[
+
+        with self.assertRaises(TypeError):
             self._create_node(parameters=[{'param': self}])
-        ])
-        self._assert_launch_errors(actions=[
+
+        with self.assertRaises(TypeError):
             self._create_node(parameters=[{
                 'param_group': {
                     'param_subgroup': {
@@ -268,4 +249,3 @@ class TestNode(unittest.TestCase):
                     },
                 },
             }])
-        ])

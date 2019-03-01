@@ -18,11 +18,15 @@ Module for descriptions of launchable entities.
 Descriptions are not executable and are immutable so they can be reused by launch entities.
 """
 
+from .evaluate_parameters import evaluate_parameters
+from .normalize_parameters import normalize_parameters
 from .normalize_remap_rule import normalize_remap_rule
 from .normalize_remap_rule import normalize_remap_rules
 
 
 __all__ = [
+    'evaluate_parameters',
+    'normalize_parameters',
     'normalize_remap_rule',
     'normalize_remap_rules',
 ]

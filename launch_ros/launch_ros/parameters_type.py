@@ -1,0 +1,60 @@
+# Copyright 2019 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Module for ROS parameter types."""
+
+import pathlib
+
+from typing import Any
+from typing import Dict
+from typing import Iterable
+from typing import Mapping
+from typing import Union
+
+from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.substitution import Substitution
+
+
+# Parameter value types used below
+_SingleValueType = Union[str, int, float, bool]
+_MultiValueType = Union[
+    Iterable[str], Iterable[int], Iterable[float], Iterable[bool], bytes]
+
+SomeParameterFile = Union[SomeSubstitutionsType, pathlib.Path]
+SomeParameterName = Iterable[Substitution]
+SomeParameterValue = Union[SomeSubstitutionsType, _SingleValueType, _MultiValueType]
+
+# TODO(sloretz) Recursive type when mypy supports them python/mypy#731
+_SomeParametersDict = Mapping[SomeParameterName, Any]
+SomeParametersDict = Mapping[SomeParameterName, Union[SomeParameterValue, _SomeParametersDict]]
+
+# Paths to yaml files with parameters, or dictionaries of parameters, or pairs of
+# parameter names and values
+SomeParameters = Iterable[Union[SomeParameterFile, Mapping[SomeParameterName, SomeParameterValue]]]
+
+ParameterFile = Iterable[Substitution]
+ParameterValue = Union[Iterable[Substitution],
+                       Iterable[Iterable[Substitution]],
+                       _SingleValueType,
+                       _MultiValueType]
+
+# Normalized (flattened to avoid having a recursive type) parameter dict
+ParametersDict = Mapping[SomeParameterName, SomeParameterValue]
+
+# Normalized parameters
+Parameters = Iterable[Union[ParameterFile, ParametersDict]]
+
+EvaluatedParameterValue = Union[_SingleValueType, _MultiValueType]
+# Evaluated parameters: filenames or dictionary after substitutions have been evaluated
+EvaluatedParameters = Iterable[Union[pathlib.Path, Dict[str, EvaluatedParameterValue]]]
