@@ -18,6 +18,7 @@
 from collections.abc import Mapping
 from collections.abc import Sequence
 import pathlib
+from typing import cast
 from typing import Dict
 from typing import List
 from typing import Union
@@ -53,28 +54,30 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
             for name, value in param.items():
                 if not isinstance(name, tuple):
                     raise TypeError('Expecting tuple of substitutions got {}'.format(repr(name)))
-                name = perform_substitutions(context, list(name))
+                evaluated_name = perform_substitutions(context, list(name))  # type: str
+                evaluated_value = ''  # type: EvaluatedParameterValue
 
                 if isinstance(value, tuple) and len(value):
                     if isinstance(value[0], Substitution):
                         # Value is a list of substitutions, so perform them to make a string
-                        value = perform_substitutions(context, list(value))
+                        evaluated_value = perform_substitutions(context, list(value))
                     elif isinstance(value[0], Sequence):
                         # Value is an array of a list of substitutions
                         output_subvalue = []  # List[str]
                         for subvalue in value:
                             output_subvalue.append(perform_substitutions(context, list(subvalue)))
-                        value = tuple(output_subvalue)
+                        evalutated_value = tuple(output_subvalue)
                     else:
                         # Value is an array of the same type, so nothing to evaluate.
                         output_value = []
                         target_type = type(value[0])
                         for i, subvalue in enumerate(value):
                             output_value.append(target_type(subvalue))
-                        value = tuple(output_value)
+                        evaluated_value = tuple(output_value)
                 else:
                     # Value is a singular type, so nothing to evaluate
                     ensure_argument_type(value, (float, int, str, bool, bytes), 'value')
-                output_dict[name] = value
+                    evaluated_value = cast(Union[float, int, str, bool, bytes], value)
+                output_dict[evaluated_name] = evaluated_value
             output_params.append(output_dict)
     return tuple(output_params)

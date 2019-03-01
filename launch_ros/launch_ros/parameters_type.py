@@ -18,8 +18,8 @@ import pathlib
 
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import Mapping
+from typing import Sequence
 from typing import Union
 
 from launch.some_substitutions_type import SomeSubstitutionsType
@@ -29,10 +29,10 @@ from launch.substitution import Substitution
 # Parameter value types used below
 _SingleValueType = Union[str, int, float, bool]
 _MultiValueType = Union[
-    Iterable[str], Iterable[int], Iterable[float], Iterable[bool], bytes]
+    Sequence[str], Sequence[int], Sequence[float], Sequence[bool], bytes]
 
 SomeParameterFile = Union[SomeSubstitutionsType, pathlib.Path]
-SomeParameterName = Iterable[Substitution]
+SomeParameterName = Sequence[Substitution]
 SomeParameterValue = Union[SomeSubstitutionsType, _SingleValueType, _MultiValueType]
 
 # TODO(sloretz) Recursive type when mypy supports them python/mypy#731
@@ -41,11 +41,11 @@ SomeParametersDict = Mapping[SomeParameterName, Union[SomeParameterValue, _SomeP
 
 # Paths to yaml files with parameters, or dictionaries of parameters, or pairs of
 # parameter names and values
-SomeParameters = Iterable[Union[SomeParameterFile, Mapping[SomeParameterName, SomeParameterValue]]]
+SomeParameters = Sequence[Union[SomeParameterFile, Mapping[SomeParameterName, SomeParameterValue]]]
 
-ParameterFile = Iterable[Substitution]
-ParameterValue = Union[Iterable[Substitution],
-                       Iterable[Iterable[Substitution]],
+ParameterFile = Sequence[Substitution]
+ParameterValue = Union[Sequence[Substitution],
+                       Sequence[Sequence[Substitution]],
                        _SingleValueType,
                        _MultiValueType]
 
@@ -53,8 +53,8 @@ ParameterValue = Union[Iterable[Substitution],
 ParametersDict = Mapping[SomeParameterName, SomeParameterValue]
 
 # Normalized parameters
-Parameters = Iterable[Union[ParameterFile, ParametersDict]]
+Parameters = Sequence[Union[ParameterFile, ParametersDict]]
 
 EvaluatedParameterValue = Union[_SingleValueType, _MultiValueType]
 # Evaluated parameters: filenames or dictionary after substitutions have been evaluated
-EvaluatedParameters = Iterable[Union[pathlib.Path, Dict[str, EvaluatedParameterValue]]]
+EvaluatedParameters = Sequence[Union[pathlib.Path, Dict[str, EvaluatedParameterValue]]]

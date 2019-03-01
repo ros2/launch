@@ -36,6 +36,7 @@ from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 from launch_ros.remap_rule_type import SomeRemapRules
+from launch_ros.parameters_type import SomeParameters
 from launch_ros.substitutions import ExecutableInPackage
 from launch_ros.utilities import evaluate_parameters
 from launch_ros.utilities import normalize_parameters
@@ -58,7 +59,7 @@ class Node(ExecuteProcess):
         node_executable: SomeSubstitutionsType,
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: Optional[SomeSubstitutionsType] = None,
-        parameters: Optional[List[SomeSubstitutionsType]] = None,
+        parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         **kwargs

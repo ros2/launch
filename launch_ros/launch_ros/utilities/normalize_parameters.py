@@ -20,15 +20,18 @@ from collections.abc import Sequence
 import pathlib
 from typing import cast
 from typing import List  # noqa
-from typing import Tuple # noqa
+from typing import Optional  # noqa
+from typing import Tuple  # noqa
 from typing import Union  # noqa
 
+from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.substitution import Substitution
 from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 
+from ..parameters_type import ParameterFile
 from ..parameters_type import Parameters
 from ..parameters_type import ParametersDict
 from ..parameters_type import ParameterValue
@@ -42,13 +45,13 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
     if isinstance(value, Sequence):
         # a list of values of the same type
         # Figure out what type the list should be
-        target_type = None
+        target_type = None  # type: Optional[type]
         for subvalue in value:
             allowed_subtypes = (float, int, str, bool) + SomeSubstitutionsType_types_tuple
             ensure_argument_type(subvalue, allowed_subtypes, 'subvalue')
 
             if isinstance(subvalue, Substitution):
-                subtype = Substitution
+                subtype = Substitution  # type: type
             else:
                 subtype = type(subvalue)
 
@@ -76,27 +79,23 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
             return []
         elif target_type == Substitution:
             # Keep the list of substitutions together to form a single string
-            return tuple(normalize_to_list_of_substitutions(value))
+            return tuple(normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, value)))
 
-        output_value = []  # type: List[Union[Tuple[Substitution, ...], float, int, str, bool]]
-        for subvalue in value:
-            # Make all values in a list the same type
-            if target_type == float:
-                # cast to make mypy happy
-                output_value.append(float(cast(float, subvalue)))
-            elif target_type == int:
-                # cast to make mypy happy
-                output_value.append(int(cast(int, subvalue)))
-            elif target_type == bool:
-                # cast to make mypy happy
-                output_value.append(bool(cast(bool, subvalue)))
-            else:
+        if target_type == float:
+            return tuple([float(s) for s in value])
+        elif target_type == int:
+            return tuple([int(s) for s in value])
+        elif target_type == bool:
+            return tuple([bool(s) for s in value])
+        else:
+            output_value = []  # type: List[Tuple[Substitution, ...]]
+            for subvalue in value:
                 if not isinstance(subvalue, Iterable) and not isinstance(subvalue, Substitution):
                     # Convert simple types to strings
                     subvalue = str(subvalue)
                 # Make everything a substitution
                 output_value.append(tuple(normalize_to_list_of_substitutions(subvalue)))
-        return tuple(output_value)
+            return tuple(output_value)
     else:
         raise TypeError('Value {} must be a sequence'.format(repr(value)))
 
@@ -171,7 +170,7 @@ def normalize_parameters(parameters: SomeParameters) -> Parameters:
     if isinstance(parameters, str) or not isinstance(parameters, Sequence):
         raise TypeError('Expecting list of parameters, got {}'.format(parameters))
 
-    normalized_params = []  # type: Parameters
+    normalized_params = []  # type: List[Union[ParameterFile, ParametersDict]]
     for param in parameters:
         if isinstance(param, Mapping):
             normalized_params.append(normalize_parameter_dict(param))
