@@ -91,7 +91,7 @@ build_isolated:
       --skip-keys "console_bridge fastcdr fastrtps libopensplice67 libopensplice69 rti-connext-dds-5.3.1 urdfdom_headers"
     # Make sure we can build and test apex_launchtest
     - colcon list --topological-graph --packages-up-to apex_launchtest
-    # - colcon list --topological-graph --packages-up-to apex_launchtest | grep "rclpy" &> /dev/null && exit 1  # Fail if apex_launchtest depends on rclpy
+    - colcon list --topological-graph --packages-up-to apex_launchtest | grep "rclpy" &> /dev/null && exit 1  # Fail if apex_launchtest depends on rclpy
     - colcon build --packages-up-to apex_launchtest
     - tar -cf launchtest_artifacts.tar build install
     # Make sure we can also build and test apex_launchtest_ros
