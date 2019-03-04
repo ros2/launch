@@ -68,6 +68,17 @@ build_all:
       - build
       - install
 
+build_all_crystal:
+  <<: *bin_job_template
+  image: osrf/ros:crystal-desktop
+  stage: build
+  script:
+    - colcon build --symlink-install
+  artifacts:
+    paths:
+      - build
+      - install
+
 # Build everything from source to make sure our package.xml deps are correct
 build_isolated:
   <<: *src_job_template
@@ -134,6 +145,21 @@ test_all:
       - log
       - "*/.coverage"
 
+test_all_crystal:
+  <<: *bin_job_template
+  image: osrf/ros:crystal-desktop
+  stage: test
+  dependencies:
+    - build_all_crystal
+  script:
+    - pip3 install mock
+    - colcon test
+    - colcon test-result --verbose
+  artifacts:
+    when: always
+    paths:
+      - log
+
 test_isolated:
   <<: *src_job_template
   stage: test
@@ -157,7 +183,6 @@ coverage:
     name: python:3.6
   dependencies:
     - test_all
-  before_script: []  # Don't need ROS setup for the coverage job
   script:
     - pip3 install coverage
     - find . -iname ".coverage" -exec coverage combine -a {} \;
