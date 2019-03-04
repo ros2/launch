@@ -30,3 +30,13 @@ in the launch description via a launch.substitutions.LaunchConfiguration.  The a
 available to the test cases via a self.test_args dictionary
 
 This example will fail if no arguments are passed.
+
+## `example_test_context.test.py`
+
+Usage:
+> apex_launchtest examples/example_test_context.test.py
+
+This example shows how the `generate_test_description` function can return a tuple where the second
+item is a dictionary of objects that will be injected into the individual test cases.  Notice how
+test_process_output uses the stored dut from the test description, and how test_int_val retreives the
+int_val.

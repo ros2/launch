@@ -37,6 +37,20 @@ class _fail_result(unittest.TestResult):
         return False
 
 
+def _normalize_ld(launch_description_fn):
+    # A launch description fn can return just a launch description, or a tuple of
+    # (launch_description, test_context).  This wrapper function normalizes things
+    # so we always get a tuple, sometimes with an empty dictionary for the test_context
+    def wrapper(*args, **kwargs):
+        result = launch_description_fn(*args, **kwargs)
+        if isinstance(result, tuple):
+            return result
+        else:
+            return result, {}
+
+    return wrapper
+
+
 class ApexRunner(object):
 
     def __init__(self,
@@ -69,7 +83,7 @@ class ApexRunner(object):
         )
 
     def get_launch_description(self):
-        return self._gen_launch_description_fn(lambda: None)
+        return _normalize_ld(self._gen_launch_description_fn)(lambda: None)[0]
 
     def run(self):
         """
@@ -78,11 +92,14 @@ class ApexRunner(object):
         :return: A tuple of two unittest.Results - one for tests that ran while processes were
         active, and another set for tests that ran after processes were shutdown
         """
-        test_ld = self._gen_launch_description_fn(lambda: self._processes_launched.set())
+        test_ld, test_context = _normalize_ld(
+            self._gen_launch_description_fn
+        )(lambda: self._processes_launched.set())
 
         # Data to squirrel away for post-shutdown tests
         self.proc_info = ActiveProcInfoHandler()
         self.proc_output = ActiveIoHandler()
+        self.test_context = test_context
         parsed_launch_arguments = parse_launch_arguments(self._launch_file_arguments)
         self.test_args = {}
         for k, v in parsed_launch_arguments:
@@ -126,6 +143,7 @@ class ApexRunner(object):
         self._give_attribute_to_tests(self.proc_info, "proc_info", inactive_suite)
         self._give_attribute_to_tests(self.proc_output._io_handler, "proc_output", inactive_suite)
         self._give_attribute_to_tests(self.test_args, "test_args", inactive_suite)
+        self._bind_test_context_to_tests(self.test_context, inactive_suite)
         inactive_results = unittest.TextTestRunner(
             verbosity=2,
             resultclass=TestResult
@@ -156,6 +174,7 @@ class ApexRunner(object):
             self._give_attribute_to_tests(self.proc_output, "proc_output", active_suite)
             self._give_attribute_to_tests(self.proc_info, "proc_info", active_suite)
             self._give_attribute_to_tests(self.test_args, "test_args", active_suite)
+            self._bind_test_context_to_tests(self.test_context, active_suite)
 
             # Run the tests
             self._results = unittest.TextTestRunner(
@@ -176,6 +195,10 @@ class ApexRunner(object):
             for io in self.proc_output[process.action]:
                 print("{}".format(io.text.decode('ascii')))
             print("#" * (len(process.process_name) + 21))
+
+    def _bind_test_context_to_tests(self, context, test_suite):
+        for k, v in context.items():
+            self._give_attribute_to_tests(v, k, test_suite)
 
     def _give_attribute_to_tests(self, data, attr_name, test_suite):
         # Test suites can contain other test suites which will eventually contain
