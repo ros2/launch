@@ -68,7 +68,7 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
             elif subtype == str and target_type == Substitution:
                 # If any value is a single substitution then result is a single string
                 target_type = Substitution
-            elif subtype == str and target_type == Substitution:
+            elif subtype == Substitution and target_type == str:
                 # If any value is a single substitution then result is a single string
                 target_type = Substitution
             elif subtype != target_type:
