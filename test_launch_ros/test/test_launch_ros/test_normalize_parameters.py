@@ -144,6 +144,14 @@ def test_dictionary_with_int_and_float():
     # pytest doesn't check int vs float type
     assert tuple(map(type, evaluated[0]['fiz'])) == (float, float, float)
 
+    orig = [{'foo': 1, 'fiz': [2.0, 3, 4]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': (2.0, 3.0, 4.0)},)
+    evaluated = evaluate_parameters(LaunchContext(), norm)
+    assert evaluated == expected
+    # pytest doesn't check int vs float type
+    assert tuple(map(type, evaluated[0]['fiz'])) == (float, float, float)
+
 
 def test_dictionary_with_bytes():
     orig = [{'foo': 1, 'fiz': bytes([0xff, 0x5c, 0xaa])}]
