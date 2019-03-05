@@ -106,6 +106,16 @@ def test_dictionary_with_mixed_substitutions_and_strings():
     expected = ({'foo': ('fiz', 'bar')},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
+    orig = [{'foo': ['bar', TextSubstitution(text='fiz')]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 'barfiz'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': ['bar', [TextSubstitution(text='fiz')]]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': ('bar', 'fiz')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
 
 def test_dictionary_with_str():
     orig = [{'foo': 'bar', 'fiz': ['b', 'u', 'z']}]
