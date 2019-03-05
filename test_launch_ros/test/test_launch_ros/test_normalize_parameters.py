@@ -176,6 +176,26 @@ def test_dictionary_with_dissimilar_array():
     expected = ({'foo': 1, 'fiz': ('True', '2.0', '3')},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
+    orig = [{'foo': 1, 'fiz': [True, 1, TextSubstitution(text='foo')]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': ('True', '1', 'foo')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': [TextSubstitution(text='foo'), True, 1]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': ('foo', 'True', '1')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': [True, 1, [TextSubstitution(text='foo')]]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': ('True', '1', 'foo')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': [[TextSubstitution(text='foo')], True, 1]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': ('foo', 'True', '1')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
 
 def test_nested_dictionaries():
     orig = [{'foo': {'bar': 'baz'}, 'fiz': {'buz': 3}}]

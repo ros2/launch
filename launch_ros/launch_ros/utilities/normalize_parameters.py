@@ -14,7 +14,6 @@
 
 """Module with utility for normalizing parameters to a node."""
 
-from collections.abc import Iterable
 from collections.abc import Mapping
 from collections.abc import Sequence
 import pathlib
@@ -24,6 +23,7 @@ from typing import Optional
 from typing import Sequence as SequenceTypeHint
 from typing import Tuple  # noqa
 from typing import Union  # noqa
+from typing import Set  # noqa
 
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
@@ -47,57 +47,48 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
         raise TypeError('Value {} must be a sequence'.format(repr(value)))
 
     # Figure out what type the list should be
-    target_type = None  # type: Optional[type]
+    has_types = set()  # type: Set[type]
     for subvalue in value:
         allowed_subtypes = (float, int, str, bool) + SomeSubstitutionsType_types_tuple
         ensure_argument_type(subvalue, allowed_subtypes, 'subvalue')
 
         if isinstance(subvalue, Substitution):
-            subtype = Substitution  # type: type
+            has_types.add(Substitution)
+        elif isinstance(subvalue, str):
+            has_types.add(str)
+        elif isinstance(subvalue, bool):
+            has_types.add(bool)
+        elif isinstance(subvalue, int):
+            has_types.add(int)
+        elif isinstance(subvalue, float):
+            has_types.add(float)
+        elif isinstance(subvalue, Sequence):
+            has_types.add(tuple)
         else:
-            subtype = type(subvalue)
+            raise RuntimeError('Failed to handle type {}'.format(repr(subvalue)))
 
-        if target_type is None:
-            target_type = subtype
-
-        if subtype == float and target_type == int:
-            # If any value is a float, convert all integers to floats
-            target_type = float
-        elif subtype == int and target_type == float:
-            # If any value is a float, convert all integers to floats
-            pass
-        elif subtype == str and target_type == Substitution:
-            # If any value is a single substitution then result is a single string
-            target_type = Substitution
-        elif subtype == Substitution and target_type == str:
-            # If any value is a single substitution then result is a single string
-            target_type = Substitution
-        elif subtype != target_type:
-            # If types don't match, assume list of strings
-            target_type = str
-
-    if target_type is None:
-        # No clue what an empty list's type should be
-        return []
-    elif target_type == Substitution:
-        # Keep the list of substitutions together to form a single string
+    if {int} == has_types:
+        # all integers
+        return tuple(int(e) for e in value)
+    elif has_types in ({float}, {int, float}):
+        # all were floats or ints, so return floats
+        return tuple(float(e) for e in value)
+    elif Substitution in has_types and has_types.issubset({str, Substitution, tuple}):
+        # make a list of substitutions forming a single string
         return tuple(normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, value)))
-
-    if target_type == float:
-        return tuple(float(s) for s in value)
-    elif target_type == int:
-        return tuple(int(s) for s in value)
-    elif target_type == bool:
-        return tuple(bool(s) for s in value)
+    elif {bool} == has_types:
+        # all where bools
+        return tuple(bool(e) for e in value)
     else:
-        output_value = []  # type: List[Tuple[Substitution, ...]]
-        for subvalue in value:
-            if not isinstance(subvalue, Iterable) and not isinstance(subvalue, Substitution):
-                # Convert simple types to strings
-                subvalue = str(subvalue)
-            # Make everything a substitution
-            output_value.append(tuple(normalize_to_list_of_substitutions(subvalue)))
-        return tuple(output_value)
+        # Should evaluate to a list of strings
+        # Normalize to a list of lists of substitutions
+        new_value = []  # type: List[SomeSubstitutionsType]
+        for element in value:
+            if isinstance(element, float) or isinstance(element, int) or isinstance(element, bool):
+                new_value.append(str(element))
+            else:
+                new_value.append(element)
+        return tuple(normalize_to_list_of_substitutions(e) for e in new_value)
 
 
 def normalize_parameter_dict(
@@ -116,10 +107,12 @@ def normalize_parameter_dict(
     Normalized values that were lists will have all subvalues converted to the same type.
     If all subvalues are int or float, then the normalized subvalues will all be float.
     If the subvalues otherwise do not all have the same type, then the normalized subvalues
-    will be lists of Substitution that will result in string parameters.
+    will be lists of Substitution that will result in a list of strings.
 
     Values that are a list of strings will become a list of strings when normalized and evaluated.
-    Values that are a list of :class:`Substitution` will become a single string.
+    Values that are a list which has at least one :class:`Substitution` and all other elements
+    are either strings or a list of substitutions will become a single list of substitutions that
+    will evaluate to a single string.
     To make a list of strings from substitutions, each item in the list must be a list or tuple.
 
     Normalized values that contained nested dictionaries will be collapsed into a single
