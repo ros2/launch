@@ -43,62 +43,61 @@ from ..parameters_type import SomeParameterValue
 
 def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValue:
     """Normalize substitutions while preserving the type if it's not a substitution."""
-    if isinstance(value, Sequence):
-        # a list of values of the same type
-        # Figure out what type the list should be
-        target_type = None  # type: Optional[type]
-        for subvalue in value:
-            allowed_subtypes = (float, int, str, bool) + SomeSubstitutionsType_types_tuple
-            ensure_argument_type(subvalue, allowed_subtypes, 'subvalue')
+    if not isinstance(value, Sequence):
+        raise TypeError('Value {} must be a sequence'.format(repr(value)))
 
-            if isinstance(subvalue, Substitution):
-                subtype = Substitution  # type: type
-            else:
-                subtype = type(subvalue)
+    # Figure out what type the list should be
+    target_type = None  # type: Optional[type]
+    for subvalue in value:
+        allowed_subtypes = (float, int, str, bool) + SomeSubstitutionsType_types_tuple
+        ensure_argument_type(subvalue, allowed_subtypes, 'subvalue')
 
-            if target_type is None:
-                target_type = subtype
-
-            if subtype == float and target_type == int:
-                # If any value is a float, convert all integers to floats
-                target_type = float
-            elif subtype == int and target_type == float:
-                # If any value is a float, convert all integers to floats
-                pass
-            elif subtype == str and target_type == Substitution:
-                # If any value is a single substitution then result is a single string
-                target_type = Substitution
-            elif subtype == Substitution and target_type == str:
-                # If any value is a single substitution then result is a single string
-                target_type = Substitution
-            elif subtype != target_type:
-                # If types don't match, assume list of strings
-                target_type = str
+        if isinstance(subvalue, Substitution):
+            subtype = Substitution  # type: type
+        else:
+            subtype = type(subvalue)
 
         if target_type is None:
-            # No clue what an empty list's type should be
-            return []
-        elif target_type == Substitution:
-            # Keep the list of substitutions together to form a single string
-            return tuple(normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, value)))
+            target_type = subtype
 
-        if target_type == float:
-            return tuple(float(s) for s in value)
-        elif target_type == int:
-            return tuple(int(s) for s in value)
-        elif target_type == bool:
-            return tuple(bool(s) for s in value)
-        else:
-            output_value = []  # type: List[Tuple[Substitution, ...]]
-            for subvalue in value:
-                if not isinstance(subvalue, Iterable) and not isinstance(subvalue, Substitution):
-                    # Convert simple types to strings
-                    subvalue = str(subvalue)
-                # Make everything a substitution
-                output_value.append(tuple(normalize_to_list_of_substitutions(subvalue)))
-            return tuple(output_value)
+        if subtype == float and target_type == int:
+            # If any value is a float, convert all integers to floats
+            target_type = float
+        elif subtype == int and target_type == float:
+            # If any value is a float, convert all integers to floats
+            pass
+        elif subtype == str and target_type == Substitution:
+            # If any value is a single substitution then result is a single string
+            target_type = Substitution
+        elif subtype == Substitution and target_type == str:
+            # If any value is a single substitution then result is a single string
+            target_type = Substitution
+        elif subtype != target_type:
+            # If types don't match, assume list of strings
+            target_type = str
+
+    if target_type is None:
+        # No clue what an empty list's type should be
+        return []
+    elif target_type == Substitution:
+        # Keep the list of substitutions together to form a single string
+        return tuple(normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, value)))
+
+    if target_type == float:
+        return tuple(float(s) for s in value)
+    elif target_type == int:
+        return tuple(int(s) for s in value)
+    elif target_type == bool:
+        return tuple(bool(s) for s in value)
     else:
-        raise TypeError('Value {} must be a sequence'.format(repr(value)))
+        output_value = []  # type: List[Tuple[Substitution, ...]]
+        for subvalue in value:
+            if not isinstance(subvalue, Iterable) and not isinstance(subvalue, Substitution):
+                # Convert simple types to strings
+                subvalue = str(subvalue)
+            # Make everything a substitution
+            output_value.append(tuple(normalize_to_list_of_substitutions(subvalue)))
+        return tuple(output_value)
 
 
 def normalize_parameter_dict(
