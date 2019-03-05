@@ -109,7 +109,7 @@ def normalize_parameter_dict(
 
     The parameters are passed as a dictionary that specifies parameter rules.
     Keys of the dictionary can be strings, a Substitution, or an iterable of Substitution.
-    A normalized keys will be a tuple of substitutions.
+    A normalized key will be a tuple of substitutions.
     Values in the dictionary can be strings, integers, floats, substututions, lists of
     the previous types, or another dictionary with the same properties.
 
