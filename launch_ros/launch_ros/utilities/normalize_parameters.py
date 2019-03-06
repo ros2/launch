@@ -68,11 +68,13 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
             raise RuntimeError('Failed to handle type {}'.format(repr(subvalue)))
 
     if {int} == has_types:
-        # all integers
-        return tuple(int(e) for e in value)
+        # everything is an integer
+        make_mypy_happy_int = cast(List[int], value)
+        return tuple(int(e) for e in make_mypy_happy_int)
     elif has_types in ({float}, {int, float}):
         # all were floats or ints, so return floats
-        return tuple(float(e) for e in value)
+        make_mypy_happy_float = cast(List[Union[int, float]], value)
+        return tuple(float(e) for e in make_mypy_happy_float)
     elif Substitution in has_types and has_types.issubset({str, Substitution, tuple}):
         # make a list of substitutions forming a single string
         return tuple(normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, value)))

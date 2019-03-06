@@ -33,7 +33,10 @@ _MultiValueType = Union[
 
 SomeParameterFile = Union[SomeSubstitutionsType, pathlib.Path]
 SomeParameterName = Sequence[Union[Substitution, str]]
-SomeParameterValue = Union[SomeSubstitutionsType, _SingleValueType, _MultiValueType]
+SomeParameterValue = Union[SomeSubstitutionsType,
+                           Sequence[SomeSubstitutionsType],
+                           _SingleValueType,
+                           _MultiValueType]
 
 # TODO(sloretz) Recursive type when mypy supports them python/mypy#731
 _SomeParametersDict = Mapping[SomeParameterName, Any]
