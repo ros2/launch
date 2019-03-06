@@ -26,9 +26,4 @@ setup(
         'processes and react on individual processes exiting.'),
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
-    entry_points={
-        'console_scripts': [
-            'launch = launch.legacy.main:main',
-        ],
-    },
 )
