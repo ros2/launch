@@ -15,7 +15,6 @@
 """Module for the Node action."""
 
 from collections.abc import Mapping
-import logging
 import os
 import pathlib
 from tempfile import NamedTemporaryFile

@@ -22,6 +22,7 @@ import signal
 import threading
 import traceback
 from typing import Any  # noqa: F401
+from typing import Callable
 from typing import cast
 from typing import Dict
 from typing import Iterable
@@ -280,9 +281,11 @@ class ExecuteProcess(Action):
             self._subprocess_transport.send_signal(typed_event.signal)
             return None
         except ProcessLookupError:
-            _logger.debug("signal '{}' not sent to '{}' because it has closed already".format(
-                typed_event.signal_name, self.process_details['name']
-            ))
+            self.__logger.debug(
+                "signal '{}' not sent to '{}' because it has closed already".format(
+                    typed_event.signal_name, self.process_details['name']
+                )
+            )
 
     def __on_process_stdin(
         self,
