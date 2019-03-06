@@ -14,6 +14,7 @@
 
 """Module for the Node action."""
 
+from collections.abc import Mapping
 import logging
 import os
 import pathlib
@@ -25,19 +26,20 @@ from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple
 
-from launch import Substitution
 from launch.action import Action
 from launch.actions import ExecuteProcess
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
-from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.substitutions import LocalSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
+from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
 from launch_ros.substitutions import ExecutableInPackage
+from launch_ros.utilities import evaluate_parameters
+from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
 
 from rclpy.validate_namespace import validate_namespace
@@ -57,7 +59,7 @@ class Node(ExecuteProcess):
         node_executable: SomeSubstitutionsType,
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: Optional[SomeSubstitutionsType] = None,
-        parameters: Optional[List[SomeSubstitutionsType]] = None,
+        parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         **kwargs
@@ -136,11 +138,9 @@ class Node(ExecuteProcess):
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
             # All elements in the list are paths to files with parameters (or substitutions that
             # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
-            parameter_types = list(SomeSubstitutionsType_types_tuple) + [pathlib.Path, dict]
             i = 0
             for param in parameters:
-                ensure_argument_type(param, parameter_types, 'parameters[{}]'.format(i), 'Node')
-                if isinstance(param, dict) and node_name is None:
+                if isinstance(param, Mapping) and node_name is None:
                     raise RuntimeError(
                         'If a dictionary of parameters is specified, the node name must also be '
                         'specified. See https://github.com/ros2/launch/issues/139')
@@ -149,6 +149,7 @@ class Node(ExecuteProcess):
                     'ros_specific_arguments[{}]'.format(ros_args_index),
                     description='parameter {}'.format(i))]
                 ros_args_index += 1
+            normalized_params = normalize_parameters(parameters)
         if remappings is not None:
             i = 0
             for remapping in normalize_remap_rules(remappings):
@@ -163,7 +164,7 @@ class Node(ExecuteProcess):
         self.__node_executable = node_executable
         self.__node_name = node_name
         self.__node_namespace = node_namespace
-        self.__parameters = [] if parameters is None else parameters
+        self.__parameters = [] if parameters is None else normalized_params
         self.__remappings = [] if remappings is None else remappings
         self.__arguments = arguments
 
@@ -182,65 +183,11 @@ class Node(ExecuteProcess):
             raise RuntimeError("cannot access 'node_name' before executing action")
         return self.__final_node_name
 
-    def _create_params_file_from_dict(self, context, params):
+    def _create_params_file_from_dict(self, params):
         with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
             param_file_path = h.name
             # TODO(dhood): clean up generated parameter files.
-
-            def perform_substitution_if_applicable(context, var):
-                if isinstance(var, (int, float, str)):
-                    # No substitution necessary.
-                    return var
-                if isinstance(var, Substitution):
-                    return perform_substitutions(context, normalize_to_list_of_substitutions(var))
-                if isinstance(var, tuple):
-                    try:
-                        return perform_substitutions(
-                            context, normalize_to_list_of_substitutions(var))
-                    except TypeError:
-                        raise TypeError(
-                            'Invalid element received in parameters dictionary '
-                            '(not all tuple elements are Substitutions): {}'.format(var))
-                else:
-                    raise TypeError(
-                        'Unsupported type received in parameters dictionary: {}'
-                        .format(type(var)))
-
-            def expand_dict(input_dict):
-                expanded_dict = {}
-                for k, v in input_dict.items():
-                    # Key (parameter/group name) can only be a string/Substitutions that evaluates
-                    # to a string.
-                    expanded_key = perform_substitutions(
-                        context, normalize_to_list_of_substitutions(k))
-                    if isinstance(v, dict):
-                        # Expand the nested dict.
-                        expanded_value = expand_dict(v)
-                    elif isinstance(v, list):
-                        # Expand each element.
-                        expanded_value = []
-                        for e in v:
-                            if isinstance(e, list):
-                                raise TypeError(
-                                    'Nested lists are not supported for parameters: {} found in {}'
-                                    .format(e, v))
-                            expanded_value.append(perform_substitution_if_applicable(context, e))
-                    # Tuples are treated as Substitution(s) to be concatenated.
-                    elif isinstance(v, tuple):
-                        for e in v:
-                            ensure_argument_type(
-                                e, SomeSubstitutionsType_types_tuple,
-                                'parameter dictionary tuple entry', 'Node')
-                        expanded_value = perform_substitutions(
-                            context, normalize_to_list_of_substitutions(v))
-                    else:
-                        expanded_value = perform_substitution_if_applicable(context, v)
-                    expanded_dict[expanded_key] = expanded_value
-                return expanded_dict
-
-            expanded_dict = expand_dict(params)
-            param_dict = {
-                self.__expanded_node_name: {'ros__parameters': expanded_dict}}
+            param_dict = {self.__expanded_node_name: {'ros__parameters': params}}
             if self.__expanded_node_namespace:
                 param_dict = {self.__expanded_node_namespace: param_dict}
             yaml.dump(param_dict, h, default_flow_style=False)
@@ -281,15 +228,14 @@ class Node(ExecuteProcess):
         # expand parameters too
         if self.__parameters is not None:
             self.__expanded_parameter_files = []
-            for params in self.__parameters:
+            evaluated_parameters = evaluate_parameters(context, self.__parameters)
+            for params in evaluated_parameters:
                 if isinstance(params, dict):
-                    param_file_path = self._create_params_file_from_dict(context, params)
+                    param_file_path = self._create_params_file_from_dict(params)
+                elif isinstance(params, pathlib.Path):
+                    param_file_path = str(params)
                 else:
-                    if isinstance(params, pathlib.Path):
-                        param_file_path = str(params)
-                    else:
-                        param_file_path = perform_substitutions(
-                            context, normalize_to_list_of_substitutions(params))
+                    raise RuntimeError('invalid normalized parameters {}'.format(repr(params)))
                 if not os.path.isfile(param_file_path):
                     _logger.warn(
                         'Parameter file path is not a file: {}'.format(param_file_path))
