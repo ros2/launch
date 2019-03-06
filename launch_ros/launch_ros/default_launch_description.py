@@ -96,7 +96,9 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
 
     def _function(self, context: launch.LaunchContext):
         try:
-            rclpy.init(args=context.argv, context=self.__rclpy_context)
+            if self.__rclpy_context is None:
+                # Initialize the default global context
+                rclpy.init(args=context.argv)
         except RuntimeError as exc:
             if 'rcl_init called while already initialized' in str(exc):
                 pass
@@ -121,8 +123,9 @@ def get_default_launch_description(*, prefix_output_with_name=False, rclpy_conte
         with the name of the process as `[process_name] `, else it is printed
         unmodified
 
-    :param: rclpy_context Provide a context other than the default rclpy context pass down
-    to rclpy.init
+    :param: rclpy_context Provide a context other than the default rclpy context to pass down
+    to rclpy.init.  The context is expected to have already been initialized by the caller using
+    rclpy.init
     """
     default_ros_launch_description = launch.LaunchDescription([
         # ROS initialization (create node and other stuff).
