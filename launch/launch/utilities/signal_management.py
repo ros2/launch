@@ -142,7 +142,7 @@ def install_signal_handlers():
             # Windows does not support SIGQUIT
             signal.signal(signal.SIGQUIT, __on_sigquit)
     except ValueError:
-        logger = launch.logging.getLogger(__name__)
+        logger = launch.logging.get_logger(__name__)
         logger.error("failed to set signal handlers in '{}'".format(__name__))
         logger.error('this function must be called in the main thread')
         raise

@@ -22,7 +22,6 @@ import signal
 import threading
 import traceback
 from typing import Any  # noqa: F401
-from typing import Callable
 from typing import cast
 from typing import Dict
 from typing import Iterable
@@ -167,7 +166,7 @@ class ExecuteProcess(Action):
             called 'launch-prefix'
         :param: output configuration for process output logging. Default is 'log' i.e.
             log both stdout and stderr to launch main log file and stderr to the screen.
-            See `launch.logging.getOutputLoggers()` documentation for further reference
+            See `launch.logging.get_output_loggers()` documentation for further reference
             on all available options.
         :param: output_format for logging each output line, supporting `str.format()`
             substitutions with the following keys in scope: `line` to reference the raw
@@ -396,7 +395,7 @@ class ExecuteProcess(Action):
             self.__context = context
             self.__action = action
             self.__process_event_args = process_event_args
-            self.__logger = launch.logging.getLogger(process_event_args['name'])
+            self.__logger = launch.logging.get_logger(process_event_args['name'])
 
         def connection_made(self, transport):
             self.__logger.info(
@@ -529,9 +528,9 @@ class ExecuteProcess(Action):
         try:
             self.__completed_future = create_future(context.asyncio_loop)
             self.__expand_substitutions(context)
-            self.__logger = launch.logging.getLogger(self.__name)
+            self.__logger = launch.logging.get_logger(self.__name)
             self.__stdout_logger, self.__stderr_logger = \
-                launch.logging.getOutputLoggers(self.__name, self.__output)
+                launch.logging.get_output_loggers(self.__name, self.__output)
             context.asyncio_loop.create_task(self.__execute_process(context))
         except Exception:
             for event_handler in event_handlers:

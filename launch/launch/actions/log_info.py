@@ -45,7 +45,7 @@ class LogInfo(Action):
         super().__init__(**kwargs)
 
         self.__msg = normalize_to_list_of_substitutions(msg)
-        self.__logger = launch.logging.getLogger(__name__)
+        self.__logger = launch.logging.get_logger(__name__)
 
     @property
     def msg(self) -> List[Substitution]:

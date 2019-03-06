@@ -60,7 +60,7 @@ class LifecycleNode(Node):
             to change state, see its documentation for more details.
         """
         super().__init__(node_name=node_name, **kwargs)
-        self.__logger = launch.logging.getLogger(__name__)
+        self.__logger = launch.logging.get_logger(__name__)
         self.__rclpy_subscription = None
         self.__current_state = \
             ChangeState.valid_states[lifecycle_msgs.msg.State.PRIMARY_STATE_UNKNOWN]

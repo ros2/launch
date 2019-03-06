@@ -87,7 +87,7 @@ class DeclareLaunchArgument(Action):
             self.__default_value = normalize_to_list_of_substitutions(default_value)
         self.__description = description
 
-        self.__logger = launch.logging.getLogger(__name__)
+        self.__logger = launch.logging.get_logger(__name__)
 
         # This is used later to determine if this launch argument will be
         # conditionally visited.

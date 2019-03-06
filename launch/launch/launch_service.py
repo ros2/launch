@@ -17,6 +17,7 @@
 import asyncio
 import atexit
 import collections.abc
+import logging
 import signal
 import threading
 import traceback
@@ -82,13 +83,13 @@ class LaunchService:
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
         # Setup logging and debugging.
-        launch.logging.launchConfig(
-            level=launch.logging.DEBUG if debug else launch.logging.INFO
+        launch.logging.launch_config(
+            level=logging.DEBUG if debug else logging.INFO
         )
         self.__debug = debug
 
         # Setup logging
-        self.__logger = launch.logging.getLogger('launch')
+        self.__logger = launch.logging.get_logger('launch')
         # Install signal handlers if not already installed, will raise if not
         # in main-thread, call manually in main-thread to avoid this.
         install_signal_handlers()

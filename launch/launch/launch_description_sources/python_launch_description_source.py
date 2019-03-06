@@ -53,7 +53,7 @@ class PythonLaunchDescriptionSource:
         self.__launch_file_path = normalize_to_list_of_substitutions(launch_file_path)
         self.__expanded_launch_file_path = None  # type: Optional[Text]
         self.__launch_description = None  # type: Optional[LaunchDescription]
-        self.__logger = launch.logging.getLogger(__name__)
+        self.__logger = launch.logging.get_logger(__name__)
 
     def try_get_launch_description_without_context(self) -> Optional[LaunchDescription]:
         """Get the LaunchDescription, attempting to load it if necessary."""

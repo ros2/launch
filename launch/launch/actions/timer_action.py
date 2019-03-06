@@ -76,7 +76,7 @@ class TimerAction(Action):
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
         self.__cancel_on_shutdown = cancel_on_shutdown
-        self.__logger = launch.logging.getLogger(__name__)
+        self.__logger = launch.logging.get_logger(__name__)
 
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(

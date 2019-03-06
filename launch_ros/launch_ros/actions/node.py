@@ -177,7 +177,7 @@ class Node(ExecuteProcess):
 
         self.__substitutions_performed = False
 
-        self.__logger = launch.logging.getLogger(__name__)
+        self.__logger = launch.logging.get_logger(__name__)
 
     @property
     def node_name(self):

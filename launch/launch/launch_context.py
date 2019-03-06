@@ -56,7 +56,7 @@ class LaunchContext:
         self.__is_shutdown = False
         self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
 
-        self.__logger = launch.logging.getLogger(__name__)
+        self.__logger = launch.logging.get_logger(__name__)
 
     @property
     def argv(self):
