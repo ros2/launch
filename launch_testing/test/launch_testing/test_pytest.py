@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,34 +14,18 @@
 
 """Tests for the PyTest Action."""
 
-from pathlib import Path
-
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import EmitEvent
-from launch.actions import RegisterEventHandler
-from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 
 from launch_testing.actions import PyTest
 
 
-def run_dummy_test(file):
-    """Utilitie to run both test files."""
-    path = Path(__file__).resolve().parents[1] / 'dummy_tests' / file
-    pytest_action = PyTest(
-        path=str(path), timeout=5.0,
-    )
-
-    def on_pytest_exited(event, context):
-        return EmitEvent(event=Shutdown())
-
+def launch_pytest(test_path):
+    """Launch a pytest."""
     ld = LaunchDescription([
-        pytest_action,
-        RegisterEventHandler(OnProcessExit(
-                on_exit=on_pytest_exited,
-                target_action=pytest_action
-            ))
+        PyTest(path=str(test_path), timeout=5.0, on_exit=[EmitEvent(event=Shutdown())])
     ])
     ls = LaunchService()
     ls.include_launch_description(ld)
@@ -50,9 +34,9 @@ def run_dummy_test(file):
 
 def test_pytest_locking():
     """Test running a locking pytest with timeout."""
-    run_dummy_test('locking.py')
+    launch_pytest('locking.py')
 
 
 def test_pytest_non_locking():
     """Test running a non-locking pytest with timeout."""
-    run_dummy_test('dummy.py')
+    launch_pytest('dummy.py')

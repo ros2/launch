@@ -36,7 +36,7 @@ class PyTest(Test):
         The other arguments are passed to :class:`launch.ExecuteProcess`, so
         see the documentation for the class for additional details.
 
-        :param: path the path of the test to be executed.
+        :param: path to the test to be executed.
         """
         cmd = [FindExecutable(name='python3'), '-m', 'pytest', path]
         super().__init__(cmd=cmd, **kwargs)

@@ -15,7 +15,6 @@
 """Module for the GTest action."""
 
 from launch import SomeSubstitutionsType
-from launch.substitutions import FindExecutable
 
 from .test import Test
 
@@ -36,10 +35,9 @@ class GTest(Test):
         The other arguments are passed to :class:`launch.ExecuteProcess`, so
         see the documentation for the class for additional details.
 
-        :param: path the path of the test to be executed.
+        :param: path to the test to be executed.
         """
-        cmd = [FindExecutable(name=path)]
-        super().__init__(cmd=cmd, **kwargs)
+        super().__init__(cmd=[path], **kwargs)
         self.__path = path
 
     @property
