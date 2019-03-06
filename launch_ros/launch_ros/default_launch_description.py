@@ -122,10 +122,10 @@ def get_default_launch_description(*, prefix_output_with_name=False, rclpy_conte
     :param: prefix_output_with_name if True, each line of output is prefixed
         with the name of the process as `[process_name] `, else it is printed
         unmodified
-
-    :param: rclpy_context Provide a context other than the default rclpy context to pass down
-    to rclpy.init.  The context is expected to have already been initialized by the caller using
-    rclpy.init
+    :param: rclpy_context Provide a context other than the default rclpy context
+        to pass down to rclpy.init.
+        The context is expected to have already been initialized by the caller
+        using rclpy.init().
     """
     default_ros_launch_description = launch.LaunchDescription([
         # ROS initialization (create node and other stuff).
