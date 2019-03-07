@@ -10,7 +10,7 @@ It works similarly to rostest, but makes it easier to inspect the processes unde
   * Some tests run concurrently with the launch and can interact with the running processes.
 
 ## Compatibility
-Designed to work with [ros2 crystal](https://index.ros.org/doc/ros2/Installation/), but requires a slightly newer version of [launch](https://github.com/ros2/launch).  Use the commit [300196b15b0aa99c045460e7d81333df99b8f8da](https://github.com/ros2/launch/tree/300196b15b0aa99c045460e7d81333df99b8f8da) or newer.
+Designed to work with [ros2 crystal](https://index.ros.org/doc/ros2/Installation/)
 
 ## Quick start example
 Start with the apex_launchtest example [good_proc.test.py](apex_launchtest/examples/good_proc.test.py).  Run the example by doing

@@ -18,10 +18,9 @@ from importlib.machinery import SourceFileLoader
 import os
 import sys
 
-from ros2launch.api import print_arguments_of_launch_description
-
 from .apex_runner import ApexRunner
 from .junitxml import unittestResultsToXml
+from .print_arguments import print_arguments_of_launch_description
 
 _logger_ = logging.getLogger(__name__)
 
