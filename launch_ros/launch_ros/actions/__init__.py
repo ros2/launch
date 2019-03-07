@@ -14,10 +14,12 @@
 
 """actions Module."""
 
+from .composable_node_container import ComposableNodeContainer
 from .lifecycle_node import LifecycleNode
 from .node import Node
 
 __all__ = [
+    'ComposableNodeContainer',
     'LifecycleNode',
     'Node',
 ]

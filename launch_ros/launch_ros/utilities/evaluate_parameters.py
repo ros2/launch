@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module with utility for evaluating parametesr in a launch context."""
+"""Module with utility for evaluating parameters in a launch context."""
 
 
 from collections.abc import Mapping

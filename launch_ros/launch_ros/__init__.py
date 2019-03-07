@@ -15,6 +15,7 @@
 """Main entry point for the `launch_ros` package."""
 
 from . import actions
+from . import descriptions
 from . import event_handlers
 from . import events
 from . import substitutions
@@ -22,6 +23,7 @@ from .default_launch_description import get_default_launch_description
 
 __all__ = [
     'actions',
+    'descriptions',
     'event_handlers',
     'events',
     'substitutions',

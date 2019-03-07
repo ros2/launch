@@ -15,6 +15,7 @@
   <depend>osrf_pycommon</depend>
   <depend>rclpy</depend>
   <depend>python3-yaml</depend>
+  <depend>composition_interfaces</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

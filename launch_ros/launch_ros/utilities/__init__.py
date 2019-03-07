@@ -22,11 +22,12 @@ from .evaluate_parameters import evaluate_parameters
 from .normalize_parameters import normalize_parameters
 from .normalize_remap_rule import normalize_remap_rule
 from .normalize_remap_rule import normalize_remap_rules
-
+from .to_parameters_list import to_parameters_list
 
 __all__ = [
     'evaluate_parameters',
     'normalize_parameters',
     'normalize_remap_rule',
     'normalize_remap_rules',
+    'to_parameters_list',
 ]
