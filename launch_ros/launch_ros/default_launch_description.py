@@ -27,6 +27,7 @@ import launch.actions
 import launch.events
 
 import rclpy
+from rclpy.executors import SingleThreadedExecutor
 
 _logger = logging.getLogger('launch_ros')
 _process_log_files = {}  # type: Dict[Text, TextIO]
@@ -68,10 +69,11 @@ def _on_process_output(event: launch.Event, *, file_name: Text, prefix_output: b
 class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
     """Does ROS specific launch startup."""
 
-    def __init__(self):
+    def __init__(self, rclpy_context=None):
         """Constructor."""
         super().__init__(function=self._function)
         self.__shutting_down = False
+        self.__rclpy_context = rclpy_context
 
     def _shutdown(self, event: launch.Event, context: launch.LaunchContext):
         self.__shutting_down = True
@@ -79,7 +81,7 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
         self.__launch_ros_node.destroy_node()
 
     def _run(self):
-        executor = rclpy.get_global_executor()
+        executor = SingleThreadedExecutor(context=self.__rclpy_context)
         try:
             executor.add_node(self.__launch_ros_node)
             while not self.__shutting_down:
@@ -94,12 +96,14 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
 
     def _function(self, context: launch.LaunchContext):
         try:
-            rclpy.init(args=context.argv)
+            if self.__rclpy_context is None:
+                # Initialize the default global context
+                rclpy.init(args=context.argv)
         except RuntimeError as exc:
             if 'rcl_init called while already initialized' in str(exc):
                 pass
             raise
-        self.__launch_ros_node = rclpy.create_node('launch_ros')
+        self.__launch_ros_node = rclpy.create_node('launch_ros', context=self.__rclpy_context)
         context.extend_globals({
             'ros_startup_action': self,
             'launch_ros_node': self.__launch_ros_node
@@ -111,17 +115,21 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
         self.__rclpy_spin_thread.start()
 
 
-def get_default_launch_description(*, prefix_output_with_name=False):
+def get_default_launch_description(*, prefix_output_with_name=False, rclpy_context=None):
     """
     Return a LaunchDescription to be included before user descriptions.
 
     :param: prefix_output_with_name if True, each line of output is prefixed
         with the name of the process as `[process_name] `, else it is printed
         unmodified
+    :param: rclpy_context Provide a context other than the default rclpy context
+        to pass down to rclpy.init.
+        The context is expected to have already been initialized by the caller
+        using rclpy.init().
     """
     default_ros_launch_description = launch.LaunchDescription([
         # ROS initialization (create node and other stuff).
-        ROSSpecificLaunchStartup(),
+        ROSSpecificLaunchStartup(rclpy_context=rclpy_context),
         # Handle process starts.
         launch.actions.RegisterEventHandler(launch.EventHandler(
             matcher=lambda event: isinstance(event, launch.events.process.ProcessStarted),
