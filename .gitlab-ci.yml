@@ -189,8 +189,8 @@ coverage:
   script:
     - pip3 install coverage
     - find . -iname ".coverage" -exec coverage combine -a {} \;
-    - coverage report --include=apex_launchtest*
-    - coverage html --include=apex_launchtest*
+    - coverage report
+    - coverage html
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\%)/'
   artifacts:
     paths:
