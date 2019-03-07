@@ -17,6 +17,22 @@ import time
 import unittest
 
 
+class FailResult(unittest.TestResult):
+    """For test runs that fail when the DUT dies unexpectedly."""
+
+    @property
+    def testCases(self):
+        return []
+
+    @property
+    def testTimes(self):
+        """Get a dict of {test_case: elapsed_time}."""
+        return {}
+
+    def wasSuccessful(self):
+        return False
+
+
 class TestResult(unittest.TextTestResult):
     """
     Subclass of unittest.TestResult that collects more information about the tests that ran.
