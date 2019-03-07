@@ -62,19 +62,28 @@ def generate_test_description(ready_fn):
 
 class TestProcOutput(unittest.TestCase):
 
-    def test_process_output(self):
+    def test_process_output(self, dut):
         # self.dut below was added to the test case because it was part of the test context
         # returned by generate_test_description
-        self.proc_output.assertWaitFor("Loop 1", process=self.dut, timeout=10)
+        self.proc_output.assertWaitFor("Loop 1", process=dut, timeout=10)
 
 
 @apex_launchtest.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
 
-    def test_full_output(self):
-        with assertSequentialStdout(self.proc_output, process=self.dut) as cm:
+    def test_full_output(self, dut):
+        with assertSequentialStdout(self.proc_output, process=dut) as cm:
             cm.assertInStdout("Starting Up")
             cm.assertInStdout("Shutting Down")
 
-    def test_int_val(self):
-        self.assertEqual(self.int_val, 10)
+    def test_int_val(self, int_val):
+        self.assertEqual(int_val, 10)
+
+    def test_all_context_objects(self, int_val, dut):
+        self.assertEqual(int_val, 10)
+        self.assertIn("good_proc", dut.process_details['name'])
+
+    def test_all_context_objects_different_order(self, dut, int_val):
+        # Put the arguments in a different order from the above test
+        self.assertEqual(int_val, 10)
+        self.assertIn("good_proc", dut.process_details['name'])

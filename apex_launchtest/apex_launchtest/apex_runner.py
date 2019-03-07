@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
 import inspect
 import threading
 import unittest
@@ -197,8 +198,20 @@ class ApexRunner(object):
             print("#" * (len(process.process_name) + 21))
 
     def _bind_test_context_to_tests(self, context, test_suite):
-        for k, v in context.items():
-            self._give_attribute_to_tests(v, k, test_suite)
+        # Look for tests that expect additional arguments and bind items from the context
+        # to the tests
+        for test in ApexRunner._iterate_tests_in_test_suite(test_suite):
+            # Need to reach a little deep into the implementation here to get the test
+            # method.  See unittest.TestCase
+            test_method = getattr(test, test._testMethodName)
+
+            # We only want to bind the part of the context matches the test args
+            test_arg_names = inspect.getfullargspec(test_method).args
+            matching_args = {k: v for (k, v) in context.items() if k in test_arg_names}
+
+            # Replace the test with a functools.partial that has the arguments
+            # provided by the test context already bound
+            setattr(test, test._testMethodName, functools.partial(test_method, **matching_args))
 
     def _give_attribute_to_tests(self, data, attr_name, test_suite):
         # Test suites can contain other test suites which will eventually contain
@@ -207,13 +220,17 @@ class ApexRunner(object):
 
         # The effect of this is that every test will have `self.attr_name` available to it so that
         # it can interact with ROS2 or the process exit coes, or IO or whatever data we want
+        for test in ApexRunner._iterate_tests_in_test_suite(test_suite):
+            setattr(test, attr_name, data)
 
+    @staticmethod
+    def _iterate_tests_in_test_suite(test_suite):
         try:
             iter(test_suite)
         except TypeError:
             # Base case - test_suite is not iterable, so it must be an individual test method
-            setattr(test_suite, attr_name, data)
+            yield test_suite
         else:
             # Otherwise, it's a test_suite, or a list of individual test methods.  recurse
             for test in test_suite:
-                self._give_attribute_to_tests(data, attr_name, test)
+                yield from ApexRunner._iterate_tests_in_test_suite(test)

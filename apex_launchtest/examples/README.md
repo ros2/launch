@@ -37,6 +37,5 @@ Usage:
 > apex_launchtest examples/example_test_context.test.py
 
 This example shows how the `generate_test_description` function can return a tuple where the second
-item is a dictionary of objects that will be injected into the individual test cases.  Notice how
-test_process_output uses the stored dut from the test description, and how test_int_val retreives the
-int_val.
+item is a dictionary of objects that will be injected into the individual test cases.  Tests that
+wish to use elements of the test context can add arguments with names matching the keys of the dictionary.
