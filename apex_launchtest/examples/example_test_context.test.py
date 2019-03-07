@@ -63,8 +63,9 @@ def generate_test_description(ready_fn):
 class TestProcOutput(unittest.TestCase):
 
     def test_process_output(self, dut):
-        # self.dut below was added to the test case because it was part of the test context
-        # returned by generate_test_description
+        # We can use the 'dut' argument here because it's part of the test context
+        # returned by `generate_test_description`  It's not necessary for every
+        # test to use every piece of the context
         self.proc_output.assertWaitFor("Loop 1", process=dut, timeout=10)
 
 
@@ -72,14 +73,19 @@ class TestProcOutput(unittest.TestCase):
 class TestProcessOutput(unittest.TestCase):
 
     def test_full_output(self, dut):
+        # Same as the test_process_output test.  apex_launchtest binds the value of
+        # 'dut' from the test_context to the test before it runs
         with assertSequentialStdout(self.proc_output, process=dut) as cm:
             cm.assertInStdout("Starting Up")
             cm.assertInStdout("Shutting Down")
 
     def test_int_val(self, int_val):
+        # Arguments don't have to be part of the LaunchDescription.  Any object can
+        # be passed in
         self.assertEqual(int_val, 10)
 
     def test_all_context_objects(self, int_val, dut):
+        # Multiple arguments are supported
         self.assertEqual(int_val, 10)
         self.assertIn("good_proc", dut.process_details['name'])
 
