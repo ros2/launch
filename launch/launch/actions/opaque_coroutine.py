@@ -17,12 +17,12 @@
 import asyncio
 import collections.abc
 from typing import Any
-from typing import Coroutine
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import TypeVar
 
 from ..action import Action
 from ..event import Event
@@ -30,6 +30,9 @@ from ..event_handlers import OnShutdown
 from ..launch_context import LaunchContext
 from ..some_actions_type import SomeActionsType
 from ..utilities import ensure_argument_type
+
+# Coroutine is available from the typing module since Python v3.5.3
+Coroutine = TypeVar('Coroutine')
 
 
 class OpaqueCoroutine(Action):
