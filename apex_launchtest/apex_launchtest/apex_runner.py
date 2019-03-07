@@ -27,14 +27,7 @@ from ros2launch.api.api import parse_launch_arguments
 from .io_handler import ActiveIoHandler
 from .loader import PostShutdownTestLoader, PreShutdownTestLoader
 from .proc_info_handler import ActiveProcInfoHandler
-from .test_result import TestResult
-
-
-class _fail_result(unittest.TestResult):
-    """For test runs that fail when the DUT dies unexpectedly."""
-
-    def wasSuccessful(self):
-        return False
+from .test_result import FailResult, TestResult
 
 
 class ApexRunner(object):
@@ -119,7 +112,7 @@ class ApexRunner(object):
             print("Processes under test stopped before tests completed")
             self._print_process_output_summary()  # <-- Helpful to debug why processes died early
             # We treat this as a test failure and return some test results indicating such
-            return _fail_result(), _fail_result()
+            return FailResult(), FailResult()
 
         # Now, run the post-shutdown tests
         inactive_suite = PostShutdownTestLoader().loadTestsFromModule(self._test_module)
