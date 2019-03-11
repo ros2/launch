@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 import os
 import sys
 
@@ -26,22 +25,26 @@ def test_env():
     ld = LaunchDescription()
     launch_test = LaunchTestService()
 
-    sub_env = copy.deepcopy(os.environ)
-    sub_env['testenv1'] = 'testval1'
-    os.environ['testenv2'] = 'testval2'
-    launch_test.add_test_action(ld, ExecuteProcess(
-        cmd=[
-            sys.executable,
-            os.path.join(
-                os.path.abspath(
-                    os.path.dirname(__file__)),
-                'check_env.py')],
-        name='test_env',
-        env=sub_env,
-    ))
-    launch_service = LaunchService()
-    launch_service.include_launch_description(ld)
-    return_code = launch_test.run(launch_service)
+    env = os.environ.copy()
+    try:
+        sub_env = os.environ.copy()
+        sub_env['testenv1'] = 'testval1'
+        os.environ['testenv2'] = 'testval2'
+        launch_test.add_test_action(ld, ExecuteProcess(
+            cmd=[
+                sys.executable,
+                os.path.join(
+                    os.path.abspath(
+                        os.path.dirname(__file__)),
+                    'check_env.py')],
+            name='test_env',
+            env=sub_env,
+        ))
+        launch_service = LaunchService()
+        launch_service.include_launch_description(ld)
+        return_code = launch_test.run(launch_service)
+    finally:
+        os.environ = env
     assert return_code == 0, 'Launch failed with exit code %r' % (return_code,)
 
 
