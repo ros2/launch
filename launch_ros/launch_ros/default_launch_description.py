@@ -37,7 +37,8 @@ def _on_process_started(context: launch.LaunchContext):
     typed_event = cast(launch.events.process.ProcessStarted, context.locals.event)
     if typed_event.execute_process_action.output == 'log':
         # TODO(wjwwood): implement file logging
-        _logger.warn("process '{}' asked for 'output=log', but that's not currently implemented.")
+        _logger.warning(
+            "process '{}' asked for 'output=log', but that's not currently implemented.")
 
 
 def _on_process_exited(context: launch.LaunchContext):

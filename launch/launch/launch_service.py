@@ -299,13 +299,13 @@ class LaunchService:
                 nonlocal sigint_received
                 base_msg = 'user interrupted with ctrl-c (SIGINT)'
                 if not sigint_received:
-                    _logger.warn(base_msg)
+                    _logger.warning(base_msg)
                     ret = self._shutdown(
                         reason='ctrl-c (SIGINT)', due_to_sigint=True, force_sync=True)
                     assert ret is None, ret
                     sigint_received = True
                 else:
-                    _logger.warn('{} again, ignoring...'.format(base_msg))
+                    _logger.warning('{} again, ignoring...'.format(base_msg))
 
                 signal.signal(signal.SIGINT, prev_handler)
 
