@@ -237,7 +237,7 @@ class Node(ExecuteProcess):
                 else:
                     raise RuntimeError('invalid normalized parameters {}'.format(repr(params)))
                 if not os.path.isfile(param_file_path):
-                    _logger.warn(
+                    _logger.warning(
                         'Parameter file path is not a file: {}'.format(param_file_path))
                     # Don't skip adding the file to the parameter list since space has been
                     # reserved for it in the ros_specific_arguments.
