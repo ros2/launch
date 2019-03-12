@@ -8,13 +8,14 @@
   <license>Apache License 2.0</license>
   <author>Esteve Fernandez</author>
 
+  <build_depend>ament_cmake</build_depend>
+
   <exec_depend>launch</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
 
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>launch</test_depend>
-  <!-- <test_depend>python3-pytest</test_depend> -->
   <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
