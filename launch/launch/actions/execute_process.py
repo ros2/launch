@@ -359,6 +359,9 @@ class ExecuteProcess(Action):
             self.__sigterm_timer.cancel()
         if self.__sigkill_timer is not None:
             self.__sigkill_timer.cancel()
+        # Close subprocess transport if any.
+        if self._subprocess_transport is not None:
+            self._subprocess_transport.close()
         # Signal that we're done to the launch system.
         self.__completed_future.set_result(None)
 
