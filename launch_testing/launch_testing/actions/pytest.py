@@ -14,8 +14,9 @@
 
 """Module for the GTest action."""
 
+import sys
+
 from launch import SomeSubstitutionsType
-from launch.substitutions import FindExecutable
 
 from .test import Test
 
@@ -38,7 +39,7 @@ class PyTest(Test):
 
         :param: path to the test to be executed.
         """
-        cmd = [FindExecutable(name='python3'), '-m', 'pytest', path]
+        cmd = [sys.executable, '-m', 'pytest', path]
         super().__init__(cmd=cmd, **kwargs)
         self.__path = path
 
