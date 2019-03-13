@@ -206,6 +206,9 @@ class ApexRunner(object):
         for process in failed_procs:
             print("Process '{}' exited with {}".format(process.process_name, process.returncode))
             print("##### '{}' output #####".format(process.process_name))
-            for io in self.proc_output[process.action]:
-                print("{}".format(io.text.decode('ascii')))
+            try:
+                for io in self.proc_output[process.action]:
+                    print("{}".format(io.text.decode('ascii')))
+            except KeyError:
+                pass  # Process generated no output
             print("#" * (len(process.process_name) + 21))
