@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
 import inspect
 import threading
 import unittest
@@ -133,11 +132,22 @@ class ApexRunner(object):
             return FailResult(), FailResult()
 
         # Now, run the post-shutdown tests
-        inactive_suite = PostShutdownTestLoader().loadTestsFromModule(self._test_module)
-        self._give_attribute_to_tests(self.proc_info, "proc_info", inactive_suite)
-        self._give_attribute_to_tests(self.proc_output._io_handler, "proc_output", inactive_suite)
-        self._give_attribute_to_tests(self.test_args, "test_args", inactive_suite)
-        self._bind_test_context_to_tests(self.test_context, inactive_suite)
+        inactive_suite = PostShutdownTestLoader(
+            injected_attributes={
+                "proc_info": self.proc_info,
+                "proc_output": self.proc_output._io_handler,
+                "test_args": self.test_args,
+            },
+            injected_args=dict(
+                self.test_context,
+                # Add a few more things to the args dictionary:
+                **{
+                    "proc_info": self.proc_info,
+                    "proc_output": self.proc_output._io_handler,
+                    "test_args": self.test_args
+                }
+            )
+        ).loadTestsFromModule(self._test_module)
         inactive_results = unittest.TextTestRunner(
             verbosity=2,
             resultclass=TestResult
@@ -163,12 +173,22 @@ class ApexRunner(object):
 
         try:
             # Load the tests
-            active_suite = PreShutdownTestLoader().loadTestsFromModule(self._test_module)
-
-            self._give_attribute_to_tests(self.proc_output, "proc_output", active_suite)
-            self._give_attribute_to_tests(self.proc_info, "proc_info", active_suite)
-            self._give_attribute_to_tests(self.test_args, "test_args", active_suite)
-            self._bind_test_context_to_tests(self.test_context, active_suite)
+            active_suite = PreShutdownTestLoader(
+                injected_attributes={
+                    "proc_info": self.proc_info,
+                    "proc_output": self.proc_output,
+                    "test_args": self.test_args,
+                },
+                injected_args=dict(
+                    self.test_context,
+                    # Add a few more things to the args dictionary:
+                    **{
+                        "proc_info": self.proc_info,
+                        "proc_output": self.proc_output,
+                        "test_args": self.test_args
+                    }
+                )
+            ).loadTestsFromModule(self._test_module)
 
             # Run the tests
             self._results = unittest.TextTestRunner(
@@ -189,41 +209,3 @@ class ApexRunner(object):
             for io in self.proc_output[process.action]:
                 print("{}".format(io.text.decode('ascii')))
             print("#" * (len(process.process_name) + 21))
-
-    def _bind_test_context_to_tests(self, context, test_suite):
-        # Look for tests that expect additional arguments and bind items from the context
-        # to the tests
-        for test in ApexRunner._iterate_tests_in_test_suite(test_suite):
-            # Need to reach a little deep into the implementation here to get the test
-            # method.  See unittest.TestCase
-            test_method = getattr(test, test._testMethodName)
-
-            # We only want to bind the part of the context matches the test args
-            test_arg_names = inspect.getfullargspec(test_method).args
-            matching_args = {k: v for (k, v) in context.items() if k in test_arg_names}
-
-            # Replace the test with a functools.partial that has the arguments
-            # provided by the test context already bound
-            setattr(test, test._testMethodName, functools.partial(test_method, **matching_args))
-
-    def _give_attribute_to_tests(self, data, attr_name, test_suite):
-        # Test suites can contain other test suites which will eventually contain
-        # the actual test classes to run.  This function will recursively drill down until
-        # we find the actual tests and give the tests a reference to the process
-
-        # The effect of this is that every test will have `self.attr_name` available to it so that
-        # it can interact with ROS2 or the process exit coes, or IO or whatever data we want
-        for test in ApexRunner._iterate_tests_in_test_suite(test_suite):
-            setattr(test, attr_name, data)
-
-    @staticmethod
-    def _iterate_tests_in_test_suite(test_suite):
-        try:
-            iter(test_suite)
-        except TypeError:
-            # Base case - test_suite is not iterable, so it must be an individual test method
-            yield test_suite
-        else:
-            # Otherwise, it's a test_suite, or a list of individual test methods.  recurse
-            for test in test_suite:
-                yield from ApexRunner._iterate_tests_in_test_suite(test)
