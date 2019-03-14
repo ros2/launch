@@ -15,8 +15,7 @@
 """Module for the TimerAction action."""
 
 import asyncio
-import collections.abc
-import logging
+import collections
 from typing import Any  # noqa: F401
 from typing import cast
 from typing import Dict  # noqa: F401
@@ -27,7 +26,10 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
+import launch.logging
+
 from .opaque_function import OpaqueFunction
+
 from ..action import Action
 from ..event_handler import EventHandler
 from ..events import Shutdown
@@ -42,8 +44,6 @@ from ..utilities import ensure_argument_type
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-
-_logger = logging.getLogger('launch.timer_action')
 
 
 class TimerAction(Action):
@@ -76,6 +76,7 @@ class TimerAction(Action):
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
         self.__cancel_on_shutdown = cancel_on_shutdown
+        self.__logger = launch.logging.get_logger(__name__)
 
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(
@@ -132,8 +133,8 @@ class TimerAction(Action):
 
         if self.__canceled:
             # In this case, the action was canceled before being executed.
-            _logger.debug(
-                'timer {} not waiting because it was canceled before being executed'.format(self)
+            self.__logger.debug(
+                'timer {} not waiting because it was canceled before being executed'.format(self),
             )
             self.__completed_future.set_result(None)
             return None

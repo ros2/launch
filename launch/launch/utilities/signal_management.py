@@ -14,18 +14,17 @@
 
 """Module for the signal management functionality."""
 
-import logging
 import platform
 import signal
 import threading
+
+import launch.logging
 
 __signal_handlers_installed_lock = threading.Lock()
 __signal_handlers_installed = False
 __custom_sigint_handler = None
 __custom_sigquit_handler = None
 __custom_sigterm_handler = None
-
-_logger = logging.getLogger('launch.utilities.signal_management')
 
 
 def on_sigint(handler):
@@ -143,6 +142,7 @@ def install_signal_handlers():
             # Windows does not support SIGQUIT
             signal.signal(signal.SIGQUIT, __on_sigquit)
     except ValueError:
-        _logger.error("failed to set signal handlers in 'launch.utilities.signal_management.py'")
-        _logger.error('this function must be called in the main thread')
+        logger = launch.logging.get_logger(__name__)
+        logger.error("failed to set signal handlers in '{}'".format(__name__))
+        logger.error('this function must be called in the main thread')
         raise

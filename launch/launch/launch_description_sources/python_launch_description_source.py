@@ -14,19 +14,19 @@
 
 """Module for the PythonLaunchDescriptionSource class."""
 
-import logging
 import traceback
 from typing import Optional
 from typing import Text  # noqa: F401
 
+import launch.logging
+
 from .python_launch_file_utilities import get_launch_description_from_python_launch_file
+
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-
-_logger = logging.getLogger('launch.launch_description_sources.PythonLaunchDescriptionSource')
 
 
 class PythonLaunchDescriptionSource:
@@ -53,6 +53,7 @@ class PythonLaunchDescriptionSource:
         self.__launch_file_path = normalize_to_list_of_substitutions(launch_file_path)
         self.__expanded_launch_file_path = None  # type: Optional[Text]
         self.__launch_description = None  # type: Optional[LaunchDescription]
+        self.__logger = launch.logging.get_logger(__name__)
 
     def try_get_launch_description_without_context(self) -> Optional[LaunchDescription]:
         """Get the LaunchDescription, attempting to load it if necessary."""
@@ -64,8 +65,10 @@ class PythonLaunchDescriptionSource:
                     perform_substitutions(context, self.__launch_file_path)
                 return get_launch_description_from_python_launch_file(expanded_launch_file_path)
             except Exception as exc:
-                _logger.debug(traceback.format_exc())
-                _logger.debug('Failed to load the launch file without a context: ' + str(exc))
+                self.__logger.debug(traceback.format_exc())
+                self.__logger.debug(
+                    'Failed to load the launch file without a context: ' + str(exc),
+                )
         return self.__launch_description
 
     def get_launch_description(self, context: LaunchContext) -> LaunchDescription:

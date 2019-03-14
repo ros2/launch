@@ -15,7 +15,6 @@
 """Module for the Node action."""
 
 from collections.abc import Mapping
-import logging
 import os
 import pathlib
 from tempfile import NamedTemporaryFile
@@ -29,6 +28,9 @@ from typing import Tuple
 from launch.action import Action
 from launch.actions import ExecuteProcess
 from launch.launch_context import LaunchContext
+
+import launch.logging
+
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import LocalSubstitution
 from launch.utilities import ensure_argument_type
@@ -46,8 +48,6 @@ from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
 
 import yaml
-
-_logger = logging.getLogger(name='launch_ros')
 
 
 class Node(ExecuteProcess):
@@ -176,6 +176,8 @@ class Node(ExecuteProcess):
 
         self.__substitutions_performed = False
 
+        self.__logger = launch.logging.get_logger(__name__)
+
     @property
     def node_name(self):
         """Getter for node_name."""
@@ -211,7 +213,7 @@ class Node(ExecuteProcess):
                 self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
             validate_namespace(self.__expanded_node_namespace)
         except Exception:
-            _logger.error(
+            self.__logger.error(
                 "Error while expanding or validating node name or namespace for '{}':"
                 .format('package={}, node_executable={}, name={}, namespace={}'.format(
                     self.__package,
@@ -237,8 +239,9 @@ class Node(ExecuteProcess):
                 else:
                     raise RuntimeError('invalid normalized parameters {}'.format(repr(params)))
                 if not os.path.isfile(param_file_path):
-                    _logger.warning(
-                        'Parameter file path is not a file: {}'.format(param_file_path))
+                    self.__logger.warning(
+                        'Parameter file path is not a file: {}'.format(param_file_path),
+                    )
                     # Don't skip adding the file to the parameter list since space has been
                     # reserved for it in the ros_specific_arguments.
                 self.__expanded_parameter_files.append(param_file_path)
