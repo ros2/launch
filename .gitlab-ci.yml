@@ -95,8 +95,8 @@ build_all_crystal:
 build_isolated:
   <<: *src_job_template
   stage: build
-  # only:
-  #   - schedules
+  only:
+    - schedules
   script:
     - env  # For debugging
     # Make sure we can build and test apex_launchtest
@@ -162,8 +162,8 @@ test_all_crystal:
 test_isolated:
   <<: *src_job_template
   stage: test
-  # only:
-  #   - schedules
+  only:
+    - schedules
   dependencies:
     - build_isolated
   script:
