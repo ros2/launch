@@ -1,4 +1,4 @@
-# Copyright 2015 Open Source Robotics Foundation, Inc.
+# Copyright 2018 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ament_pep257.main import main
-import pytest
+"""Test actions Module."""
 
+from .gtest import GTest
+from .pytest import PyTest
 
-@pytest.mark.linter
-@pytest.mark.pep257
-def test_pep257():
-    rc = main(argv=[])
-    assert rc == 0, 'Found code style errors / warnings'
+__all__ = [
+    'GTest',
+    'PyTest',
+]

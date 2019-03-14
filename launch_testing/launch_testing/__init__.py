@@ -23,6 +23,9 @@ from launch.event_handlers import OnProcessIO
 from launch.event_handlers import OnShutdown
 from launch.events import Shutdown
 
+from . import actions
+from . import output
+
 
 class LaunchTestService():
 
@@ -187,7 +190,7 @@ class LaunchTestService():
         """
         assert isinstance(action, ExecuteProcess)
         test_name = 'test_{}_{}'.format(id(action), test_suffix)
-        output, collate_output, match_output, match_patterns = output_test
+        out, collate_output, match_output, match_patterns = output_test
         if not output_filter:
             output_filter = (lambda x: x)
         assert any(match_patterns)
@@ -218,13 +221,13 @@ class LaunchTestService():
         )
 
         def on_process_stdout(event):
-            nonlocal output
+            nonlocal out
             nonlocal match_patterns
-            output = collate_output(output, output_filter(event.text))
-            print(output.getvalue())
+
+            out = collate_output(out, output_filter(event.text))
             match_patterns = [
                 pattern for pattern in match_patterns
-                if not match_output(output, pattern)
+                if not match_output(out, pattern)
             ]
             if not any(match_patterns):
                 return self._succeed(test_name, side_effect)
@@ -257,3 +260,10 @@ class LaunchTestService():
             default_rc = 1 if 'failed' in self.__tests.values() else 0
             rc = next((rc for rc in self.__processes_rc.values() if rc != 0), default_rc)
         return rc
+
+
+__all__ = [
+    'actions',
+    'LaunchTestService',
+    'output',
+]
