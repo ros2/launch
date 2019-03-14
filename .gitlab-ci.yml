@@ -15,7 +15,9 @@ stages:
 
 # Template for jobs that want to build everything from source (much slower)
 .job_template: &src_job_template
-  image: osrf/ros2:nightly
+  image:
+    name: osrf/ros2:nightly
+    entrypoint: [""]
   before_script:
     - apt-get update && apt-get install -y 
       build-essential 
@@ -47,6 +49,16 @@ stages:
     - apt-get install --no-install-recommends -y 
       libasio-dev 
       libtinyxml2-dev
+    - mkdir upstream_src
+    - wget https://raw.githubusercontent.com/ros2/ros2/master/ros2.repos
+    - vcs import upstream_src < ros2.repos
+    - rosdep update
+    - rosdep install
+      --from-paths upstream_src
+      --ignore-src
+      --rosdistro crystal
+      -y
+      --skip-keys "console_bridge fastcdr fastrtps libopensplice67 libopensplice69 rti-connext-dds-5.3.1 urdfdom_headers"
 
 build_launchtest:
   <<: *bin_job_template
@@ -83,23 +95,10 @@ build_all_crystal:
 build_isolated:
   <<: *src_job_template
   stage: build
-  image:
-    name: osrf/ros2:nightly
-    entrypoint: [""]
   only:
     - schedules
   script:
     - env  # For debugging
-    - mkdir upstream_src
-    - wget https://raw.githubusercontent.com/ros2/ros2/master/ros2.repos
-    - vcs import upstream_src < ros2.repos
-    - rosdep update
-    - rosdep install
-      --from-paths upstream_src
-      --ignore-src
-      --rosdistro crystal
-      -y
-      --skip-keys "console_bridge fastcdr fastrtps libopensplice67 libopensplice69 rti-connext-dds-5.3.1 urdfdom_headers"
     # Make sure we can build and test apex_launchtest
     - colcon list --topological-graph --packages-up-to apex_launchtest
     - colcon list --topological-graph --packages-up-to apex_launchtest | grep "rclpy" &> /dev/null && exit 1  # Fail if apex_launchtest depends on rclpy
@@ -163,12 +162,12 @@ test_all_crystal:
 test_isolated:
   <<: *src_job_template
   stage: test
-  image: osrf/ros2:nightly
   only:
     - schedules
   dependencies:
     - build_isolated
   script:
+    - env  # For debugging
     - pip3 install mock
     - tar xf launchtest_artifacts.tar -C .
     - colcon test --packages-select apex_launchtest --pytest-args "-k not (test_flake8 or test_pep257)"
@@ -176,6 +175,10 @@ test_isolated:
     - tar xf launchtest_ros_artifacts.tar -C .
     - colcon test --packages-select apex_launchtest_ros --pytest-args "-k not (test_flake8 or test_pep257)"
     - colcon test-result --all --verbose
+  artifacts:
+    when: always
+    paths:
+      - log
 
 coverage:
   stage: report

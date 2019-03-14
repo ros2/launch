@@ -22,10 +22,10 @@ from launch import LaunchDescription
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 from launch.event_handlers import OnProcessIO
-from ros2launch.api.api import parse_launch_arguments
 
 from .io_handler import ActiveIoHandler
 from .loader import PostShutdownTestLoader, PreShutdownTestLoader
+from .parse_arguments import parse_launch_arguments
 from .proc_info_handler import ActiveProcInfoHandler
 from .test_result import FailResult, TestResult
 
