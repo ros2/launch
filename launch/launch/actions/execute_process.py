@@ -300,7 +300,7 @@ class ExecuteProcess(Action):
     def __on_process_stdout(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        for line in event.text.decode().splitlines():
+        for line in event.text.decode(errors='replace').splitlines():
             self.__stdout_logger.info(
                 self.__output_format.format(line=line, this=self)
             )
@@ -308,7 +308,7 @@ class ExecuteProcess(Action):
     def __on_process_stderr(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        for line in event.text.decode().splitlines():
+        for line in event.text.decode(errors='replace').splitlines():
             self.__stderr_logger.info(
                 self.__output_format.format(line=line, this=self)
             )
