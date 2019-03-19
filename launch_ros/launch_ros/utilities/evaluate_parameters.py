@@ -32,6 +32,47 @@ from launch.utilities import perform_substitutions
 from ..parameters_type import EvaluatedParameters
 from ..parameters_type import EvaluatedParameterValue  # noqa
 from ..parameters_type import Parameters
+from ..parameters_type import ParametersDict
+
+
+def evaluate_parameter_dict(
+    context: LaunchContext,
+    parameters: ParametersDict
+) -> Dict[str, EvaluatedParameterValue]:
+    if not isinstance(parameters, Mapping):
+        raise TypeError('expected dict')
+    output_dict = {}  # type: Dict[str, EvaluatedParameterValue]
+    for name, value in parameters.items():
+        if not isinstance(name, tuple):
+            raise TypeError('Expecting tuple of substitutions got {}'.format(repr(name)))
+        evaluated_name = perform_substitutions(context, list(name))  # type: str
+        evaluated_value = None  # type: Optional[EvaluatedParameterValue]
+
+        if isinstance(value, tuple) and len(value):
+            if isinstance(value[0], Substitution):
+                # Value is a list of substitutions, so perform them to make a string
+                evaluated_value = perform_substitutions(context, list(value))
+            elif isinstance(value[0], Sequence):
+                # Value is an array of a list of substitutions
+                output_subvalue = []  # List[str]
+                for subvalue in value:
+                    output_subvalue.append(perform_substitutions(context, list(subvalue)))
+                    evaluated_value = tuple(output_subvalue)
+            else:
+                # Value is an array of the same type, so nothing to evaluate.
+                output_value = []
+                target_type = type(value[0])
+                for i, subvalue in enumerate(value):
+                    output_value.append(target_type(subvalue))
+                    evaluated_value = tuple(output_value)
+        else:
+            # Value is a singular type, so nothing to evaluate
+            ensure_argument_type(value, (float, int, str, bool, bytes), 'value')
+            evaluated_value = cast(Union[float, int, str, bool, bytes], value)
+        if evaluated_value is None:
+            raise TypeError('given unnormalized parameters %r, %r' % (name, value))
+        output_dict[evaluated_name] = evaluated_value
+    return output_dict
 
 
 def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> EvaluatedParameters:
@@ -51,36 +92,5 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
             output_params.append(pathlib.Path(perform_substitutions(context, list(param))))
         elif isinstance(param, Mapping):
             # It's a list of name/value pairs
-            output_dict = {}  # type: Dict[str, EvaluatedParameterValue]
-            for name, value in param.items():
-                if not isinstance(name, tuple):
-                    raise TypeError('Expecting tuple of substitutions got {}'.format(repr(name)))
-                evaluated_name = perform_substitutions(context, list(name))  # type: str
-                evaluated_value = None  # type: Optional[EvaluatedParameterValue]
-
-                if isinstance(value, tuple) and len(value):
-                    if isinstance(value[0], Substitution):
-                        # Value is a list of substitutions, so perform them to make a string
-                        evaluated_value = perform_substitutions(context, list(value))
-                    elif isinstance(value[0], Sequence):
-                        # Value is an array of a list of substitutions
-                        output_subvalue = []  # List[str]
-                        for subvalue in value:
-                            output_subvalue.append(perform_substitutions(context, list(subvalue)))
-                        evaluated_value = tuple(output_subvalue)
-                    else:
-                        # Value is an array of the same type, so nothing to evaluate.
-                        output_value = []
-                        target_type = type(value[0])
-                        for i, subvalue in enumerate(value):
-                            output_value.append(target_type(subvalue))
-                        evaluated_value = tuple(output_value)
-                else:
-                    # Value is a singular type, so nothing to evaluate
-                    ensure_argument_type(value, (float, int, str, bool, bytes), 'value')
-                    evaluated_value = cast(Union[float, int, str, bool, bytes], value)
-                if evaluated_value is None:
-                    raise TypeError('given unnormalized parameters %r, %r' % (name, value))
-                output_dict[evaluated_name] = evaluated_value
-            output_params.append(output_dict)
+            output_params.append(evaluate_parameter_dict(context, param))
     return tuple(output_params)

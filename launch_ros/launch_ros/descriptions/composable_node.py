@@ -23,7 +23,6 @@ from launch.substitution import Substitution
 from launch.utilities import normalize_to_list_of_substitutions
 from launch_ros.parameters_type import Parameters
 from launch_ros.parameters_type import SomeParameters
-from launch_ros.remap_rule_type import RemapRule
 from launch_ros.remap_rule_type import RemapRules
 from launch_ros.remap_rule_type import SomeRemapRules
 from launch_ros.utilities import normalize_parameters

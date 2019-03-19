@@ -111,13 +111,17 @@ class LoadComposableNodes(Action):
         if composable_node_description.parameters is not None:
             request.parameters = [
                 param.to_parameter_msg() for param in to_parameters_list(
-                    evaluate_parameters(context, composable_node_description.parameters)
+                    context, evaluate_parameters(
+                        context, composable_node_description.parameters
+                    )
                 )
             ]
         if composable_node_description.extra_arguments is not None:
             request.extra_arguments = [
                 param.to_parameter_msg() for param in to_parameters_list(
-                    evaluate_parameters(context, composable_node_description.extra_arguments)
+                    context, evaluate_parameters(
+                        context, composable_node_description.extra_arguments
+                    )
                 )
             ]
         response = self.__rclpy_load_node_client.call(request)

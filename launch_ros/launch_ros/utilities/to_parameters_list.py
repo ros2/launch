@@ -15,22 +15,30 @@
 """Module with utility to transform evaluated parameters into parameter lists."""
 
 import pathlib
-from typing import Dict
+from typing import Dict  # noqa
 from typing import List
 
+from launch.launch_context import LaunchContext
 import rclpy.parameter
+
 import yaml
+
+from .evaluate_parameters import evaluate_parameter_dict
+from .normalize_parameters import normalize_parameter_dict
 
 from ..parameters_type import EvaluatedParameters
 from ..parameters_type import EvaluatedParameterValue  # noqa
 
 
 def to_parameters_list(
+    context: LaunchContext,
     evaluated_parameters: EvaluatedParameters
 ) -> List[rclpy.parameter.Parameter]:
     """
     Transform evaluated parameters into a list of rclpy.parameter.Parameter objects.
 
+    :param context: to carry out substitutions during normalization of parameter files.
+        See `normalize_parameters()` documentation for further reference.
     :param parameters: parameters as either paths to parameter files or name/value pairs.
         See `evaluate_parameters()` documentation for further reference.
     :returns: a list of parameters
@@ -39,7 +47,9 @@ def to_parameters_list(
     for params_set_or_path in evaluated_parameters:
         if isinstance(params_set_or_path, pathlib.Path):
             with open(str(params_set_or_path), 'r') as f:
-                params_set = yaml.load(f)  # type: Dict[str, EvaluatedParameterValue]
+                params_set = evaluate_parameter_dict(
+                    context, normalize_parameter_dict(yaml.load(f))
+                )
         else:
             params_set = params_set_or_path
         if not isinstance(params_set, dict):
