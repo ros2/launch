@@ -143,7 +143,6 @@ def launch_a_python_launch_file(*, python_launch_file_path, launch_file_argument
     rclpy.init(args=launch_file_arguments, context=context)
     launch_service.include_launch_description(
         launch_ros.get_default_launch_description(
-            prefix_output_with_name=False,
             rclpy_context=context,
         )
     )

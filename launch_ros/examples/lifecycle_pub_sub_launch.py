@@ -95,7 +95,7 @@ def main(argv=sys.argv[1:]):
 
     # ls = launch.LaunchService(argv=argv, debug=True)
     ls = launch.LaunchService(argv=argv)
-    ls.include_launch_description(get_default_launch_description(prefix_output_with_name=False))
+    ls.include_launch_description(get_default_launch_description())
     ls.include_launch_description(ld)
     return ls.run()
 
