@@ -52,9 +52,21 @@
 #
 # :param file: The apex_launchtest test file containing the test to run
 # :type file: string
+# :param TIMEOUT: The test timeout in seconds
+# :type TIMEOUT: integer
+# :param ARGS: Launch arguments to pass to apex_launchtest
+# :type ARGS: string
 function(add_apex_launchtest file)
 
-  cmake_parse_arguments(_add_apex_launchtest "" "" "ARGS" ${ARGN})
+  cmake_parse_arguments(_add_apex_launchtest
+    ""
+    "TIMEOUT"
+    "ARGS"
+    ${ARGN})
+
+  if(NOT _add_apex_launchtest_TIMEOUT)
+    set(_add_apex_launchtest_TIMEOUT 60)
+  endif()
 
   set(_file_name _file_name-NOTFOUND)
   if(IS_ABSOLUTE ${file})
@@ -92,6 +104,7 @@ function(add_apex_launchtest file)
     COMMAND ${cmd}
     OUTPUT_FILE "${CMAKE_BINARY_DIR}/apex_launchtest/CHANGEME.txt"
     RESULT_FILE "${result_file}"
+    TIMEOUT "${_add_apex_launchtest_TIMEOUT}"
   )
 
 endfunction()
