@@ -52,8 +52,8 @@ class LoadComposableNodes(Action):
         """
         Construct a LoadComposableNodes action.
 
-        The container node is expected to provide a `~/_container/load` service for loading
-        purposes.
+        The container node is expected to provide a `~/_container/load_node` service for
+        loading purposes.
         Loading can be performed sequentially for determinism or in parallel for speed.
 
         :param composable_nodes_description: descriptions of composable nodes to be loaded
@@ -185,7 +185,7 @@ class LoadComposableNodes(Action):
         """Execute the action."""
         # Create a client to load nodes in the target container.
         self.__rclpy_load_node_client = context.locals.launch_ros_node.create_client(
-            composition_interfaces.srv.LoadNode, '{}/_container/load'.format(
+            composition_interfaces.srv.LoadNode, '{}/_container/load_node'.format(
                 self.__target_container.node_name
             )
         )
