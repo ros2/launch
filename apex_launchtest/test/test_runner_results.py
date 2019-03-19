@@ -70,9 +70,21 @@ def test_dut_that_has_exception(capsys):
             'terminating_proc'
         )
 
+        EXIT_PROC_PATH = os.path.join(
+            ament_index_python.get_package_prefix('apex_launchtest'),
+            'lib/apex_launchtest',
+            'exit_code_proc'
+        )
+
         return launch.LaunchDescription([
             launch.actions.ExecuteProcess(
                 cmd=[TEST_PROC_PATH, '--exception']
+            ),
+
+            # This process makes sure we can handle processes that exit with a code but don't
+            # generate any output.  This is a regression test for an issue fixed in PR31
+            launch.actions.ExecuteProcess(
+                cmd=[EXIT_PROC_PATH, '--silent']
             ),
 
             launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
