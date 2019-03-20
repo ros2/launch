@@ -14,21 +14,14 @@
 
 """Tests for the LaunchService class."""
 
+import asyncio
+import osrf_pycommon
 import queue
 import threading
 
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.events import ExecutionComplete
-from launch.utilities import install_signal_handlers
-
-# Install the signal handlers here, in the hope that this is executed in the
-# main-thread.
-# If this is not the main-thread, a ValueError will be raised.
-# See the docs for this function for more info.
-# This would ensure that the custom handlers that the LaunchService needs can
-# be installed later from other threads.
-install_signal_handlers()
 
 
 def test_launch_service_constructors():
@@ -72,19 +65,19 @@ def test_launch_service_emit_event():
     assert ls._LaunchService__context._event_queue.qsize() == 2
     assert handled_events.qsize() == 0
 
-    t = threading.Thread(target=ls.run, kwargs={'shutdown_when_idle': False})
-    t.start()
+    def perform_test_sequence():
+        # First event (after including description of event handler).
+        handled_events.get(block=True, timeout=5.0)
+        # Emit and then check for a second event.
+        ls.emit_event(MockEvent())
+        handled_events.get(block=True, timeout=5.0)
+        # Shutdown (generates a third event) and join the thread.
+        ls.shutdown()
 
-    # First event (after including description of event handler).
-    handled_events.get(block=True, timeout=5.0)
+    threading.Thread(target=perform_test_sequence).start()
 
-    # Emit and then check for a second event.
-    ls.emit_event(MockEvent())
-    handled_events.get(block=True, timeout=5.0)
+    assert ls.run(shutdown_when_idle=False) == 0
 
-    # Shutdown (generates a third event) and join the thread.
-    ls.shutdown()
-    t.join()
     # Check that the shutdown event was handled.
     handled_events.get(block=False)
 
@@ -93,4 +86,13 @@ def test_launch_service_emit_event():
     assert handled_events.qsize() == 0
 
     assert ls.run(shutdown_when_idle=True) == 0
+    # Check that the mock and shutdown events were handled.
+    assert handled_events.qsize() == 2
+    handled_events.get(block=False)
+    handled_events.get(block=False)
+
+    loop = osrf_pycommon.process_utils.get_loop()
+    assert loop.run_until_complete(ls.run_async(shutdown_when_idle=True)) == 0
+    # Check that the shutdown events was handled.
+    assert handled_events.qsize() == 1
     handled_events.get(block=False)
