@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+
+from apex_launchtest.apex_launchtest_main import apex_launchtest_main
+
+apex_launchtest_main()

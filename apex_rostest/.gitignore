@@ -1,0 +1,12 @@
+*.swp
+
+.eggs/
+*.egg-info
+*.pyc
+*.pytest_cache
+*.coverage
+htmlcov/
+
+build/
+install/
+log/

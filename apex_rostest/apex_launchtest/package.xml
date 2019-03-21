@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>apex_launchtest</name>
+  <version>0.2.0</version>
+  <description>A package providing a ROS2 integration test framework.</description>
+  <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
+  <license>Apache License 2.0</license>
+
+  <exec_depend>launch</exec_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_index_python</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+
+</package>
