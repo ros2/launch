@@ -465,6 +465,7 @@ class ExecuteProcess(Action):
                 env=env,
                 shell=self.__shell,
                 emulate_tty=False,
+                stderr_to_stdout=False,
             )
         except Exception:
             self.__logger.error('exception occurred while executing process:\n{}'.format(
