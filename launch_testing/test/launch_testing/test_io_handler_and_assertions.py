@@ -70,7 +70,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
             cls.proc_1,
             cls.proc_2,
             cls.proc_3,
-            # This plumbs all the output to our IoHandler just like the TestRunner does
+            # This plumbs all the output to our IoHandler just like the LaunchTestRunner does
             RegisterEventHandler(
                 OnProcessIO(
                     on_stdout=cls.proc_output.append,

@@ -14,15 +14,15 @@
 
 import unittest
 
-from launch_testing.test_runner import TestRunner
 from launch_testing.loader import TestRun as TR  # Named TR so pytest doesn't think it's a test
+from launch_testing.test_runner import LaunchTestRunner
 
 
-class TestTestRunnerValidation(unittest.TestCase):
+class TestLaunchTestRunnerValidation(unittest.TestCase):
 
     def test_catches_bad_signature(self):
 
-        dut = TestRunner(
+        dut = LaunchTestRunner(
             [TR(
                 test_description_function=lambda: None,
                 param_args={},
@@ -34,7 +34,7 @@ class TestTestRunnerValidation(unittest.TestCase):
         with self.assertRaises(TypeError):
             dut.validate()
 
-        dut = TestRunner(
+        dut = LaunchTestRunner(
             [TR(
                 test_description_function=lambda ready_fn: None,
                 param_args={},

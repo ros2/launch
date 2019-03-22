@@ -20,9 +20,9 @@ import xml.etree.ElementTree as ET
 
 import ament_index_python
 
+from launch_testing.junitxml import unittestResultsToXml
 from launch_testing.test_result import FailResult
 from launch_testing.test_result import TestResult as TR
-from launch_testing.junitxml import unittestResultsToXml
 
 
 class TestGoodXmlOutput(unittest.TestCase):

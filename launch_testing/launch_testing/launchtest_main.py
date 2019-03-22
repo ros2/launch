@@ -22,7 +22,7 @@ from .domain_coordinator import get_coordinated_domain_id
 from .junitxml import unittestResultsToXml
 from .loader import LoadTestsFromPythonModule
 from .print_arguments import print_arguments_of_launch_description
-from .test_runner import TestRunner
+from .test_runner import LaunchTestRunner
 
 _logger_ = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ def launchtest_main():
     test_runs = LoadTestsFromPythonModule(test_module)
 
     # The runner handles sequcing the launches
-    runner = TestRunner(
+    runner = LaunchTestRunner(
         test_runs=test_runs,
         launch_file_arguments=args.launch_arguments,
         debug=args.verbose

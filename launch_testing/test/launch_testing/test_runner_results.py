@@ -21,10 +21,11 @@ import ament_index_python
 
 import launch
 import launch.actions
+
 import launch_testing
 from launch_testing.loader import LoadTestsFromPythonModule
 from launch_testing.loader import TestRun as TR
-from launch_testing.test_runner import TestRunner
+from launch_testing.test_runner import LaunchTestRunner
 
 import mock
 
@@ -49,7 +50,7 @@ def test_dut_that_shuts_down(capsys):
         ])
 
     with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
-        runner = TestRunner(
+        runner = LaunchTestRunner(
             [TR(generate_test_description, {}, [], [])]
         )
 
@@ -96,7 +97,7 @@ def test_dut_that_has_exception(capsys):
         ])
 
     with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
-        runner = TestRunner(
+        runner = LaunchTestRunner(
             [TR(generate_test_description, {}, [], [])]
         )
 
@@ -151,7 +152,7 @@ class PostTest(unittest.TestCase):
 
     module.generate_test_description = generate_test_description
 
-    runner = TestRunner(
+    runner = LaunchTestRunner(
         LoadTestsFromPythonModule(module)
     )
 
@@ -203,7 +204,7 @@ def test_parametrized_run_with_one_failure():
     test_module.FakePostShutdownTests = FakePostShutdownTests
 
     # Run the test:
-    runner = TestRunner(
+    runner = LaunchTestRunner(
         LoadTestsFromPythonModule(test_module)
     )
     results = runner.run()

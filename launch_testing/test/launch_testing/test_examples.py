@@ -19,6 +19,8 @@ import subprocess
 import ament_index_python
 import pytest
 
+import pytest
+
 
 testdata = glob.glob(
     os.path.join(

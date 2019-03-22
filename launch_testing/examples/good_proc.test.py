@@ -83,7 +83,6 @@ class TestProcessOutput(unittest.TestCase):
     def test_out_of_order(self):
         # This demonstrates that we notice out-of-order IO
         with self.assertRaisesRegexp(AssertionError, "'Loop 2' not found"):
-
             with assertSequentialStdout(self.proc_output, dut_process) as cm:
                 cm.assertInStdout('Loop 1')
                 cm.assertInStdout('Loop 3')
