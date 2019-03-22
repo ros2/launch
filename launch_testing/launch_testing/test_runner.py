@@ -195,14 +195,14 @@ class _RunnerWorker():
             print('#' * (len(process.process_name) + 21))
 
 
-class ApexRunner(object):
+class TestRunner(object):
 
     def __init__(self,
                  test_runs,
                  launch_file_arguments=[],
                  debug=False):
         """
-        Create an ApexRunner object.
+        Create an TestRunner object.
 
         :param callable gen_launch_description_fn: A function that returns a ros2 LaunchDesription
         for launching the processes under test.  This function should take a callable as a

@@ -19,9 +19,10 @@ import unittest
 import xml.etree.ElementTree as ET
 
 import ament_index_python
-from apex_launchtest.junitxml import unittestResultsToXml
-from apex_launchtest.test_result import FailResult
-from apex_launchtest.test_result import TestResult as TR
+
+from launch_testing.test_result import FailResult
+from launch_testing.test_result import TestResult as TR
+from launch_testing.junitxml import unittestResultsToXml
 
 
 class TestGoodXmlOutput(unittest.TestCase):
@@ -35,14 +36,14 @@ class TestGoodXmlOutput(unittest.TestCase):
         cls.xml_file = os.path.join(cls.tmpdir.name, 'junit.xml')
 
         path = os.path.join(
-            ament_index_python.get_package_share_directory('apex_launchtest'),
+            ament_index_python.get_package_share_directory('launch_testing'),
             'examples',
             'good_proc.test.py'
         )
 
         assert 0 == subprocess.run(
             args=[
-                'apex_launchtest',
+                'launchtest',
                 path,
                 '--junit-xml', os.path.join(cls.tmpdir.name, 'junit.xml'),
             ],

@@ -14,15 +14,15 @@
 
 import unittest
 
-from apex_launchtest.apex_runner import ApexRunner
-from apex_launchtest.loader import TestRun as TR  # Named TR so pytest doesn't think it's a test
+from launch_testing.test_runner import TestRunner
+from launch_testing.loader import TestRun as TR  # Named TR so pytest doesn't think it's a test
 
 
-class TestApexRunnerValidation(unittest.TestCase):
+class TestTestRunnerValidation(unittest.TestCase):
 
     def test_catches_bad_signature(self):
 
-        dut = ApexRunner(
+        dut = TestRunner(
             [TR(
                 test_description_function=lambda: None,
                 param_args={},
@@ -34,7 +34,7 @@ class TestApexRunnerValidation(unittest.TestCase):
         with self.assertRaises(TypeError):
             dut.validate()
 
-        dut = ApexRunner(
+        dut = TestRunner(
             [TR(
                 test_description_function=lambda ready_fn: None,
                 param_args={},

@@ -24,9 +24,9 @@ def assertInStdout(proc_output,
     """
     Assert that 'msg' was found in the standard out of a process.
 
-    :param proc_output: The process output captured by apex_launchtest.  This is usually injected
+    :param proc_output: The process output captured by launchtest.  This is usually injected
     into test cases as self._proc_output
-    :type proc_output: An apex_launchtest.IoHandler
+    :type proc_output: An launch_testing.IoHandler
 
     :param msg: The message to search for
     :type msg: string
@@ -35,7 +35,7 @@ def assertInStdout(proc_output,
     :type process: A string (search by process name) or a launch.actions.ExecuteProcess object
 
     :param cmd_args: Optional.  If 'process' is a string, cmd_args will be used to disambiguate
-    processes with the same name.  Pass apex_launchtest.asserts.NO_CMD_ARGS to match a proc without
+    processes with the same name.  Pass launch_testing.asserts.NO_CMD_ARGS to match a proc without
     command arguments
     :type cmd_args: string
 

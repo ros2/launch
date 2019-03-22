@@ -23,14 +23,14 @@ import ament_index_python
 def test_print_args():
 
     testpath = os.path.join(
-        ament_index_python.get_package_share_directory('apex_launchtest'),
+        ament_index_python.get_package_share_directory('launch_testing'),
         'examples',
         'args.test.py',
     )
 
     completed_process = subprocess.run(
         args=[
-            'apex_launchtest',
+            'launchtest',
             testpath,
             '--show-args',
         ],
@@ -47,14 +47,14 @@ def test_print_args():
 def test_no_args_to_print():
 
     testpath = os.path.join(
-        ament_index_python.get_package_share_directory('apex_launchtest'),
+        ament_index_python.get_package_share_directory('launch_testing'),
         'examples',
         'good_proc.test.py',
     )
 
     completed_process = subprocess.run(
         args=[
-            'apex_launchtest',
+            'launchtest',
             testpath,
             '--show-args',
         ],

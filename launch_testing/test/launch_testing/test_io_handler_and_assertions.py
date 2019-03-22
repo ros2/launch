@@ -16,17 +16,19 @@ import os
 import unittest
 
 import ament_index_python
-from apex_launchtest import ActiveIoHandler
-from apex_launchtest.asserts import assertInStdout
-from apex_launchtest.asserts import NO_CMD_ARGS
+
 import launch
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessIO
 
+from launch_testing import ActiveIoHandler
+from launch_testing.asserts import assertInStdout
+from launch_testing.asserts import NO_CMD_ARGS
+
 
 TEST_PROC_PATH = os.path.join(
-    ament_index_python.get_package_prefix('apex_launchtest'),
-    'lib/apex_launchtest',
+    ament_index_python.get_package_prefix('launch_testing'),
+    'lib/launch_testing',
     'terminating_proc'
 )
 
@@ -68,7 +70,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
             cls.proc_1,
             cls.proc_2,
             cls.proc_3,
-            # This plumbs all the output to our IoHandler just like the ApexRunner does
+            # This plumbs all the output to our IoHandler just like the TestRunner does
             RegisterEventHandler(
                 OnProcessIO(
                     on_stdout=cls.proc_output.append,

@@ -18,28 +18,28 @@ import logging
 import os
 import sys
 
-from .apex_runner import ApexRunner
 from .domain_coordinator import get_coordinated_domain_id
 from .junitxml import unittestResultsToXml
 from .loader import LoadTestsFromPythonModule
 from .print_arguments import print_arguments_of_launch_description
+from .test_runner import TestRunner
 
 _logger_ = logging.getLogger(__name__)
 
 
 def _load_python_file_as_module(python_file_path):
     """Load a given Python launch file (by path) as a Python module."""
-    # Taken from apex_core to not introduce a weird dependency thing
+    # Taken from launch_testing to not introduce a weird dependency thing
     loader = SourceFileLoader('python_launch_file', python_file_path)
     return loader.load_module()
 
 
-def apex_launchtest_main():
+def launchtest_main():
 
     logging.basicConfig()
 
     parser = argparse.ArgumentParser(
-        description='Integration test framework for Apex AI'
+        description="Launch integration test framework tool"
     )
 
     parser.add_argument('test_file')
@@ -85,7 +85,7 @@ def apex_launchtest_main():
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
 
     # Load the test file as a module and make sure it has the required
-    # components to run it as an apex integration test
+    # components to run it as a launch test
     _logger_.debug("Loading tests from file '{}'".format(args.test_file))
     if not os.path.isfile(args.test_file):
         # Note to future reader: parser.error also exits as a side effect
@@ -105,7 +105,7 @@ def apex_launchtest_main():
     test_runs = LoadTestsFromPythonModule(test_module)
 
     # The runner handles sequcing the launches
-    runner = ApexRunner(
+    runner = TestRunner(
         test_runs=test_runs,
         launch_file_arguments=args.launch_arguments,
         debug=args.verbose

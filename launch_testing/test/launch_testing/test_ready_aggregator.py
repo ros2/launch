@@ -14,7 +14,7 @@
 
 import unittest
 
-from apex_launchtest import ReadyAggregator
+from launch_testing import ReadyAggregator
 
 
 class TestReadyAggregator(unittest.TestCase):

@@ -16,15 +16,17 @@ import os
 import unittest
 
 import ament_index_python
-import apex_launchtest
-from apex_launchtest.asserts import assertSequentialStdout
+
 import launch
 import launch.actions
 
+import launch_testing
+from launch_testing.asserts import assertSequentialStdout
+
 
 TEST_PROC_PATH = os.path.join(
-    ament_index_python.get_package_prefix('apex_launchtest'),
-    'lib/apex_launchtest',
+    ament_index_python.get_package_prefix('launch_testing'),
+    'lib/launch_testing',
     'good_proc'
 )
 
@@ -68,11 +70,11 @@ class TestProcOutput(unittest.TestCase):
         self.proc_output.assertWaitFor('Loop 1', process=dut, timeout=10)
 
 
-@apex_launchtest.post_shutdown_test()
+@launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
 
     def test_full_output(self, dut):
-        # Same as the test_process_output test.  apex_launchtest binds the value of
+        # Same as the test_process_output test. launch_testing binds the value of
         # 'dut' from the test_context to the test before it runs
         with assertSequentialStdout(self.proc_output, process=dut) as cm:
             cm.assertInStdout('Starting Up')

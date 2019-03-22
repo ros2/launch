@@ -16,15 +16,17 @@ import os
 import unittest
 
 import ament_index_python
-import apex_launchtest
-from apex_launchtest.asserts import assertSequentialStdout
+
 import launch
 import launch.actions
 
+import launch_testing
+from launch_testing.asserts import assertSequentialStdout
+
 
 TEST_PROC_PATH = os.path.join(
-    ament_index_python.get_package_prefix('apex_launchtest'),
-    'lib/apex_launchtest',
+    ament_index_python.get_package_prefix('launch_testing'),
+    'lib/launch_testing',
     'good_proc'
 )
 
@@ -61,13 +63,13 @@ class TestGoodProcess(unittest.TestCase):
         self.proc_output.assertWaitFor('Loop 4', timeout=10)
 
 
-@apex_launchtest.post_shutdown_test()
+@launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self):
         # Check that all processes in the launch (in this case, there's just one) exit
         # with code 0
-        apex_launchtest.asserts.assertExitCodes(self.proc_info)
+        launch_testing.asserts.assertExitCodes(self.proc_info)
 
     def test_full_output(self):
         # Using the SequentialStdout context manager asserts that the following stdout

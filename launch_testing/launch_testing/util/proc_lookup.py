@@ -88,7 +88,7 @@ def resolveProcesses(info_obj, *, process=None, cmd_args=None, strict_proc_match
 
     :param cmd_args: Optional.  If the process param is a string, the cmd_args will be used to
     disambiguate processes with the same name.  cmd_args=None will match all command arguments.
-    cmd_args=apex_launchtest.asserts.NO_CMD_ARGS will match a process without command-line
+    cmd_args=launch_testing.asserts.NO_CMD_ARGS will match a process without command-line
     arguments
 
     :param strict_proc_matching:  Optional.  If the process param is a string and matches multiple

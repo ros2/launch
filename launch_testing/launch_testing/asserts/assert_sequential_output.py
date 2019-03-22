@@ -102,7 +102,7 @@ def assertSequentialStdout(proc_output,
     :type process: A string (search by process name) or a launch.actions.ExecuteProcess object
 
     :param cmd_args: Optional.  If 'proc' is a string, cmd_args will be used to disambiguate
-    processes with the same name.  Pass apex_launchtest.asserts.NO_CMD_ARGS to match a proc without
+    processes with the same name.  Pass launch_testing.asserts.NO_CMD_ARGS to match a proc without
     command arguments
     :type cmd_args: string
     """

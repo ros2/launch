@@ -25,7 +25,7 @@ def KeepAliveProc():
     """
     Generate a dummy launch.actions.ExecuteProcess to keep the launch alive.
 
-    apex_launchtest expects to shut down the launch itself when it's done running tests.  If all
+    launchtest expects to shut down the launch itself when it's done running tests.  If all
     of the processes under test are expected to terminate on their own, it's necessary to add
     another process to keep the launch service alive while the tests are running.
     """

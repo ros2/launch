@@ -14,7 +14,7 @@
 
 import unittest
 
-from apex_launchtest.asserts import SequentialTextChecker
+from launch_testing.asserts import SequentialTextChecker
 
 
 class TestAssertSequentialStdout(unittest.TestCase):

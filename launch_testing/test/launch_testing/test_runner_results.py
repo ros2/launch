@@ -18,13 +18,13 @@ import types
 import unittest
 
 import ament_index_python
-import apex_launchtest
-from apex_launchtest.apex_runner import ApexRunner
-from apex_launchtest.loader import LoadTestsFromPythonModule
-from apex_launchtest.loader import TestRun as TR
 
 import launch
 import launch.actions
+import launch_testing
+from launch_testing.loader import LoadTestsFromPythonModule
+from launch_testing.loader import TestRun as TR
+from launch_testing.test_runner import TestRunner
 
 import mock
 
@@ -35,8 +35,8 @@ def test_dut_that_shuts_down(capsys):
 
     def generate_test_description(ready_fn):
         TEST_PROC_PATH = os.path.join(
-            ament_index_python.get_package_prefix('apex_launchtest'),
-            'lib/apex_launchtest',
+            ament_index_python.get_package_prefix('launch_testing'),
+            'lib/launch_testing',
             'terminating_proc'
         )
 
@@ -48,8 +48,8 @@ def test_dut_that_shuts_down(capsys):
             launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
         ])
 
-    with mock.patch('apex_launchtest.apex_runner._RunnerWorker._run_test'):
-        runner = ApexRunner(
+    with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
+        runner = TestRunner(
             [TR(generate_test_description, {}, [], [])]
         )
 
@@ -70,14 +70,14 @@ def test_dut_that_has_exception(capsys):
 
     def generate_test_description(ready_fn):
         TEST_PROC_PATH = os.path.join(
-            ament_index_python.get_package_prefix('apex_launchtest'),
-            'lib/apex_launchtest',
+            ament_index_python.get_package_prefix('launch_testing'),
+            'lib/launch_testing',
             'terminating_proc'
         )
 
         EXIT_PROC_PATH = os.path.join(
-            ament_index_python.get_package_prefix('apex_launchtest'),
-            'lib/apex_launchtest',
+            ament_index_python.get_package_prefix('launch_testing'),
+            'lib/launch_testing',
             'exit_code_proc'
         )
 
@@ -95,8 +95,8 @@ def test_dut_that_has_exception(capsys):
             launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
         ])
 
-    with mock.patch('apex_launchtest.apex_runner._RunnerWorker._run_test'):
-        runner = ApexRunner(
+    with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
+        runner = TestRunner(
             [TR(generate_test_description, {}, [], [])]
         )
 
@@ -115,11 +115,11 @@ def test_dut_that_has_exception(capsys):
 def test_nominally_good_dut():
 
     # The following is test setup nonsense to turn a string into a python module that can be
-    # passed to the apex runner.  You can skip over this.  It does not add to your understanding
+    # passed to the test runner.  You can skip over this.  It does not add to your understanding
     # of the test.
     test_code = """
 import unittest
-from apex_launchtest import post_shutdown_test
+from launch_testing import post_shutdown_test
 
 class PreTest(unittest.TestCase):
     def test_pre_ok(self):
@@ -135,8 +135,8 @@ class PostTest(unittest.TestCase):
 
     # Here's the actual 'test' part of the test:
     TEST_PROC_PATH = os.path.join(
-        ament_index_python.get_package_prefix('apex_launchtest'),
-        'lib/apex_launchtest',
+        ament_index_python.get_package_prefix('launch_testing'),
+        'lib/launch_testing',
         'good_proc'
     )
 
@@ -151,7 +151,7 @@ class PostTest(unittest.TestCase):
 
     module.generate_test_description = generate_test_description
 
-    runner = ApexRunner(
+    runner = TestRunner(
         LoadTestsFromPythonModule(module)
     )
 
@@ -164,11 +164,11 @@ class PostTest(unittest.TestCase):
 def test_parametrized_run_with_one_failure():
 
     # Test Data
-    @apex_launchtest.parametrize('arg_val', [1, 2, 3, 4, 5])
+    @launch_testing.parametrize('arg_val', [1, 2, 3, 4, 5])
     def generate_test_description(arg_val, ready_fn):
         TEST_PROC_PATH = os.path.join(
-            ament_index_python.get_package_prefix('apex_launchtest'),
-            'lib/apex_launchtest',
+            ament_index_python.get_package_prefix('launch_testing'),
+            'lib/launch_testing',
             'good_proc'
         )
 
@@ -190,7 +190,7 @@ def test_parametrized_run_with_one_failure():
             proc_output.assertWaitFor('Starting Up')
             assert arg_val != 2
 
-    @apex_launchtest.post_shutdown_test()
+    @launch_testing.post_shutdown_test()
     class FakePostShutdownTests(unittest.TestCase):
 
         def test_fail_on_three(self, arg_val):
@@ -203,10 +203,9 @@ def test_parametrized_run_with_one_failure():
     test_module.FakePostShutdownTests = FakePostShutdownTests
 
     # Run the test:
-    runner = ApexRunner(
+    runner = TestRunner(
         LoadTestsFromPythonModule(test_module)
     )
-
     results = runner.run()
 
     passes = [result for result in results.values() if result.wasSuccessful()]

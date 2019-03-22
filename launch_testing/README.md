@@ -1,4 +1,4 @@
-# apex_launchtest
+# launch_testing
 ![build status](https://gitlab.com/ApexAI/apex_rostest/badges/master/build.svg) ![coverage](https://gitlab.com/ApexAI/apex_rostest/badges/master/coverage.svg)
 
 This tool is a framework for ROS2 integration testing using the [ros2 style launch description](https://github.com/ros2/launch/blob/master/ros2launch/examples/example.launch.py).
@@ -13,10 +13,10 @@ It works similarly to rostest, but makes it easier to inspect the processes unde
 Designed to work with [ros2 crystal](https://index.ros.org/doc/ros2/Installation/)
 
 ## Quick start example
-Start with the apex_launchtest example [good_proc.test.py](apex_launchtest/examples/good_proc.test.py).  Run the example by doing
->apex_launchtest apex_launchtest/examples/good_proc.test.py
+Start with the launch_testing example [good_proc.test.py](examples/good_proc.test.py).  Run the example by doing
+>launchtest launch_testing/examples/good_proc.test.py
 
-apex_launchtest will launch the nodes found in the `generate_test_description` function, run the tests from the `TestGoodProcess` class, shut down the launched nodes, and then run the tests from the `TestNodeOutput` class.
+launchtest will launch the nodes found in the `generate_test_description` function, run the tests from the `TestGoodProcess` class, shut down the launched nodes, and then run the tests from the `TestNodeOutput` class.
 
 #### The Launch Description
 ```python
@@ -46,20 +46,20 @@ processes have been shut down.  These tests have access to the exit codes and th
 as any data created as a side-effect of running the processes
 
 #### Exit Codes and Standard Out
-the apex_launchtest framework automatically adds some member fields to each test case so that the tests can access process output and exit codes
+the launch_testing framework automatically adds some member fields to each test case so that the tests can access process output and exit codes
 
- * self.proc_info - a [ProcInfoHandler object](apex_launchtest/apex_launchtest/proc_info_handler.py)
- * self.proc_output - an [IoHandler object](apex_launchtest/apex_launchtest/io_handler.py)
+ * self.proc_info - a [ProcInfoHandler object](launch_testing/proc_info_handler.py)
+ * self.proc_output - an [IoHandler object](launch_testing/io_handler.py)
 
 These objects provide dictionary like access to information about the running processes.  They also contain methods that the active tests can
 use to wait for a process to exit or to wait for specific output
 
 ## Assertions
-The apex_launchtest framework automatically records all stdout from the launched processes as well as the exit codes from any processes
+The launch_testing framework automatically records all stdout from the launched processes as well as the exit codes from any processes
 that are launched.  This information is made available to the tests via the `proc_info` and `proc_output` object.  These objects can be used
 by one of several assert methods to check the output or exit codes of the process:
 
-`apex_launchtest.asserts.assertInStdout(proc_output, msg, proc, cmd_args=None, *, strict_proc_matching=True)`
+`launch_testing.asserts.assertInStdout(proc_output, msg, proc, cmd_args=None, *, strict_proc_matching=True)`
 
 Asserts that a message 'msg' is found in the stdout of a particular process.
   - msg: The text to look for in the process standard out
@@ -69,13 +69,13 @@ Asserts that a message 'msg' is found in the stdout of a particular process.
   - strict_proc_matching: When looking up a process by name, strict_proc_matching=True will make it an error to match multiple processes.
     This prevents an assert from accidentally passing if the output came from a different process than the one the user was expecting
 
-`apex_launchtest.asserts.assertExitCodes(proc_info, allowable_exit_codes=[EXIT_OK], proc, cmd_args=None, *, strict_proc_matching=True)`
+`launch_testing.asserts.assertExitCodes(proc_info, allowable_exit_codes=[EXIT_OK], proc, cmd_args=None, *, strict_proc_matching=True)`
 
 Asserts that the specified processes exited with a particular exit code
   - allowable_exit_codes:  A list of allowable exit codes.  By default EXIT_OK (0).  Other exit codes provided are EXIT_SIGINT (130), EXIT_SIGQUIT (131), EXIT_SIGKILL (137) and EXIT_SIGSEGV (139)
   - The proc, cmd_args, and strict_proc_matching arguments behave the same way as assertInStdout.  By default, assert on the exit codes of all processes
 
-`apex_launchtest.asserts.assertSequentialStdout(proc_output, proc, cmd_args=None)`
+`launch_testing.asserts.assertSequentialStdout(proc_output, proc, cmd_args=None)`
 
 Asserts that standard out was seen in a particular order
   - Returns a context manager that will check that a series of assertions happen in order
@@ -101,28 +101,28 @@ The ActiveTests can also call methods that wait for particular output or a parti
   - timeout:  The amount of time to wait before raising an AssertionError
 
 ## Arguments
-apex_launchtest uses the same [syntax as ros2 launch](https://github.com/ros2/launch/pull/123) to pass arguments to tests.
+launchtest uses the same [syntax as ros2 launch](https://github.com/ros2/launch/pull/123) to pass arguments to tests.
 
 Arguments are declared in the launch description and can be accessed by the test vi a test_args dictionary that's injected into the tests similar to `proc_info` and `proc_output`.
 
-See the [apex_launchtest example with arguments](apex_launchtest/examples/args.test.py)
+See the [launch_testing example with arguments](examples/args.test.py)
 ```
->apex_launhtest --show-args examples/args.test.py
->apex_launchtest examples/args.test.py dut_arg:=value
+>launchtest --show-args examples/args.test.py
+>launchtest examples/args.test.py dut_arg:=value
 ```
 
 ## Using CMake
-To run apex_launchtest from a CMakeLists file, you'll need to declare a dependency on
-apex_launchtest_cmake in your package.xml.  Then, in the CMakeLists file, add
+To run launch tests from a CMakeLists file, you'll need to declare a dependency on
+launch_testing_ament_cmake in your package.xml.  Then, in the CMakeLists file, add
 
 ```
-find_package(apex_launchtest_cmake)
-add_apex_launchtest(test/name_of_test.test.py)
+find_package(launch_testing_ament_cmake)
+add_launch_test(test/name_of_test.test.py)
 ```
 
 Arguments can be passed to the tests via the CMake function, too:
 ```
-add_apex_launchtest(
+add_launch_test(
   test/test_with_args.test.py
   ARGS "arg1:=foo"
 )
