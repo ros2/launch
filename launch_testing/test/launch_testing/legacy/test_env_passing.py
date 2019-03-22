@@ -18,7 +18,7 @@ import sys
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import ExecuteProcess
-from launch_testing import LaunchTestService
+from launch_testing.legacy import LaunchTestService
 
 
 def test_env():

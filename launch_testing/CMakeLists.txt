@@ -41,11 +41,11 @@ if(BUILD_TESTING)
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
   )
 
-  ament_add_pytest_test(test_env_passing_py "test/test_env_passing.py"
+  ament_add_pytest_test(test_env_passing_py "test/launch_testing/legacy/test_env_passing.py"
     PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
   )
 
-  ament_add_pytest_test(test_matching_py "test/test_matching.py"
+  ament_add_pytest_test(test_matching_py "test/launch_testing/legacy/test_matching.py"
     PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
   )
 endif()
