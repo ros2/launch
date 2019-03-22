@@ -16,10 +16,12 @@
 
 from .composable_node_container import ComposableNodeContainer
 from .lifecycle_node import LifecycleNode
+from .load_composable_node import LoadComposableNode
 from .node import Node
 
 __all__ = [
     'ComposableNodeContainer',
     'LifecycleNode',
+    'LoadComposableNode',
     'Node',
 ]

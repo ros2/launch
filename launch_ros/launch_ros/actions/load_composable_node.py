@@ -38,13 +38,13 @@ from ..utilities import to_parameters_list
 _logger = logging.getLogger(name='launch_ros')
 
 
-class LoadComposableNodes(Action):
+class LoadComposableNode(Action):
     """Action that loads composable ROS nodes into a running container."""
 
     def __init__(
         self,
         *,
-        composable_nodes_description: List[ComposableNode],
+        composable_node_descriptions: List[ComposableNode],
         target_container: ComposableNodeContainer,
         in_parallel: Optional[SomeSubstitutionsType] = None,
         **kwargs,
@@ -56,12 +56,12 @@ class LoadComposableNodes(Action):
         loading purposes.
         Loading can be performed sequentially for determinism or in parallel for speed.
 
-        :param composable_nodes_description: descriptions of composable nodes to be loaded
+        :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into
         :param in_parallel: whether to load nodes in parallel instead of sequentially.
             Defaults to False i.e. load sequentially
         """
-        self.__composable_nodes_description = composable_nodes_description
+        self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
         self.__in_parallel = None
         if in_parallel is not None:
@@ -132,37 +132,37 @@ class LoadComposableNodes(Action):
 
     def _load_in_sequence(
         self,
-        composable_nodes_description: List[ComposableNode],
+        composable_node_descriptions: List[ComposableNode],
         context: LaunchContext
     ) -> None:
         """
         Load composable nodes sequentially.
 
-        :param composable_nodes_description: descriptions of composable nodes to be loaded
+        :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param context: current launch context
         """
-        next_composable_node_description = composable_nodes_description[0]
-        composable_nodes_description = composable_nodes_description[1:]
+        next_composable_node_description = composable_node_descriptions[0]
+        composable_node_descriptions = composable_node_descriptions[1:]
         self._load_node(next_composable_node_description, context)
-        if len(composable_nodes_description) > 0:
+        if len(composable_node_descriptions) > 0:
             context.add_completion_future(
                 context.asyncio_loop.run_in_executor(
-                    None, self._load_in_sequence, composable_nodes_description, context
+                    None, self._load_in_sequence, composable_node_descriptions, context
                 )
             )
 
     def _load_in_parallel(
         self,
-        composable_nodes_description: List[ComposableNode],
+        composable_node_descriptions: List[ComposableNode],
         context: LaunchContext
     ) -> None:
         """
         Load composable nodes in parallel.
 
-        :param composable_nodes_description: descriptions of composable nodes to be loaded
+        :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param context: current launch context
         """
-        for composable_node_description in composable_nodes_description:
+        for composable_node_description in composable_node_descriptions:
             context.add_completion_future(
                 context.asyncio_loop.run_in_executor(
                     None, self._load_node, composable_node_description, context
@@ -179,7 +179,7 @@ class LoadComposableNodes(Action):
         if self.__in_parallel is not None:
             in_parallel = bool(perform_substitutions(context, self.__in_parallel))
         load_method = self._load_in_parallel if in_parallel else self._load_in_sequence
-        load_method(self.__composable_nodes_description, context)
+        load_method(self.__composable_node_descriptions, context)
         return None
 
     def execute(

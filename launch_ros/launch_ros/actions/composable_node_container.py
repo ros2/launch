@@ -31,7 +31,7 @@ class ComposableNodeContainer(Node):
     def __init__(
         self,
         *,
-        composable_nodes_description: Optional[List[ComposableNode]] = None,
+        composable_node_descriptions: Optional[List[ComposableNode]] = None,
         **kwargs
     ) -> None:
         """
@@ -40,10 +40,10 @@ class ComposableNodeContainer(Node):
         Most arguments are forwarded to :class:`launch_ros.actions.Node`, so see
         the documentation of that class for further details.
 
-        :param composable_nodes_description: optional descriptions of composable nodes to be loaded
+        :param composable_node_descriptions: optional descriptions of composable nodes to be loaded
         """
         super(ComposableNodeContainer, self).__init__(**kwargs)
-        self.__composable_nodes_description = composable_nodes_description
+        self.__composable_node_descriptions = composable_node_descriptions
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """
@@ -53,10 +53,10 @@ class ComposableNodeContainer(Node):
         composable nodes load action if it applies.
         """
         load_actions = None  # type: Optional[List[Action]]
-        if self.__composable_nodes_description is not None:
-            from .load_composable_nodes import LoadComposableNodes
-            load_actions = [LoadComposableNodes(
-                composable_nodes_description=self.__composable_nodes_description,
+        if self.__composable_node_descriptions is not None:
+            from .load_composable_node import LoadComposableNode
+            load_actions = [LoadComposableNode(
+                composable_node_descriptions=self.__composable_node_descriptions,
                 target_container=self
             )]
         container_actions = super().execute(context)  # type: Optional[List[Action]]
