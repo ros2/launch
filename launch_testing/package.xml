@@ -5,12 +5,13 @@
   <version>0.8.0</version>
   <description>ROS launch testing suite.</description>
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
   <license>Apache License 2.0</license>
-  <author>Esteve Fernandez</author>
 
   <exec_depend>launch</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
 
+  <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>launch</test_depend>
