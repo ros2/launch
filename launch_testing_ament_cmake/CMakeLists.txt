@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(apex_launchtest_cmake NONE)
+project(launch_testing_ament_cmake NONE)
 
 find_package(ament_cmake_core REQUIRED)
 
@@ -15,18 +15,18 @@ install(
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
-  ament_add_pytest_test(apex_launchtest_cmake_pytests test)
+  ament_add_pytest_test(launch_testing_ament_cmake_pytests test)
 
-  include(cmake/add_apex_launchtest.cmake)
+  include(cmake/add_launch_test.cmake)
 
-  ament_index_has_resource(APEX_LAUNCHTEST_INSTALL_PREFIX packages apex_launchtest)
-  if(NOT APEX_LAUNCHTEST_INSTALL_PREFIX)
-      message(FATAL_ERROR "apex_launchtest package not found")
+  ament_index_has_resource(LAUNCH_TESTING_INSTALL_PREFIX packages launch_testing)
+  if(NOT LAUNCH_TESTING_INSTALL_PREFIX)
+      message(FATAL_ERROR "launch_testing package not found")
   endif()
 
   # Test argument passing.  This test won't pass unless you give it an argument
-  add_apex_launchtest(
-    "${APEX_LAUNCHTEST_INSTALL_PREFIX}/share/apex_launchtest/examples/args.test.py"
+  add_launch_test(
+    "${LAUNCH_TESTING_INSTALL_PREFIX}/share/launch_testing/examples/args.test.py"
     ARGS "dut_node_arg:=--anything"
   )
 endif()

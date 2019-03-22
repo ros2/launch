@@ -48,24 +48,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 #
-# Add an apex_launchtest test
+# Add a launch test
 #
-# :param file: The apex_launchtest test file containing the test to run
+# :param file: The launch test file containing the test to run
 # :type file: string
 # :param TIMEOUT: The test timeout in seconds
 # :type TIMEOUT: integer
-# :param ARGS: Launch arguments to pass to apex_launchtest
+# :param ARGS: Launch arguments to pass to the launch test
 # :type ARGS: string
-function(add_apex_launchtest file)
+function(add_launch_test file)
 
-  cmake_parse_arguments(_add_apex_launchtest
+  cmake_parse_arguments(_add_launch_test
     ""
     "TIMEOUT"
     "ARGS"
     ${ARGN})
 
-  if(NOT _add_apex_launchtest_TIMEOUT)
-    set(_add_apex_launchtest_TIMEOUT 60)
+  if(NOT _add_launch_test_TIMEOUT)
+    set(_add_launch_test_TIMEOUT 60)
   endif()
 
   set(_file_name _file_name-NOTFOUND)
@@ -77,7 +77,7 @@ function(add_apex_launchtest file)
               NO_DEFAULT_PATH
               NO_CMAKE_FIND_ROOT_PATH)
     if(NOT _file_name)
-      message(FATAL_ERROR "Can't find rostest file \"${file}\"")
+      message(FATAL_ERROR "Can't find launch test file \"${file}\"")
     endif()
   endif()
 
@@ -88,23 +88,23 @@ function(add_apex_launchtest file)
   string(REPLACE "/" "_" testname ${testname})
   set(result_file "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${testname}.xunit.xml")
 
-  find_program(apex_launchtest_BIN NAMES "apex_launchtest")
-  if(NOT apex_launchtest_BIN)
-    message(FATAL_ERROR "apex_add_rostest cmake could not find apex_launchtest script")
+  find_program(launchtest_BIN NAMES "launchtest")
+  if(NOT launchtest_BIN)
+    message(FATAL_ERROR "add_launch_test cmake could not find launchtest script")
   endif()
 
   set(cmd
-    "${apex_launchtest_BIN}"
+    "${launchtest_BIN}"
     "${_file_name}"
-    "${_add_apex_launchtest_ARGS}"
+    "${_add_launch_test_ARGS}"
     "--junit-xml=${result_file}"
   )
   ament_add_test(
     "${testname}"
     COMMAND ${cmd}
-    OUTPUT_FILE "${CMAKE_BINARY_DIR}/apex_launchtest/CHANGEME.txt"
+    OUTPUT_FILE "${CMAKE_BINARY_DIR}/launchtest/CHANGEME.txt"
     RESULT_FILE "${result_file}"
-    TIMEOUT "${_add_apex_launchtest_TIMEOUT}"
+    TIMEOUT "${_add_launch_test_TIMEOUT}"
   )
 
 endfunction()

@@ -14,4 +14,4 @@
 
 find_package(ament_cmake_test REQUIRED)
 
-include("${apex_launchtest_cmake_DIR}/add_apex_launchtest.cmake")
+include("${launch_testing_ament_cmake_DIR}/add_launch_test.cmake")
