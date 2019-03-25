@@ -98,6 +98,7 @@ function(add_launch_test file)
     "${_file_name}"
     "${_add_launch_test_ARGS}"
     "--junit-xml=${result_file}"
+    ${ARGN}
   )
   ament_add_test(
     "${testname}"
@@ -105,6 +106,7 @@ function(add_launch_test file)
     OUTPUT_FILE "${CMAKE_BINARY_DIR}/launchtest/CHANGEME.txt"
     RESULT_FILE "${result_file}"
     TIMEOUT "${_add_launch_test_TIMEOUT}"
+    ${_ARG_UNPARSED_ARGUMENTS}
   )
 
 endfunction()
