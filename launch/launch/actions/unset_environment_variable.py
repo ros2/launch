@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ from ..utilities import perform_substitutions
 
 
 class UnsetEnvironmentVariable(Action):
-    """ Action that unsets an environment variable """
+    """Action that unsets an environment variable if it is set, otherwise does nothing."""
 
     def __init__(
-            self,
-            name: SomeSubstitutionsType,
-            **kwargs
+        self,
+        name: SomeSubstitutionsType,
+        **kwargs
     ) -> None:
         """Constructor."""
         super().__init__(**kwargs)
@@ -40,7 +40,7 @@ class UnsetEnvironmentVariable(Action):
 
     @property
     def name(self) -> List[Substitution]:
-        """Getter for self.__name."""
+        """Getter for the name of the environment variable to be unset"""
         return self.__name
 
     def execute(self, context: LaunchContext) -> None:

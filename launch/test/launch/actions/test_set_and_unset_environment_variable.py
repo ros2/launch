@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,32 +33,37 @@ def test_set_and_unset_environment_variable_execute():
     lc1 = LaunchContext()
 
     # can set and overwrite environment variables
-    if 'NONEXISTANT_KEY' in os.environ:
-        del os.environ['NONEXISTANT_KEY']
-    assert os.environ.get('NONEXISTANT_KEY') is None
-    SetEnvironmentVariable('NONEXISTANT_KEY', 'value').visit(lc1)
-    assert os.environ.get('NONEXISTANT_KEY') == 'value'
-    SetEnvironmentVariable('NONEXISTANT_KEY', 'ANOTHER_NONEXISTANT_KEY').visit(lc1)
-    assert os.environ.get('NONEXISTANT_KEY') == 'ANOTHER_NONEXISTANT_KEY'
+    if 'NONEXISTENT_KEY' in os.environ:
+        del os.environ['NONEXISTENT_KEY']
+    assert os.environ.get('NONEXISTENT_KEY') is None
+    SetEnvironmentVariable('NONEXISTENT_KEY', 'value').visit(lc1)
+    assert os.environ.get('NONEXISTENT_KEY') == 'value'
+    SetEnvironmentVariable('NONEXISTENT_KEY', 'ANOTHER_NONEXISTENT_KEY').visit(lc1)
+    assert os.environ.get('NONEXISTENT_KEY') == 'ANOTHER_NONEXISTENT_KEY'
 
     # can unset environment variables
-    if 'ANOTHER_NONEXISTANT_KEY' in os.environ:
-        del os.environ['ANOTHER_NONEXISTANT_KEY']
-    assert os.environ.get('ANOTHER_NONEXISTANT_KEY') is None
-    SetEnvironmentVariable('ANOTHER_NONEXISTANT_KEY', 'some value').visit(lc1)
-    assert os.environ.get('ANOTHER_NONEXISTANT_KEY') == 'some value'
-    UnsetEnvironmentVariable('ANOTHER_NONEXISTANT_KEY').visit(lc1)
-    assert os.environ.get('ANOTHER_NONEXISTANT_KEY') is None
+    if 'ANOTHER_NONEXISTENT_KEY' in os.environ:
+        del os.environ['ANOTHER_NONEXISTENT_KEY']
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
+    SetEnvironmentVariable('ANOTHER_NONEXISTENT_KEY', 'some value').visit(lc1)
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') == 'some value'
+    UnsetEnvironmentVariable('ANOTHER_NONEXISTENT_KEY').visit(lc1)
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
 
     # set and unset with substitutions
-    assert os.environ.get('ANOTHER_NONEXISTANT_KEY') is None
-    SetEnvironmentVariable('ANOTHER_NONEXISTANT_KEY',
-                           EnvironmentVariable('NONEXISTANT_KEY')).visit(lc1)
-    assert os.environ.get('ANOTHER_NONEXISTANT_KEY') == 'ANOTHER_NONEXISTANT_KEY'
-    UnsetEnvironmentVariable(EnvironmentVariable('NONEXISTANT_KEY')).visit(lc1)
-    assert os.environ.get('ANOTHER_NONEXISTANT_KEY') is None
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
+    SetEnvironmentVariable(
+        'ANOTHER_NONEXISTENT_KEY',
+        EnvironmentVariable('NONEXISTENT_KEY')).visit(lc1)
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') == 'ANOTHER_NONEXISTENT_KEY'
+    UnsetEnvironmentVariable(EnvironmentVariable('NONEXISTENT_KEY')).visit(lc1)
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
 
-    # unsetting a environment variable that does not exist doesn't raise an exception
-    assert os.environ.get('ANOTHER_NONEXISTANT_KEY') is None
-    UnsetEnvironmentVariable(EnvironmentVariable('NONEXISTANT_KEY')).visit(lc1)
-    assert os.environ.get('ANOTHER_NONEXISTANT_KEY') is None
+
+def test_unset_nonexistent_key():
+    """Test that the UnsetEnvironmentVariable class doesn't raise an exception."""
+    lc1 = LaunchContext()
+
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
+    UnsetEnvironmentVariable(EnvironmentVariable('NONEXISTENT_KEY')).visit(lc1)
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None

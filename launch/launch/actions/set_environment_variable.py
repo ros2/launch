@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,13 +26,13 @@ from ..utilities import perform_substitutions
 
 
 class SetEnvironmentVariable(Action):
-    """ Action that sets an environment variable """
+    """Action that sets an environment variable."""
 
     def __init__(
-            self,
-            name: SomeSubstitutionsType,
-            value: SomeSubstitutionsType,
-            **kwargs
+        self,
+        name: SomeSubstitutionsType,
+        value: SomeSubstitutionsType,
+        **kwargs
     ) -> None:
         """Constructor."""
         super().__init__(**kwargs)
@@ -41,12 +41,12 @@ class SetEnvironmentVariable(Action):
 
     @property
     def name(self) -> List[Substitution]:
-        """Getter for self.__name."""
+        """Getter for the name of the environment variable to be set."""
         return self.__name
 
     @property
     def value(self) -> List[Substitution]:
-        """Getter for self.__value."""
+        """Getter for the value of the environment variable to be set."""
         return self.__value
 
     def execute(self, context: LaunchContext) -> None:
