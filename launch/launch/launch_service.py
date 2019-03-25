@@ -289,6 +289,9 @@ class LaunchService:
             sigint_received = False
             run_loop_task = self.__loop_from_run_thread.create_task(self.__run_loop())
 
+            # Log logging configuration details.
+            launch.logging.log_launch_config(logger=self.__logger)
+
             # Setup custom signal hanlders for SIGINT, SIGQUIT, and SIGTERM.
             def _on_sigint(signum, frame):
                 # Ignore additional interrupts until we finish processing this one.

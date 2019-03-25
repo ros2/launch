@@ -164,6 +164,15 @@ def launch_config(
         launch_config.log_dir = log_dir
 
 
+def log_launch_config(*, logger=logging.root):
+    """Log logging configuration details relevant for a user with the given logger."""
+    if any(launch_config.file_handlers):
+        logger.info('All log files can be found below {}'.format(launch_config.log_dir))
+    logger.info('Default logging verbosity is set to {}'.format(logging.getLevelName(
+        logging.root.getEffectiveLevel()
+    )))
+
+
 def get_logger(name=None):
     """Get named logger, configured to output to screen and launch main log file."""
     logger = logging.getLogger(name)
