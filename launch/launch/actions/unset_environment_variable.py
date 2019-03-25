@@ -40,12 +40,13 @@ class UnsetEnvironmentVariable(Action):
 
     @property
     def name(self) -> List[Substitution]:
-        """Getter for the name of the environment variable to be unset"""
+        """Getter for the name of the environment variable to be unset."""
         return self.__name
 
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
-        name = perform_substitutions(context, self.name)
+        name = perform_substitutions(
+            context, self.name)
         if name in os.environ:
             del os.environ[name]
         return None

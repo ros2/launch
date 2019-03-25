@@ -59,6 +59,10 @@ def test_set_and_unset_environment_variable_execute():
     UnsetEnvironmentVariable(EnvironmentVariable('NONEXISTENT_KEY')).visit(lc1)
     assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
 
+    # cleanup environment variables
+    if 'NONEXISTENT_KEY' in os.environ:
+        del os.environ['NONEXISTENT_KEY']
+
 
 def test_unset_nonexistent_key():
     """Test that the UnsetEnvironmentVariable class doesn't raise an exception."""
