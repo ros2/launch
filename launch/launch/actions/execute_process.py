@@ -167,9 +167,10 @@ class ExecuteProcess(Action):
             called 'launch-prefix'
         :param: output configuration for process output logging. Defaults to 'log'
             i.e. log both stdout and stderr to launch main log file and stderr to
-            the screen. Overridden externally by the OVERRIDE_LAUNCH_PROCESS_OUTPUT
-            envvar value. See `launch.logging.get_output_loggers()` documentation
-            for further reference on all available options.
+            the screen.
+            Overridden externally by the OVERRIDE_LAUNCH_PROCESS_OUTPUT envvar value.
+            See `launch.logging.get_output_loggers()` documentation for further
+            reference on all available options.
         :param: output_format for logging each output line, supporting `str.format()`
             substitutions with the following keys in scope: `line` to reference the raw
             output line and `this` to reference this action instance.
