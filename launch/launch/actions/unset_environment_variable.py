@@ -45,8 +45,7 @@ class UnsetEnvironmentVariable(Action):
 
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
-        name = perform_substitutions(
-            context, self.name)
+        name = perform_substitutions(context, self.name)
         if name in os.environ:
             del os.environ[name]
         return None

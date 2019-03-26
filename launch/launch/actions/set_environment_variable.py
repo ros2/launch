@@ -51,5 +51,6 @@ class SetEnvironmentVariable(Action):
 
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
-        os.environ[perform_substitutions(context, self.name)] = perform_substitutions(context, self.value)
+        os.environ[perform_substitutions(
+            context, self.name)] = perform_substitutions(context, self.value)
         return None
