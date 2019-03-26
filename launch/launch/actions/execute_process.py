@@ -165,10 +165,11 @@ class ExecuteProcess(Action):
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'
-        :param: output configuration for process output logging. Default is 'log' i.e.
-            log both stdout and stderr to launch main log file and stderr to the screen.
-            See `launch.logging.get_output_loggers()` documentation for further reference
-            on all available options.
+        :param: output configuration for process output logging. Defaults to 'log'
+            i.e. log both stdout and stderr to launch main log file and stderr to
+            the screen. Overridden externally by the $OVERRIDE_LAUNCH_PROCESS_OUTPUT
+            envvar value. See `launch.logging.get_output_loggers()` documentation
+            for further reference on all available options.
         :param: output_format for logging each output line, supporting `str.format()`
             substitutions with the following keys in scope: `line` to reference the raw
             output line and `this` to reference this action instance.
@@ -194,7 +195,7 @@ class ExecuteProcess(Action):
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
-        self.__output = output
+        self.__output = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
         self.__output_format = output_format
 
         self.__log_cmd = log_cmd
