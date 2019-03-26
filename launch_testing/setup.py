@@ -29,8 +29,8 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    description='Test the output of a process.',
-    long_description='ROS launch testing suite.',
+    description='Create tests which involve launch files and multiple processes.',
+    long_description='A package to create tests which involve launch files and multiple processes.',
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
 )

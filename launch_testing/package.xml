@@ -3,9 +3,9 @@
 <package format="2">
   <name>launch_testing</name>
   <version>0.8.0</version>
-  <description>ROS launch testing suite.</description>
-  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <description>A package to create tests which involve launch files and multiple processes.</description>
   <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
+  <author email="pete.baughman@apex.ai">Pete Baughman</author>
   <license>Apache License 2.0</license>
 
   <exec_depend>launch</exec_depend>
