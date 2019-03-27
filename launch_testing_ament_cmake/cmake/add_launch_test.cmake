@@ -88,13 +88,13 @@ function(add_launch_test file)
   string(REPLACE "/" "_" testname ${testname})
   set(result_file "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${testname}.xunit.xml")
 
-  find_program(launchtest_BIN NAMES "launchtest")
-  if(NOT launchtest_BIN)
-    message(FATAL_ERROR "add_launch_test cmake could not find launchtest script")
+  find_program(launch_test_BIN NAMES "launch_test")
+  if(NOT launch_test_BIN)
+    message(FATAL_ERROR "add_launch_test cmake could not find launch_test script")
   endif()
 
   set(cmd
-    "${launchtest_BIN}"
+    "${launch_test_BIN}"
     "${_file_name}"
     "${_add_launch_test_ARGS}"
     "--junit-xml=${result_file}"
@@ -103,7 +103,7 @@ function(add_launch_test file)
   ament_add_test(
     "${testname}"
     COMMAND ${cmd}
-    OUTPUT_FILE "${CMAKE_BINARY_DIR}/launchtest/CHANGEME.txt"
+    OUTPUT_FILE "${CMAKE_BINARY_DIR}/launch_test/CHANGEME.txt"
     RESULT_FILE "${result_file}"
     TIMEOUT "${_add_launch_test_TIMEOUT}"
     ${_ARG_UNPARSED_ARGUMENTS}

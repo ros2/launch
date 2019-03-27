@@ -36,7 +36,7 @@ testdata = glob.glob(
 @pytest.mark.parametrize('example_path', testdata, ids=[os.path.basename(d) for d in testdata])
 def test_examples(example_path):
 
-    proc = ['launchtest', example_path]
+    proc = ['launch_test', example_path]
 
     # The args.test.py example is a little special - it is required to run with args
     # or else it will fail.  Hopefully this is the only example we need to special-case

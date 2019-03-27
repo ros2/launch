@@ -12,7 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages', ['resource/launch_testing']),
         ('lib/launch_testing', glob.glob('example_processes/**')),
         ('share/launch_testing/examples', glob.glob('examples/[!_]**')),
-        ('bin', ['scripts/launchtest']),
+        ('bin', ['scripts/launch_test']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

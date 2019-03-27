@@ -30,7 +30,7 @@ def test_print_args():
 
     completed_process = subprocess.run(
         args=[
-            'launchtest',
+            'launch_test',
             testpath,
             '--show-args',
         ],
@@ -54,7 +54,7 @@ def test_no_args_to_print():
 
     completed_process = subprocess.run(
         args=[
-            'launchtest',
+            'launch_test',
             testpath,
             '--show-args',
         ],

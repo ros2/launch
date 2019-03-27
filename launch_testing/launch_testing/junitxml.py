@@ -16,14 +16,14 @@
 import xml.etree.ElementTree as ET
 
 
-def unittestResultsToXml(*, name='launchtest', test_results={}):
+def unittestResultsToXml(*, name='launch_test', test_results={}):
     """
     Serialize multiple unittest.TestResult objects into an XML document.
 
     A testSuites element will be the root element of the document.
     """
     # The test_suites element is the top level of the XML result.
-    # launchtest results contain two test suites - one from tests that ran while processes
+    # launch_test results contain two test suites - one from tests that ran while processes
     # were active, and one from tests that ran after processes were shut down
     test_suites = ET.Element('testsuites')
     test_suites.set('name', name)
@@ -78,7 +78,7 @@ def unittestCaseToXml(test_result, test_case):
     <testcase name="test_1" time="1.05"/>
 
     Note - an ordinary unittest.TestResult does not record time information.  The TestResult
-    class needs to be an launchtest TestResult class
+    class needs to be a launch_testing.TestResult class
     """
     case_xml = ET.Element('testcase')
     case_xml.set('name', type(test_case).__name__ + '.' + test_case._testMethodName)

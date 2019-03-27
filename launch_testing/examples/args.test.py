@@ -44,7 +44,7 @@ def generate_test_description(ready_fn):
     return launch.LaunchDescription([
 
         # This argument can be passed into the test, and can be discovered by running
-        # launchtest --show-args
+        # launch_test --show-args
         launch.actions.DeclareLaunchArgument(
             'dut_arg',
             default_value=['default'],
@@ -54,7 +54,7 @@ def generate_test_description(ready_fn):
         dut_process,
 
         # In tests where all of the procs under tests terminate themselves, it's necessary
-        # to add a dummy process not under test to keep the launch alive. launchtest
+        # to add a dummy process not under test to keep the launch alive. launch_test
         # provides a simple launch action that does this:
         launch_testing.util.KeepAliveProc(),
 
@@ -75,7 +75,7 @@ class TestProcessOutput(unittest.TestCase):
         self.assertNotIn(
             'default',
             dut_process.process_details['cmd'],
-            'Try running: launchtest test_with_args.test.py dut_arg:=arg'
+            'Try running: launch_test test_with_args.test.py dut_arg:=arg'
         )
 
     def test_arg_printed_in_output(self):

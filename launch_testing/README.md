@@ -14,9 +14,12 @@ Designed to work with [ros2 crystal](https://index.ros.org/doc/ros2/Installation
 
 ## Quick start example
 Start with the launch_testing example [good_proc.test.py](examples/good_proc.test.py).  Run the example by doing
->launchtest launch_testing/examples/good_proc.test.py
 
-launchtest will launch the nodes found in the `generate_test_description` function, run the tests from the `TestGoodProcess` class, shut down the launched nodes, and then run the tests from the `TestNodeOutput` class.
+```sh
+launch_test launch_testing/examples/good_proc.test.py
+```
+
+`launch_test` will launch the nodes found in the `generate_test_description` function, run the tests from the `TestGoodProcess` class, shut down the launched nodes, and then run the tests from the `TestNodeOutput` class.
 
 #### The Launch Description
 ```python
@@ -101,14 +104,15 @@ The ActiveTests can also call methods that wait for particular output or a parti
   - timeout:  The amount of time to wait before raising an AssertionError
 
 ## Arguments
-launchtest uses the same [syntax as ros2 launch](https://github.com/ros2/launch/pull/123) to pass arguments to tests.
+`launch_test` uses the same [syntax as ros2 launch](https://github.com/ros2/launch/pull/123) to pass arguments to tests.
 
 Arguments are declared in the launch description and can be accessed by the test vi a test_args dictionary that's injected into the tests similar to `proc_info` and `proc_output`.
 
 See the [launch_testing example with arguments](examples/args.test.py)
-```
->launchtest --show-args examples/args.test.py
->launchtest examples/args.test.py dut_arg:=value
+
+```sh
+launch_test --show-args examples/args.test.py
+launch_test examples/args.test.py dut_arg:=value
 ```
 
 ## Using CMake

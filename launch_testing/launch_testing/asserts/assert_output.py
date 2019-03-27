@@ -24,7 +24,7 @@ def assertInStdout(proc_output,
     """
     Assert that 'msg' was found in the standard out of a process.
 
-    :param proc_output: The process output captured by launchtest.  This is usually injected
+    :param proc_output: The process output captured by launch_test.  This is usually injected
     into test cases as self._proc_output
     :type proc_output: An launch_testing.IoHandler
 
