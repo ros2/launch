@@ -52,6 +52,8 @@
 #
 # :param file: The launch test file containing the test to run
 # :type file: string
+# :param TARGET: The test target name
+# :type TARGET: string
 # :param TIMEOUT: The test timeout in seconds
 # :type TIMEOUT: integer
 # :param ARGS: Launch arguments to pass to the launch test
@@ -60,7 +62,7 @@ function(add_launch_test file)
 
   cmake_parse_arguments(_add_launch_test
     ""
-    "TIMEOUT"
+    "TARGET;TIMEOUT"
     "ARGS"
     ${ARGN})
 
@@ -81,12 +83,15 @@ function(add_launch_test file)
     endif()
   endif()
 
-  # strip PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR from absolute filename to get unique test name (as rostest does it internally)
-  set(testname ${_file_name})
-  rostest__strip_prefix(testname "${PROJECT_SOURCE_DIR}/")
-  rostest__strip_prefix(testname "${PROJECT_BINARY_DIR}/")
-  string(REPLACE "/" "_" testname ${testname})
-  set(result_file "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${testname}.xunit.xml")
+  if (NOT _add_launch_test_TARGET)
+    # strip PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR from absolute filename to get unique test name (as rostest does it internally)
+    set(_add_launch_test_TARGET ${_file_name})
+    rostest__strip_prefix(_add_launch_test_TARGET "${PROJECT_SOURCE_DIR}/")
+    rostest__strip_prefix(_add_launch_test_TARGET "${PROJECT_BINARY_DIR}/")
+    string(REPLACE "/" "_" _add_launch_test_TARGET ${_add_launch_test_TARGET})
+  endif()
+
+  set(result_file "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${_add_launch_test_TARGET}.xunit.xml")
 
   find_program(launch_test_BIN NAMES "launch_test")
   if(NOT launch_test_BIN)
@@ -98,15 +103,15 @@ function(add_launch_test file)
     "${_file_name}"
     "${_add_launch_test_ARGS}"
     "--junit-xml=${result_file}"
-    ${ARGN}
   )
+
   ament_add_test(
-    "${testname}"
+    "${_add_launch_test_TARGET}"
     COMMAND ${cmd}
     OUTPUT_FILE "${CMAKE_BINARY_DIR}/launch_test/CHANGEME.txt"
     RESULT_FILE "${result_file}"
     TIMEOUT "${_add_launch_test_TIMEOUT}"
-    ${_ARG_UNPARSED_ARGUMENTS}
+    ${_add_launch_test_UNPARSED_ARGUMENTS}
   )
 
 endfunction()

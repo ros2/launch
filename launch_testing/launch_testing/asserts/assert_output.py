@@ -15,21 +15,56 @@
 from ..util import resolveProcesses
 
 
+def get_matching_function(expected_output):
+    if isinstance(expected_output, (list, tuple)):
+        if len(expected_output) > 0:
+            if isinstance(expected_output[0], str):
+                def _match(expected, actual):
+                    start = 0
+                    for pattern in expected:
+                        start = actual.find(pattern, start)
+                        if start < 0:
+                            return False
+                        start += len(pattern)
+                    return True
+                return _match
+            if hasattr(expected_output[0], 'search'):
+                def _match(expected, actual):
+                    start = 0
+                    actual = '\n'.join(actual.splitlines())
+                    for pattern in expected:
+                        match = pattern.search(actual, start)
+                        if match is None:
+                            return False
+                        start = match.end()
+                    return True
+                return _match
+        raise ValueError('Unknown format for expected output lines')
+    elif isinstance(expected_output, str):
+        return lambda expected, actual: expected in actual
+    elif hasattr(expected_output, 'search'):
+        return lambda expected, actual: (
+            expected.match('\n'.join(actual.splitlines())) is not None
+        )
+    raise ValueError('Unknown format for expected output')
+
+
 def assertInStdout(proc_output,
-                   msg,
+                   expected_output,
                    process,
                    cmd_args=None,
                    *,
+                   output_filter=None,
                    strict_proc_matching=True):
     """
-    Assert that 'msg' was found in the standard out of a process.
+    Assert that 'output' was found in the standard out of a process.
 
     :param proc_output: The process output captured by launch_test.  This is usually injected
     into test cases as self._proc_output
     :type proc_output: An launch_testing.IoHandler
 
-    :param msg: The message to search for
-    :type msg: string
+    :param expected_output: The output to search for
+    :type expected_output: string or regex pattern or list of the aforementioned types
 
     :param process: The process whose output will be searched
     :type process: A string (search by process name) or a launch.actions.ExecuteProcess object
@@ -38,6 +73,9 @@ def assertInStdout(proc_output,
     processes with the same name.  Pass launch_testing.asserts.NO_CMD_ARGS to match a proc without
     command arguments
     :type cmd_args: string
+
+    :param output_filter: Optional. A function to filter output before attempting any assertion.
+    :type output_filter: callable
 
     :param strict_proc_matching: Optional (default True), If proc is a string and the combination
     of proc and cmd_args matches multiple processes, then strict_proc_matching=True will raise
@@ -50,14 +88,17 @@ def assertInStdout(proc_output,
         cmd_args=cmd_args,
         strict_proc_matching=strict_proc_matching
     )
+    if output_filter is not None:
+        if not callable(output_filter):
+            raise ValueError('output_filter is not callable')
+    output_match = get_matching_function(expected_output)
 
     for proc in resolved_procs:  # Nominally just one matching proc
-        for output in proc_output[proc]:
-            if msg in output.text.decode():
-                return
+        full_output = ''.join(output.text.decode() for output in proc_output[proc])
+        if output_filter is not None:
+            full_output = output_filter(full_output)
+        if output_match(expected_output, full_output):
+            break
     else:
         names = ', '.join(sorted(p.process_details['name'] for p in resolved_procs))
-        assert False, "Did not find '{}' in output for any of the matching process {}".format(
-            msg,
-            names
-        )
+        assert False, "Did not find expected output for processes: {}".format(names)

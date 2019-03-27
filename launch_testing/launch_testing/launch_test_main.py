@@ -18,10 +18,11 @@ import logging
 import os
 import sys
 
+from .domain_coordinator import get_coordinated_domain_id
 from .junitxml import unittestResultsToXml
+from .loader import LoadTestsFromPythonModule
 from .print_arguments import print_arguments_of_launch_description
 from .test_runner import LaunchTestRunner
-
 
 _logger_ = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ def launch_test_main():
     logging.basicConfig()
 
     parser = argparse.ArgumentParser(
-        description='ROS launch integration test framework tool'
+        description="Launch integration test framework tool"
     )
 
     parser.add_argument('test_file')
@@ -52,6 +53,11 @@ def launch_test_main():
                         action='store_true',
                         default=False,
                         help='Show arguments that may be given to the test file.')
+
+    parser.add_argument('--disable-ros-isolation',
+                        action='store_true',
+                        default=False,
+                        help='Do not set a ROS_DOMAIN_ID.  Useful for debugging ROS tests')
 
     parser.add_argument(
         'launch_arguments',
@@ -73,6 +79,11 @@ def launch_test_main():
         _logger_.setLevel(logging.DEBUG)
         _logger_.debug('Running with verbose output')
 
+    if not args.disable_ros_isolation:
+        domain_id = get_coordinated_domain_id()  # Must copy this to a local to keep it alive
+        _logger_.debug('Running with ROS_DOMAIN_ID {}'.format(domain_id))
+        os.environ['ROS_DOMAIN_ID'] = str(domain_id)
+
     # Load the test file as a module and make sure it has the required
     # components to run it as a launch test
     _logger_.debug("Loading tests from file '{}'".format(args.test_file))
@@ -89,12 +100,13 @@ def launch_test_main():
             "Test file '{}' is missing generate_test_description function".format(args.test_file)
         )
 
-    dut_test_description_func = test_module.generate_test_description
-    _logger_.debug('Checking generate_test_description function signature')
+    # This is a list of TestRun objects.  Each run corresponds to one launch.  There may be
+    # multiple runs if the launch is parametrized
+    test_runs = LoadTestsFromPythonModule(test_module)
 
+    # The runner handles sequcing the launches
     runner = LaunchTestRunner(
-        gen_launch_description_fn=dut_test_description_func,
-        test_module=test_module,
+        test_runs=test_runs,
         launch_file_arguments=args.launch_arguments,
         debug=args.verbose
     )
@@ -106,30 +118,25 @@ def launch_test_main():
         parser.error(e)
 
     if args.show_args:
+        # TODO pete: Handle the case where different launch descriptions take different args?
         print_arguments_of_launch_description(
-            launch_description=runner.get_launch_description()
+            launch_description=test_runs[0].get_launch_description()
         )
         sys.exit(0)
 
     _logger_.debug('Running integration test')
     try:
-        result, postcheck_result = runner.run()
+        results = runner.run()
         _logger_.debug('Done running integration test')
 
         if args.xmlpath:
-            xml_report = unittestResultsToXml(
-                test_results={
-                    'active_tests': result,
-                    'after_shutdown_tests': postcheck_result
-                }
-            )
+            xml_report = unittestResultsToXml(test_results=results)
             xml_report.write(args.xmlpath, xml_declaration=True)
 
-        if not result.wasSuccessful():
-            sys.exit(1)
-
-        if not postcheck_result.wasSuccessful():
-            sys.exit(1)
+        # There will be one result for every test run (see above where we load the tests)
+        for result in results.values():
+            if not result.wasSuccessful():
+                sys.exit(1)
 
     except Exception as e:
         import traceback
