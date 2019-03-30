@@ -80,9 +80,9 @@ class ExecuteProcess(Action):
         env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         shell: bool = False,
         sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration(
-            'sigterm_timeout', default = 5),
+            'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
-            'sigkill_timeout', default = 5),
+            'sigkill_timeout', default=5),
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Optional[Text] = None,
         log_cmd: bool = False,
