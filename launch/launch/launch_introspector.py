@@ -110,7 +110,7 @@ def format_action(action: Action) -> List[Text]:
             ),
             typed_action.env if typed_action.env is None else '{' + ', '.join(
                 ['{}: {}'.format(format_substitutions(k), format_substitutions(v))
-                 for k, v in typed_action.env.items()]) + '}',
+                 for k, v in typed_action.env]) + '}',
             typed_action.shell,
         )
         return [msg]
