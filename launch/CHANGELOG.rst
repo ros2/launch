@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed a bug with the introspector which occurred when the user set the environment in an ExecuteProcess. (`#222 <https://github.com/ros2/launch/issues/222>`_)
+* Contributors: Daniel Stonier, Shane Loretz, William Woodall
+
 0.7.3 (2018-12-13)
 ------------------
 * Fixed deprecation warning related to collections.abc (`#158 <https://github.com/ros2/launch/pull/158>`_)
