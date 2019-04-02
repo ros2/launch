@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.4 (2019-04-02)
+------------------
 * Fixed a bug with the introspector which occurred when the user set the environment in an ExecuteProcess. (`#222 <https://github.com/ros2/launch/issues/222>`_)
 * Contributors: Daniel Stonier, Shane Loretz, William Woodall
 

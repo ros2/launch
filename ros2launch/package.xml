@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>ros2launch</name>
-  <version>0.7.3</version>
+  <version>0.7.4</version>
   <description>
     The launch command for ROS 2 command line tools.
   </description>
