@@ -14,14 +14,14 @@
 
 """Tests for the LaunchService class."""
 
-import asyncio
-import osrf_pycommon
 import queue
 import threading
 
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.events import ExecutionComplete
+
+import osrf_pycommon
 
 
 def test_launch_service_constructors():
@@ -65,18 +65,24 @@ def test_launch_service_emit_event():
     assert ls._LaunchService__context._event_queue.qsize() == 2
     assert handled_events.qsize() == 0
 
+    # Spin up a background thread for testing purposes.
     def perform_test_sequence():
         # First event (after including description of event handler).
         handled_events.get(block=True, timeout=5.0)
         # Emit and then check for a second event.
         ls.emit_event(MockEvent())
         handled_events.get(block=True, timeout=5.0)
-        # Shutdown (generates a third event) and join the thread.
+        # Shutdown (generates a third event).
         ls.shutdown()
 
-    threading.Thread(target=perform_test_sequence).start()
+    t = threading.Thread(target=perform_test_sequence)
+    t.start()
 
+    # Run the launch service.
     assert ls.run(shutdown_when_idle=False) == 0
+
+    # Join background thread if still running.
+    t.join()
 
     # Check that the shutdown event was handled.
     handled_events.get(block=False)
