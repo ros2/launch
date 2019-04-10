@@ -15,8 +15,8 @@
 from .assert_exit_codes import assertExitCodes
 from .assert_exit_codes import EXIT_OK
 from .assert_exit_codes import EXIT_SIGINT
-from .assert_exit_codes import EXIT_SIGQUIT
 from .assert_exit_codes import EXIT_SIGKILL
+from .assert_exit_codes import EXIT_SIGQUIT
 from .assert_exit_codes import EXIT_SIGSEGV
 from .assert_output import assertInStdout
 from .assert_sequential_output import assertSequentialStdout
@@ -35,7 +35,7 @@ __all__ = [
 
     'EXIT_OK',
     'EXIT_SIGINT',
-    'EXIT_SIGQUIT',
     'EXIT_SIGKILL',
+    'EXIT_SIGQUIT',
     'EXIT_SIGSEGV',
 ]

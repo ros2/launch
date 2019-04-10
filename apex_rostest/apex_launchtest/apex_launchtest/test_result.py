@@ -64,3 +64,13 @@ class TestResult(unittest.TextTestResult):
     def stopTest(self, test):
         self.__test_cases[test]['end'] = time.time()
         super().stopTest(test)
+
+    def append(self, results):
+        self.__test_cases.update(results.__test_cases)
+
+        self.failures += results.failures
+        self.errors += results.errors
+        self.testsRun += results.testsRun
+        self.skipped += results.skipped
+        self.expectedFailures += results.expectedFailures
+        self.unexpectedSuccesses += results.unexpectedSuccesses

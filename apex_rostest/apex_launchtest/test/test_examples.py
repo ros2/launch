@@ -16,9 +16,8 @@ import glob
 import os
 import subprocess
 
-import pytest
-
 import ament_index_python
+import pytest
 
 
 testdata = glob.glob(
@@ -32,7 +31,7 @@ testdata = glob.glob(
 
 # This test will automatically run for any *.test.py file in the examples folder and expect
 # it to pass
-@pytest.mark.parametrize("example_path", testdata, ids=[os.path.basename(d) for d in testdata])
+@pytest.mark.parametrize('example_path', testdata, ids=[os.path.basename(d) for d in testdata])
 def test_examples(example_path):
 
     proc = ['apex_launchtest', example_path]

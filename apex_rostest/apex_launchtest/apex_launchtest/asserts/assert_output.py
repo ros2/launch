@@ -56,7 +56,7 @@ def assertInStdout(proc_output,
             if msg in output.text.decode():
                 return
     else:
-        names = ', '.join(sorted([p.process_details['name'] for p in resolved_procs]))
+        names = ', '.join(sorted(p.process_details['name'] for p in resolved_procs))
         assert False, "Did not find '{}' in output for any of the matching process {}".format(
             msg,
             names

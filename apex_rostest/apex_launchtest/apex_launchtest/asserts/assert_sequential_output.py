@@ -50,7 +50,43 @@ class SequentialTextChecker:
             array_index += 1
             substring_index = 0
 
-        assert False, "{} not found in output".format(msg)
+        assert False, (
+            "'{}' not found in sequence after previous match.  "
+            'The output near the last matched line:\n{}'
+        ).format(
+            msg,
+            self.get_nearby_lines()
+        )
+
+    def get_nearby_lines(self):
+
+        # This works by concatinating a few of the process_io outputs that we received, then
+        # searching forward and backward for two return-lines in each direction, then returning
+        # just that portion to give context about where a failure happened
+
+        start_idx = max(0, self._array_index - 2)
+        end_idx = self._array_index + 4
+
+        full_text = ''.join(self._output[start_idx:end_idx])
+
+        current_absolute_position = self._substring_index
+        for txt in self._output[start_idx:self._array_index]:
+            current_absolute_position += len(txt)
+
+        start_abs_position = current_absolute_position
+        for _ in range(3):
+            start_abs_position = max(full_text.rfind('\n', 0, start_abs_position), 0)
+
+        if start_abs_position != 0:
+            # Complicated, but if the start_abs_position is not zero, it's pointed to a \n
+            # we need to increment by 1 so the leading \n is not in the resulting text
+            start_abs_position += 1
+
+        end_abs_position = current_absolute_position
+        for _ in range(3):
+            end_abs_position = max(full_text.find('\n', end_abs_position + 1), end_abs_position)
+
+        return full_text[start_abs_position:end_abs_position]
 
 
 @contextmanager

@@ -13,13 +13,15 @@
 # limitations under the License.
 
 import argparse
-import logging
 from importlib.machinery import SourceFileLoader
+import logging
 import os
 import sys
 
 from .apex_runner import ApexRunner
+from .domain_coordinator import get_coordinated_domain_id
 from .junitxml import unittestResultsToXml
+from .loader import LoadTestsFromPythonModule
 from .print_arguments import print_arguments_of_launch_description
 
 _logger_ = logging.getLogger(__name__)
@@ -37,20 +39,25 @@ def apex_launchtest_main():
     logging.basicConfig()
 
     parser = argparse.ArgumentParser(
-        description="Integration test framework for Apex AI"
+        description='Integration test framework for Apex AI'
     )
 
     parser.add_argument('test_file')
 
     parser.add_argument('-v', '--verbose',
-                        action="store_true",
+                        action='store_true',
                         default=False,
-                        help="Run with verbose output")
+                        help='Run with verbose output')
 
     parser.add_argument('-s', '--show-args', '--show-arguments',
                         action='store_true',
                         default=False,
                         help='Show arguments that may be given to the test file.')
+
+    parser.add_argument('--disable-ros-isolation',
+                        action='store_true',
+                        default=False,
+                        help='Do not set a ROS_DOMAIN_ID.  Useful for debugging ROS tests')
 
     parser.add_argument(
         'launch_arguments',
@@ -59,18 +66,23 @@ def apex_launchtest_main():
     )
 
     parser.add_argument(
-        "--junit-xml",
-        action="store",
-        dest="xmlpath",
+        '--junit-xml',
+        action='store',
+        dest='xmlpath',
         default=None,
-        help="write junit XML style report to specified path"
+        help='write junit XML style report to specified path'
     )
 
     args = parser.parse_args()
 
     if args.verbose:
         _logger_.setLevel(logging.DEBUG)
-        _logger_.debug("Running with verbose output")
+        _logger_.debug('Running with verbose output')
+
+    if not args.disable_ros_isolation:
+        domain_id = get_coordinated_domain_id()  # Must copy this to a local to keep it alive
+        _logger_.debug('Running with ROS_DOMAIN_ID {}'.format(domain_id))
+        os.environ['ROS_DOMAIN_ID'] = str(domain_id)
 
     # Load the test file as a module and make sure it has the required
     # components to run it as an apex integration test
@@ -82,53 +94,49 @@ def apex_launchtest_main():
     args.test_file = os.path.abspath(args.test_file)
     test_module = _load_python_file_as_module(args.test_file)
 
-    _logger_.debug("Checking for generate_test_description")
+    _logger_.debug('Checking for generate_test_description')
     if not hasattr(test_module, 'generate_test_description'):
         parser.error(
             "Test file '{}' is missing generate_test_description function".format(args.test_file)
         )
 
-    dut_test_description_func = test_module.generate_test_description
-    _logger_.debug("Checking generate_test_description function signature")
+    # This is a list of TestRun objects.  Each run corresponds to one launch.  There may be
+    # multiple runs if the launch is parametrized
+    test_runs = LoadTestsFromPythonModule(test_module)
 
+    # The runner handles sequcing the launches
     runner = ApexRunner(
-        gen_launch_description_fn=dut_test_description_func,
-        test_module=test_module,
+        test_runs=test_runs,
         launch_file_arguments=args.launch_arguments,
         debug=args.verbose
     )
 
-    _logger_.debug("Validating test configuration")
+    _logger_.debug('Validating test configuration')
     try:
         runner.validate()
     except Exception as e:
         parser.error(e)
 
     if args.show_args:
+        # TODO pete: Handle the case where different launch descriptions take different args?
         print_arguments_of_launch_description(
-            launch_description=runner.get_launch_description()
+            launch_description=test_runs[0].get_launch_description()
         )
         sys.exit(0)
 
-    _logger_.debug("Running integration test")
+    _logger_.debug('Running integration test')
     try:
-        result, postcheck_result = runner.run()
-        _logger_.debug("Done running integration test")
+        results = runner.run()
+        _logger_.debug('Done running integration test')
 
         if args.xmlpath:
-            xml_report = unittestResultsToXml(
-                test_results={
-                    "active_tests": result,
-                    "after_shutdown_tests": postcheck_result
-                }
-            )
+            xml_report = unittestResultsToXml(test_results=results)
             xml_report.write(args.xmlpath, xml_declaration=True)
 
-        if not result.wasSuccessful():
-            sys.exit(1)
-
-        if not postcheck_result.wasSuccessful():
-            sys.exit(1)
+        # There will be one result for every test run (see above where we load the tests)
+        for result in results.values():
+            if not result.wasSuccessful():
+                sys.exit(1)
 
     except Exception as e:
         import traceback

@@ -16,11 +16,10 @@ import os
 import unittest
 
 import ament_index_python
-import launch
-import launch.actions
-
 import apex_launchtest
 from apex_launchtest.asserts import assertSequentialStdout
+import launch
+import launch.actions
 
 
 TEST_PROC_PATH = os.path.join(
@@ -31,7 +30,7 @@ TEST_PROC_PATH = os.path.join(
 
 # This is necessary to get unbuffered output from the process under test
 proc_env = os.environ.copy()
-proc_env["PYTHONUNBUFFERED"] = "1"
+proc_env['PYTHONUNBUFFERED'] = '1'
 
 dut_process = launch.actions.ExecuteProcess(
     cmd=[TEST_PROC_PATH],
@@ -56,10 +55,10 @@ class TestGoodProcess(unittest.TestCase):
     def test_count_to_four(self):
         # This will match stdout from any process.  In this example there is only one process
         # running
-        self.proc_output.assertWaitFor("Loop 1", timeout=10)
-        self.proc_output.assertWaitFor("Loop 2", timeout=10)
-        self.proc_output.assertWaitFor("Loop 3", timeout=10)
-        self.proc_output.assertWaitFor("Loop 4", timeout=10)
+        self.proc_output.assertWaitFor('Loop 1', timeout=10)
+        self.proc_output.assertWaitFor('Loop 2', timeout=10)
+        self.proc_output.assertWaitFor('Loop 3', timeout=10)
+        self.proc_output.assertWaitFor('Loop 4', timeout=10)
 
 
 @apex_launchtest.post_shutdown_test()
@@ -74,16 +73,16 @@ class TestProcessOutput(unittest.TestCase):
         # Using the SequentialStdout context manager asserts that the following stdout
         # happened in the same order that it's checked
         with assertSequentialStdout(self.proc_output, dut_process) as cm:
-            cm.assertInStdout("Starting Up")
+            cm.assertInStdout('Starting Up')
             for n in range(4):
-                cm.assertInStdout("Loop {}".format(n))
-            cm.assertInStdout("Shutting Down")
+                cm.assertInStdout('Loop {}'.format(n))
+            cm.assertInStdout('Shutting Down')
 
     def test_out_of_order(self):
         # This demonstrates that we notice out-of-order IO
-        with self.assertRaisesRegexp(AssertionError, "Loop 2 not found"):
+        with self.assertRaisesRegexp(AssertionError, "'Loop 2' not found"):
 
             with assertSequentialStdout(self.proc_output, dut_process) as cm:
-                cm.assertInStdout("Loop 1")
-                cm.assertInStdout("Loop 3")
-                cm.assertInStdout("Loop 2")  # This should raise
+                cm.assertInStdout('Loop 1')
+                cm.assertInStdout('Loop 3')
+                cm.assertInStdout('Loop 2')  # This should raise

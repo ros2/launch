@@ -47,9 +47,7 @@ class IoHandler:
 
         :returns [launch.actions.ExecuteProcess]:
         """
-        return list(
-            [val[0].action for val in self._process_name_dict.values()]
-        )
+        return [val[0].action for val in self._process_name_dict.values()]
 
     def process_names(self):
         """

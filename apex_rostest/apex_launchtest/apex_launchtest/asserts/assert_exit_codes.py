@@ -35,7 +35,7 @@ def assertExitCodes(proc_info,
     """
     # Sanity check that the user didn't pass in something crazy for allowable exit codes
     for code in allowable_exit_codes:
-        assert isinstance(code, int), "Provided exit code {} is not an int".format(code)
+        assert isinstance(code, int), 'Provided exit code {} is not an int'.format(code)
 
     to_check = resolveProcesses(
         info_obj=proc_info,
@@ -45,7 +45,7 @@ def assertExitCodes(proc_info,
     )
 
     for info in [proc_info[item] for item in to_check]:
-        assert info.returncode in allowable_exit_codes, "Proc {} exited with code {}".format(
+        assert info.returncode in allowable_exit_codes, 'Proc {} exited with code {}'.format(
             info.process_name,
             info.returncode
         )
