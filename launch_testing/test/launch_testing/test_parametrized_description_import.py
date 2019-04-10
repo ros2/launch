@@ -15,8 +15,8 @@
 import types
 import unittest
 
-import apex_launchtest
-from apex_launchtest.loader import LoadTestsFromPythonModule
+import launch_testing
+from launch_testing.loader import LoadTestsFromPythonModule
 
 
 class TestModuleImport(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestModuleImport(unittest.TestCase):
             def test_2(self):
                 pass  # pragma: no cover
 
-        @apex_launchtest.post_shutdown_test()
+        @launch_testing.post_shutdown_test()
         class FakePostShutdownTests(unittest.TestCase):
 
             def test_3(self):
@@ -56,7 +56,7 @@ class TestModuleImport(unittest.TestCase):
 
     def test_parametrized_test_description(self):
 
-        @apex_launchtest.parametrize('arg_1', [1, 2, 3, 4, 5])
+        @launch_testing.parametrize('arg_1', [1, 2, 3, 4, 5])
         def generate_test_description(ready_func, arg_1):
             pass  # pragma: no cover
 

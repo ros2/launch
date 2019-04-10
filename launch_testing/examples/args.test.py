@@ -16,8 +16,8 @@ import os
 import unittest
 
 import ament_index_python
-import apex_launchtest
-import apex_launchtest.util
+import launch_testing
+import launch_testing.util
 import launch
 import launch.actions
 import launch.substitutions

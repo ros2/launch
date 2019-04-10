@@ -16,20 +16,20 @@ import os
 import unittest
 
 import ament_index_python
-import apex_launchtest
-import apex_launchtest.util
+import launch_testing
+import launch_testing.util
 import launch
 import launch.actions
 
 
-@apex_launchtest.parametrize('arg_param', ['thing=On', 'thing=Off', 'flag1'])
+@launch_testing.parametrize('arg_param', ['thing=On', 'thing=Off', 'flag1'])
 def generate_test_description(arg_param, ready_fn):
 
     terminating_process = launch.actions.ExecuteProcess(
         cmd=[
             os.path.join(
-                ament_index_python.get_package_prefix('apex_launchtest'),
-                'lib/apex_launchtest',
+                ament_index_python.get_package_prefix('launch_testing'),
+                'lib/launch_testing',
                 'terminating_proc',
             ),
             # Use the parameter passed to generate_test_description as an argument
@@ -41,7 +41,7 @@ def generate_test_description(arg_param, ready_fn):
     return (
         launch.LaunchDescription([
             terminating_process,
-            apex_launchtest.util.KeepAliveProc(),
+            launch_testing.util.KeepAliveProc(),
             launch.actions.OpaqueFunction(function=lambda context: ready_fn())
         ]),
         {'dut_process': terminating_process}

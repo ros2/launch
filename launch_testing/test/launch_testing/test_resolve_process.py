@@ -14,8 +14,8 @@
 
 import unittest
 
-import apex_launchtest
-import apex_launchtest.util
+import launch_testing
+import launch_testing.util
 import launch.actions
 import launch.substitutions
 
@@ -25,7 +25,7 @@ class TestResolveProcess(unittest.TestCase):
     def test_unlaunched_process_lookup(self):
         # Regression test for https://github.com/ApexAI/apex_rostest/issues/35
 
-        info_obj = apex_launchtest.ProcInfoHandler()
+        info_obj = launch_testing.ProcInfoHandler()
 
         lookup_obj = launch.actions.ExecuteProcess(
             cmd=[
@@ -35,8 +35,8 @@ class TestResolveProcess(unittest.TestCase):
             ]
         )
 
-        with self.assertRaises(apex_launchtest.util.NoMatchingProcessException) as cm:
-            apex_launchtest.util.resolveProcesses(
+        with self.assertRaises(launch_testing.util.NoMatchingProcessException) as cm:
+            launch_testing.util.resolveProcesses(
                 info_obj,
                 process=lookup_obj
             )
@@ -46,7 +46,7 @@ class TestResolveProcess(unittest.TestCase):
         self.assertIn('python -c', str(cm.exception))
 
     def test_unlaunched_process_lookup_with_substitutions(self):
-        info_obj = apex_launchtest.ProcInfoHandler()
+        info_obj = launch_testing.ProcInfoHandler()
 
         lookup_obj = launch.actions.ExecuteProcess(
             cmd=[
@@ -57,8 +57,8 @@ class TestResolveProcess(unittest.TestCase):
             ]
         )
 
-        with self.assertRaises(apex_launchtest.util.NoMatchingProcessException) as cm:
-            apex_launchtest.util.resolveProcesses(
+        with self.assertRaises(launch_testing.util.NoMatchingProcessException) as cm:
+            launch_testing.util.resolveProcesses(
                 info_obj,
                 process=lookup_obj
             )

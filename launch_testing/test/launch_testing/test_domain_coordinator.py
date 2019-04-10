@@ -14,8 +14,8 @@
 
 import unittest
 
-import apex_launchtest.domain_coordinator
-from apex_launchtest.domain_coordinator import get_coordinated_domain_id
+import launch_testing.domain_coordinator
+from launch_testing.domain_coordinator import get_coordinated_domain_id
 
 
 class TestUniqueness(unittest.TestCase):
@@ -39,14 +39,14 @@ class TestUniqueness(unittest.TestCase):
 
     def test_with_forced_collision(self):
 
-        domain = apex_launchtest.domain_coordinator.get_coordinated_domain_id(
+        domain = launch_testing.domain_coordinator.get_coordinated_domain_id(
             selector=lambda: 42  # Force it to select '42' as the domain every time it tries
         )
         self.assertEqual('42', str(domain))
 
         # Now that we've already got domain 42 reserved, this call should fail:
         with self.assertRaises(Exception) as cm:
-            apex_launchtest.domain_coordinator.get_coordinated_domain_id(
+            launch_testing.domain_coordinator.get_coordinated_domain_id(
                 selector=lambda: 42
             )
 
@@ -76,7 +76,7 @@ class TestUniqueness(unittest.TestCase):
 class TestSelector(unittest.TestCase):
 
     def test_selector_values_between_1_and_100(self):
-        selector = apex_launchtest.domain_coordinator._default_selector()
+        selector = launch_testing.domain_coordinator._default_selector()
 
         for n in range(200):
             val = selector()
@@ -84,7 +84,7 @@ class TestSelector(unittest.TestCase):
             self.assertLessEqual(val, 100)
 
     def test_selector_values_are_unique(self):
-        selector = apex_launchtest.domain_coordinator._default_selector()
+        selector = launch_testing.domain_coordinator._default_selector()
 
         # The default sequencer should produce 100 unique values before it starts to repeat.
         seen_values = [selector() for _ in range(100)]

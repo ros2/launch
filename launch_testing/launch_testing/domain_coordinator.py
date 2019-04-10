@@ -15,8 +15,8 @@
 import random
 import socket
 
-# To coordinate ROS_DOMAIN_IDs between multiple instances of apex_launchtest, we
-# open a high numbered port "PORT_BASE + ROS_DOMAIN_ID"  If apex_launchtest manages to
+# To coordinate ROS_DOMAIN_IDs between multiple instances of launch_test, we
+# open a high numbered port "PORT_BASE + ROS_DOMAIN_ID"  If launch_test manages to
 # open the port, it can use that ROS_DOMAIN_ID for the duration of the test run
 _PORT_BASE = 22119  # I picked this randomly as a high port that probably won't be in use
 
@@ -48,8 +48,8 @@ def get_coordinated_domain_id(*, selector=None):
     """
     Get a ROS_DOMAIN_ID from 1 to 100 that will not conflict with other ROS_DOMAIN_IDs.
 
-    Other instances of apex_launchtest will use this same function to generate ROS_DOMAIN_IDs
-    so that no two runs of apex_launchtest on the same system should conflict with one-another
+    Other instances of launch_test will use this same function to generate ROS_DOMAIN_IDs
+    so that no two runs of launch_test on the same system should conflict with one-another
     by default.  This is similar to the ROS1 rostest behavior of putting the ROS master
     on a unique port
     """

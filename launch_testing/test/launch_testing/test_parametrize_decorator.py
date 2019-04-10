@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import apex_launchtest
+import launch_testing
 
 
 def test_parametrize_attribute():
 
-    @apex_launchtest.parametrize('val', [1, 2, 3])
+    @launch_testing.parametrize('val', [1, 2, 3])
     def fake_test_description(arg):
         pass  # pragma: no cover
 
@@ -28,7 +28,7 @@ def test_binding_arguments():
 
     results = []
 
-    @apex_launchtest.parametrize('val', [1, 2, 3])
+    @launch_testing.parametrize('val', [1, 2, 3])
     def fake_test_description(val):
         results.append(val)
 
@@ -42,7 +42,7 @@ def test_binding_one_tuples():
 
     results = []
 
-    @apex_launchtest.parametrize('val', [(1,), (2,), (3,)])
+    @launch_testing.parametrize('val', [(1,), (2,), (3,)])
     def fake_test_description(val):
         results.append(val)
 
@@ -56,7 +56,7 @@ def test_partial_binding():
 
     results = []
 
-    @apex_launchtest.parametrize('val', ['x', 'y', 'z'])
+    @launch_testing.parametrize('val', ['x', 'y', 'z'])
     def fake_test_description(val, arg):
         results.append((val, arg))
 
@@ -70,7 +70,7 @@ def test_multiple_args():
 
     results = []
 
-    @apex_launchtest.parametrize('arg_1, arg_2', [(5, 10), (15, 20), (25, 30)])
+    @launch_testing.parametrize('arg_1, arg_2', [(5, 10), (15, 20), (25, 30)])
     def fake_test_description(arg_1, arg_2):
         results.append((arg_1, arg_2))
 
