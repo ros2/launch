@@ -101,4 +101,6 @@ def assertInStdout(proc_output,
             break
     else:
         names = ', '.join(sorted(p.process_details['name'] for p in resolved_procs))
-        assert False, "Did not find expected output for processes: {}".format(names)
+        assert False, "Did not find '{}' in output for any of the matching processes: {}".format(
+            expected_output, names
+        )

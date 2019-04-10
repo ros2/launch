@@ -173,4 +173,4 @@ class ActiveIoHandler(IoHandler):
                     )
                 )
 
-        assert success, "Waiting for output timed out"
+        assert success, 'Waiting for output timed out'

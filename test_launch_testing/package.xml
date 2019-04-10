@@ -5,9 +5,10 @@
   <version>0.7.3</version>
   <description>Tests for the launch_testing package.</description>
   <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
+  <license>Apache License 2.0</license>
+
   <author email="ivanpauno@ekumenlabs.com">Ivan Paunovic</author>
   <author email="michel@ekumenlabs.com">Michel Hidalgo</author>
-  <license>Apache License 2.0</license>
 
   <build_depend>ament_cmake</build_depend>
   <build_depend>ament_cmake_python</build_depend>

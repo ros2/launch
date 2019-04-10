@@ -17,7 +17,6 @@ import os
 import subprocess
 
 import ament_index_python
-import pytest
 
 import pytest
 

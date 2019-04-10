@@ -16,10 +16,11 @@ import os
 import unittest
 
 import ament_index_python
-import launch_testing
-import launch_testing.util
+
 import launch
 import launch.actions
+import launch_testing
+import launch_testing.util
 
 
 @launch_testing.parametrize('arg_param', ['thing=On', 'thing=Off', 'flag1'])

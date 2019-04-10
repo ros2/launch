@@ -14,10 +14,10 @@
 
 import unittest
 
-import launch_testing
-import launch_testing.util
 import launch.actions
 import launch.substitutions
+import launch_testing
+import launch_testing.util
 
 
 class TestResolveProcess(unittest.TestCase):

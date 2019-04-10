@@ -39,7 +39,7 @@ def launch_test_main():
     logging.basicConfig()
 
     parser = argparse.ArgumentParser(
-        description="Launch integration test framework tool"
+        description='Launch integration testing tool'
     )
 
     parser.add_argument('test_file')

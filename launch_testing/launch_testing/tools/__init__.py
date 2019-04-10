@@ -13,7 +13,9 @@
 # limitations under the License.
 
 from .output import basic_output_filter
+from .output import expected_output_from_file
 
 __all__ = [
-    'basic_output_filter'
+    'basic_output_filter',
+    'expected_output_from_file',
 ]
