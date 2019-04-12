@@ -54,6 +54,8 @@
 # :type file: string
 # :param TARGET: The test target name
 # :type TARGET: string
+# :param PYTHON_EXECUTABLE: The python executable to use for the test
+# :type PYTHON_EXECUTABLE: string
 # :param TIMEOUT: The test timeout in seconds
 # :type TIMEOUT: integer
 # :param ARGS: Launch arguments to pass to the launch test
@@ -62,7 +64,7 @@ function(add_launch_test file)
 
   cmake_parse_arguments(_add_launch_test
     ""
-    "TARGET;TIMEOUT"
+    "TARGET;TIMEOUT;PYTHON_EXECUTABLE"
     "ARGS"
     ${ARGN})
 
@@ -99,6 +101,7 @@ function(add_launch_test file)
   endif()
 
   set(cmd
+    "${_add_launch_test_PHYTHON_EXECUTABLE}"
     "${launch_test_BIN}"
     "${_file_name}"
     "${_add_launch_test_ARGS}"
