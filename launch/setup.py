@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='launch',
-    version='0.7.3',
+    version='0.8.0',
     packages=find_packages(exclude=['test']),
     install_requires=['setuptools'],
     zip_safe=True,

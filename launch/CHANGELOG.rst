@@ -2,6 +2,29 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.0 (2019-04-13)
+------------------
+* Added SetEnvironmentVariable and UnsetEnvironmentVariable actions `#164 <https://github.com/ros2/launch/issues/164>`_ (`#216 <https://github.com/ros2/launch/issues/216>`_)
+* Used one sentence per line in docs. (`#219 <https://github.com/ros2/launch/issues/219>`_)
+* Added support for external ExecuteProcess output overrides. (`#218 <https://github.com/ros2/launch/issues/218>`_)
+* Logged the launch logging config before running. (`#217 <https://github.com/ros2/launch/issues/217>`_)
+* Fixed treating stderr output separate from stdout. (`#212 <https://github.com/ros2/launch/issues/212>`_)
+* Replaced characters with marker when there is a decoding error. (`#202 <https://github.com/ros2/launch/issues/202>`_)
+* Added LaunchLogger class. (`#145 <https://github.com/ros2/launch/issues/145>`_)
+* Added test actions. (`#178 <https://github.com/ros2/launch/issues/178>`_)
+* Fixed to close subprocess transport on execute action cleanup. (`#198 <https://github.com/ros2/launch/issues/198>`_)
+* Updated logger.warn (deprecated) to logger.warning. (`#199 <https://github.com/ros2/launch/issues/199>`_)
+* Dropped legacy launch package. (`#191 <https://github.com/ros2/launch/issues/191>`_)
+* Migrated legacy launch API tests. (`#167 <https://github.com/ros2/launch/issues/167>`_)
+* Updated to cancel Timers on shutdown. (`#181 <https://github.com/ros2/launch/issues/181>`_)
+* Fixed timer global init of event handler. (`#184 <https://github.com/ros2/launch/issues/184>`_)
+* Added support for required nodes (`#179 <https://github.com/ros2/launch/issues/179>`_)
+* Updated to ensure event handlers add event to context locals. (`#177 <https://github.com/ros2/launch/issues/177>`_)
+* Added OnProcessStart event handler. (`#171 <https://github.com/ros2/launch/issues/171>`_)
+* Corrected OnProcessExit typing for Callable. (`#170 <https://github.com/ros2/launch/issues/170>`_)
+* Removed whitespace in keyword arg. (`#169 <https://github.com/ros2/launch/issues/169>`_)
+* Contributors: Dirk Thomas, Jacob Perron, Kyle Fazzari, Michel Hidalgo, Peter Baughman, Shane Loretz, William Woodall, ivanpauno, oswinso
+
 0.7.3 (2018-12-13)
 ------------------
 * Fixed deprecation warning related to collections.abc (`#158 <https://github.com/ros2/launch/pull/158>`_)

@@ -2,6 +2,14 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.0 (2019-04-13)
+------------------
+* Added test actions. (`#178 <https://github.com/ros2/launch/issues/178>`_)
+* Fixed test_env_testing test (`#200 <https://github.com/ros2/launch/issues/200>`_)
+* Dropped legacy launch package. (`#191 <https://github.com/ros2/launch/issues/191>`_)
+* Migrated legacy launch API tests. (`#167 <https://github.com/ros2/launch/issues/167>`_)
+* Contributors: Dirk Thomas, Michel Hidalgo, ivanpauno
+
 0.7.3 (2018-12-13)
 ------------------
 
