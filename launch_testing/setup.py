@@ -12,8 +12,10 @@ setup(
         ('share/ament_index/resource_index/packages', ['resource/launch_testing']),
         ('lib/launch_testing', glob.glob('example_processes/**')),
         ('share/launch_testing/examples', glob.glob('examples/[!_]**')),
-        ('bin', ['scripts/launch_test']),
     ],
+    entry_points={
+        'console_scripts': ['launch_test=launch_testing.launch_test:main']
+    },
     install_requires=['setuptools'],
     zip_safe=True,
     author='Pete Baughman',

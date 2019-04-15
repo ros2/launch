@@ -72,6 +72,10 @@ function(add_launch_test file)
     set(_add_launch_test_TIMEOUT 60)
   endif()
 
+  if(NOT _add_launch_test_PYTHON_EXECUTABLE)
+    set(_add_launch_test_PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}")
+  endif()
+
   set(_file_name _file_name-NOTFOUND)
   if(IS_ABSOLUTE ${file})
     set(_file_name ${file})
@@ -95,14 +99,9 @@ function(add_launch_test file)
 
   set(result_file "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${_add_launch_test_TARGET}.xunit.xml")
 
-  find_program(launch_test_BIN NAMES "launch_test")
-  if(NOT launch_test_BIN)
-    message(FATAL_ERROR "add_launch_test cmake could not find launch_test script")
-  endif()
-
   set(cmd
-    "${_add_launch_test_PHYTHON_EXECUTABLE}"
-    "${launch_test_BIN}"
+    "${_add_launch_test_PYTHON_EXECUTABLE}"
+    "-m launch_testing.launch_test"
     "${_file_name}"
     "${_add_launch_test_ARGS}"
     "--junit-xml=${result_file}"

@@ -34,7 +34,7 @@ def _load_python_file_as_module(python_file_path):
     return loader.load_module()
 
 
-def launch_test_main():
+def main():
 
     logging.basicConfig()
 
@@ -142,3 +142,7 @@ def launch_test_main():
         import traceback
         traceback.print_exc()
         parser.error(e)
+
+
+if __name__ == '__main__':
+    main()
