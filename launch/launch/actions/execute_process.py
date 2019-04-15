@@ -637,3 +637,8 @@ class ExecuteProcess(Action):
     def shell(self):
         """Getter for shell."""
         return self.__shell
+
+    @property
+    def prefix(self):
+        """Getter for shell."""
+        return self.__prefix

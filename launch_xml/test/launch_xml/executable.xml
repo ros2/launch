@@ -1,0 +1,3 @@
+<executable cmd="ls" cwd="/" name="my_ls" args="-l -a -s" shell="true" output='log' launch-prefix='time'> 
+    <env name="var" value="1"/>
+</executable>
