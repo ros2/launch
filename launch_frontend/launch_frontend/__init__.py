@@ -15,10 +15,15 @@
 """Main entry point for the `launch_frontend` package."""
 
 from .entity import Entity
+from .expose import __expose_impl, expose_action, expose_substitution
 from .parser import parse_executable
 
 
 __all__ = [
     'Entity',
+    # Implementation function, should only be imported in test_expose_decorators.
+    '__expose_impl',
+    'expose_action',
+    'expose_substitution',
     'parse_executable'
 ]
