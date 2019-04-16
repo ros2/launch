@@ -30,8 +30,12 @@ class EnvironmentVariable(Substitution):
     If the environment variable is not found, it returns empty string.
     """
 
-    def __init__(self, name: SomeSubstitutionsType, *,
-                 default_value: SomeSubstitutionsType = '') -> None:
+    def __init__(
+        self,
+        name: SomeSubstitutionsType,
+        *,
+        default_value: SomeSubstitutionsType = ''
+    ) -> None:
         """Constructor."""
         super().__init__()
 
@@ -46,7 +50,7 @@ class EnvironmentVariable(Substitution):
 
     @property
     def default_value(self) -> List[Substitution]:
-        """Getter for default."""
+        """Getter for default_value."""
         return self.__default_value
 
     def describe(self) -> Text:
@@ -58,4 +62,5 @@ class EnvironmentVariable(Substitution):
         from ..utilities import perform_substitutions  # import here to avoid loop
         return os.environ.get(
             perform_substitutions(context, self.name),
-            perform_substitutions(context, self.default_value))
+            perform_substitutions(context, self.default_value)
+        )
