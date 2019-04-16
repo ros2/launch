@@ -73,7 +73,7 @@ function(add_launch_test file)
   endif()
 
   if(NOT _add_launch_test_PYTHON_EXECUTABLE)
-    set(_add_launch_test_PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}")
+    set(_add_launch_test_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}")
   endif()
 
   set(_file_name _file_name-NOTFOUND)
@@ -101,7 +101,8 @@ function(add_launch_test file)
 
   set(cmd
     "${_add_launch_test_PYTHON_EXECUTABLE}"
-    "-m launch_testing.launch_test"
+    "-m"
+    "launch_testing.launch_test"
     "${_file_name}"
     "${_add_launch_test_ARGS}"
     "--junit-xml=${result_file}"
