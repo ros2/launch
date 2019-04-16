@@ -188,15 +188,21 @@ class ExecuteProcess(Action):
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__name = name if name is None else normalize_to_list_of_substitutions(name)
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
-        if env is None:
-            env = dict(os.environ)
+        self.__env = None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
+        if env is not None:
+            self.__env = []
+            for key, value in env.items():
+                self.__env.append((
+                    normalize_to_list_of_substitutions(key),
+                    normalize_to_list_of_substitutions(value)))
+        self.__additional_env = \
+            None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
         if additional_env is not None:
-            env.update(additional_env)
-        self.__env = []  # type: List[Tuple[List[Substitution], List[Substitution]]]
-        for key, value in env.items():
-            self.__env.append((
-                normalize_to_list_of_substitutions(key),
-                normalize_to_list_of_substitutions(value)))
+            self.__additional_env = []
+            for key, value in additional_env.items():
+                self.__additional_env.append((
+                    normalize_to_list_of_substitutions(key),
+                    normalize_to_list_of_substitutions(value)))
         self.__shell = shell
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
@@ -437,10 +443,16 @@ class ExecuteProcess(Action):
         if self.__cwd is not None:
             cwd = ''.join([context.perform_substitution(x) for x in self.__cwd])
         env = {}
-        for key, value in self.__env:
-            env[''.join([context.perform_substitution(x) for x in key])] = \
-                ''.join([context.perform_substitution(x) for x in value])
-
+        if self.__env is not None:
+            for key, value in self.__env:
+                env[''.join([context.perform_substitution(x) for x in key])] = \
+                    ''.join([context.perform_substitution(x) for x in value])
+        else:
+            env = dict(os.environ)
+        if self.__additional_env is not None:
+            for key, value in self.__additional_env:
+                env[''.join([context.perform_substitution(x) for x in key])] = \
+                    ''.join([context.perform_substitution(x) for x in value])
         # store packed kwargs for all ProcessEvent based events
         self.__process_event_args = {
             'action': self,
@@ -572,6 +584,11 @@ class ExecuteProcess(Action):
     def env(self):
         """Getter for env."""
         return self.__env
+
+    @property
+    def additional_env(self):
+        """Getter for additional_env."""
+        return self.__additional_env
 
     @property
     def shell(self):
