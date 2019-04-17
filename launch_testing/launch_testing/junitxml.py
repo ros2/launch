@@ -81,7 +81,8 @@ def unittestCaseToXml(test_result, test_case):
     class needs to be a launch_testing.TestResult class
     """
     case_xml = ET.Element('testcase')
-    case_xml.set('name', type(test_case).__name__ + '.' + test_case._testMethodName)
+    case_xml.set('classname', type(test_case).__name__)
+    case_xml.set('name', test_case._testMethodName)
     case_xml.set('time', str(round(test_result.testTimes[test_case], 3)))
 
     for failure in test_result.failures:
@@ -101,7 +102,7 @@ def unittestCaseToXml(test_result, test_case):
     for skip in test_result.skipped:
         if skip[0] == test_case:
             skip_xml = ET.Element('skipped')
-            skip_xml.text = skip[1]
+            skip_xml.set('message', skip[1])
             case_xml.append(skip_xml)
 
     return case_xml

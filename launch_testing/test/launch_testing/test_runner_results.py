@@ -215,3 +215,35 @@ def test_parametrized_run_with_one_failure():
 
     assert len(passes) == 3  # 1, 4, and 5 should pass
     assert len(fails) == 2  # 2 fails in an active test, 3 fails in a post-shutdown test
+
+
+def test_skipped_launch_description():
+
+    @unittest.skip('skip reason string')
+    def generate_test_description(ready_fn):
+        raise Exception('This should never be invoked')  # pragma: no cover
+
+    class FakePreShutdownTests(unittest.TestCase):
+
+        def test_fail_always(self):
+            assert False  # pragma: no cover
+
+    @launch_testing.post_shutdown_test()
+    class FakePostShutdownTests(unittest.TestCase):
+
+        def test_fail_always(self):
+            assert False  # pragma: no cover
+
+    test_module = types.ModuleType('test_module')
+    test_module.generate_test_description = generate_test_description
+    test_module.FakePreShutdownTests = FakePreShutdownTests
+    test_module.FakePostShutdownTests = FakePostShutdownTests
+
+    # Run the test:
+    runner = LaunchTestRunner(
+        LoadTestsFromPythonModule(test_module)
+    )
+
+    results = runner.run()
+    # Should just get one result, even though there were multiple tests
+    assert len(results.values()) == 1
