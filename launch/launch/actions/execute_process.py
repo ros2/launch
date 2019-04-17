@@ -195,8 +195,7 @@ class ExecuteProcess(Action):
                 self.__env.append((
                     normalize_to_list_of_substitutions(key),
                     normalize_to_list_of_substitutions(value)))
-        self.__additional_env = \
-            None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
+        self.__additional_env: Optional[List[Tuple[List[Substitution], List[Substitution]]]] = None
         if additional_env is not None:
             self.__additional_env = []
             for key, value in additional_env.items():
@@ -442,14 +441,15 @@ class ExecuteProcess(Action):
         cwd = None
         if self.__cwd is not None:
             cwd = ''.join([context.perform_substitution(x) for x in self.__cwd])
-        env = {}
+        env = None
         if self.__env is not None:
+            env = {}
             for key, value in self.__env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])
-        else:
-            env = dict(os.environ)
         if self.__additional_env is not None:
+            if env is None:
+                env = dict(os.environ)
             for key, value in self.__additional_env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])
