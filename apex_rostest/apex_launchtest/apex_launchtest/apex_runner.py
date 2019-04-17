@@ -17,50 +17,29 @@ import threading
 import unittest
 
 import launch
-from launch import LaunchService
 from launch import LaunchDescription
+from launch import LaunchService
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 from launch.event_handlers import OnProcessIO
 
 from .io_handler import ActiveIoHandler
-from .loader import PostShutdownTestLoader, PreShutdownTestLoader
 from .parse_arguments import parse_launch_arguments
 from .proc_info_handler import ActiveProcInfoHandler
 from .test_result import FailResult, TestResult
 
 
-def _normalize_ld(launch_description_fn):
-    # A launch description fn can return just a launch description, or a tuple of
-    # (launch_description, test_context).  This wrapper function normalizes things
-    # so we always get a tuple, sometimes with an empty dictionary for the test_context
-    def wrapper(*args, **kwargs):
-        result = launch_description_fn(*args, **kwargs)
-        if isinstance(result, tuple):
-            return result
-        else:
-            return result, {}
-
-    return wrapper
+class _LaunchDiedException(Exception):
+    pass
 
 
-class ApexRunner(object):
+class _RunnerWorker():
 
     def __init__(self,
-                 gen_launch_description_fn,
-                 test_module,
+                 test_run,
                  launch_file_arguments=[],
                  debug=False):
-        """
-        Create an ApexRunner object.
-
-        :param callable gen_launch_description_fn: A function that returns a ros2 LaunchDesription
-        for launching the processes under test.  This function should take a callable as a
-        parameter which will be called when the processes under test are ready for the test to
-        start
-        """
-        self._gen_launch_description_fn = gen_launch_description_fn
-        self._test_module = test_module
+        self._test_run = test_run
         self._launch_service = LaunchService(debug=debug)
         self._processes_launched = threading.Event()  # To signal when all processes started
         self._tests_completed = threading.Event()  # To signal when all the tests have finished
@@ -68,15 +47,18 @@ class ApexRunner(object):
 
         # Can't run LaunchService.run on another thread :-(
         # See https://github.com/ros2/launch/issues/126
-        # Instead, we'll let the tests run on another thread
+        #
+        # It would be simpler if we could run the pre-shutdown test and the post-shutdown tests on
+        # one thread, and run the launch on another thead.
+        #
+        # Instead, we'll run the pre-shutdown tests on a background thread concurrent with the
+        # launch on the main thread.  Once the launch is stopped, we'll run the post-shutdown
+        # tests on the main thread
         self._test_tr = threading.Thread(
             target=self._run_test,
-            name="test_runner_thread",
+            name='test_runner_thread',
             daemon=True
         )
-
-    def get_launch_description(self):
-        return _normalize_ld(self._gen_launch_description_fn)(lambda: None)[0]
 
     def run(self):
         """
@@ -85,18 +67,55 @@ class ApexRunner(object):
         :return: A tuple of two unittest.Results - one for tests that ran while processes were
         active, and another set for tests that ran after processes were shutdown
         """
-        test_ld, test_context = _normalize_ld(
-            self._gen_launch_description_fn
-        )(lambda: self._processes_launched.set())
+        test_ld, test_context = self._test_run.normalized_test_description(
+            ready_fn=lambda: self._processes_launched.set()
+        )
 
-        # Data to squirrel away for post-shutdown tests
-        self.proc_info = ActiveProcInfoHandler()
-        self.proc_output = ActiveIoHandler()
-        self.test_context = test_context
+        # Data that needs to be bound to the tests:
+        proc_info = ActiveProcInfoHandler()
+        proc_output = ActiveIoHandler()
+        full_context = dict(test_context, **self._test_run.param_args)
+        # TODO pete: this can be simplified as a call to the dict ctor:
         parsed_launch_arguments = parse_launch_arguments(self._launch_file_arguments)
-        self.test_args = {}
+        test_args = {}
+
         for k, v in parsed_launch_arguments:
-            self.test_args[k] = v
+            test_args[k] = v
+
+        self._test_run.bind(
+            self._test_run.pre_shutdown_tests,
+            injected_attributes={
+                'proc_info': proc_info,
+                'proc_output': proc_output,
+                'test_args': test_args,
+            },
+            injected_args=dict(
+                full_context,
+                # Add a few more things to the args dictionary:
+                **{
+                    'proc_info': proc_info,
+                    'proc_output': proc_output,
+                    'test_args': test_args
+                }
+            )
+        )
+        self._test_run.bind(
+            self._test_run.post_shutdown_tests,
+            injected_attributes={
+                'proc_info': proc_info._proc_info_handler,
+                'proc_output': proc_output._io_handler,
+                'test_args': test_args,
+            },
+            injected_args=dict(
+                full_context,
+                # Add a few more things to the args dictionary:
+                **{
+                    'proc_info': proc_info._proc_info_handler,
+                    'proc_output': proc_output._io_handler,
+                    'test_args': test_args
+                }
+            )
+        )
 
         # Wrap the test_ld in another launch description so we can bind command line arguments to
         # the test and add our own event handlers for process IO and process exit:
@@ -106,12 +125,12 @@ class ApexRunner(object):
                 launch_arguments=parsed_launch_arguments
             ),
             RegisterEventHandler(
-                OnProcessExit(on_exit=lambda info, unused: self.proc_info.append(info))
+                OnProcessExit(on_exit=lambda info, unused: proc_info.append(info))
             ),
             RegisterEventHandler(
                 OnProcessIO(
-                    on_stdout=self.proc_output.append,
-                    on_stderr=self.proc_output.append,
+                    on_stdout=proc_output.append,
+                    on_stderr=proc_output.append,
                 )
             ),
         ])
@@ -126,40 +145,20 @@ class ApexRunner(object):
         if not self._tests_completed.wait(timeout=0):
             # LaunchService.run returned before the tests completed.  This can be because the user
             # did ctrl+c, or because all of the launched nodes died before the tests completed
-            print("Processes under test stopped before tests completed")
-            self._print_process_output_summary()  # <-- Helpful to debug why processes died early
+            print('Processes under test stopped before tests completed')
+            # Give some extra help debugging why processes died early
+            self._print_process_output_summary(proc_info, proc_output)
             # We treat this as a test failure and return some test results indicating such
-            return FailResult(), FailResult()
+            raise _LaunchDiedException()
 
-        # Now, run the post-shutdown tests
-        inactive_suite = PostShutdownTestLoader(
-            injected_attributes={
-                "proc_info": self.proc_info,
-                "proc_output": self.proc_output._io_handler,
-                "test_args": self.test_args,
-            },
-            injected_args=dict(
-                self.test_context,
-                # Add a few more things to the args dictionary:
-                **{
-                    "proc_info": self.proc_info,
-                    "proc_output": self.proc_output._io_handler,
-                    "test_args": self.test_args
-                }
-            )
-        ).loadTestsFromModule(self._test_module)
         inactive_results = unittest.TextTestRunner(
             verbosity=2,
             resultclass=TestResult
-        ).run(inactive_suite)
+        ).run(self._test_run.post_shutdown_tests)
 
-        return self._results, inactive_results
+        self._results.append(inactive_results)
 
-    def validate(self):
-        """Inspect the test configuration for configuration errors."""
-        # Make sure the function signature of the launch configuration
-        # generator is correct
-        inspect.getcallargs(self._gen_launch_description_fn, lambda: None)
+        return self._results
 
     def _run_test(self):
         # Waits for the DUT processes to start (signaled by the _processes_launched
@@ -167,48 +166,79 @@ class ApexRunner(object):
 
         if not self._processes_launched.wait(timeout=15):
             # Timed out waiting for the processes to start
-            print("Timed out waiting for processes to start up")
+            print('Timed out waiting for processes to start up')
             self._launch_service.shutdown()
             return
 
         try:
-            # Load the tests
-            active_suite = PreShutdownTestLoader(
-                injected_attributes={
-                    "proc_info": self.proc_info,
-                    "proc_output": self.proc_output,
-                    "test_args": self.test_args,
-                },
-                injected_args=dict(
-                    self.test_context,
-                    # Add a few more things to the args dictionary:
-                    **{
-                        "proc_info": self.proc_info,
-                        "proc_output": self.proc_output,
-                        "test_args": self.test_args
-                    }
-                )
-            ).loadTestsFromModule(self._test_module)
-
             # Run the tests
             self._results = unittest.TextTestRunner(
                 verbosity=2,
                 resultclass=TestResult
-            ).run(active_suite)
+            ).run(self._test_run.pre_shutdown_tests)
 
         finally:
             self._tests_completed.set()
             self._launch_service.shutdown()
 
-    def _print_process_output_summary(self):
-        failed_procs = [proc for proc in self.proc_info if proc.returncode != 0]
+    def _print_process_output_summary(self, proc_info, proc_output):
+        failed_procs = [proc for proc in proc_info if proc.returncode != 0]
 
         for process in failed_procs:
             print("Process '{}' exited with {}".format(process.process_name, process.returncode))
             print("##### '{}' output #####".format(process.process_name))
             try:
-                for io in self.proc_output[process.action]:
-                    print("{}".format(io.text.decode('ascii')))
+                for io in proc_output[process.action]:
+                    print('{}'.format(io.text.decode('ascii')))
             except KeyError:
                 pass  # Process generated no output
-            print("#" * (len(process.process_name) + 21))
+            print('#' * (len(process.process_name) + 21))
+
+
+class ApexRunner(object):
+
+    def __init__(self,
+                 test_runs,
+                 launch_file_arguments=[],
+                 debug=False):
+        """
+        Create an ApexRunner object.
+
+        :param callable gen_launch_description_fn: A function that returns a ros2 LaunchDesription
+        for launching the processes under test.  This function should take a callable as a
+        parameter which will be called when the processes under test are ready for the test to
+        start
+        """
+        self._test_runs = test_runs
+        self._launch_file_arguments = launch_file_arguments
+        self._debug = debug
+
+    def run(self):
+        """
+        Launch the processes under test and run the tests.
+
+        :return: A tuple of two unittest.Results - one for tests that ran while processes were
+        active, and another set for tests that ran after processes were shutdown
+        """
+        # We will return the results as a {test_run: (active_results, post_shutdown_results)}
+        results = {}
+
+        for index, run in enumerate(self._test_runs):
+            if len(self._test_runs) > 1:
+                print('Starting test run {}'.format(index + 1))
+            try:
+                worker = _RunnerWorker(run, self._launch_file_arguments, self._debug)
+                results[run] = worker.run()
+            except _LaunchDiedException:
+                # The most likely cause was ctrl+c, so we'll abort the test run
+                results[run] = FailResult()
+                break
+
+        return results
+
+    def validate(self):
+        """Inspect the test configuration for configuration errors."""
+        # Make sure the function signature of the launch configuration
+        # generator is correct
+        for run in self._test_runs:
+            inspect.getcallargs(run.test_description_function, ready_fn=lambda: None)

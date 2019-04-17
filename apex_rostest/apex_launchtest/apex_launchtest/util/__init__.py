@@ -13,11 +13,12 @@
 # limitations under the License.
 
 from sys import executable as __executable
+
 from launch.actions import ExecuteProcess as __ExecuteProcess
 
 from .proc_lookup import NO_CMD_ARGS
-from .proc_lookup import resolveProcesses
 from .proc_lookup import NoMatchingProcessException
+from .proc_lookup import resolveProcesses
 
 
 def KeepAliveProc():

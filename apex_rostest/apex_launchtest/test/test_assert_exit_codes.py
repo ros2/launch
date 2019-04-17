@@ -14,10 +14,9 @@
 
 import unittest
 
-from launch.events.process import ProcessExited
-
 from apex_launchtest import ProcInfoHandler
 from apex_launchtest.asserts import assertExitCodes
+from launch.events.process import ProcessExited
 
 
 class TestExitCodes(unittest.TestCase):
@@ -28,8 +27,8 @@ class TestExitCodes(unittest.TestCase):
         for n in range(4):
             proc_data = ProcessExited(
                 action=object(),
-                name="process_{}".format(n),
-                cmd=["process"],
+                name='process_{}'.format(n),
+                cmd=['process'],
                 pid=n,
                 returncode=0,
                 cwd=None,
@@ -44,8 +43,8 @@ class TestExitCodes(unittest.TestCase):
         self.dummy_proc_info.append(
             ProcessExited(
                 action=object(),
-                name="test_process_1",
-                cmd=["test_process"],
+                name='test_process_1',
+                cmd=['test_process'],
                 pid=10,
                 returncode=1,
                 cwd=None,
@@ -57,14 +56,14 @@ class TestExitCodes(unittest.TestCase):
             assertExitCodes(self.dummy_proc_info)
 
         # Check that the process name made it into the error message
-        self.assertIn("test_process_1", str(cm.exception))
+        self.assertIn('test_process_1', str(cm.exception))
 
     def test_assert_exit_code_allows_specific_codes(self):
         self.dummy_proc_info.append(
             ProcessExited(
                 action=object(),
-                name="test_process_1",
-                cmd=["test_process"],
+                name='test_process_1',
+                cmd=['test_process'],
                 pid=10,
                 returncode=131,
                 cwd=None,

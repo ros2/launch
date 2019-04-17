@@ -15,8 +15,8 @@
 import threading
 from launch.actions import ExecuteProcess  # noqa
 
-from .util import resolveProcesses
 from .util import NoMatchingProcessException
+from .util import resolveProcesses
 
 
 class ProcInfoHandler:

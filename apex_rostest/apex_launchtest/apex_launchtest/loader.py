@@ -17,36 +17,105 @@ import inspect
 import unittest
 
 
-def PreShutdownTestLoader(injected_attributes={}, injected_args={}):
-    return _make_loader(False, injected_attributes, injected_args)
+def _normalize_ld(launch_description_fn):
+    # A launch description fn can return just a launch description, or a tuple of
+    # (launch_description, test_context).  This wrapper function normalizes things
+    # so we always get a tuple, sometimes with an empty dictionary for the test_context
+    def wrapper(*args, **kwargs):
+        result = launch_description_fn(*args, **kwargs)
+        if isinstance(result, tuple):
+            return result
+        else:
+            return result, {}
+
+    return wrapper
 
 
-def PostShutdownTestLoader(injected_attributes={}, injected_args={}):
-    return _make_loader(True, injected_attributes, injected_args)
+class TestRun:
+
+    def __init__(self,
+                 test_description_function,
+                 param_args,
+                 pre_shutdown_tests,
+                 post_shutdown_tests):
+
+        self.test_description_function = test_description_function
+        self.normalized_test_description = _normalize_ld(test_description_function)
+
+        self.param_args = param_args
+
+        self.pre_shutdown_tests = pre_shutdown_tests
+        self.post_shutdown_tests = post_shutdown_tests
+
+    def bind(self, tests, injected_attributes={}, injected_args={}):
+        """
+        Bind injected_attributes and injected_args to tests.
+
+        Injected Attributes can be accessed from a test as self.name
+        Injected Arguments can be accessed as an argument if the test has an argument with a
+        matching name
+        """
+        # Inject test attributes into the test as self.whatever.  This method of giving
+        # objects to the test is pretty inferior to injecting them as arguments to the
+        # test methods - we may deprecate this in favor of everything being an argument
+        for name, value in injected_attributes.items():
+            _give_attribute_to_tests(value, name, tests)
+
+        # Give objects with matching names as arguments to tests.  This doesn't have the
+        # weird scoping and name collision issues that the above method has.  In fact,
+        # we give proc_info and proc_output to the tests as arguments too, so anything
+        # you can do with test attributes can also be accomplished with test arguments
+        _bind_test_args_to_tests(injected_args, tests)
+
+    def get_launch_description(self):
+        """
+        Get just the launch description portion of the test_description.
+
+        This should only be used for the purposes of introspecting the launch description.  The
+        returned launch description is not meant to be launched
+        """
+        return self.test_description_function(lambda: None)
+
+    def __str__(self):
+        if not self.param_args:
+            return 'launch'
+        else:
+            return 'TODO Parametrize'
 
 
-def _make_loader(load_post_shutdown, injected_attributes, injected_args):
+def LoadTestsFromPythonModule(module):
+
+    if hasattr(module.generate_test_description, '__parametrized__'):
+        normalized_test_description_func = module.generate_test_description
+    else:
+        normalized_test_description_func = [(module.generate_test_description, {})]
+
+    # If our test description is parameterized, we'll load a set of tests for each
+    # individual launch
+    return [TestRun(description,
+                    args,
+                    PreShutdownTestLoader().loadTestsFromModule(module),
+                    PostShutdownTestLoader().loadTestsFromModule(module))
+            for description, args in normalized_test_description_func]
+
+
+def PreShutdownTestLoader():
+    return _make_loader(False)
+
+
+def PostShutdownTestLoader():
+    return _make_loader(True)
+
+
+def _make_loader(load_post_shutdown):
 
     class _loader(unittest.TestLoader):
         """TestLoader selectively loads pre-shutdown or post-shutdown tests."""
 
         def loadTestsFromTestCase(self, testCaseClass):
 
-            if getattr(testCaseClass, "__post_shutdown_test__", False) == load_post_shutdown:
+            if getattr(testCaseClass, '__post_shutdown_test__', False) == load_post_shutdown:
                 cases = super(_loader, self).loadTestsFromTestCase(testCaseClass)
-
-                # Inject test attributes into the test as self.whatever.  This method of giving
-                # objects to the test is pretty inferior to injecting them as arguments to the
-                # test methods - we may deprecate this in favor of everything being an argument
-                for name, value in injected_attributes.items():
-                    _give_attribute_to_tests(value, name, cases)
-
-                # Give objects with matching names as arguments to tests.  This doesn't have the
-                # weird scoping and name collision issues that the above method has.  In fact,
-                # we give proc_info and proc_output to the tests as arguments too, so anything
-                # you can do with test attributes can also be accomplished with test arguments
-                _bind_test_args_to_tests(injected_args, cases)
-
                 return cases
             else:
                 # Empty test suites will be ignored by the test runner

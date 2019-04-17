@@ -16,12 +16,11 @@ import os
 import unittest
 
 import ament_index_python
+import apex_launchtest
+import apex_launchtest.util
 import launch
 import launch.actions
 import launch.substitutions
-
-import apex_launchtest
-import apex_launchtest.util
 
 
 dut_process = launch.actions.ExecuteProcess(
@@ -74,7 +73,7 @@ class TestProcessOutput(unittest.TestCase):
         self.assertNotIn(
             'default',
             dut_process.process_details['cmd'],
-            "Try running: apex_launchtest test_with_args.test.py dut_arg:=arg"
+            'Try running: apex_launchtest test_with_args.test.py dut_arg:=arg'
         )
 
     def test_arg_printed_in_output(self):
@@ -88,6 +87,6 @@ class TestProcessOutput(unittest.TestCase):
         with self.assertRaises(AssertionError):
             apex_launchtest.asserts.assertInStdout(
                 self.proc_output,
-                "default",
+                'default',
                 dut_process
             )

@@ -16,7 +16,7 @@
 import xml.etree.ElementTree as ET
 
 
-def unittestResultsToXml(*, name="apex_launchtest", test_results={}):
+def unittestResultsToXml(*, name='apex_launchtest', test_results={}):
     """
     Serialize multiple unittest.TestResult objects into an XML document.
 
@@ -44,7 +44,7 @@ def unittestResultsToXml(*, name="apex_launchtest", test_results={}):
     test_suites.set('errors', str(errors))
 
     for (key, value) in test_results.items():
-        test_suites.append(unittestResultToXml(key, value))
+        test_suites.append(unittestResultToXml(str(key), value))
 
     return ET.ElementTree(test_suites)
 
@@ -81,7 +81,7 @@ def unittestCaseToXml(test_result, test_case):
     class needs to be an apex_launchtest TestResult class
     """
     case_xml = ET.Element('testcase')
-    case_xml.set('name', test_case._testMethodName)
+    case_xml.set('name', type(test_case).__name__ + '.' + test_case._testMethodName)
     case_xml.set('time', str(round(test_result.testTimes[test_case], 3)))
 
     for failure in test_result.failures:

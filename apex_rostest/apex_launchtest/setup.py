@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-from setuptools import setup
 import glob
+
+from setuptools import setup
 
 package_name = 'apex_launchtest'
 
@@ -25,6 +26,6 @@ setup(
         'apex_launchtest.event_handlers',
         'apex_launchtest.util',
     ],
-    tests_require=["pytest"],
+    tests_require=['pytest'],
     zip_safe=True,
 )

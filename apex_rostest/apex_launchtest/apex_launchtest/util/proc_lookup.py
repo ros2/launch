@@ -21,12 +21,40 @@ class NoMatchingProcessException(Exception):
     pass
 
 
+class _FakeContextException(Exception):
+    pass
+
+
+class _fake_context:
+
+    def __getattr__(self, attr):
+        # If anything actually tries to use our fake context, we will raise an exception
+        # that we can recognize.
+        raise _FakeContextException()
+
+
 def _proc_to_name_and_args(proc):
     # proc is a launch.actions.ExecuteProcess
-    return "{} {}".format(
-        proc.process_details['name'],
-        " ".join(proc.process_details['cmd'][1:])
-    )
+
+    if proc.process_details:
+        # process_details are added by the launch system when the process is started.
+        # Before the process starts, this will be None
+        return '{} {}'.format(
+            proc.process_details['name'],
+            ' '.join(proc.process_details['cmd'][1:])
+        )
+    else:
+        # Process has not been launched yet, so we don't yet know the process name.
+        # In the special case where the process's name is all TextSubstitutions, we
+        # can resolve the name.  If there are any other substitutions, we can't give
+        # additional info until after the process is launched
+        def perform_subs(subs):
+            return ''.join([sub.perform(_fake_context()) for sub in subs])
+        try:
+            cmd = [perform_subs(sub) for sub in proc.cmd]
+            return ' '.join(cmd)
+        except _FakeContextException:
+            return 'Unknown - Process not launched yet'
 
 
 def _str_name_to_process(info_obj, proc_name, cmd_args):
@@ -73,7 +101,7 @@ def resolveProcesses(info_obj, *, process=None, cmd_args=None, strict_proc_match
         # We want to search all processes
         all_procs = info_obj.processes()
         if len(all_procs) == 0:
-            raise NoMatchingProcessException("No data recorded for any process")
+            raise NoMatchingProcessException('No data recorded for any process')
         return all_procs
 
     if isinstance(process, launch.actions.ExecuteProcess):
@@ -82,15 +110,15 @@ def resolveProcesses(info_obj, *, process=None, cmd_args=None, strict_proc_match
             return [process]
         else:
             raise NoMatchingProcessException(
-                "No data recorded for proc {}".format(_proc_to_name_and_args(process))
+                'No data recorded for proc {}'.format(_proc_to_name_and_args(process))
             )
 
     elif isinstance(process, str):
-        # We want to search one (or more) processes that match a particular string.  The "or more"
+        # We want to search one (or more) processes that match a particular string.  The 'or more'
         # part is controlled by the strict_proc_matching argument
         matches = _str_name_to_process(info_obj, process, cmd_args)
         if len(matches) == 0:
-            names = ', '.join(sorted([_proc_to_name_and_args(p) for p in info_obj.processes()]))
+            names = ', '.join(sorted(_proc_to_name_and_args(p) for p in info_obj.processes()))
 
             raise NoMatchingProcessException(
                 "Did not find any processes matching name '{}' and args '{}'. Procs: {}".format(
@@ -101,7 +129,7 @@ def resolveProcesses(info_obj, *, process=None, cmd_args=None, strict_proc_match
             )
 
         if strict_proc_matching and len(matches) > 1:
-            names = ', '.join(sorted([_proc_to_name_and_args(p) for p in info_obj.processes()]))
+            names = ', '.join(sorted(_proc_to_name_and_args(p) for p in info_obj.processes()))
             raise Exception(
                 "Found multiple processes matching name '{}' and cmd_args '{}'. Procs: {}".format(
                     process,
