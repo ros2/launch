@@ -83,6 +83,7 @@ class ExecuteProcess(Action):
         name: Optional[SomeSubstitutionsType] = None,
         cwd: Optional[SomeSubstitutionsType] = None,
         env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         shell: bool = False,
         sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigterm_timeout', default=5),
@@ -152,7 +153,11 @@ class ExecuteProcess(Action):
         :param: name the label used to represent the process, as a string or a
             Substitution to be resolved at runtime, defaults to the basename of
             the executable
-        :param: env dictionary of environment variables to be used
+        :param: env dictionary of environment variables to be used, starting from
+            a clean environment. If 'None', the current environment is used.
+        :param: additional_env dictionary of environment variables to be added.
+            If 'env' was None, they are added to the current environment.
+            If not, 'env' is updated with additional_env.
         :param: shell if True, a shell is used to execute the cmd
         :param: sigterm_timeout time until shutdown should escalate to SIGTERM,
             as a string or a list of strings and Substitutions to be resolved
@@ -188,6 +193,13 @@ class ExecuteProcess(Action):
             self.__env = []
             for key, value in env.items():
                 self.__env.append((
+                    normalize_to_list_of_substitutions(key),
+                    normalize_to_list_of_substitutions(value)))
+        self.__additional_env: Optional[List[Tuple[List[Substitution], List[Substitution]]]] = None
+        if additional_env is not None:
+            self.__additional_env = []
+            for key, value in additional_env.items():
+                self.__additional_env.append((
                     normalize_to_list_of_substitutions(key),
                     normalize_to_list_of_substitutions(value)))
         self.__shell = shell
@@ -435,7 +447,12 @@ class ExecuteProcess(Action):
             for key, value in self.__env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])
-
+        if self.__additional_env is not None:
+            if env is None:
+                env = dict(os.environ)
+            for key, value in self.__additional_env:
+                env[''.join([context.perform_substitution(x) for x in key])] = \
+                    ''.join([context.perform_substitution(x) for x in value])
         # store packed kwargs for all ProcessEvent based events
         self.__process_event_args = {
             'action': self,
@@ -567,6 +584,11 @@ class ExecuteProcess(Action):
     def env(self):
         """Getter for env."""
         return self.__env
+
+    @property
+    def additional_env(self):
+        """Getter for additional_env."""
+        return self.__additional_env
 
     @property
     def shell(self):
