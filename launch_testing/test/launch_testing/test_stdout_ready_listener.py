@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 import unittest
 
 import ament_index_python
@@ -33,6 +34,7 @@ class TestStdoutReadyListener(unittest.TestCase):
 
         self.terminating_proc = launch.actions.ExecuteProcess(
             cmd=[
+                sys.executable,
                 os.path.join(
                     ament_index_python.get_package_prefix('launch_testing'),
                     'lib/launch_testing',

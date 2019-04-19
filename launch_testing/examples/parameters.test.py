@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 import unittest
 
 import ament_index_python
@@ -28,6 +29,7 @@ def generate_test_description(arg_param, ready_fn):
 
     terminating_process = launch.actions.ExecuteProcess(
         cmd=[
+            sys.executable,
             os.path.join(
                 ament_index_python.get_package_prefix('launch_testing'),
                 'lib/launch_testing',

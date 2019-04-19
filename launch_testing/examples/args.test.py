@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 import unittest
 
 import ament_index_python
@@ -26,6 +27,7 @@ import launch_testing.util
 
 dut_process = launch.actions.ExecuteProcess(
     cmd=[
+        sys.executable,
         os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',

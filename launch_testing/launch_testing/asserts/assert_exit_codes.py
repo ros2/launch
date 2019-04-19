@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from ..util import resolveProcesses
 
 EXIT_OK = 0
@@ -20,9 +22,12 @@ EXIT_SIGQUIT = 131
 EXIT_SIGKILL = 137
 EXIT_SIGSEGV = 139
 
+# TODO(hidmic): Drop when SIGINT is fixed on Windows
+EXIT_FORCED = 1
+
 
 def assertExitCodes(proc_info,
-                    allowable_exit_codes=[EXIT_OK],
+                    allowable_exit_codes=[EXIT_OK] if os.name != 'nt' else [EXIT_OK, EXIT_FORCED],
                     process=None,  # By default, checks all processes
                     cmd_args=None,
                     *,

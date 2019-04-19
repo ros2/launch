@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 import unittest
 
 import ament_index_python
@@ -35,7 +36,7 @@ proc_env = os.environ.copy()
 proc_env['PYTHONUNBUFFERED'] = '1'
 
 dut_process = launch.actions.ExecuteProcess(
-    cmd=[TEST_PROC_PATH],
+    cmd=[sys.executable, TEST_PROC_PATH],
     env=proc_env,
 )
 
@@ -78,7 +79,10 @@ class TestProcessOutput(unittest.TestCase):
             cm.assertInStdout('Starting Up')
             for n in range(4):
                 cm.assertInStdout('Loop {}'.format(n))
-            cm.assertInStdout('Shutting Down')
+            if os.name != 'nt':
+                # On Windows, process termination is always forced
+                # and thus the last print in good_proc never makes it.
+                cm.assertInStdout('Shutting Down')
 
     def test_out_of_order(self):
         # This demonstrates that we notice out-of-order IO

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 import unittest
 
 import ament_index_python
@@ -23,7 +24,7 @@ from launch.event_handlers import OnProcessIO
 
 from launch_testing import ActiveIoHandler
 from launch_testing.asserts import assertInStdout
-from launch_testing.asserts import NO_CMD_ARGS
+# from launch_testing.asserts import NO_CMD_ARGS
 
 
 TEST_PROC_PATH = os.path.join(
@@ -31,6 +32,7 @@ TEST_PROC_PATH = os.path.join(
     'lib/launch_testing',
     'terminating_proc'
 )
+TEST_CMD = [sys.executable, TEST_PROC_PATH]
 
 
 class TestIoHandlerAndAssertions(unittest.TestCase):
@@ -50,19 +52,22 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         cls.proc_output = ActiveIoHandler()
 
         cls.proc_1 = launch.actions.ExecuteProcess(
-            cmd=[TEST_PROC_PATH],
+            cmd=TEST_CMD,
+            name='terminating_proc',
             env=proc_env
         )
 
         # This process should be distinguishable by its cmd line args
         cls.proc_2 = launch.actions.ExecuteProcess(
-            cmd=[TEST_PROC_PATH, '--extra'],
+            cmd=TEST_CMD + ['--extra'],
+            name='terminating_proc',
             env=proc_env
         )
 
         # This process should be distinguishable by its different name
         cls.proc_3 = launch.actions.ExecuteProcess(
-            cmd=[TEST_PROC_PATH, 'node:=different_name'],
+            cmd=TEST_CMD + ['node:=different_name'],
+            name='terminating_proc',
             env=proc_env
         )
 
@@ -156,11 +161,13 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         txt = self.EXPECTED_TEXT
         assertInStdout(self.proc_output, txt, 'terminating_proc', '--extra')
         assertInStdout(self.proc_output, txt, 'terminating_proc', 'node:=different_name')
-        assertInStdout(self.proc_output, txt, 'terminating_proc', NO_CMD_ARGS)
+        # TODO(hidmic): add NO_CMD_ARGS test again when and if its implementation
+        # improves beyond checking argument count.
+        # assertInStdout(self.proc_output, txt, 'terminating_proc', NO_CMD_ARGS)
 
     def test_asserts_on_missing_text(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
-            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, 'terminating', NO_CMD_ARGS)
+            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, 'terminating_proc-1')
 
     def test_asserts_on_missing_text_by_proc(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):

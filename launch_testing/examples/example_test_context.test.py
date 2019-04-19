@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 import unittest
 
 import ament_index_python
@@ -40,7 +41,8 @@ def generate_test_description(ready_fn):
     proc_env['PYTHONUNBUFFERED'] = '1'
 
     dut_process = launch.actions.ExecuteProcess(
-        cmd=[TEST_PROC_PATH],
+        cmd=[sys.executable, TEST_PROC_PATH],
+        name='good_proc',
         env=proc_env,
     )
 
@@ -78,7 +80,10 @@ class TestProcessOutput(unittest.TestCase):
         # 'dut' from the test_context to the test before it runs
         with assertSequentialStdout(self.proc_output, process=dut) as cm:
             cm.assertInStdout('Starting Up')
-            cm.assertInStdout('Shutting Down')
+            if os.name != 'nt':
+                # On Windows, process termination is always forced
+                # and thus the last print in good proc never makes it.
+                cm.assertInStdout('Shutting Down')
 
     def test_int_val(self, int_val):
         # Arguments don't have to be part of the LaunchDescription.  Any object can

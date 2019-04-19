@@ -47,7 +47,7 @@ class TestExitCodes(unittest.TestCase):
                 name='test_process_1',
                 cmd=['test_process'],
                 pid=10,
-                returncode=1,
+                returncode=-1,
                 cwd=None,
                 env=None,
             )

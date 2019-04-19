@@ -14,6 +14,7 @@
 
 import imp
 import os
+import sys
 import types
 import unittest
 
@@ -43,7 +44,7 @@ def test_dut_that_shuts_down(capsys):
 
         return launch.LaunchDescription([
             launch.actions.ExecuteProcess(
-                cmd=[TEST_PROC_PATH]
+                cmd=[sys.executable, TEST_PROC_PATH]
             ),
 
             launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
@@ -84,13 +85,13 @@ def test_dut_that_has_exception(capsys):
 
         return launch.LaunchDescription([
             launch.actions.ExecuteProcess(
-                cmd=[TEST_PROC_PATH, '--exception']
+                cmd=[sys.executable, TEST_PROC_PATH, '--exception']
             ),
 
             # This process makes sure we can handle processes that exit with a code but don't
             # generate any output.  This is a regression test for an issue fixed in PR31
             launch.actions.ExecuteProcess(
-                cmd=[EXIT_PROC_PATH, '--silent']
+                cmd=[sys.executable, EXIT_PROC_PATH, '--silent']
             ),
 
             launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
@@ -144,7 +145,7 @@ class PostTest(unittest.TestCase):
     def generate_test_description(ready_fn):
         return launch.LaunchDescription([
             launch.actions.ExecuteProcess(
-                cmd=[TEST_PROC_PATH]
+                cmd=[sys.executable, TEST_PROC_PATH]
             ),
 
             launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
@@ -179,7 +180,7 @@ def test_parametrized_run_with_one_failure():
 
         return launch.LaunchDescription([
             launch.actions.ExecuteProcess(
-                cmd=[TEST_PROC_PATH],
+                cmd=[sys.executable, TEST_PROC_PATH],
                 env=proc_env,
             ),
             launch.actions.OpaqueFunction(function=lambda context: ready_fn())

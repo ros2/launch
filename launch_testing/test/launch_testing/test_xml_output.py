@@ -57,15 +57,15 @@ class TestGoodXmlOutput(unittest.TestCase):
         tree = ET.parse(self.xml_file)
         root = tree.getroot()
 
-        self.assertEqual(len(root.getchildren()), 1)
-        test_suite = root.getchildren()[0]
+        self.assertEqual(len(root), 1)
+        test_suite = root[0]
 
         # Expecting an element called 'launch' since this was not parametrized
         self.assertEqual(test_suite.attrib['name'], 'launch')
 
         # Drilling down a little further, we expect the class names to show up in the testcase
         # names
-        case_names = [case.attrib['name'] for case in test_suite.getchildren()]
+        case_names = [case.attrib['name'] for case in test_suite]
         self.assertIn('TestGoodProcess.test_count_to_four', case_names)
         self.assertIn('TestProcessOutput.test_full_output', case_names)
 
@@ -82,7 +82,7 @@ class TestXmlFunctions(unittest.TestCase):
         )
 
         # Simple sanity check - see that there's a child element called active_tests
-        child_names = [chld.attrib['name'] for chld in xml_tree.getroot().getchildren()]
+        child_names = [chld.attrib['name'] for chld in xml_tree.getroot()]
         self.assertEqual(set(child_names), {'active_tests'})
 
     def test_multiple_test_results(self):
@@ -95,5 +95,5 @@ class TestXmlFunctions(unittest.TestCase):
             }
         )
 
-        child_names = [chld.attrib['name'] for chld in xml_tree.getroot().getchildren()]
+        child_names = [chld.attrib['name'] for chld in xml_tree.getroot()]
         self.assertEqual(set(child_names), {'launch_1', 'launch_2', 'launch_3'})
