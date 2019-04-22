@@ -24,10 +24,6 @@ action_parse_methods = {}
 def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
     """Implementats expose decorators."""
     def expose_impl_decorator(exposed):
-        if name in parse_methods_map:
-            raise RuntimeError(
-                'Two parsing methods exposed with same name.'
-            )
         found_parse_method = None
         if inspect.isclass(exposed):
             if 'parse' in dir(exposed):
@@ -38,6 +34,10 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
             raise RuntimeError(
                 'Exposed {} parser for {} is not a callable or a class'
                 ' containg a parse method'.format(exposed_type, name)
+            )
+        if name in parse_methods_map and found_parse_method is not parse_methods_map[name]:
+            raise RuntimeError(
+                'Two parsing methods exposed with same name.'
             )
         parse_methods_map[name] = found_parse_method
         return exposed
