@@ -20,10 +20,10 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    description='Launch process from different front-ends.',
+    description='Front-end extensions to `launch`.',
     long_description=(
-        'This package provides the to parse different front-ends '
-        'to a programmatic launch process.'),
+        'This package provides front-end extensions to the `launch` package.'
+    ),
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
 )

@@ -28,28 +28,23 @@ def str_to_bool(string):
     raise RuntimeError('Expected "true" or "false", got {}'.format(string))
 
 
-def get_dictionary_from_key_value_pairs(pairs):
-    """Get dictionary from key-value pairs."""
-    if not pairs:
-        return None
-    return {pair.name: pair.value for pair in pairs}
-
-
 def parse_executable(entity: Entity):
     """Parse executable tag."""
     cmd = entity.cmd
     cwd = getattr(entity, 'cwd', None)
     name = getattr(entity, 'name', None)
-    shell = str_to_bool(getattr(entity, 'shell', None))
+    shell = str_to_bool(getattr(entity, 'shell', 'false'))
     prefix = getattr(entity, 'launch-prefix', None)
-    output = getattr(entity, 'output', None)
+    output = getattr(entity, 'output', 'log')
     args = getattr(entity, 'args', None)
     args = args.split(' ') if args else []
-    if not type(args) == list:
+    if not isinstance(args, list):
         args = [args]
     # TODO(ivanpauno): How will predicates be handle in env?
     # Substitutions aren't allowing conditions now.
-    env = get_dictionary_from_key_value_pairs(getattr(entity, 'env', None))
+    env = getattr(entity, 'env', None)
+    if env is not None:
+        env = {e.name: e.value for e in env}
 
     cmd_list = [cmd]
     cmd_list.extend(args)
@@ -57,7 +52,7 @@ def parse_executable(entity: Entity):
     return launch.actions.ExecuteProcess(
         cmd=cmd_list,
         cwd=cwd,
-        env=env,
+        additional_env=env,
         name=name,
         shell=shell,
         prefix=prefix,

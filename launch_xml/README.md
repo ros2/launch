@@ -12,17 +12,17 @@ When having an xml tag like:
 <tag attr='2'/>
 ```
 
-If the entity `e` is wrapping it, the following two statements would be true:
+If the entity `e` is wrapping it, the following two statements will be true:
 ```python
 hasattr(e, 'attr') == True
 e.attr == '2'
 ```
 
-As a general rule, the value of the attribute is returned as an string.
+As a general rule, the value of the attribute is returned as a string.
 Conversion to `float` or `int` should be explicitly done in the parser method.
 For handling lists, see `Built-in Substitutions` section.
 
-### Accessing XML children as parameters:
+### Accessing XML children as attributes:
 
 In this xml:
 
@@ -55,7 +55,15 @@ e.children
 
 It returns a list of launch_xml.Entity wrapping each of the xml children.
 
-### Built-in substitutions
+### Attribute lookup order
+
+The attributes are check in the following order:
+
+- Is tried to be accessed like a XML attribute.
+- Is tried to be accessed like XML children.
+- `AttributeError` is raised.
+
+## Built-in substitutions
 
 See [this](https://github.com/ros2/design/blob/d3a35d7ea201721892993e85e28a5a223cdaa001/articles/151_roslaunch_xml.md) document.
 

@@ -38,7 +38,7 @@ def test_executable():
     assert(executable.name[0].perform(None) == 'my_ls')
     assert(executable.shell is True)
     assert(executable.output == 'log')
-    key, value = executable.env[0]
+    key, value = executable.additional_env[0]
     key = key[0].perform(None)
     value = value[0].perform(None)
     assert(key == 'var')

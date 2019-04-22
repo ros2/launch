@@ -8,8 +8,6 @@
   <license>Apache License 2.0</license>
 
   <depend>launch</depend>
-  <depend>launch_ros</depend>
-  <depend>launch_testing</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
