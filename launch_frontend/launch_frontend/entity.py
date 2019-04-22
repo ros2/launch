@@ -35,6 +35,7 @@ class Entity:
         parent: 'Entity' = None
     ) -> 'Entity':
         """Return an entity loaded with a markup file."""
+        # frontend_entities is not global to avoid a recursive import
         frontend_entities = {
             entry_point.name: entry_point.load()
             for entry_point in iter_entry_points('launch_frontend.entity')

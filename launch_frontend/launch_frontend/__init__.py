@@ -16,14 +16,16 @@
 
 from .entity import Entity
 from .expose import __expose_impl, expose_action, expose_substitution
-from .parser import parse_executable
+from .parser import parse_action, parse_description, parse_substitution
 
 
 __all__ = [
     'Entity',
-    # Implementation function, should only be imported in test_expose_decorators.
+    # Implementation detail, should only be imported in test_expose_decorators.
     '__expose_impl',
     'expose_action',
     'expose_substitution',
-    'parse_executable'
+    'parse_action',
+    'parse_description',
+    'parse_substitution',
 ]

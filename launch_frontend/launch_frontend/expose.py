@@ -17,12 +17,8 @@
 import inspect
 from typing import Text
 
-# from .entity import Entity
-
 substitution_parse_methods = {}
 action_parse_methods = {}
-# frontend_entities = {}
-# frontend_interpolate_function = {}
 
 
 def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
@@ -35,10 +31,8 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
         found_parse_method = None
         if inspect.isclass(exposed):
             if 'parse' in dir(exposed):
-                print('class with parse method')
                 found_parse_method = exposed.parse
         elif callable(exposed):
-            print('callable')
             found_parse_method = exposed
         if not found_parse_method:
             raise RuntimeError(
@@ -58,25 +52,3 @@ def expose_substitution(name: Text):
 def expose_action(name: Text):
     """Exposes an action."""
     return __expose_impl(name, action_parse_methods, 'action')
-
-
-# def expose_entity(name: Text):
-#     """Exposes a frontend."""
-#     def expose_entity_decorator(exposed):
-#         if name in frontend_entities and exposed is not frontend_entities[name]:
-#             raise RuntimeError('Two frontends exposed with the same name.')
-#         if not issubclass(exposed, Entity):
-#             raise RuntimeError('expose_frontend expects a launch_frontend.Entity subclass.')
-#         frontend_entities[name] = exposed
-#         return exposed
-#     return expose_entity_decorator
-
-
-# def expose_substitution_interpolation(name: Text):
-#     """Exposes a substitution interpolation function."""
-#     def expose_substitution_interpolation_decorator(exposed):
-#         if not callable(exposed):
-#             raise RuntimeError('Expected a callable.')
-#         frontend_interpolate_function[name] = exposed
-#         return exposed
-#     return expose_substitution_interpolation_decorator
