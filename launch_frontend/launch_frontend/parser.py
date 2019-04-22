@@ -19,7 +19,41 @@ from typing import Text
 
 import launch
 
+from pkg_resources import iter_entry_points
+
 from .entity import Entity
+from .expose import action_parse_methods
+
+interpolation_fuctions = {
+    entry_point.name: entry_point.load()
+    for entry_point in iter_entry_points('launch_frontend.interpolate_substitution')
+}
+
+
+class Parser:
+    """Parse an Entity, and creates a launch description from it."""
+
+    # TODO(ivanpauno): Why don't use free methods? Instead of a class.
+
+    def parse_action(self, entity: Entity) -> launch.Action:
+        """Parse an action, using its registered parsing method."""
+        if entity.type_name not in action_parse_methods:
+            raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
+        return action_parse_methods[entity.type_name](entity)
+
+    def parse_substitution(self, value: Text, frontend: Text) -> launch.SomeSubstitutionsType:
+        """Parse a substitution, using its registered parsing method."""
+        if frontend in interpolation_fuctions:
+            return interpolation_fuctions[frontend](value)
+        # else:
+        #     return default_substitution_interpolation(value)
+
+    def parse_description(self, entity: Entity) -> launch.LaunchDescription:
+        """Parse a launch description."""
+        if entity.type_name != 'launch':
+            raise RuntimeError('Expected \'launch\' as root tag')
+        actions = [self.parse_action(child) for child in self.__root_entity.children]
+        return launch.LaunchDescription(actions)
 
 
 def str_to_bool(string):
@@ -73,3 +107,11 @@ def parse_executable(entity: Entity):
     return launch.actions.ExecuteProcess(
         cmd=cmd_list,
         **kwargs)
+
+def parse_include(entity: Entity):
+    """Parse a launch file to be included."""
+    # TODO(ivanpauno): Should be allow to include a programmatic launch file? How?
+    # TODO(ivanpauno): Create launch_ros.actions.IncludeAction, supporting namespacing.
+    # TODO(ivanpauno): Handle if and unless conditions.
+    loaded_entity = Entity.load(entity.file, entity.parent)
+    Parser.parse_description(loaded_entity)

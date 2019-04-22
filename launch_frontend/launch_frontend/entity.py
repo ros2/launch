@@ -14,14 +14,54 @@
 
 """Module for Entity class."""
 
+import io
 from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Union
+
+from launch.utilities import is_a
+
+from pkg_resources import iter_entry_points
+
+frontend_entities = {
+    entry_point.name: entry_point.load()
+    for entry_point in iter_entry_points('launch_frontend.entity')
+}
 
 
 class Entity:
     """Single item in the intermediate front_end representation."""
+
+    @staticmethod
+    def load(
+        file: Union[str, io.TextIOBase],
+        parent: 'Entity'
+    ) -> 'Entity':
+        """Return an entity loaded with a markup file."""
+        if is_a(file, str):
+            # This automatically recognizes 'file.xml' or 'file.launch.xml'
+            # as a launch file using the xml frontend.
+            frontend_name = file.rsplit('.', 1)[1]
+            if frontend_name in frontend_entities:
+                return frontend_entities.load(file)
+        # If not, apply brute force.
+        # TODO(ivanpauno): Maybe, we want to force correct file naming.
+        # In that case, we should raise an error here.
+        # Note(ivanpauno): It's impossible to recognize a wrong formatted
+        # file from a non-recognized front-end implementation.
+        for implementation in frontend_entities:
+            try:
+                return implementation.load(file)
+            except Exception:
+                pass
+        raise RuntimeError('Not recognized front-end implementation.')
+
+    @staticmethod
+    def frontend() -> Text:
+        """Get which frontend is wrapping."""
+        raise NotImplementedError()
 
     @property
     def type_name(self) -> Text:
