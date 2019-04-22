@@ -15,10 +15,10 @@
 """Module for Entity class."""
 
 import io
-import xml.etree.ElementTree as ET
 from typing import Optional
 from typing import Text
 from typing import Union
+import xml.etree.ElementTree as ET
 
 import launch_frontend
 

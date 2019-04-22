@@ -25,11 +25,6 @@ from launch.utilities import is_a
 
 from pkg_resources import iter_entry_points
 
-frontend_entities = {
-    entry_point.name: entry_point.load()
-    for entry_point in iter_entry_points('launch_frontend.entity')
-}
-
 
 class Entity:
     """Single item in the intermediate front_end representation."""
@@ -37,15 +32,19 @@ class Entity:
     @staticmethod
     def load(
         file: Union[str, io.TextIOBase],
-        parent: 'Entity'
+        parent: 'Entity' = None
     ) -> 'Entity':
         """Return an entity loaded with a markup file."""
+        frontend_entities = {
+            entry_point.name: entry_point.load()
+            for entry_point in iter_entry_points('launch_frontend.entity')
+        }
         if is_a(file, str):
             # This automatically recognizes 'file.xml' or 'file.launch.xml'
             # as a launch file using the xml frontend.
             frontend_name = file.rsplit('.', 1)[1]
             if frontend_name in frontend_entities:
-                return frontend_entities.load(file)
+                return frontend_entities[frontend_name].load(file)
         # If not, apply brute force.
         # TODO(ivanpauno): Maybe, we want to force correct file naming.
         # In that case, we should raise an error here.

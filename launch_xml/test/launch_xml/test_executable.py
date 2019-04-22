@@ -15,21 +15,17 @@
 """Test parsing an executable action."""
 
 from pathlib import Path
-import xml.etree.ElementTree as ET
 
 from launch import LaunchDescription
 from launch import LaunchService
 
+from launch_frontend import Entity
 from launch_frontend import parse_executable
-
-from launch_xml import Entity
 
 
 def test_executable():
     """Parse node xml example."""
-    tree = ET.parse(str(Path(__file__).parent / 'executable.xml'))
-    root = tree.getroot()
-    root_entity = Entity(root)
+    root_entity = Entity.load(str(Path(__file__).parent / 'executable.xml'))
     executable = parse_executable(root_entity)
     cmd = [i[0].perform(None) for i in executable.cmd]
     assert(cmd ==

@@ -23,6 +23,7 @@ from pkg_resources import iter_entry_points
 
 from .entity import Entity
 from .expose import action_parse_methods
+from .substitutions import default_substitution_interpolation
 
 interpolation_fuctions = {
     entry_point.name: entry_point.load()
@@ -45,8 +46,8 @@ class Parser:
         """Parse a substitution, using its registered parsing method."""
         if frontend in interpolation_fuctions:
             return interpolation_fuctions[frontend](value)
-        # else:
-        #     return default_substitution_interpolation(value)
+        else:
+            return default_substitution_interpolation(value)
 
     def parse_description(self, entity: Entity) -> launch.LaunchDescription:
         """Parse a launch description."""
