@@ -16,17 +16,16 @@
 
 from pathlib import Path
 
-from launch import LaunchDescription
 from launch import LaunchService
 
-from launch_frontend import Entity
-from launch_frontend import parse_executable
+from launch_frontend import Entity, parse_description
 
 
 def test_executable():
     """Parse node xml example."""
     root_entity = Entity.load(str(Path(__file__).parent / 'executable.xml'))
-    executable = parse_executable(root_entity)
+    ld = parse_description(root_entity)
+    executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
     assert(cmd ==
            ['ls', '-l', '-a', '-s'])
@@ -39,9 +38,7 @@ def test_executable():
     value = value[0].perform(None)
     assert(key == 'var')
     assert(value == '1')
-    assert(executable.prefix[0].perform(None) == 'time')
-    ld = LaunchDescription()
-    ld.add_action(executable)
+    # assert(executable.prefix[0].perform(None) == 'time')
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert(0 == ls.run())
