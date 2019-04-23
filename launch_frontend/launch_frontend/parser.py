@@ -78,6 +78,8 @@ def load_optional_attribute(
     kwargs: dict,
     entity: Entity,
     name: Text,
+    *,
+    subst: bool = True,
     constructor_name: Optional[Text] = None
 ):
     """Load an optional attribute of `entity` named `name` in `kwargs`."""
@@ -86,18 +88,30 @@ def load_optional_attribute(
     if constructor_name is not None:
         key = constructor_name
     if attr is not None:
-        kwargs[key] = attr
+        if subst:
+            kwargs[key] = parse_substitution(attr, entity.frontend)
+        else:
+            kwargs[key] = attr
 
 
 @expose_action('executable')
 def parse_executable(entity: Entity):
     """Parse executable tag."""
-    cmd = entity.cmd
+    cmd = parse_substitution(entity.cmd, entity.frontend)
     kwargs = {}
     load_optional_attribute(kwargs, entity, 'cwd')
     load_optional_attribute(kwargs, entity, 'name')
-    load_optional_attribute(kwargs, entity, 'launch-prefix', 'prefix')
-    load_optional_attribute(kwargs, entity, 'output')
+    load_optional_attribute(
+        kwargs,
+        entity,
+        'launch-prefix',
+        constructor_name='prefix'
+    )
+    load_optional_attribute(
+        kwargs,
+        entity,
+        'output',
+        subst=False)
     shell = getattr(entity, 'shell', None)
     if shell is not None:
         kwargs['shell'] = str_to_bool(shell)
@@ -105,12 +119,20 @@ def parse_executable(entity: Entity):
     # Substitutions aren't allowing conditions now.
     env = getattr(entity, 'env', None)
     if env is not None:
-        env = {e.name: e.value for e in env}
+        env = {e.name: parse_substitution(e.value, e.frontend) for e in env}
         kwargs['additional_env'] = env
     args = getattr(entity, 'args', None)
-    args = args.split(' ') if args else []
-    if not isinstance(args, list):
-        args = [args]
+    if args is not None:
+        args = parse_substitution(args, entity.frontend)
+        new_args = []
+        for arg in args:
+            if isinstance(arg, str):
+                new_args.extend(arg.split(' '))
+            else:
+                new_args.append(arg)
+        args = new_args
+    else:
+        args = []
     cmd_list = [cmd]
     cmd_list.extend(args)
     # TODO(ivanpauno): Handle predicate conditions

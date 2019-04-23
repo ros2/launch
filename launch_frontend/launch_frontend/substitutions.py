@@ -179,6 +179,7 @@ def default_substitution_interpolation(string):
                 # Is still nested in other substitution
                 pos = cb + 1
             continue
+        subst_list.append(replace_scapes(string[pos:]))
         if opening_brackets_pile:
             raise RuntimeError('Non matching substitution brackets.')
         return subst_list
