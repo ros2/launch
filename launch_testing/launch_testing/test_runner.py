@@ -230,7 +230,7 @@ class LaunchTestRunner(object):
                 worker = _RunnerWorker(run, self._launch_file_arguments, self._debug)
                 results[run] = worker.run()
             except unittest.case.SkipTest as skip_exception:
-                # If a 'skip' decorator was placed on the generate_launch_description function,
+                # If a 'skip' decorator was placed on the generate_test_description function,
                 # we skip all the tests for that run
                 print('{} is skipped: {}'.format(run, skip_exception))
                 results[run] = SkipResult(msg=str(skip_exception))
