@@ -25,6 +25,8 @@ from launch.utilities import is_a
 
 from pkg_resources import iter_entry_points
 
+frontend_entities = None
+
 
 class Entity:
     """Single item in the intermediate front_end representation."""
@@ -36,10 +38,12 @@ class Entity:
     ) -> 'Entity':
         """Return an entity loaded with a markup file."""
         # frontend_entities is not global to avoid a recursive import
-        frontend_entities = {
-            entry_point.name: entry_point.load()
-            for entry_point in iter_entry_points('launch_frontend.entity')
-        }
+        global frontend_entities
+        if frontend_entities is None:
+            frontend_entities = {
+                entry_point.name: entry_point.load()
+                for entry_point in iter_entry_points('launch_frontend.entity')
+            }
         if is_a(file, str):
             # This automatically recognizes 'file.xml' or 'file.launch.xml'
             # as a launch file using the xml frontend.
