@@ -22,8 +22,7 @@ import launch
 from pkg_resources import iter_entry_points
 
 from .entity import Entity
-from .expose import action_parse_methods
-from .expose import expose_action
+from .expose import action_parse_methods, expose_action
 from .substitutions import default_substitution_interpolation
 
 interpolation_fuctions = {
@@ -31,9 +30,18 @@ interpolation_fuctions = {
     for entry_point in iter_entry_points('launch_frontend.interpolate_substitution')
 }
 
+extensions_loaded = False
+
+
+def load_parser_extensions():
+    for entry_point in iter_entry_points('launch_frontend.parser_extension'):
+        entry_point.load()
+
 
 def parse_action(entity: Entity) -> launch.Action:
     """Parse an action, using its registered parsing method."""
+    if not extensions_loaded:
+        load_parser_extensions()
     if entity.type_name not in action_parse_methods:
         raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
     return action_parse_methods[entity.type_name](entity)
@@ -41,6 +49,8 @@ def parse_action(entity: Entity) -> launch.Action:
 
 def parse_substitution(value: Text, frontend: Text) -> launch.SomeSubstitutionsType:
     """Parse a substitution, using its registered parsing method."""
+    if not extensions_loaded:
+        load_parser_extensions()
     if frontend in interpolation_fuctions:
         return interpolation_fuctions[frontend](value)
     else:

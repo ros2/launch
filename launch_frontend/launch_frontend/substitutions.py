@@ -20,8 +20,8 @@ from launch import SomeSubstitutionsType
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import FindExecutable
 
-from .expose import expose_substitution
-from .expose import substitution_parse_methods
+
+from .expose import expose_substitution, substitution_parse_methods
 
 
 @expose_substitution('test')

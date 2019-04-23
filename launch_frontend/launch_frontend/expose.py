@@ -17,8 +17,8 @@
 import inspect
 from typing import Text
 
-substitution_parse_methods = {}
 action_parse_methods = {}
+substitution_parse_methods = {}
 
 
 def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
