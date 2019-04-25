@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Example of how to parse an xml."""
+"""Test parsing an executable action."""
 
 from pathlib import Path
 import xml.etree.ElementTree as ET

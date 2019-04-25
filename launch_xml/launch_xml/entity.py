@@ -48,7 +48,12 @@ class Entity(launch_frontend.Entity):
     def __getattr__(self, name):
         """Abstraction of how to access the xml tree."""
         if name in self.__xml_element.attrib:
-            return self.__xml_element.attrib[name]
+            name_sep = name + '-sep'
+            if name_sep not in self.__xml_element.attrib:
+                return self.__xml_element.attrib[name]
+            else:
+                sep = self.__xml_element.attrib[name_sep]
+                return self.__xml_element.attrib[name].split(sep)
         return_list = filter(lambda x: x.tag == name,
                              self.__xml_element)
         return_list = [Entity(item) for item in return_list]

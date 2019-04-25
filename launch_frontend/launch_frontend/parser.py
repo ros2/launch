@@ -14,6 +14,9 @@
 
 """Module for Parser methods."""
 
+from typing import Optional
+from typing import Text
+
 import launch
 
 from .entity import Entity
@@ -28,32 +31,45 @@ def str_to_bool(string):
     raise RuntimeError('Expected "true" or "false", got {}'.format(string))
 
 
+def load_optional_attribute(
+    kwargs: dict,
+    entity: Entity,
+    name: Text,
+    constructor_name: Optional[Text] = None
+):
+    """Load an optional attribute of `entity` named `name` in `kwargs`."""
+    attr = getattr(entity, name, None)
+    key = name
+    if constructor_name is not None:
+        key = constructor_name
+    if attr is not None:
+        kwargs[key] = attr
+
+
 def parse_executable(entity: Entity):
     """Parse executable tag."""
     cmd = entity.cmd
-    cwd = getattr(entity, 'cwd', None)
-    name = getattr(entity, 'name', None)
-    shell = str_to_bool(getattr(entity, 'shell', 'false'))
-    prefix = getattr(entity, 'launch-prefix', None)
-    output = getattr(entity, 'output', 'log')
-    args = getattr(entity, 'args', None)
-    args = args.split(' ') if args else []
-    if not isinstance(args, list):
-        args = [args]
+    kwargs = {}
+    load_optional_attribute(kwargs, entity, 'cwd')
+    load_optional_attribute(kwargs, entity, 'name')
+    load_optional_attribute(kwargs, entity, 'launch-prefix', 'prefix')
+    load_optional_attribute(kwargs, entity, 'output')
+    shell = getattr(entity, 'shell', None)
+    if shell is not None:
+        kwargs['shell'] = str_to_bool(shell)
     # TODO(ivanpauno): How will predicates be handle in env?
     # Substitutions aren't allowing conditions now.
     env = getattr(entity, 'env', None)
     if env is not None:
         env = {e.name: e.value for e in env}
-
+        kwargs['additional_env'] = env
+    args = getattr(entity, 'args', None)
+    args = args.split(' ') if args else []
+    if not isinstance(args, list):
+        args = [args]
     cmd_list = [cmd]
     cmd_list.extend(args)
     # TODO(ivanpauno): Handle predicate conditions
     return launch.actions.ExecuteProcess(
         cmd=cmd_list,
-        cwd=cwd,
-        additional_env=env,
-        name=name,
-        shell=shell,
-        prefix=prefix,
-        output=output)
+        **kwargs)
