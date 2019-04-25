@@ -1,11 +1,10 @@
 # launch_testing
 
-This tool is a framework for ROS2 integration testing using the [ros2 style launch description](https://github.com/ros2/launch/blob/master/ros2launch/examples/example.launch.py).
-It works similarly to rostest, but makes it easier to inspect the processes under test. For example:
+This tool is a framework for launch integration testing. For example:
 
   * The exit codes of all processes are available to the tests.
-    Tests can check that all processes shut down normally, or with specific exit codes.
-    Tests can fail when a process dies unexpectedly.
+  * Tests can check that all processes shut down normally, or with specific exit codes.
+  * Tests can fail when a process dies unexpectedly.
   * The stdout and stderr of all processes are available to the tests.
   * The command-line used to launch the processes are avilalbe to the tests.
   * Some tests run concurrently with the launch and can interact with the running processes.
@@ -149,7 +148,7 @@ These asserts are methods on the `proc_output` and `proc_info` objects.
 
 ## Arguments
 
-`launch_test` uses the same [syntax as ros2 launch](https://github.com/ros2/launch/pull/123) to pass arguments to tests.
+`launch_test` uses launch arguments for tests too.
 
 Arguments are declared in the launch description and can be accessed by the test via a `test_args` dictionary that's injected into the tests similar to `proc_info` and `proc_output`.
 
