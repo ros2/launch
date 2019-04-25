@@ -123,16 +123,10 @@ def parse_executable(entity: Entity):
         kwargs['additional_env'] = env
     args = getattr(entity, 'args', None)
     if args is not None:
-        args = parse_substitution(args, entity.frontend)
-        new_args = []
-        for arg in args:
-            if isinstance(arg, str):
-                new_args.extend(arg.split(' '))
-            else:
-                new_args.append(arg)
-        args = new_args
+        args = [parse_substitution(arg, entity.frontend) for arg in args]
     else:
         args = []
+    print(args)
     cmd_list = [cmd]
     cmd_list.extend(args)
     # TODO(ivanpauno): Handle predicate conditions

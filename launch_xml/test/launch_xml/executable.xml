@@ -1,5 +1,5 @@
 <launch>
-    <executable cmd="ls" cwd="/" name="my_ls" args="-l -a -s" shell="true" output='log' launch-prefix='$(env LAUNCH_PREFIX)'>
+    <executable cmd="ls" cwd="/" name="my_ls" args="-l, -a, -s" args-sep=", " shell="true" output='log' launch-prefix='$(env LAUNCH_PREFIX)'>
         <env name="var" value="1"/>
     </executable>
 </launch>
