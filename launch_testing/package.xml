@@ -5,6 +5,7 @@
   <version>0.8.0</version>
   <description>A package to create tests which involve launch files and multiple processes.</description>
   <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
+  <author email="pete.baughman@apex.ai">Pete Baughman</author>
   <author email="dthomas@osrfoundation.org">Dirk Thomas</author>
   <author>Esteve Fernandez</author>
   <license>Apache License 2.0</license>
@@ -17,6 +18,7 @@
   <test_depend>ament_pep257</test_depend>
   <test_depend>launch</test_depend>
   <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-mock</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from ..util import resolveProcesses
 
 
@@ -31,7 +33,7 @@ def get_matching_function(expected_output):
             if hasattr(expected_output[0], 'search'):
                 def _match(expected, actual):
                     start = 0
-                    actual = '\n'.join(actual.splitlines())
+                    actual = actual.replace(os.linesep, '\n')
                     for pattern in expected:
                         match = pattern.search(actual, start)
                         if match is None:
@@ -39,12 +41,11 @@ def get_matching_function(expected_output):
                         start = match.end()
                     return True
                 return _match
-        raise ValueError('Unknown format for expected output lines')
     elif isinstance(expected_output, str):
         return lambda expected, actual: expected in actual
     elif hasattr(expected_output, 'search'):
         return lambda expected, actual: (
-            expected.match('\n'.join(actual.splitlines())) is not None
+            expected.match(actual.replace(os.linesep, '\n')) is not None
         )
     raise ValueError('Unknown format for expected output')
 
