@@ -42,8 +42,8 @@ class Entity(launch_frontend.Entity):
         self.__xml_element = xml_element
         self.__parent = parent
 
-    @staticmethod
-    def frontend() -> Text:
+    @property
+    def frontend(self) -> Text:
         """Get which frontend is wrapping."""
         return 'xml'
 

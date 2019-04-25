@@ -62,7 +62,7 @@ class Entity:
                 pass
         raise RuntimeError('Not recognized front-end implementation.')
 
-    @staticmethod
+    @property
     def frontend() -> Text:
         """Get which frontend is wrapping."""
         raise NotImplementedError()
