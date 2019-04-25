@@ -14,8 +14,6 @@
 
 """Module for built-in front-end substitutions."""
 
-from typing import Text
-
 from launch import SomeSubstitutionsType
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import FindExecutable
@@ -30,19 +28,6 @@ def test(data):
     if len(data) > 1:
         raise AttributeError('Expected a len 1 list')
     return data[0]
-
-
-@expose_substitution('list')
-def parse_list(string: Text):
-    """Parse a list substitution."""
-    if len(string) > 1:
-        raise AttributeError('Expected a len 1 list.')
-    string = string[0]
-    pos = string.find('sep=')
-    sep = ','
-    if pos == 0:
-        sep, string = string[4:].split(' ', 1)
-    return string.split(sep)
 
 
 def parse_find_executable(executable_name: SomeSubstitutionsType):
@@ -187,5 +172,5 @@ def default_substitution_interpolation(string):
 
 if __name__ == '__main__':
     print(default_substitution_interpolation(
-        r'hola $(test \)como\$(\\) $(test $(list 1,2,3))'
+        r'hola $(test \)como\$(\\) $(test asd)'
         ' $(env $(env jkl $(test msj)) bsd)'))
