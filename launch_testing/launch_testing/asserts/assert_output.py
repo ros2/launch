@@ -22,12 +22,12 @@ def get_matching_function(expected_output):
         if len(expected_output) > 0:
             if isinstance(expected_output[0], str):
                 def _match(expected, actual):
-                    start = 0
+                    lines = actual.splitlines()
                     for pattern in expected:
-                        start = actual.find(pattern, start)
-                        if start < 0:
+                        if pattern not in lines:
                             return False
-                        start += len(pattern)
+                        index = lines.index(pattern)
+                        lines = lines[index + 1:]
                     return True
                 return _match
             if hasattr(expected_output[0], 'search'):
@@ -98,6 +98,7 @@ def assertInStdout(proc_output,
         full_output = ''.join(output.text.decode() for output in proc_output[proc])
         if output_filter is not None:
             full_output = output_filter(full_output)
+        print(expected_output, "?", full_output)
         if output_match(expected_output, full_output):
             break
     else:
