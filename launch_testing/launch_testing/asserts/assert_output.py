@@ -98,7 +98,6 @@ def assertInStdout(proc_output,
         full_output = ''.join(output.text.decode() for output in proc_output[proc])
         if output_filter is not None:
             full_output = output_filter(full_output)
-        print(expected_output, "?", full_output)
         if output_match(expected_output, full_output):
             break
     else:
