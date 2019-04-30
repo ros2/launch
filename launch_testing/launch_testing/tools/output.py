@@ -39,8 +39,10 @@ def basic_output_filter(
     :param filtered_patterns: A list of byte strings representing regexes that will cause
     output lines to be ignored if they match one of the regexes.
     """
-    filtered_prefixes = filtered_prefixes or get_default_filtered_prefixes()
-    filtered_patterns = filtered_patterns or get_default_filtered_patterns()
+    if filtered_prefixes is None:
+        filtered_prefixes = get_default_filtered_prefixes()
+    if filtered_patterns is None:
+        filtered_patterns = get_default_filtered_patterns()
     filtered_patterns = map(re.compile, filtered_patterns)
 
     def _filter(output):

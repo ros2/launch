@@ -95,7 +95,9 @@ def assertInStdout(proc_output,
     output_match = get_matching_function(expected_output)
 
     for proc in resolved_procs:  # Nominally just one matching proc
-        full_output = ''.join(output.text.decode() for output in proc_output[proc])
+        full_output = ''.join(
+            output.text.decode() for output in proc_output[proc] if output.from_stdout
+        )
         if output_filter is not None:
             full_output = output_filter(full_output)
         if output_match(expected_output, full_output):
