@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 3.5)
+
+project(launch_testing_ament_cmake NONE)
+
+find_package(ament_cmake_core REQUIRED)
+
+ament_package(
+  CONFIG_EXTRAS "${PROJECT_NAME}-extras.cmake"
+)
+
+install(
+  DIRECTORY cmake
+  DESTINATION share/${PROJECT_NAME}
+)
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(launch_testing_ament_cmake_pytests test)
+
+  include(cmake/add_launch_test.cmake)
+
+  ament_index_has_resource(LAUNCH_TESTING_INSTALL_PREFIX packages launch_testing)
+  if(NOT LAUNCH_TESTING_INSTALL_PREFIX)
+      message(FATAL_ERROR "launch_testing package not found")
+  endif()
+
+  # Test argument passing.  This test won't pass unless you give it an argument
+  add_launch_test(
+    "${LAUNCH_TESTING_INSTALL_PREFIX}/share/launch_testing/examples/args.test.py"
+    ARGS "dut_arg:=--anything"
+  )
+endif()
