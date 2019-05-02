@@ -15,12 +15,15 @@
 import os
 import subprocess
 import tempfile
+import types
 import unittest
 import xml.etree.ElementTree as ET
 
 import ament_index_python
 
+import launch_testing
 from launch_testing.junitxml import unittestResultsToXml
+from launch_testing.loader import LoadTestsFromPythonModule
 from launch_testing.test_result import FailResult
 from launch_testing.test_result import SkipResult
 from launch_testing.test_result import TestResult as TR
@@ -105,21 +108,55 @@ class TestXmlFunctions(unittest.TestCase):
         self.assertEqual(set(child_names), {'active_tests'})
 
     def test_skip_results_serialize(self):
-        xml_tree = unittestResultsToXml(
-            name='skip_xml',
+        # This checks the case where all unit tests are skipped because of a skip
+        # decorator on the generate_test_description function
+        @unittest.skip('skip reason string')
+        def generate_test_description(ready_fn):
+            raise Exception('This should never be invoked')  # pragma: no cover
+
+        class FakePreShutdownTests(unittest.TestCase):
+
+            def test_fail_always(self):
+                assert False  # pragma: no cover
+
+        @launch_testing.post_shutdown_test()
+        class FakePostShutdownTests(unittest.TestCase):
+
+            def test_fail_always(self):
+                assert False  # pragma: no cover
+
+            def test_pass_always(self):
+                pass  # pragma: no cover
+
+        test_module = types.ModuleType('test_module')
+        test_module.generate_test_description = generate_test_description
+        test_module.FakePreShutdownTests = FakePreShutdownTests
+        test_module.FakePostShutdownTests = FakePostShutdownTests
+        test_runs = LoadTestsFromPythonModule(test_module)
+
+        self.assertEqual(1, len(test_runs))  # Not a parametrized launch, so only 1 run
+
+        dut_xml = unittestResultsToXml(
             test_results={
-                'active_tests': SkipResult(msg='skip message')
+                'run1': SkipResult(test_run=test_runs[0], skip_reason='skip message')
             }
         )
 
         # Make sure the message got into the 'skip' element
-        testsuites_element = xml_tree.getroot()
+        testsuites_element = dut_xml.getroot()
         testsuite_element = testsuites_element.find('testsuite')
-        testcase_element = testsuite_element.find('testcase')
-        skip_element = testcase_element.find('skipped')
 
-        self.assertEqual('1', testsuite_element.attrib['skipped'])
-        self.assertEqual('skip message', skip_element.attrib['message'])
+        self.assertEqual('0', testsuite_element.attrib['failures'])
+        self.assertEqual('0', testsuite_element.attrib['errors'])
+        self.assertEqual('3', testsuite_element.attrib['skipped'])
+        self.assertEqual('3', testsuite_element.attrib['tests'])
+
+        testcases = testsuite_element.findall('testcase')
+        self.assertEqual(3, len(testcases))
+
+        for testcase_element in testcases:
+            skip_element = testcase_element.find('skipped')
+            self.assertEqual('skip message', skip_element.attrib['message'])
 
     def test_multiple_test_results(self):
         xml_tree = unittestResultsToXml(
@@ -135,7 +172,15 @@ class TestXmlFunctions(unittest.TestCase):
         self.assertEqual(set(child_names), {'launch_1', 'launch_2', 'launch_3'})
 
     def test_result_that_ran(self):
-        # This mostly validates the test setup
+        """
+        # The expected XML output for this test looks like this
+        # <testsuites>
+        #   <testsuite name="run1" . . . >
+        #     <testcase classname="TestHost" name="test_0" . . . />
+        #   </testsuite>
+        # <testsuites>
+        """
+        # This mostly validates the test setup is good for the other tests
         dut_xml = unittestResultsToXml(
             test_results={
                 'run1': self.unit_test_result_factory([
@@ -143,13 +188,6 @@ class TestXmlFunctions(unittest.TestCase):
                 ])
             }
         )
-
-        # The expected structure for this test is:
-        # <testsuites>
-        #   <testsuite name="run1" . . . >
-        #     <testcase classname="TestHost" name="test_0" . . . />
-        #   </testsuite>
-        # <testsuites>
 
         testsuites_element = dut_xml.getroot()
         testsuite_element = testsuites_element.find('testsuite')
@@ -163,7 +201,17 @@ class TestXmlFunctions(unittest.TestCase):
         self.assertEqual('TestHost', testcase_element.attrib['classname'])
 
     def test_result_with_skipped_test(self):
-
+        """
+        The expected XML output for this test looks like:
+        <testsuites>
+          <testsuite name="run1" skipped="1". . . >
+            <testcase classname="TestHost" name="test_0" . . . >
+              <skipped message="My reason is foo" . . . />
+            </testcase>
+          </testsuite>
+        <testsuites>
+        Notice the extra 'skipped' child-element of testcase.
+        """
         @unittest.skip('My reason is foo')
         def test_that_is_skipped(self):
             pass  # pragma: no cover
@@ -176,14 +224,6 @@ class TestXmlFunctions(unittest.TestCase):
             }
         )
 
-        # The expected structure for this test is:
-        # <testsuites>
-        #   <testsuite name="run1" . . . >
-        #     <testcase classname="TestHost" name="test_0" . . . >
-        #       <skipped message="My reason is foo" . . . />
-        #     </testcase>
-        #   </testsuite>
-        # <testsuites>
 
         testsuites_element = dut_xml.getroot()
         testsuite_element = testsuites_element.find('testsuite')
@@ -194,6 +234,20 @@ class TestXmlFunctions(unittest.TestCase):
         self.assertEqual('My reason is foo', skip_element.attrib['message'])
 
     def test_result_with_failure(self):
+        """
+        The expected XML output for this test is
+        <testsuites>
+          <testsuite name="run1" failures="1". . . >
+            <testcase classname="TestHost" name="test_0" . . . >
+              <failure message="assert 1 == 2" . . .>
+              </failure>
+            </testcase>
+          </testsuite>
+        <testsuites>
+
+        Notice there's a failure message child-element of the testcase and
+        a count of failed tests
+        """
 
         def test_that_fails(self):
             assert 1 == 2
@@ -206,16 +260,6 @@ class TestXmlFunctions(unittest.TestCase):
             }
         )
 
-        # The expected structure for this test is:
-        # <testsuites>
-        #   <testsuite name="run1" . . . >
-        #     <testcase classname="TestHost" name="test_0" . . . >
-        #       <failure message="assert 1 == 2" . . .>
-        #       </failure>
-        #     </testcase>
-        #   </testsuite>
-        # <testsuites>
-
         testsuites_element = dut_xml.getroot()
         testsuite_element = testsuites_element.find('testsuite')
         testcase_element = testsuite_element.find('testcase')
@@ -225,6 +269,20 @@ class TestXmlFunctions(unittest.TestCase):
         self.assertIn('1 == 2', failure_element.attrib['message'])
 
     def test_result_with_error(self):
+        """
+        The expected XML output for this test is:
+        <testsuites>
+          <testsuite name="run1" errors="1". . . >
+            <testcase classname="TestHost" name="test_0" . . . >
+              <error message="This is an error" . . .>
+              </failure>
+            </testcase>
+          </testsuite>
+        <testsuites>
+
+        Python unittest treats exceptions other than AssertionError exceptions
+        as 'errors' not failures so they get a different tag, and count
+        """
 
         def test_that_errors(self):
             raise Exception('This is an error')
@@ -236,16 +294,6 @@ class TestXmlFunctions(unittest.TestCase):
                 ])
             }
         )
-
-        # The expected structure for this test is:
-        # <testsuites>
-        #   <testsuite name="run1" . . . >
-        #     <testcase classname="TestHost" name="test_0" . . . >
-        #       <error message="This is an error" . . .>
-        #       </failure>
-        #     </testcase>
-        #   </testsuite>
-        # <testsuites>
 
         testsuites_element = dut_xml.getroot()
         testsuite_element = testsuites_element.find('testsuite')

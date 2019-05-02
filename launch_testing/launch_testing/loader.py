@@ -76,6 +76,10 @@ class TestRun:
         """
         return self.test_description_function(lambda: None)
 
+    def all_cases(self):
+        yield from _iterate_tests_in_test_suite(self.pre_shutdown_tests)
+        yield from _iterate_tests_in_test_suite(self.post_shutdown_tests)
+
     def __str__(self):
         if not self.param_args:
             return 'launch'

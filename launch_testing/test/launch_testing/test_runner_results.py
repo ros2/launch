@@ -234,6 +234,9 @@ def test_skipped_launch_description():
         def test_fail_always(self):
             assert False  # pragma: no cover
 
+        def test_pass_always(self):
+            pass  # pragma: no cover
+
     test_module = types.ModuleType('test_module')
     test_module.generate_test_description = generate_test_description
     test_module.FakePreShutdownTests = FakePreShutdownTests
@@ -245,5 +248,12 @@ def test_skipped_launch_description():
     )
 
     results = runner.run()
-    # Should just get one result, even though there were multiple tests
+    # Just one test run expected
     assert len(results.values()) == 1
+
+    skip_result = next(iter(results.values()))
+    # Make sure it looks like all three tests were skipped
+    assert len(skip_result.skipped) == 3
+    assert skip_result.testsRun == 3
+
+    # XML Structure is checked in test_xml_output.py

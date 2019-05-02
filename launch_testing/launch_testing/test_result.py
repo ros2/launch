@@ -36,24 +36,20 @@ class FailResult(unittest.TestResult):
 class SkipResult(unittest.TestResult):
     """For test runs with a skip decorator on the generate_test_description function."""
 
-    class __skipped_test_case:
-
-        def __init__(self):
-            self._testMethodName = 'skipped_launch'
-
-    def __init__(self, stream=None, descriptions=None, verbosity=None, msg=''):
-        super().__init__(stream, descriptions, verbosity)
-        self.__tc = SkipResult.__skipped_test_case()
-        self.skipped.append((self.__tc, msg))
+    def __init__(self, test_run, skip_reason=''):
+        super().__init__()
+        for case in test_run.all_cases():
+            self.addSkip(case, skip_reason)
+            self.testsRun += 1
 
     @property
     def testCases(self):
-        return [self.__tc]
+        return [skipped[0] for skipped in self.skipped]
 
     @property
     def testTimes(self):
         """Get a dict of {test_case: elapsed_time}."""
-        return {self.__tc: 0}
+        return {skipped[0]: 0 for skipped in self.skipped}
 
     def wasSuccessful(self):
         return True
