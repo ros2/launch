@@ -97,6 +97,7 @@ function(add_launch_test file)
     string(REPLACE "/" "_" _add_launch_test_TARGET ${_add_launch_test_TARGET})
   endif()
 
+  set(test_name "${PROJECT_NAME}.${_add_launch_test_TARGET}")
   set(result_file "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${_add_launch_test_TARGET}.xunit.xml")
 
   set(cmd
@@ -106,6 +107,7 @@ function(add_launch_test file)
     "${_file_name}"
     "${_add_launch_test_ARGS}"
     "--junit-xml=${result_file}"
+    "--test-name=${test_name}"
   )
 
   ament_add_test(

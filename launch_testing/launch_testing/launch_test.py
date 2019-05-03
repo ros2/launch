@@ -73,6 +73,12 @@ def main():
         help='write junit XML style report to specified path'
     )
 
+    parser.add_argument(
+        '--test-name',
+        action='store',
+        default=None,
+        help='a name for the test'
+    )
     args = parser.parse_args()
 
     if args.verbose:
@@ -93,6 +99,8 @@ def main():
 
     args.test_file = os.path.abspath(args.test_file)
     test_module = _load_python_file_as_module(args.test_file)
+    if not args.test_name:
+        args.test_name = os.path.splitext(os.path.basename(args.test_file))[0]
 
     _logger_.debug('Checking for generate_test_description')
     if not hasattr(test_module, 'generate_test_description'):
@@ -102,7 +110,7 @@ def main():
 
     # This is a list of TestRun objects.  Each run corresponds to one launch.  There may be
     # multiple runs if the launch is parametrized
-    test_runs = LoadTestsFromPythonModule(test_module)
+    test_runs = LoadTestsFromPythonModule(test_module, name=args.test_name + '.launch_tests')
 
     # The runner handles sequcing the launches
     runner = LaunchTestRunner(
@@ -130,7 +138,7 @@ def main():
         _logger_.debug('Done running integration test')
 
         if args.xmlpath:
-            xml_report = unittestResultsToXml(test_results=results)
+            xml_report = unittestResultsToXml(test_results=results, name=args.test_name)
             xml_report.write(args.xmlpath, encoding='utf-8', xml_declaration=True)
 
         # There will be one result for every test run (see above where we load the tests)
