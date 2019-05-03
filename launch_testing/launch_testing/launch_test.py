@@ -74,7 +74,7 @@ def main():
     )
 
     parser.add_argument(
-        '--test-name',
+        '--package-name',
         action='store',
         default=None,
         help='a name for the test'
@@ -98,9 +98,10 @@ def main():
         parser.error("Test file '{}' does not exist".format(args.test_file))
 
     args.test_file = os.path.abspath(args.test_file)
-    test_module = _load_python_file_as_module(args.test_name, args.test_file)
-    if not args.test_name:
-        args.test_name = os.path.splitext(os.path.basename(args.test_file))[0]
+    test_file_basename = os.path.splitext(os.path.basename(args.test_file))[0]
+    if not args.package_name:
+        args.package_name = test_file_basename
+    test_module = _load_python_file_as_module(args.package_name, args.test_file)
 
     _logger_.debug('Checking for generate_test_description')
     if not hasattr(test_module, 'generate_test_description'):
@@ -110,7 +111,11 @@ def main():
 
     # This is a list of TestRun objects.  Each run corresponds to one launch.  There may be
     # multiple runs if the launch is parametrized
-    test_runs = LoadTestsFromPythonModule(test_module, name=args.test_name + '.launch_tests')
+    test_runs = LoadTestsFromPythonModule(
+        test_module, name='{}.{}.launch_tests'.format(
+            args.package_name, test_file_basename
+        )
+    )
 
     # The runner handles sequcing the launches
     runner = LaunchTestRunner(
@@ -138,7 +143,11 @@ def main():
         _logger_.debug('Done running integration test')
 
         if args.xmlpath:
-            xml_report = unittestResultsToXml(test_results=results, name=args.test_name)
+            xml_report = unittestResultsToXml(
+                test_results=results, name='{}.{}'.format(
+                    args.package_name, test_file_basename
+                )
+            )
             xml_report.write(args.xmlpath, encoding='utf-8', xml_declaration=True)
 
         # There will be one result for every test run (see above where we load the tests)
