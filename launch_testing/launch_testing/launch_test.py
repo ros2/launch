@@ -27,10 +27,10 @@ from .test_runner import LaunchTestRunner
 _logger_ = logging.getLogger(__name__)
 
 
-def _load_python_file_as_module(python_file_path):
+def _load_python_file_as_module(test_module_name, python_file_path):
     """Load a given Python launch file (by path) as a Python module."""
     # Taken from launch_testing to not introduce a weird dependency thing
-    loader = SourceFileLoader('python_launch_file', python_file_path)
+    loader = SourceFileLoader(test_module_name, python_file_path)
     return loader.load_module()
 
 
@@ -98,7 +98,7 @@ def main():
         parser.error("Test file '{}' does not exist".format(args.test_file))
 
     args.test_file = os.path.abspath(args.test_file)
-    test_module = _load_python_file_as_module(args.test_file)
+    test_module = _load_python_file_as_module(args.test_name, args.test_file)
     if not args.test_name:
         args.test_name = os.path.splitext(os.path.basename(args.test_file))[0]
 
