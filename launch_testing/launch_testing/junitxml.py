@@ -27,24 +27,26 @@ def unittestResultsToXml(*, name='launch_test', test_results={}):
     # were active, and one from tests that ran after processes were shut down
     test_suites = ET.Element('testsuites')
     test_suites.set('name', name)
-    # test_suites.set('time', ????) skipping 'time' attribute
 
     # To get tests, failures, and errors, we just want to iterate the results once
     tests = 0
     failures = 0
     errors = 0
+    time = 0
 
     for result in test_results.values():
         tests += result.testsRun
         failures += len(result.failures)
         errors += len(result.errors)
+        time += sum(result.testTimes.values())
 
     test_suites.set('tests', str(tests))
     test_suites.set('failures', str(failures))
     test_suites.set('errors', str(errors))
+    test_suites.set('time', str(round(time, 3)))
 
-    for (key, value) in test_results.items():
-        test_suites.append(unittestResultToXml(str(key), value))
+    for (name, test_result) in test_results.items():
+        test_suites.append(unittestResultToXml(str(name), test_result))
 
     return ET.ElementTree(test_suites)
 
