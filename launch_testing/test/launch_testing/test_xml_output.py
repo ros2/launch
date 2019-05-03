@@ -50,6 +50,7 @@ class TestGoodXmlOutput(unittest.TestCase):
                 'launch_test',
                 path,
                 '--junit-xml', os.path.join(cls.tmpdir.name, 'junit.xml'),
+                '--test-name', 'good_proc'
             ],
         ).returncode
 
@@ -65,7 +66,7 @@ class TestGoodXmlOutput(unittest.TestCase):
         test_suite = root[0]
 
         # Expecting an element called 'launch' since this was not parametrized
-        self.assertEqual(test_suite.attrib['name'], 'launch')
+        self.assertEqual(test_suite.attrib['name'], 'good_proc.launch_tests')
 
         # Drilling down a little further, we expect the class names to show up in the testcase
         # names
@@ -173,12 +174,14 @@ class TestXmlFunctions(unittest.TestCase):
 
     def test_result_that_ran(self):
         """
-        # The expected XML output for this test looks like this
-        # <testsuites>
-        #   <testsuite name="run1" . . . >
-        #     <testcase classname="TestHost" name="test_0" . . . />
-        #   </testsuite>
-        # <testsuites>
+        Test we have output as a result of a test being run.
+
+        The expected XML output for this test is:
+        <testsuites>
+          <testsuite name="run1" . . . >
+            <testcase classname="TestHost" name="test_0" . . . />
+          </testsuite>
+        <testsuites>
         """
         # This mostly validates the test setup is good for the other tests
         dut_xml = unittestResultsToXml(
@@ -202,7 +205,9 @@ class TestXmlFunctions(unittest.TestCase):
 
     def test_result_with_skipped_test(self):
         """
-        The expected XML output for this test looks like:
+        Test we have output as a result of a skipped test.
+
+        The expected XML output for this test is:
         <testsuites>
           <testsuite name="run1" skipped="1". . . >
             <testcase classname="TestHost" name="test_0" . . . >
@@ -210,6 +215,7 @@ class TestXmlFunctions(unittest.TestCase):
             </testcase>
           </testsuite>
         <testsuites>
+
         Notice the extra 'skipped' child-element of testcase.
         """
         @unittest.skip('My reason is foo')
@@ -224,7 +230,6 @@ class TestXmlFunctions(unittest.TestCase):
             }
         )
 
-
         testsuites_element = dut_xml.getroot()
         testsuite_element = testsuites_element.find('testsuite')
         testcase_element = testsuite_element.find('testcase')
@@ -235,7 +240,10 @@ class TestXmlFunctions(unittest.TestCase):
 
     def test_result_with_failure(self):
         """
-        The expected XML output for this test is
+        Test we have output as a result of failed test.
+
+        The expected XML output for this test is:
+
         <testsuites>
           <testsuite name="run1" failures="1". . . >
             <testcase classname="TestHost" name="test_0" . . . >
@@ -246,9 +254,8 @@ class TestXmlFunctions(unittest.TestCase):
         <testsuites>
 
         Notice there's a failure message child-element of the testcase and
-        a count of failed tests
+        a count of failed tests.
         """
-
         def test_that_fails(self):
             assert 1 == 2
 
@@ -270,7 +277,10 @@ class TestXmlFunctions(unittest.TestCase):
 
     def test_result_with_error(self):
         """
+        Test we have output as a result of an error in a test.
+
         The expected XML output for this test is:
+
         <testsuites>
           <testsuite name="run1" errors="1". . . >
             <testcase classname="TestHost" name="test_0" . . . >
@@ -281,9 +291,8 @@ class TestXmlFunctions(unittest.TestCase):
         <testsuites>
 
         Python unittest treats exceptions other than AssertionError exceptions
-        as 'errors' not failures so they get a different tag, and count
+        as 'errors' not failures so they get a different tag, and count.
         """
-
         def test_that_errors(self):
             raise Exception('This is an error')
 

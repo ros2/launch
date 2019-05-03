@@ -24,6 +24,7 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
 
         dut = LaunchTestRunner(
             [TR(
+                '',
                 test_description_function=lambda: None,
                 param_args={},
                 pre_shutdown_tests=None,
@@ -36,6 +37,7 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
 
         dut = LaunchTestRunner(
             [TR(
+                '',
                 test_description_function=lambda ready_fn: None,
                 param_args={},
                 pre_shutdown_tests=None,

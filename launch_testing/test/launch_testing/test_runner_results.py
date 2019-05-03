@@ -52,7 +52,7 @@ def test_dut_that_shuts_down(capsys):
 
     with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
         runner = LaunchTestRunner(
-            [TR(generate_test_description, {}, [], [])]
+            [TR('', generate_test_description, {}, [], [])]
         )
 
         results = runner.run()
@@ -99,7 +99,7 @@ def test_dut_that_has_exception(capsys):
 
     with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
         runner = LaunchTestRunner(
-            [TR(generate_test_description, {}, [], [])]
+            [TR('', generate_test_description, {}, [], [])]
         )
 
         results = runner.run()
