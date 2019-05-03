@@ -131,7 +131,7 @@ def main():
 
         if args.xmlpath:
             xml_report = unittestResultsToXml(test_results=results)
-            xml_report.write(args.xmlpath, xml_declaration=True)
+            xml_report.write(args.xmlpath, encoding='utf-8', xml_declaration=True)
 
         # There will be one result for every test run (see above where we load the tests)
         for result in results.values():
