@@ -27,10 +27,10 @@ from .test_runner import LaunchTestRunner
 _logger_ = logging.getLogger(__name__)
 
 
-def _load_python_file_as_module(python_file_path):
+def _load_python_file_as_module(test_module_name, python_file_path):
     """Load a given Python launch file (by path) as a Python module."""
     # Taken from launch_testing to not introduce a weird dependency thing
-    loader = SourceFileLoader('python_launch_file', python_file_path)
+    loader = SourceFileLoader(test_module_name, python_file_path)
     return loader.load_module()
 
 
@@ -73,6 +73,12 @@ def main():
         help='write junit XML style report to specified path'
     )
 
+    parser.add_argument(
+        '--package-name',
+        action='store',
+        default=None,
+        help='a name for the test'
+    )
     args = parser.parse_args()
 
     if args.verbose:
@@ -92,7 +98,10 @@ def main():
         parser.error("Test file '{}' does not exist".format(args.test_file))
 
     args.test_file = os.path.abspath(args.test_file)
-    test_module = _load_python_file_as_module(args.test_file)
+    test_file_basename = os.path.splitext(os.path.basename(args.test_file))[0]
+    if not args.package_name:
+        args.package_name = test_file_basename
+    test_module = _load_python_file_as_module(args.package_name, args.test_file)
 
     _logger_.debug('Checking for generate_test_description')
     if not hasattr(test_module, 'generate_test_description'):
@@ -102,7 +111,11 @@ def main():
 
     # This is a list of TestRun objects.  Each run corresponds to one launch.  There may be
     # multiple runs if the launch is parametrized
-    test_runs = LoadTestsFromPythonModule(test_module)
+    test_runs = LoadTestsFromPythonModule(
+        test_module, name='{}.{}.launch_tests'.format(
+            args.package_name, test_file_basename
+        )
+    )
 
     # The runner handles sequcing the launches
     runner = LaunchTestRunner(
@@ -130,8 +143,12 @@ def main():
         _logger_.debug('Done running integration test')
 
         if args.xmlpath:
-            xml_report = unittestResultsToXml(test_results=results)
-            xml_report.write(args.xmlpath, xml_declaration=True)
+            xml_report = unittestResultsToXml(
+                test_results=results, name='{}.{}'.format(
+                    args.package_name, test_file_basename
+                )
+            )
+            xml_report.write(args.xmlpath, encoding='utf-8', xml_declaration=True)
 
         # There will be one result for every test run (see above where we load the tests)
         for result in results.values():

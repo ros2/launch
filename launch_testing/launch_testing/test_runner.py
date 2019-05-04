@@ -26,7 +26,7 @@ from launch.event_handlers import OnProcessIO
 from .io_handler import ActiveIoHandler
 from .parse_arguments import parse_launch_arguments
 from .proc_info_handler import ActiveProcInfoHandler
-from .test_result import FailResult, TestResult
+from .test_result import FailResult, SkipResult, TestResult
 
 
 class _LaunchDiedException(Exception):
@@ -220,7 +220,7 @@ class LaunchTestRunner(object):
         :return: A tuple of two unittest.Results - one for tests that ran while processes were
         active, and another set for tests that ran after processes were shutdown
         """
-        # We will return the results as a {test_run: (active_results, post_shutdown_results)}
+        # We will return the results as a {test_run: TestResult)}
         results = {}
 
         for index, run in enumerate(self._test_runs):
@@ -229,6 +229,12 @@ class LaunchTestRunner(object):
             try:
                 worker = _RunnerWorker(run, self._launch_file_arguments, self._debug)
                 results[run] = worker.run()
+            except unittest.case.SkipTest as skip_exception:
+                # If a 'skip' decorator was placed on the generate_test_description function,
+                # we skip all the tests for that run
+                print('{} is skipped: {}'.format(run, skip_exception))
+                results[run] = SkipResult(test_run=run, skip_reason=str(skip_exception))
+                continue
             except _LaunchDiedException:
                 # The most likely cause was ctrl+c, so we'll abort the test run
                 results[run] = FailResult()

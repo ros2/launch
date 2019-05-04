@@ -106,6 +106,7 @@ function(add_launch_test file)
     "${_file_name}"
     "${_add_launch_test_ARGS}"
     "--junit-xml=${result_file}"
+    "--package-name=${PROJECT_NAME}"
   )
 
   ament_add_test(

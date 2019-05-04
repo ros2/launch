@@ -52,7 +52,7 @@ def test_dut_that_shuts_down(capsys):
 
     with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
         runner = LaunchTestRunner(
-            [TR(generate_test_description, {}, [], [])]
+            [TR('', generate_test_description, {}, [], [])]
         )
 
         results = runner.run()
@@ -99,7 +99,7 @@ def test_dut_that_has_exception(capsys):
 
     with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
         runner = LaunchTestRunner(
-            [TR(generate_test_description, {}, [], [])]
+            [TR('', generate_test_description, {}, [], [])]
         )
 
         results = runner.run()
@@ -215,3 +215,45 @@ def test_parametrized_run_with_one_failure():
 
     assert len(passes) == 3  # 1, 4, and 5 should pass
     assert len(fails) == 2  # 2 fails in an active test, 3 fails in a post-shutdown test
+
+
+def test_skipped_launch_description():
+
+    @unittest.skip('skip reason string')
+    def generate_test_description(ready_fn):
+        raise Exception('This should never be invoked')  # pragma: no cover
+
+    class FakePreShutdownTests(unittest.TestCase):
+
+        def test_fail_always(self):
+            assert False  # pragma: no cover
+
+    @launch_testing.post_shutdown_test()
+    class FakePostShutdownTests(unittest.TestCase):
+
+        def test_fail_always(self):
+            assert False  # pragma: no cover
+
+        def test_pass_always(self):
+            pass  # pragma: no cover
+
+    test_module = types.ModuleType('test_module')
+    test_module.generate_test_description = generate_test_description
+    test_module.FakePreShutdownTests = FakePreShutdownTests
+    test_module.FakePostShutdownTests = FakePostShutdownTests
+
+    # Run the test:
+    runner = LaunchTestRunner(
+        LoadTestsFromPythonModule(test_module)
+    )
+
+    results = runner.run()
+    # Just one test run expected
+    assert len(results.values()) == 1
+
+    skip_result = next(iter(results.values()))
+    # Make sure it looks like all three tests were skipped
+    assert len(skip_result.skipped) == 3
+    assert skip_result.testsRun == 3
+
+    # XML Structure is checked in test_xml_output.py

@@ -33,6 +33,28 @@ class FailResult(unittest.TestResult):
         return False
 
 
+class SkipResult(unittest.TestResult):
+    """For test runs with a skip decorator on the generate_test_description function."""
+
+    def __init__(self, test_run, skip_reason=''):
+        super().__init__()
+        for case in test_run.all_cases():
+            self.addSkip(case, skip_reason)
+            self.testsRun += 1
+
+    @property
+    def testCases(self):
+        return [skipped[0] for skipped in self.skipped]
+
+    @property
+    def testTimes(self):
+        """Get a dict of {test_case: elapsed_time}."""
+        return {skipped[0]: 0 for skipped in self.skipped}
+
+    def wasSuccessful(self):
+        return True
+
+
 class TestResult(unittest.TextTestResult):
     """
     Subclass of unittest.TestResult that collects more information about the tests that ran.
