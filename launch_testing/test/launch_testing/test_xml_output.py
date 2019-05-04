@@ -50,7 +50,7 @@ class TestGoodXmlOutput(unittest.TestCase):
                 'launch_test',
                 path,
                 '--junit-xml', os.path.join(cls.tmpdir.name, 'junit.xml'),
-                '--test-name', 'good_proc'
+                '--package-name', 'test_xml_output'
             ],
         ).returncode
 
@@ -65,8 +65,11 @@ class TestGoodXmlOutput(unittest.TestCase):
         self.assertEqual(len(root), 1)
         test_suite = root[0]
 
-        # Expecting an element called 'launch' since this was not parametrized
-        self.assertEqual(test_suite.attrib['name'], 'good_proc.launch_tests')
+        # Expecting an element called '{package}.{test_base_name}.launch_tests' since this
+        # was not parametrized
+        self.assertEqual(
+            test_suite.attrib['name'], 'test_xml_output.good_proc.test.launch_tests'
+        )
 
         # Drilling down a little further, we expect the class names to show up in the testcase
         # names
@@ -201,7 +204,8 @@ class TestXmlFunctions(unittest.TestCase):
         self.assertEqual('0', testsuite_element.attrib['errors'])
         self.assertEqual('1', testsuite_element.attrib['tests'])
         self.assertEqual('test_0', testcase_element.attrib['name'])
-        self.assertEqual('TestHost', testcase_element.attrib['classname'])
+        # Expect a fully qualified class name
+        self.assertEqual('test_xml_output.TestHost', testcase_element.attrib['classname'])
 
     def test_result_with_skipped_test(self):
         """
