@@ -222,7 +222,7 @@ class LaunchTestRunner(object):
         # We will return the results as a {test_run: TestResult)}
         results = {}
 
-        for index, run in enumerate(self._test_runs):
+        for run in self._test_runs:
             if len(self._test_runs) > 1:
                 print('\n***** Starting test run {} *****'.format(run))
             try:
