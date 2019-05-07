@@ -225,7 +225,7 @@ class LaunchTestRunner(object):
 
         for index, run in enumerate(self._test_runs):
             if len(self._test_runs) > 1:
-                print('Starting test run {}'.format(index + 1))
+                print('\n***** Starting test run {} *****'.format(run))
             try:
                 worker = _RunnerWorker(run, self._launch_file_arguments, self._debug)
                 results[run] = worker.run()
