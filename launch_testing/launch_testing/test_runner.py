@@ -75,7 +75,6 @@ class _RunnerWorker():
         proc_info = ActiveProcInfoHandler()
         proc_output = ActiveIoHandler()
         full_context = dict(test_context, **self._test_run.param_args)
-        # TODO pete: this can be simplified as a call to the dict ctor:
         parsed_launch_arguments = parse_launch_arguments(self._launch_file_arguments)
         test_args = {}
 
@@ -223,9 +222,9 @@ class LaunchTestRunner(object):
         # We will return the results as a {test_run: TestResult)}
         results = {}
 
-        for index, run in enumerate(self._test_runs):
+        for run in self._test_runs:
             if len(self._test_runs) > 1:
-                print('Starting test run {}'.format(index + 1))
+                print('\nStarting test run {}'.format(run))
             try:
                 worker = _RunnerWorker(run, self._launch_file_arguments, self._debug)
                 results[run] = worker.run()
@@ -247,4 +246,31 @@ class LaunchTestRunner(object):
         # Make sure the function signature of the launch configuration
         # generator is correct
         for run in self._test_runs:
+            # Drill down into any parametrized test descriptions and make sure the argument names
+            # are correct.  A simpler check can use getcallargs, but then you won't get a very
+            # helpful message.
+            base_fn = inspect.unwrap(run.test_description_function)
+            base_args = inspect.getfullargspec(base_fn)
+            base_args = base_args.args + base_args.kwonlyargs
+
+            # Check that the parametrized arguments all have a place to go
+            for argname in run.param_args.keys():
+                if argname not in base_args:
+                    raise Exception(
+                        'Could not find an argument in generate_test_description matching '
+                        "prametrized argument '{}'".format(argname)
+                    )
+
+            # Check for extra args in generate_test_description
+            for argname in base_args:
+                if argname == 'ready_fn':
+                    continue
+                if argname not in run.param_args.keys():
+                    raise Exception(
+                        "generate_test_description has unexpected extra argument '{}'".format(
+                            argname
+                        )
+                    )
+
+            # This is a double-check
             inspect.getcallargs(run.test_description_function, ready_fn=lambda: None)
