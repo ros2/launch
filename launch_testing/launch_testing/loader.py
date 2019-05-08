@@ -52,8 +52,10 @@ class TestRun:
         # If we're parametrized, extend the test names so we can tell more easily what
         # params they were run with
         if self.param_args:
-            for tc in itertools.chain(_iterate_tests_in_test_suite(pre_shutdown_tests),
-                                      _iterate_tests_in_test_suite(post_shutdown_tests)):
+            for tc in itertools.chain(
+                _iterate_tests_in_test_suite(pre_shutdown_tests),
+                _iterate_tests_in_test_suite(post_shutdown_tests)
+            ):
                 test_method = getattr(tc, tc._testMethodName)
                 new_name = tc._testMethodName + self._format_params()
                 setattr(tc, '_testMethodName', new_name)
