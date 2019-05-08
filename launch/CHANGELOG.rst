@@ -2,6 +2,9 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.1 (2019-05-08)
+------------------
+
 0.8.0 (2019-04-13)
 ------------------
 * Added SetEnvironmentVariable and UnsetEnvironmentVariable actions `#164 <https://github.com/ros2/launch/issues/164>`_ (`#216 <https://github.com/ros2/launch/issues/216>`_)

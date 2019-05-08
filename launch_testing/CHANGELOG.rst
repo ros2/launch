@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.1 (2019-05-08)
+------------------
+
 0.8.0 (2019-04-13)
 ------------------
 * Added test actions. (`#178 <https://github.com/ros2/launch/issues/178>`_)
