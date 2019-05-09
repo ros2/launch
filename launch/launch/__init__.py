@@ -18,6 +18,7 @@ from . import actions
 from . import conditions
 from . import events
 from . import logging
+from . import substitutions
 from .action import Action
 from .condition import Condition
 from .event import Event
@@ -39,6 +40,7 @@ __all__ = [
     'conditions',
     'events',
     'logging',
+    'substitutions',
     'Action',
     'Condition',
     'Event',

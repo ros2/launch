@@ -14,10 +14,8 @@
 
 """Module for Entity class."""
 
-import io
 from typing import Optional
 from typing import Text
-from typing import Union
 import xml.etree.ElementTree as ET
 
 import launch_frontend
@@ -26,14 +24,6 @@ import launch_frontend
 class Entity(launch_frontend.Entity):
     """Single item in the intermediate XML front_end representation."""
 
-    @staticmethod
-    def load(
-        stream: Union[str, io.TextIOBase],
-        parent: 'Entity' = None
-    ) -> 'Entity':
-        """Return entity loaded with markup file."""
-        return Entity(ET.parse(stream).getroot())
-
     def __init__(self,
                  xml_element: ET.Element = None,
                  *,
@@ -41,11 +31,6 @@ class Entity(launch_frontend.Entity):
         """Construnctor."""
         self.__xml_element = xml_element
         self.__parent = parent
-
-    @property
-    def frontend(self) -> Text:
-        """Get which frontend is wrapping."""
-        return 'xml'
 
     @property
     def type_name(self) -> Text:

@@ -12,18 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for Parser methods."""
+"""Module for Parser class and parsing methods."""
 
-from typing import Optional
+import io
 from typing import Text
+from typing import Union
 
 import launch
+from launch.utilities import is_a
 
 from pkg_resources import iter_entry_points
 
 from .entity import Entity
-from .expose import action_parse_methods, expose_action
-from .substitutions import default_substitution_interpolation
+from .expose import action_parse_methods
+from .parse_substitution import default_parse_substitution
 
 interpolation_fuctions = {
     entry_point.name: entry_point.load()
@@ -33,112 +35,77 @@ interpolation_fuctions = {
 extensions_loaded = False
 
 
-def load_parser_extensions():
-    for entry_point in iter_entry_points('launch_frontend.parser_extension'):
-        entry_point.load()
+class Parser:
+    """
+    Abstract class for parsing actions, substitutions and descriptions.
 
+    Implementations of the parser class, should override the load method.
+    They could also override the parse_substitution method, or not.
+    load_parser_extensions, parse_action and parse_description are not suposed to be overrided.
+    """
 
-def parse_action(entity: Entity) -> launch.Action:
-    """Parse an action, using its registered parsing method."""
-    if not extensions_loaded:
-        load_parser_extensions()
-    if entity.type_name not in action_parse_methods:
-        raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
-    return action_parse_methods[entity.type_name](entity)
+    extensions_loaded = False
+    frontend_parsers = None
 
+    @classmethod
+    def load_parser_extensions(cls):
+        """Load parser extension, in order to get all the exposed substitutions and actions."""
+        if cls.extensions_loaded is False:
+            for entry_point in iter_entry_points('launch_frontend.parser_extension'):
+                entry_point.load()
+            cls.extensions_loaded = True
 
-def parse_substitution(value: Text, frontend: Text) -> launch.SomeSubstitutionsType:
-    """Parse a substitution, using its registered parsing method."""
-    if not extensions_loaded:
-        load_parser_extensions()
-    if frontend in interpolation_fuctions:
-        return interpolation_fuctions[frontend](value)
-    else:
-        return default_substitution_interpolation(value)
+    @classmethod
+    def load_parser_implementations(cls):
+        """Load all the available frontend entities."""
+        if cls.frontend_parsers is None:
+            cls.frontend_parsers = {
+                entry_point.name: entry_point.load()
+                for entry_point in iter_entry_points('launch_frontend.parser')
+            }
 
+    @classmethod
+    def parse_action(cls, entity: Entity) -> launch.Action:
+        """Parse an action, using its registered parsing method."""
+        cls.load_parser_extensions()
+        if entity.type_name not in action_parse_methods:
+            raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
+        return action_parse_methods[entity.type_name](entity, cls)
 
-def parse_description(entity: Entity) -> launch.LaunchDescription:
-    """Parse a launch description."""
-    if entity.type_name != 'launch':
-        raise RuntimeError('Expected \'launch\' as root tag')
-    actions = [parse_action(child) for child in entity.children]
-    return launch.LaunchDescription(actions)
+    @classmethod
+    def parse_substitution(cls, value: Text) -> launch.SomeSubstitutionsType:
+        """Parse a substitution."""
+        return default_parse_substitution(value)
 
+    @classmethod
+    def parse_description(cls, entity: Entity) -> launch.LaunchDescription:
+        """Parse a launch description."""
+        if entity.type_name != 'launch':
+            raise RuntimeError('Expected \'launch\' as root tag')
+        actions = [cls.parse_action(child) for child in entity.children]
+        return launch.LaunchDescription(actions)
 
-def str_to_bool(string):
-    """Convert xs::boolean to python bool."""
-    if not string or string.lower() in ('0', 'false'):
-        return False
-    if string.lower() in ('1', 'true'):
-        return True
-    raise RuntimeError('Expected "true" or "false", got {}'.format(string))
-
-
-def load_optional_attribute(
-    kwargs: dict,
-    entity: Entity,
-    name: Text,
-    *,
-    subst: bool = True,
-    constructor_name: Optional[Text] = None
-):
-    """Load an optional attribute of `entity` named `name` in `kwargs`."""
-    attr = getattr(entity, name, None)
-    key = name
-    if constructor_name is not None:
-        key = constructor_name
-    if attr is not None:
-        if subst:
-            kwargs[key] = parse_substitution(attr, entity.frontend)
-        else:
-            kwargs[key] = attr
-
-
-@expose_action('executable')
-def parse_executable(entity: Entity):
-    """Parse executable tag."""
-    cmd = parse_substitution(entity.cmd, entity.frontend)
-    kwargs = {}
-    load_optional_attribute(kwargs, entity, 'cwd')
-    load_optional_attribute(kwargs, entity, 'name')
-    load_optional_attribute(
-        kwargs,
-        entity,
-        'launch-prefix',
-        constructor_name='prefix'
-    )
-    load_optional_attribute(
-        kwargs,
-        entity,
-        'output',
-        subst=False)
-    shell = getattr(entity, 'shell', None)
-    if shell is not None:
-        kwargs['shell'] = str_to_bool(shell)
-    # TODO(ivanpauno): How will predicates be handle in env?
-    # Substitutions aren't allowing conditions now.
-    env = getattr(entity, 'env', None)
-    if env is not None:
-        env = {e.name: parse_substitution(e.value, e.frontend) for e in env}
-        kwargs['additional_env'] = env
-    args = getattr(entity, 'args', None)
-    if args is not None:
-        args = [parse_substitution(arg, entity.frontend) for arg in args]
-    else:
-        args = []
-    print(args)
-    cmd_list = [cmd]
-    cmd_list.extend(args)
-    # TODO(ivanpauno): Handle predicate conditions
-    return launch.actions.ExecuteProcess(
-        cmd=cmd_list,
-        **kwargs)
-
-
-def parse_include(entity: Entity):
-    """Parse a launch file to be included."""
-    # TODO(ivanpauno): Should be allow to include a programmatic launch file? How?
-    # TODO(ivanpauno): Create launch_ros.actions.IncludeAction, supporting namespacing.
-    # TODO(ivanpauno): Handle if and unless conditions.
-    loaded_entity = Entity.load(entity.file, entity.parent)
-    parse_description(loaded_entity)
+    @classmethod
+    def load(
+        cls,
+        file: Union[str, io.TextIOBase],
+    ) -> (Entity, 'Parser'):
+        """Return an entity loaded with a markup file."""
+        cls.load_parser_implementations()
+        if is_a(file, str):
+            # This automatically recognizes 'file.xml' or 'file.launch.xml'
+            # as a launch file using the xml frontend.
+            frontend_name = file.rsplit('.', 1)[1]
+            if frontend_name in cls.frontend_parsers:
+                return cls.frontend_parsers[frontend_name].load(file)
+        # If not, apply brute force.
+        # TODO(ivanpauno): Maybe, we want to force correct file naming.
+        # In that case, we should raise an error here.
+        # TODO(ivanpauno): Recognize a wrong formatted file error from
+        # unknown front-end implementation error.
+        for implementation in cls.frontend_parsers.values():
+            try:
+                return implementation.load(file)
+            except Exception:
+                pass
+        raise RuntimeError('Not recognized front-end implementation.')

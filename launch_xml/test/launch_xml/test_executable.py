@@ -18,13 +18,13 @@ from pathlib import Path
 
 from launch import LaunchService
 
-from launch_frontend import Entity, parse_description
+from launch_frontend import Parser
 
 
 def test_executable():
     """Parse node xml example."""
-    root_entity = Entity.load(str(Path(__file__).parent / 'executable.xml'))
-    ld = parse_description(root_entity)
+    root_entity, parser = Parser.load(str(Path(__file__).parent / 'executable.xml'))
+    ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
     assert(cmd ==

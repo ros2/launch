@@ -15,5 +15,9 @@
 """Main entry point for the `launch_xml` package."""
 
 from .entity import Entity
+from .parser import Parser
 
-__all__ = ['Entity']
+__all__ = [
+    'Entity',
+    'Parser',
+]

@@ -12,22 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Main entry point for the `launch_frontend` package."""
+"""Module for XML Parser class."""
 
-# All files containing parsing methods should be imported here.
-# If not, the action or substitution isn't going to be exposed.
-from . import action_parse_methods  # noqa: F401
-from . import substitution_parse_methods  # noqa: F401
+import io
+from typing import Union
+import xml.etree.ElementTree as ET
+
+import launch_frontend
+
 from .entity import Entity
-from .expose import __expose_impl, expose_action, expose_substitution
-from .parser import Parser
 
 
-__all__ = [
-    'Entity',
-    # Implementation detail, should only be imported in test_expose_decorators.
-    '__expose_impl',
-    'expose_action',
-    'expose_substitution',
-    'Parser',
-]
+class Parser(launch_frontend.Parser):
+    """XML parser implementation."""
+
+    @classmethod
+    def load(
+        cls,
+        file: Union[str, io.TextIOBase],
+    ) -> (Entity, 'Parser'):
+        """Return entity loaded with markup file."""
+        return (Entity(ET.parse(file).getroot()), cls)
