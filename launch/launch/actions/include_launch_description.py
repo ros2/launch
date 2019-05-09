@@ -19,12 +19,14 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..launch_description_source import LaunchDescriptionSource
+from ..launch_description_sources import PythonLaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
@@ -58,7 +60,7 @@ class IncludeLaunchDescription(Action):
 
     def __init__(
         self,
-        launch_description_source: LaunchDescriptionSource,
+        launch_description_source: Union[LaunchDescriptionSource, PythonLaunchDescriptionSource],
         *,
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
@@ -70,7 +72,7 @@ class IncludeLaunchDescription(Action):
         self.__launch_arguments = launch_arguments
 
     @property
-    def launch_description_source(self) -> LaunchDescriptionSource:
+    def launch_description_source(self) -> Union[LaunchDescriptionSource, PythonLaunchDescriptionSource]:
         """Getter for self.__launch_description_source."""
         return self.__launch_description_source
 
