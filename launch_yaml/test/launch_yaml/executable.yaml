@@ -1,0 +1,12 @@
+launch:
+  - executable:
+      cmd: ls
+      cwd: '/'
+      name: my_ls
+      args: -l -a -s
+      shell: true
+      output: log
+      launch_prefix: $(env LAUNCH_PREFIX)
+      env:
+        - name: var
+          value: '1'
