@@ -19,9 +19,8 @@ from typing import Optional
 from typing import Text  # noqa: F401
 
 import launch.logging
-
 from .python_launch_file_utilities import get_launch_description_from_python_launch_file
-
+from ..abstract_launch_description_source import AbstractLaunchDescriptionSource
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
 from ..some_substitutions_type import SomeSubstitutionsType
@@ -29,7 +28,7 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
-class PythonLaunchDescriptionSource:
+class PythonLaunchDescriptionSource(AbstractLaunchDescriptionSource):
     """Encapsulation of a Python launch file, which can be loaded during launch."""
 
     def __init__(

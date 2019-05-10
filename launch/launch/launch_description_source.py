@@ -13,14 +13,14 @@
 # limitations under the License.
 
 """Module for the LaunchDescriptionSource class."""
-
 from typing import Optional
 
+from .abstract_launch_description_source import AbstractLaunchDescriptionSource
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 
 
-class LaunchDescriptionSource:
+class LaunchDescriptionSource(AbstractLaunchDescriptionSource):
     """Encapsulation of a launch description, where it comes from, and how it was generated."""
 
     def __init__(
