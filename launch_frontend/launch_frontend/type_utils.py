@@ -123,7 +123,7 @@ def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
             if not isinstance(value, list):
                 continue
             try:
-                typed_value = map(type_obj, value)
+                typed_value = [type_obj(x) for x in value]
             except ValueError:
                 pass
             else:

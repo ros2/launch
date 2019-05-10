@@ -51,7 +51,7 @@ class Entity(BaseEntity):
     @property
     def children(self) -> List['Entity']:
         """Get the Entity's children."""
-        return map(Entity, self.__xml_element)
+        return [Entity(item) for item in self.__xml_element]
 
     def get_attr(
         self,
@@ -69,9 +69,19 @@ class Entity(BaseEntity):
         List['Entity']
     ]]:
         """Access an attribute of the entity."""
+        attr_error = AttributeError(
+            'Attribute {} of type {} not found in Entity {}'.format(
+                name, types, self.type_name
+            )
+        )
         if types == 'list[Entity]':
             return_list = filter(lambda x: x.tag == name, self.__xml_element)
-            return map(Entity, return_list)
+            if not return_list:
+                if optional:
+                    return None
+                else:
+                    raise attr_error
+            return [Entity(item) for item in return_list]
         value = None
         if name in self.__xml_element.attrib:
             name_sep = name + '-sep'
@@ -82,11 +92,7 @@ class Entity(BaseEntity):
                 value = self.__xml_element.attrib[name].split(sep)
         if value is None:
             if not optional:
-                raise AttributeError(
-                    'Attribute {} of type {} not found in Entity {}'.format(
-                        name, types, self.type_name
-                    )
-                )
+                raise attr_error
             else:
                 return None
         try:
