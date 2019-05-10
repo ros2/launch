@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """Module for the AbstractLaunchDescriptionSource class."""
 
 import abc
@@ -21,19 +22,22 @@ from .launch_description import LaunchDescription
 
 
 class AbstractLaunchDescriptionSource(abc.ABC):
-    """Encapsulation of a launch description, where it comes from, and how it was generated.
-    This is an abstract class and is expected to be subclassed."""
+    """
+    Encapsulation of a launch description, where it comes from, and how it was generated.
 
-    @abc.abstractmethod
+    This is an abstract class and is expected to be subclassed.
+    """
+
     @property
+    @abc.abstractmethod
     def location(self) -> str:
-        """the location from where this launch description was loaded if applicable"""
+        """Location from where this launch description was loaded if applicable."""
         ...
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def method(self) -> str:
-        """The method by which the launch description was generated"""
+        """Method by which the launch description was generated."""
         ...
 
     @abc.abstractmethod
