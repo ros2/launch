@@ -25,9 +25,10 @@ def test_list():
     tree = ET.parse(str(Path(__file__).parent / 'list.xml'))
     root = tree.getroot()
     root_entity = Entity(root)
-    assert root_entity.tag1[0].attr == ['1', '2', '3']
-    assert root_entity.tag2[0].attr == ['1', '2', '3']
-    assert root_entity.tag3[0].attr == ['1', '2', '3']
+    tags = root_entity.children
+    assert tags[0].get_attr('attr', types='list[str]') == ['1', '2', '3']
+    assert tags[0].get_attr('attr', types='list[int]') == [1, 2, 3]
+    assert tags[0].get_attr('attr', types='list[float]') == [1., 2., 3.]
 
 
 if __name__ == '__main__':
