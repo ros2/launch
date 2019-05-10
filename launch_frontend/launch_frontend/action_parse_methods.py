@@ -21,7 +21,6 @@ from launch.conditions import IfCondition
 from launch.conditions import UnlessCondition
 from launch.substitutions import TextSubstitution
 
-from .convert_text_to import str_to_bool
 from .entity import Entity
 from .expose import expose_action
 from .parser import Parser
@@ -30,37 +29,44 @@ from .parser import Parser
 @expose_action('executable')
 def parse_executable(entity: Entity, parser: Parser):
     """Parse executable tag."""
-    cmd = parser.parse_substitution(entity.cmd)
+    cmd = parser.parse_substitution(entity.get_attr('cmd'))
     kwargs = {}
-    cwd = getattr(entity, 'cwd', None)
+    cwd = entity.get_attr('cwd', optional=True)
     if cwd is not None:
         kwargs['cwd'] = parser.parse_substitution(cwd)
-    name = getattr(entity, 'name', None)
+    name = entity.get_attr('name', optional=True)
     if name is not None:
         kwargs['name'] = parser.parse_substitution(name)
-    prefix = getattr(entity, 'launch-prefix', None)
+    prefix = entity.get_attr('launch-prefix', optional=True)
     if prefix is not None:
         kwargs['prefix'] = parser.parse_substitution(prefix)
-    output = getattr(entity, 'output', None)
+    output = entity.get_attr('output', optional=True)
     if output is not None:
         kwargs['output'] = output
-    shell = getattr(entity, 'shell', None)
+    shell = entity.get_attr('shell', types='bool', optional=True)
     if shell is not None:
-        kwargs['shell'] = str_to_bool(shell)
+        kwargs['shell'] = shell
     # Conditions won't be allowed in the `env` tag.
     # If that feature is needed, `set_enviroment_variable` and
     # `unset_enviroment_variable` actions should be used.
-    env = getattr(entity, 'env', None)
+    env = entity.get_attr('env', types='list[Entity]', optional=True)
     if env is not None:
-        env = {e.name: parser.parse_substitution(e.value) for e in env}
+        # TODO(ivanpauno): Change `ExecuteProcess` api. `additional_env`
+        # argument is supposed to be a dictionary with `SomeSubstitutionType`
+        # keys, but `SomeSubstitutionType` is not always hashable.
+        # Proposed `additional_env` type:
+        #   Iterable[Tuple[SomeSubstitutionType, SomeSubstitutionsType]]
+        env = {e.get_attr('name'): parser.parse_substitution(e.get_attr('value')) for e in env}
         kwargs['additional_env'] = env
-    args = getattr(entity, 'args', None)
+    args = entity.get_attr('args', optional=True)
     # `args` is supposed to be a list separated with ' '.
     # All the found `TextSubstitution` items are split and
     # added to the list again as a `TextSubstitution`.
-    # Another option: Enforce to explicetly write a list in
-    # the launch file (if that's wanted)
-    # In xml 'args' and 'args-sep' tags should be used.
+    # TODO(ivanpauno): Change `ExecuteProcess` api from accepting
+    # `Iterable[SomeSubstitutionType]` `cmd` to `SomeSubstitutionType`.
+    # After performing the substitution in `cmd`, shlex.split should be done.
+    # This will also allow having a substitution which ends in more than one
+    # argument.
     if args is not None:
         args = parser.parse_substitution(args)
         new_args = []
@@ -75,17 +81,10 @@ def parse_executable(entity: Entity, parser: Parser):
         args = new_args
     else:
         args = []
-    # Option 2:
-    # if args is not None:
-    #     if isinstance(args, Text):
-    #         args = [args]
-    #     args = [parser.parse_substitution(arg) for arg in args]
-    # else:
-    #     args = []
     cmd_list = [cmd]
     cmd_list.extend(args)
-    if_cond = getattr(entity, 'if', None)
-    unless_cond = getattr(entity, 'unless', None)
+    if_cond = entity.get_attr('if', optional=True)
+    unless_cond = entity.get_attr('unless', optional=True)
     if if_cond is not None and unless_cond is not None:
         raise RuntimeError("if and unless conditions can't be usede simultaneously")
     if if_cond is not None:
@@ -102,8 +101,8 @@ def parse_executable(entity: Entity, parser: Parser):
 @expose_action('let')
 def parse_let(entity: Entity, parser: Parser):
     """Parse let tag."""
-    name = parser.parse_substitution(entity.var)
-    value = parser.parse_substitution(entity.value)
+    name = parser.parse_substitution(entity.get_attr('name'))
+    value = parser.parse_substitution(entity.get_attr('value'))
     return launch.actions.SetLaunchConfiguration(
         name,
         value

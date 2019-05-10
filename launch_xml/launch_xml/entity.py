@@ -14,20 +14,26 @@
 
 """Module for Entity class."""
 
+from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
+from typing import Union
 import xml.etree.ElementTree as ET
 
-import launch_frontend
+from launch_frontend import Entity as BaseEntity
+from launch_frontend.type_utils import get_typed_value
 
 
-class Entity(launch_frontend.Entity):
+class Entity(BaseEntity):
     """Single item in the intermediate XML front_end representation."""
 
-    def __init__(self,
-                 xml_element: ET.Element = None,
-                 *,
-                 parent: 'Entity' = None) -> Text:
+    def __init__(
+        self,
+        xml_element: ET.Element = None,
+        *,
+        parent: 'Entity' = None
+    ) -> Text:
         """Construnctor."""
         self.__xml_element = xml_element
         self.__parent = parent
@@ -43,24 +49,53 @@ class Entity(launch_frontend.Entity):
         return self.__parent
 
     @property
-    def children(self):
-        """Get Entity children."""
-        return [Entity(child) for child in self.__xml_element]
+    def children(self) -> List['Entity']:
+        """Get the Entity's children."""
+        return map(Entity, self.__xml_element)
 
-    def __getattr__(self, name):
-        """Abstraction of how to access the xml tree."""
+    def get_attr(
+        self,
+        name: Text,
+        *,
+        types: Union[Text, Tuple[Text]] = 'str',
+        optional: bool = False
+    ) -> Optional[Union[
+        Text,
+        int,
+        float,
+        List[Text],
+        List[int],
+        List[float],
+        List['Entity']
+    ]]:
+        """Access an attribute of the entity."""
+        if types == 'list[Entity]':
+            return_list = filter(lambda x: x.tag == name, self.__xml_element)
+            return map(Entity, return_list)
+        value = None
         if name in self.__xml_element.attrib:
             name_sep = name + '-sep'
             if name_sep not in self.__xml_element.attrib:
-                return self.__xml_element.attrib[name]
+                value = self.__xml_element.attrib[name]
             else:
                 sep = self.__xml_element.attrib[name_sep]
-                return self.__xml_element.attrib[name].split(sep)
-        return_list = filter(lambda x: x.tag == name,
-                             self.__xml_element)
-        return_list = [Entity(item) for item in return_list]
-        if not return_list:
-            raise AttributeError(
-                'Can not find attribute {} in Entity {}'.format(
-                    name, self.type_name))
-        return return_list
+                value = self.__xml_element.attrib[name].split(sep)
+        if value is None:
+            if not optional:
+                raise AttributeError(
+                    'Attribute {} of type {} not found in Entity {}'.format(
+                        name, types, self.type_name
+                    )
+                )
+            else:
+                return None
+        try:
+            value = get_typed_value(value, types)
+        except ValueError:
+            raise TypeError(
+                'Attribute {} of Entity {} expected to be of type {}.'
+                '`{}` can not be converted to one of those types'.format(
+                    name, self.type_name, types, value
+                )
+            )
+        return value

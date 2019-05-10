@@ -14,10 +14,11 @@
 
 """Module for Entity class."""
 
-from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
+from typing import Union
 
 
 class Entity:
@@ -34,10 +35,63 @@ class Entity:
         raise NotImplementedError()
 
     @property
-    def children(self) -> Optional[List['Entity']]:
-        """Get Entity children."""
+    def children(self) -> List['Entity']:
+        """Get the Entity's children."""
         raise NotImplementedError()
 
-    def __getattr__(self, name: Text) -> Optional[Any]:
-        """Get attribute."""
+    def get_attr(
+        self,
+        name: Text,
+        *,
+        types: Union[Text, Tuple[Text]] = 'str',
+        optional: bool = False
+    ) -> Optional[Union[
+        Text,
+        int,
+        float,
+        List[Text],
+        List[int],
+        List[float],
+        List['Entity']
+    ]]:
+        """
+        Access an element in the tree.
+
+        By default, it will try to return it as an string.
+        `types` is used in the following way:
+        - For frontends that natively recoginize data types (like yaml),
+        it will check if the attribute read match with one in `types`.
+        If it is one of them, the value is returned.
+        If not, an `TypeError` is raised.
+        - For frontends that don't natively recognize data types (like xml),
+        it will try to convert the value read to one of the specified `types`.
+        The first convertion that success is returned.
+        If no conversion success, a `TypeError` is raised.
+
+        The allowed types are:
+            - 'str'
+            - 'int'
+            - 'float'
+            - 'bool'
+            - 'list[str]'
+            - 'list[int]'
+            - 'list[float]'
+            - 'list[bool]'
+
+        Types that can not be combined with the others:
+            - 'guess'
+            - 'list[Entity]'
+
+        'guess' work in the same way as:
+            ('float', 'int', 'list[float]', 'list[int]', 'list[str]', 'str').
+        'list[Entity]' will return a list of more enties.
+
+        See the frontend documentation to see how 'list' and 'list[Entity]' look like.
+
+        If `optional` argument is `True`, will return `None` instead of raising `AttributeError`.
+
+        Possible errors:
+        - `AttributeError`: Attribute not found. Only possible if `optional` is `False`.
+        - `TypeError`: Attribute found but it is not of the correct type.
+        """
         raise NotImplementedError()

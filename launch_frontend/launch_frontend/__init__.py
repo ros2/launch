@@ -15,19 +15,25 @@
 """Main entry point for the `launch_frontend` package."""
 
 # All files containing parsing methods should be imported here.
-# If not, the action or substitution isn't going to be exposed.
+# If not, the action or substitution are not going to be exposed.
 from . import action_parse_methods  # noqa: F401
 from . import substitution_parse_methods  # noqa: F401
+from . import type_utils
 from .entity import Entity
 from .expose import __expose_impl, expose_action, expose_substitution
 from .parser import Parser
 
 
 __all__ = [
+    # Classes
     'Entity',
-    # Implementation detail, should only be imported in test_expose_decorators.
-    '__expose_impl',
+    # Decorators
     'expose_action',
     'expose_substitution',
     'Parser',
+    # Modules
+    'type_utils',
+
+    # Implementation detail, should only be imported in test_expose_decorators.
+    '__expose_impl',
 ]
