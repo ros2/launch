@@ -231,6 +231,7 @@ def test_log_default_format(log_dir):
 
 
 def test_log_handler_factory(log_dir):
+    """Test logging using a custom log handlers."""
     class TestStreamHandler(launch.logging.handlers.Handler):
 
         def __init__(self, output):
