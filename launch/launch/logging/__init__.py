@@ -24,6 +24,7 @@ import sys
 
 from typing import List
 
+from . import handlers
 
 __all__ = [
     'get_logger',
@@ -31,37 +32,10 @@ __all__ = [
     'get_log_file_path',
     'get_output_loggers',
     'get_screen_handler',
+    'handlers',
     'launch_config',
     'reset',
 ]
-
-
-def with_per_logger_formatting(cls):
-    """Add per logger formatting capabilities to the given logging.Handler."""
-    class _trait(cls):
-        """A logging.Handler subclass to enable per logger formatting."""
-
-        def __init__(self, *args, **kwargs):
-            super(_trait, self).__init__(*args, **kwargs)
-            self._formatters = {}
-
-        def setFormatterFor(self, logger, formatter):
-            """Set formatter for a given logger instance or logger name."""
-            logger_name = logger if isinstance(logger, str) else logger.name
-            self._formatters[logger_name] = formatter
-
-        def unsetFormatterFor(self, logger):
-            """Unset formatter for a given logger instance or logger name, if any."""
-            logger_name = logger if isinstance(logger, str) else logger.name
-            if logger_name in self._formatters:
-                del self._formatters[logger_name]
-
-        def format(self, record):  # noqa
-            if record.name in self._formatters:
-                formatter = self._formatters[record.name]
-                return formatter.format(record)
-            return super(_trait, self).format(record)
-    return _trait
 
 
 def attributes(**attr):
@@ -73,7 +47,7 @@ def attributes(**attr):
     return _decorator
 
 
-@attributes(screen_handler=None, file_handlers={})
+@attributes(screen_handler=None, file_handlers={}, log_handler_factory=None)
 def launch_config(
     *,
     level=None,
@@ -81,7 +55,8 @@ def launch_config(
     screen_format=None,
     screen_style=None,
     log_format=None,
-    log_style=None
+    log_style=None,
+    log_handler_factory=None,
 ):
     """
     Set up launch logging.
@@ -114,6 +89,12 @@ def launch_config(
         logger name and logged message.
     :param log_style: the log style used if no alias is given for log_format.
         No style can be provided if a format alias is given.
+    :param log_handler_factory: a callable to build log file handler.
+       It takes a path to the log file and it must return a `logging.Handler`
+       variant with per logger formatting support.
+       See `launch.logging.handlers` module for further reference and easy reuse
+       of existing standard `logging.handlers` module handlers.
+       Defaults to regular log file handlers for logging if no factory is given.
     """
     if level is not None:
         logging.root.setLevel(level)
@@ -152,6 +133,8 @@ def launch_config(
         )
         for handler in launch_config.file_handlers.values():
             handler.setFormatter(launch_config.file_formatter)
+    if log_handler_factory is not None:
+        launch_config.log_handler_factory = log_handler_factory
     if log_dir is not None:
         if any(launch_config.file_handlers):
             import warnings
@@ -348,8 +331,7 @@ def get_screen_handler():
     See launch_config() documentation for screen logging configuration.
     """
     if launch_config.screen_handler is None:
-        handler_cls = with_per_logger_formatting(logging.StreamHandler)
-        launch_config.screen_handler = handler_cls(sys.stdout)
+        launch_config.screen_handler = handlers.StreamHandler(sys.stdout)
         launch_config.screen_handler.setFormatter(launch_config.screen_formatter)
     return launch_config.screen_handler
 
@@ -370,14 +352,13 @@ def get_log_file_handler(file_name='launch.log'):
     once constructed).
     """
     if file_name not in launch_config.file_handlers:
+        if launch_config.log_handler_factory is None:
+            if os.name != 'nt':
+                launch_config.log_handler_factory = handlers.WatchedFileHandler
+            else:
+                launch_config.log_handler_factory = handlers.FileHandler
         file_path = get_log_file_path(file_name)
-        if os.name != 'nt':
-            handler_cls = with_per_logger_formatting(
-                logging.handlers.WatchedFileHandler
-            )
-        else:
-            handler_cls = with_per_logger_formatting(logging.FileHandler)
-        file_handler = handler_cls(file_path)
+        file_handler = launch_config.log_handler_factory(file_path)
         file_handler.setFormatter(launch_config.file_formatter)
         launch_config.file_handlers[file_name] = file_handler
     return launch_config.file_handlers[file_name]

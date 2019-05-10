@@ -228,3 +228,40 @@ def test_log_default_format(log_dir):
         lines = f.readlines()
         assert 1 == len(lines)
         assert re.match(r'[0-9]+\.[0-9]+ \[ERROR\] \[some-proc\]: baz', lines[0]) is not None
+
+
+def test_log_handler_factory(log_dir):
+    class TestStreamHandler(launch.logging.handlers.Handler):
+
+        def __init__(self, output):
+            super().__init__()
+            self._output = output
+
+        def emit(self, record):
+            self._output.append(self.format(record))
+
+    import collections
+    outputs = collections.defaultdict(list)
+
+    launch.logging.reset()
+    launch.logging.launch_config(
+        level=logging.WARN,
+        log_dir=log_dir,
+        log_format='default',
+        log_handler_factory=(
+            lambda path: TestStreamHandler(
+                output=outputs[path]
+            )
+        )
+    )
+
+    logger = launch.logging.get_logger('some-proc')
+    logger.addHandler(launch.logging.get_log_file_handler())
+
+    logger.debug('foo')
+    logger.error('baz')
+
+    path = launch.logging.get_log_file_path()
+    assert path in outputs
+    assert len(outputs[path]) == 1
+    assert outputs[path][0].endswith('baz')
