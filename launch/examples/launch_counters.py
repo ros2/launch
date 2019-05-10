@@ -38,6 +38,13 @@ import launch.substitutions
 
 def main(argv=sys.argv[1:]):
     """Main."""
+    # Configure rotating logs.
+    launch.logging.launch_config(
+        log_handler_factory=lambda path: launch.logging.handlers.RotatingFileHandler(
+            path, maxBytes=1024, backupCount=3
+        )
+    )
+
     # Any number of actions can optionally be given to the constructor of LaunchDescription.
     # Or actions/entities can be added after creating the LaunchDescription.
     user_env_var = 'USERNAME' if platform.system() == 'Windows' else 'USER'
