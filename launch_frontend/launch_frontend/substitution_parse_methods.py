@@ -14,6 +14,8 @@
 
 """Module for launch substitution parsing methods."""
 
+from typing import Iterable
+
 import launch
 
 from .expose import expose_substitution
@@ -28,7 +30,7 @@ from .expose import expose_substitution
 
 
 @expose_substitution('env')
-def parse_env(data: launch.SomeSubstitutionsType):
+def parse_env(data: Iterable[launch.SomeSubstitutionsType]):
     """Parse EnviromentVariable substitution."""
     if not data or len(data) > 2:
         raise AttributeError('env substitution expects 1 or 2 arguments')
@@ -40,7 +42,7 @@ def parse_env(data: launch.SomeSubstitutionsType):
 
 
 @expose_substitution('var')
-def parse_var(data: launch.SomeSubstitutionsType):
+def parse_var(data: Iterable[launch.SomeSubstitutionsType]):
     """Parse FindExecutable substitution."""
     if not data or len(data) > 2:
         raise AttributeError('var substitution expects 1 or 2 arguments')
@@ -52,7 +54,7 @@ def parse_var(data: launch.SomeSubstitutionsType):
 
 
 @expose_substitution('find-exec')
-def parse_find_exec(data: launch.SomeSubstitutionsType):
+def parse_find_exec(data: Iterable[launch.SomeSubstitutionsType]):
     """Parse FindExecutable substitution."""
     if not data or len(data) > 1:
         raise AttributeError('find-exec substitution expects 1 argument')
