@@ -14,22 +14,12 @@
 
 """Module for the PythonLaunchDescriptionSource class."""
 
-import traceback
-from typing import Optional
-from typing import Text  # noqa: F401
-
-import launch.logging
-
 from .python_launch_file_utilities import get_launch_description_from_python_launch_file
-
-from ..launch_context import LaunchContext
-from ..launch_description import LaunchDescription
+from ..launch_description_source import LaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..utilities import normalize_to_list_of_substitutions
-from ..utilities import perform_substitutions
 
 
-class PythonLaunchDescriptionSource:
+class PythonLaunchDescriptionSource(LaunchDescriptionSource):
     """Encapsulation of a Python launch file, which can be loaded during launch."""
 
     def __init__(
@@ -50,52 +40,9 @@ class PythonLaunchDescriptionSource:
 
         :param launch_file_path: the path to the launch file
         """
-        self.__launch_file_path = normalize_to_list_of_substitutions(launch_file_path)
-        self.__expanded_launch_file_path = None  # type: Optional[Text]
-        self.__launch_description = None  # type: Optional[LaunchDescription]
-        self.__logger = launch.logging.get_logger(__name__)
-
-    def try_get_launch_description_without_context(self) -> Optional[LaunchDescription]:
-        """Get the LaunchDescription, attempting to load it if necessary."""
-        if self.__launch_description is None:
-            # Try to expand the launch file path and load the launch file with a local context.
-            try:
-                context = LaunchContext()
-                expanded_launch_file_path = \
-                    perform_substitutions(context, self.__launch_file_path)
-                return get_launch_description_from_python_launch_file(expanded_launch_file_path)
-            except Exception as exc:
-                self.__logger.debug(traceback.format_exc())
-                self.__logger.debug(
-                    'Failed to load the launch file without a context: ' + str(exc),
-                )
-        return self.__launch_description
-
-    def get_launch_description(self, context: LaunchContext) -> LaunchDescription:
-        """Get the LaunchDescription, loading it if necessary."""
-        if self.__expanded_launch_file_path is None:
-            self.__expanded_launch_file_path = \
-                perform_substitutions(context, self.__launch_file_path)
-        if self.__launch_description is None:
-            self.__launch_description = \
-                get_launch_description_from_python_launch_file(self.__expanded_launch_file_path)
-        return self.__launch_description
-
-    @property
-    def location(self) -> str:
-        """
-        Get the location of the Python launch file as a string.
-
-        The string is either a list of Substitution instances converted to
-        strings or the expanded path if :py:meth:`get_launch_description` has
-        been called.
-        """
-        if self.__expanded_launch_file_path is None:
-            # get_launch_description() has not been called yet
-            return ' + '.join([str(sub) for sub in self.__launch_file_path])
-        return self.__expanded_launch_file_path
-
-    @property
-    def method(self) -> str:
-        """Getter for self.__method."""
-        return 'interpreted python launch file'
+        super().__init__(
+            None,
+            launch_file_path,
+            'interpreted python launch file',
+            get_method=get_launch_description_from_python_launch_file
+        )
