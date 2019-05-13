@@ -1,0 +1,4 @@
+<launch>
+    <let name="var1" value="asd"/>
+    <let name="var2" value="2 $(var var1)"/>
+</launch>
