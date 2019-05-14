@@ -37,9 +37,11 @@ class _RunnerWorker():
 
     def __init__(self,
                  test_run,
+                 test_run_preamble,
                  launch_file_arguments=[],
                  debug=False):
         self._test_run = test_run
+        self._test_run_preamble = test_run_preamble
         self._launch_service = LaunchService(debug=debug)
         self._processes_launched = threading.Event()  # To signal when all processes started
         self._tests_completed = threading.Event()  # To signal when all the tests have finished
@@ -119,6 +121,7 @@ class _RunnerWorker():
         # Wrap the test_ld in another launch description so we can bind command line arguments to
         # the test and add our own event handlers for process IO and process exit:
         launch_description = LaunchDescription([
+            *self._test_run_preamble,
             launch.actions.IncludeLaunchDescription(
                 launch.LaunchDescriptionSource(launch_description=test_ld),
                 launch_arguments=parsed_launch_arguments
@@ -212,6 +215,10 @@ class LaunchTestRunner(object):
         self._launch_file_arguments = launch_file_arguments
         self._debug = debug
 
+    def generate_preamble(self):
+        """Generate a launch description preamble for a test to be run with."""
+        return []
+
     def run(self):
         """
         Launch the processes under test and run the tests.
@@ -226,7 +233,11 @@ class LaunchTestRunner(object):
             if len(self._test_runs) > 1:
                 print('\nStarting test run {}'.format(run))
             try:
-                worker = _RunnerWorker(run, self._launch_file_arguments, self._debug)
+                worker = _RunnerWorker(
+                    run,
+                    self.generate_preamble(),
+                    self._launch_file_arguments,
+                    self._debug)
                 results[run] = worker.run()
             except unittest.case.SkipTest as skip_exception:
                 # If a 'skip' decorator was placed on the generate_test_description function,
