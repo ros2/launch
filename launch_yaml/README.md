@@ -39,7 +39,7 @@ In that case, conversions are tried in order and the first successful conversion
 `types` can also be set to `guess`, which works in the same way as passing:
 
 ```python
-'float', 'int', 'bool', 'list[float]', 'list[int]', 'list[bool]', 'list[str]', 'str'
+'int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str'
 ```
 
 For checking if an attribute exists, use optional argument:

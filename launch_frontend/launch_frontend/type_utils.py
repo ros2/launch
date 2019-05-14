@@ -20,6 +20,12 @@ from typing import Tuple
 from typing import Union
 
 
+types_guess__ = (
+    'int', 'float', 'bool', 'list[int]', 'list[float]',
+    'list[bool]', 'list[str]', 'str'
+)
+
+
 def extract_type(name: Text):
     """
     Extract type information from string.
@@ -68,7 +74,12 @@ def check_type(value: Any, types: Union[Text, Tuple[Text]]) -> bool:
         - 'list[int]'
         - 'list[float]'
         - 'list[bool]'
+
+    types = 'guess' works in the same way as:
+        ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
     """
+    if types == 'guess':
+        types = types_guess__
     if isinstance(types, Text):
         types = [types]
     for x in types:
@@ -102,15 +113,13 @@ def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
         - 'list[bool]'
 
     types = 'guess' works in the same way as:
-        ('float', 'int', 'list[float]', 'list[int]', 'list[str]', 'str')
+        ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
     """
     if types == 'guess':
-        types = (
-            'float', 'int', 'bool', 'list[float]', 'list[int]',
-            'list[bool]' 'list[str]', 'str'
-        )
-    if isinstance(types, Text):
+        types = types_guess__
+    elif isinstance(types, Text):
         types = [types]
+
     typed_value = None
     for x in types:
         type_obj, is_list = extract_type(x)
@@ -129,6 +138,8 @@ def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
             else:
                 break
         else:
+            if isinstance(value, list):
+                continue
             try:
                 typed_value = type_obj(value)
             except ValueError:
