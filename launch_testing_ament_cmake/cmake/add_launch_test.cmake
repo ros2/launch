@@ -110,7 +110,7 @@ function(add_launch_test filename)
     "launch_testing.launch_test"
     "${_launch_test_FILE_NAME}"
     "${_launch_test_ARGS}"
-    "--junit-xml=${_lanch_test_RESULT_FILE}"
+    "--junit-xml=${_launch_test_RESULT_FILE}"
     "--package-name=${PROJECT_NAME}"
   )
 
