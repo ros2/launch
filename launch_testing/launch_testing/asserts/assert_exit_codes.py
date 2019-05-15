@@ -23,11 +23,11 @@ EXIT_SIGKILL = 137
 EXIT_SIGSEGV = 139
 
 # TODO(hidmic): Drop when SIGINT is fixed on Windows
-EXIT_FORCED = 1
+EXIT_FORCED = 1 if os.name == 'nt' else 0
 
 
 def assertExitCodes(proc_info,
-                    allowable_exit_codes=[EXIT_OK] if os.name != 'nt' else [EXIT_OK, EXIT_FORCED],
+                    allowable_exit_codes=[EXIT_OK, EXIT_FORCED],
                     process=None,  # By default, checks all processes
                     cmd_args=None,
                     *,
