@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import re
 import sys
 import unittest
 
@@ -155,6 +156,13 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
             self.EXPECTED_TEXT,
             'terminating_proc',
             strict_proc_matching=False
+        )
+
+    def test_regex_matching(self):
+        assertInStdout(
+            self.proc_output,
+            re.compile(r'Called with arguments \S+'),
+            'terminating_proc-2'
         )
 
     def test_arguments_disambiguate_processes(self):
