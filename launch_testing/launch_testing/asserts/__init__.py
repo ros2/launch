@@ -14,6 +14,7 @@
 
 from .assert_exit_codes import assertExitCodes
 from .assert_exit_codes import EXIT_OK
+from .assert_exit_codes import EXIT_FORCED
 from .assert_exit_codes import EXIT_SIGINT
 from .assert_exit_codes import EXIT_SIGKILL
 from .assert_exit_codes import EXIT_SIGQUIT
@@ -34,6 +35,7 @@ __all__ = [
     'NO_CMD_ARGS',
 
     'EXIT_OK',
+    'EXIT_FORCED',
     'EXIT_SIGINT',
     'EXIT_SIGKILL',
     'EXIT_SIGQUIT',
