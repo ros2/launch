@@ -26,7 +26,6 @@ from .substitution_failure import SubstitutionFailure
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
-from ..utilities import ensure_argument_type
 
 
 class LaunchConfiguration(Substitution):
@@ -40,8 +39,6 @@ class LaunchConfiguration(Substitution):
     ) -> None:
         """Constructor."""
         super().__init__()
-
-        ensure_argument_type(variable_name, str, 'variable_name', 'LaunchConfiguration')
 
         from ..utilities import normalize_to_list_of_substitutions
         self.__variable_name = normalize_to_list_of_substitutions(variable_name)
