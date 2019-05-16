@@ -19,6 +19,6 @@ from typing import Callable
 from ..action import Action
 
 
-def matches_action(target_action: 'Action') -> Callable[['Action'], bool]:
+def matches_action(target_action: Action) -> Callable[[Action], bool]:
     """Return a matcher which matches based on an exact given ExecuteProcess action."""
     return lambda action: action == target_action
