@@ -43,6 +43,6 @@ class PythonLaunchDescriptionSource(LaunchDescriptionSource):
         super().__init__(
             None,
             launch_file_path,
-            'interpreted python launch file',
-            get_method=get_launch_description_from_python_launch_file
+            'interpreted python launch file'
         )
+        self._get_launch_description = get_launch_description_from_python_launch_file

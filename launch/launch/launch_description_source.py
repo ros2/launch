@@ -35,8 +35,6 @@ class LaunchDescriptionSource:
         launch_description: Optional[LaunchDescription] = None,
         location: SomeSubstitutionsType = '<string>',
         method: str = 'unspecified mechanism from a script',
-        *,
-        get_method: Optional[callable] = None
     ) -> None:
         """
         Constructor.
@@ -53,14 +51,6 @@ class LaunchDescriptionSource:
         self.__expanded_location: Optional[Text] = None
         self.__location: SomeSubstitutionsType = normalize_to_list_of_substitutions(location)
         self.__method: str = method
-
-        def default_get_method(location):
-            if self.__launch_description is None:
-                raise RuntimeError(
-                    'LaunchDescriptionSource.get_launch_description(): '
-                    'called without launch description being set'
-                )
-        self.__get_method: callable = get_method if get_method is not None else default_get_method
         self.__logger = launch.logging.get_logger(__name__)
 
     def try_get_launch_description_without_context(self) -> Optional[LaunchDescription]:
@@ -76,7 +66,7 @@ class LaunchDescriptionSource:
                 context = LaunchContext()
                 expanded_location = \
                     perform_substitutions(context, self.__location)
-                return self.__get_method(expanded_location)
+                return self._get_launch_description(expanded_location)
             except Exception as exc:
                 self.__logger.debug(traceback.format_exc())
                 self.__logger.debug(
@@ -91,13 +81,21 @@ class LaunchDescriptionSource:
                 perform_substitutions(context, self.__location)
         if self.__launch_description is None:
             self.__launch_description = \
-                self.__get_method(self.__expanded_location)
+                self._get_launch_description(self.__expanded_location)
         return self.__launch_description
+
+    def _get_launch_description(self, location):
+        """Get the LaunchDescription from location."""
+        if self.__launch_description is None:
+            raise RuntimeError(
+                'LaunchDescriptionSource.get_launch_description(): '
+                'called without launch description being set'
+            )
 
     @property
     def location(self) -> str:
         """
-        Get the location of the Python launch file as a string.
+        Get the location of the launch description source as a string.
 
         The string is either a list of Substitution instances converted to
         strings or the expanded path if :py:meth:`get_launch_description` has
