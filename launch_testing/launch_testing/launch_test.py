@@ -54,10 +54,12 @@ def main():
                         default=False,
                         help='Show arguments that may be given to the test file.')
 
-    parser.add_argument('--disable-ros-isolation',
+    # TODO(hidmic): Provide this option for rostests only.
+    parser.add_argument('-i', '--isolated',
                         action='store_true',
                         default=False,
-                        help='Do not set a ROS_DOMAIN_ID.  Useful for debugging ROS tests')
+                        help=('Isolate tests using a custom ROS_DOMAIN_ID.'
+                              'Useful for test parallelization.'))
 
     parser.add_argument(
         'launch_arguments',
@@ -85,7 +87,7 @@ def main():
         _logger_.setLevel(logging.DEBUG)
         _logger_.debug('Running with verbose output')
 
-    if not args.disable_ros_isolation:
+    if args.isolated:
         domain_id = get_coordinated_domain_id()  # Must copy this to a local to keep it alive
         _logger_.debug('Running with ROS_DOMAIN_ID {}'.format(domain_id))
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
