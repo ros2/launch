@@ -31,6 +31,7 @@ def test_launch_description_source_constructors():
 def test_launch_description_source_methods():
     """Test the methods of the LaunchDescriptionSource class."""
     class MockLaunchContext:
+
         def perform_substitution(self, substitution):
             return substitution.perform(None)
 
