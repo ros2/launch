@@ -59,7 +59,7 @@ def main():
                         action='store_true',
                         default=False,
                         help=('Isolate tests using a custom ROS_DOMAIN_ID.'
-                              'Useful for test paralellization.'))
+                              'Useful for test parallelization.'))
 
     parser.add_argument(
         'launch_arguments',
