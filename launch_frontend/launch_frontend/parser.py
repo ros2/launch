@@ -70,7 +70,8 @@ class Parser:
         cls.load_parser_extensions()
         if entity.type_name not in action_parse_methods:
             raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
-        return action_parse_methods[entity.type_name](entity, cls)
+        action, kwargs = action_parse_methods[entity.type_name](entity, cls)
+        return action(**kwargs)
 
     @classmethod
     def parse_substitution(cls, value: Text) -> launch.SomeSubstitutionsType:

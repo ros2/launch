@@ -26,10 +26,41 @@ from .expose import expose_action
 from .parser import Parser
 
 
+def parse_action(entity: Entity, parser: Parser):
+    """
+    Parse action.
+
+    This is only intented for code reusage, and it's not exposed.
+    """
+    if_cond = entity.get_attr('if', optional=True)
+    unless_cond = entity.get_attr('unless', optional=True)
+    kwargs = {}
+    if if_cond is not None and unless_cond is not None:
+        raise RuntimeError("if and unless conditions can't be used simultaneously")
+    if if_cond is not None:
+        kwargs['condition'] = IfCondition(predicate_expression=if_cond)
+    if unless_cond is not None:
+        kwargs['condition'] = UnlessCondition(predicate_expression=unless_cond)
+    return launch.Action, kwargs
+
+
 @expose_action('executable')
-def parse_executable(entity: Entity, parser: Parser):
-    """Parse executable tag."""
-    cmd = parser.parse_substitution(entity.get_attr('cmd'))
+def parse_executable(
+    entity: Entity,
+    parser: Parser,
+    optional_cmd: bool = False
+):
+    """
+    Parse executable tag.
+
+    :param: optional_cmd Allow not specifying `cmd` argument.
+        Intended for code reuse in derived classes (e.g.: launch_ros.actions.Node).
+    """
+    cmd = entity.get_attr('cmd', optional=optional_cmd)
+    if cmd is not None:
+        cmd_list = [parser.parse_substitution(cmd)]
+    else:
+        cmd_list = []
     kwargs = {}
     cwd = entity.get_attr('cwd', optional=True)
     if cwd is not None:
@@ -81,21 +112,12 @@ def parse_executable(entity: Entity, parser: Parser):
         args = new_args
     else:
         args = []
-    cmd_list = [cmd]
     cmd_list.extend(args)
-    if_cond = entity.get_attr('if', optional=True)
-    unless_cond = entity.get_attr('unless', optional=True)
-    if if_cond is not None and unless_cond is not None:
-        raise RuntimeError("if and unless conditions can't be usede simultaneously")
-    if if_cond is not None:
-        kwargs['condition'] = IfCondition(predicate_expression=if_cond)
-    if unless_cond is not None:
-        kwargs['condition'] = UnlessCondition(predicate_expression=unless_cond)
+    kwargs['cmd'] = cmd_list
+    _, action_kwargs = parse_action(entity, parser)
+    kwargs.update(action_kwargs)
 
-    return launch.actions.ExecuteProcess(
-        cmd=cmd_list,
-        **kwargs
-    )
+    return launch.actions.ExecuteProcess, kwargs
 
 
 @expose_action('let')
@@ -103,7 +125,7 @@ def parse_let(entity: Entity, parser: Parser):
     """Parse let tag."""
     name = parser.parse_substitution(entity.get_attr('name'))
     value = parser.parse_substitution(entity.get_attr('value'))
-    return launch.actions.SetLaunchConfiguration(
-        name,
-        value
-    )
+    _, kwargs = parse_action(entity, parser)
+    kwargs['name'] = name
+    kwargs['value'] = value
+    return launch.actions.SetLaunchConfiguration, kwargs
