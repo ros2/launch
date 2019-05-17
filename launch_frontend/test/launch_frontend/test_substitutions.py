@@ -111,6 +111,21 @@ def test_double_quoted_nested_substitution():
     assert subst[0].default_value[1].perform(context) == '_qsd'
 
 
+def test_combining_quotes_nested_substitution():
+    subst = default_parse_substitution(
+        '$(env "asd_bsd_qsd_$(test \'asd_bds\')" \'$(env DEFAULT)_qsd\')'
+    )
+    context = LaunchContext()
+    assert len(subst) == 1
+    assert len(subst[0].name) == 2
+    assert subst[0].name[0].perform(context) == 'asd_bsd_qsd_'
+    assert subst[0].name[1].perform(context) == "'asd_bds'"
+    assert len(subst[0].default_value) == 2
+    assert subst[0].default_value[0].name[0].perform(context) == 'DEFAULT'
+    assert subst[0].default_value[0].default_value[0].perform(context) == ''
+    assert subst[0].default_value[1].perform(context) == '_qsd'
+
+
 if __name__ == '__main__':
     test_text_only()
     test_text_with_embedded_substitutions()
