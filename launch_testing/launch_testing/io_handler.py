@@ -121,14 +121,20 @@ class ActiveIoHandler(IoHandler):
         with self._sync_lock:
             return self._io_handler[key]
 
-    def assertWaitFor(self,
-                      expected_output,
-                      process=None,  # Will wait for IO from all procs by default
-                      cmd_args=None,
-                      *,
-                      strict_proc_matching=True,
-                      output_filter=None,
-                      timeout=10):
+    def assertWaitFor(self, *args, **kwargs):
+        success = self.waitFor(*args, **kwargs)
+        assert success, 'Waiting for output timed out'
+
+    def waitFor(
+        self,
+        expected_output,
+        process=None,  # Will wait for IO from all procs by default
+        cmd_args=None,
+        *,
+        strict_proc_matching=True,
+        output_filter=None,
+        timeout=10,
+    ):
         success = False
 
         def msg_found():
@@ -173,4 +179,4 @@ class ActiveIoHandler(IoHandler):
                     )
                 )
 
-        assert success, 'Waiting for output timed out'
+        return success
