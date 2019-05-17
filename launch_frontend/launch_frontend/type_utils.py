@@ -20,7 +20,7 @@ from typing import Tuple
 from typing import Union
 
 
-types_guess__ = (
+types_for_guess__ = (
     'int', 'float', 'bool', 'list[int]', 'list[float]',
     'list[bool]', 'list[str]', 'str'
 )
