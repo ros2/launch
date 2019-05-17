@@ -14,6 +14,7 @@
 
 """Test the default substitution interpolator."""
 
+from launch import LaunchContext
 from launch.substitutions import TextSubstitution
 
 from launch_frontend.expose import expose_substitution
@@ -97,9 +98,17 @@ def test_quoted_nested_substitution():
 
 def test_double_quoted_nested_substitution():
     subst = default_parse_substitution(
-        r'$(env "asd_bsd_qsd_$(test "asd_bds")" "$(env DEFAULT)_qsd")'
+        r'$(env "asd_bsd_qsd_$(test \"asd_bds\")" "$(env DEFAULT)_qsd")'
     )
+    context = LaunchContext()
     assert len(subst) == 1
+    assert len(subst[0].name) == 2
+    assert subst[0].name[0].perform(context) == 'asd_bsd_qsd_'
+    assert subst[0].name[1].perform(context) == '"asd_bds"'
+    assert len(subst[0].default_value) == 2
+    assert subst[0].default_value[0].name[0].perform(context) == 'DEFAULT'
+    assert subst[0].default_value[0].default_value[0].perform(context) == ''
+    assert subst[0].default_value[1].perform(context) == '_qsd'
 
 
 if __name__ == '__main__':
