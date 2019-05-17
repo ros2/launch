@@ -84,7 +84,7 @@ class Entity:
 
         'guess' work in the same way as:
             ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
-        'list[Entity]' will return a list of more enties.
+        'list[Entity]' will return a list of more entities.
 
         See the frontend documentation to see how 'list' and 'list[Entity]' look like.
 

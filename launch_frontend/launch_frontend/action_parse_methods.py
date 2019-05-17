@@ -107,11 +107,3 @@ def parse_let(entity: Entity, parser: Parser):
         name,
         value
     )
-
-# def parse_include(entity: Entity):
-#     """Parse a launch file to be included."""
-#     # TODO(ivanpauno): Should be allow to include a programmatic launch file? How?
-#     # TODO(ivanpauno): Create launch_ros.actions.IncludeAction, supporting namespacing.
-#     # TODO(ivanpauno): Handle if and unless conditions.
-#     loaded_entity = Entity.load(entity.file, entity.parent)
-#     parse_description(loaded_entity)

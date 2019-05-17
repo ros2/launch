@@ -9,14 +9,14 @@ This package provides an abstraction of the XML tree.
 When having an xml tag like:
 
 ```xml
-<tag attr="2"/>
+<tag value="2"/>
 ```
 
 If the entity `e` is wrapping it, the following statements will be true:
 ```python
-e.get_attr('attr') == '2'
-e.get_attr('attr', types='int') == 2
-e.get_attr('attr', types='float') == 2.0
+e.get_attr('value') == '2'
+e.get_attr('value', types='int') == 2
+e.get_attr('value', types='float') == 2.0
 ```
 
 By default, the value of the attribute is returned as a string.
@@ -35,23 +35,23 @@ In that case, conversions are tried in order and the first successful conversion
 For handling lists, the `*-sep` attribute is used. e.g.:
 
 ```xml
-<tag attr="2,3,4" attr-sep=","/>
-<tag2 attr="2 3 4" attr-sep=" "/>
-<tag3 attr="2, 3, 4" attr-sep=", "/>
+<tag value="2,3,4" sth-sep=","/>
+<tag2 value="2 3 4" sth-sep=" "/>
+<tag3 value="2, 3, 4" sth-sep=", "/>
 ```
 
 ```python
-tag.get_attr('attr', types='list[int]') == [2, 3, 4]
-tag2.get_attr('attr', types='list[float]') == [2.0, 3.0, 4.0]
-tag3.get_attr('attr', types='list[str]') == ['2', '3', '4']
+tag.get_attr('value', types='list[int]') == [2, 3, 4]
+tag2.get_attr('value', types='list[float]') == [2.0, 3.0, 4.0]
+tag3.get_attr('value', types='list[str]') == ['2', '3', '4']
 ```
 
 For checking if an attribute exists, use optional argument:
 
 ```python
-attr = e.get_attr('attr', optional=True)
-if attr is not None:
-    do_something(attr)
+value = e.get_attr('value', optional=True)
+if value is not None:
+    do_something(value)
 ```
 
 With `optional=False` (default), `AttributeError` is raised if it is not found.

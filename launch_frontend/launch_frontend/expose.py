@@ -28,7 +28,7 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
     The returned decorator will check the following things in order:
     - If it is decorating a class, it will look for a method called `parse` and store it
         as the parsing method. The `parse` method is supposed to be static. If the class
-        don't have a `parse` method, it will raise a `RuntimeError`.
+        doesn't have a `parse` method, it will raise a `RuntimeError`.
     - If it is decorating a callable, it will store it as the parsing method.
     - If not, it will raise a `RuntimeError`.
 

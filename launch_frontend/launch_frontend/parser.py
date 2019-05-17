@@ -93,8 +93,8 @@ class Parser:
         """Return an entity loaded with a markup file."""
         cls.load_parser_implementations()
         if is_a(file, str):
-            # This automatically recognizes 'file.xml' or 'file.launch.xml'
-            # as a launch file using the xml frontend.
+            # This automatically recognizes the launch frontend markup
+            # from the extension.
             frontend_name = file.rsplit('.', 1)[1]
             if frontend_name in cls.frontend_parsers:
                 return cls.frontend_parsers[frontend_name].load(file)

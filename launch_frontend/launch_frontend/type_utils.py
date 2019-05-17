@@ -125,8 +125,8 @@ def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
         type_obj, is_list = extract_type(x)
         if type_obj is bool:
             def type_obj(x):
-                if x.lower() in ('true', 'false'):
-                    return x.lower() == 'true'
+                if x.lower() in ('true', 'yes', 'on', '1', 'false', 'no', 'off', '0'):
+                    return x.lower() in ('true', 'yes', 'on', '1')
                 raise ValueError()
         if is_list:
             if not isinstance(value, list):

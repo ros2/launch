@@ -21,14 +21,6 @@ import launch
 from .expose import expose_substitution
 
 
-# @expose_substitution('test')
-# def test(data):
-#     """Delete me please."""
-#     if len(data) > 1:
-#         raise AttributeError('Expected a len 1 list')
-#     return data[0]
-
-
 @expose_substitution('env')
 def parse_env(data: Iterable[launch.SomeSubstitutionsType]):
     """Parse EnviromentVariable substitution."""

@@ -34,7 +34,7 @@ class Entity(BaseEntity):
         type_name: Optional[Text] = None,
         parent: 'Entity' = None
     ) -> Text:
-        """Construnctor."""
+        """Constructor."""
         if type_name is None:
             if len(element) != 1:
                 raise RuntimeError('Expected a len 1 dictionary')

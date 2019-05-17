@@ -10,24 +10,24 @@ When having an YAML file like:
 
 ```yaml
 tag:
-    attr1: '2'
-    attr2: 2
-    attr3: 2.0
+    value1: '2'
+    value2: 2
+    value3: 2.0
 ```
 
 If the entity `e` is wrapping `tag`, the following statement will be true:
 ```python
-e.get_attr('attr1') == '2'
-e.get_attr('attr2', types='int') == 2
-e.get_attr('attr3', types='float') == 2.0
+e.get_attr('value1') == '2'
+e.get_attr('value2', types='int') == 2
+e.get_attr('value3', types='float') == 2.0
 ```
 
 By default, `get_attr` returns an string and it does type checking. The following code will raise a `TypeError`:
 
 ```python
-e.get_attr('attr1', types='int')
-e.get_attr('attr2', types='float')
-e.get_attr('attr3')
+e.get_attr('value1', types='int')
+e.get_attr('value2', types='float')
+e.get_attr('value3')
 ```
 
 Allowed types are: 
@@ -45,9 +45,9 @@ In that case, conversions are tried in order and the first successful conversion
 For checking if an attribute exists, use optional argument:
 
 ```python
-attr = e.get_attr('attr', optional=True)
-if attr is not None:
-    do_something(attr)
+value = e.get_attr('value', optional=True)
+if value is not None:
+    do_something(value)
 ```
 
 With `optional=False` (default), `AttributeError` is raised if it is not found.

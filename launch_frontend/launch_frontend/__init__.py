@@ -20,7 +20,7 @@ from . import action_parse_methods  # noqa: F401
 from . import substitution_parse_methods  # noqa: F401
 from . import type_utils
 from .entity import Entity
-from .expose import __expose_impl, expose_action, expose_substitution
+from .expose import expose_action, expose_substitution
 from .parser import Parser
 
 
@@ -33,7 +33,4 @@ __all__ = [
     'Parser',
     # Modules
     'type_utils',
-
-    # Implementation detail, should only be imported in test_expose_decorators.
-    '__expose_impl',
 ]
