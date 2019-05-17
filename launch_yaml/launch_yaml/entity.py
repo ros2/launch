@@ -30,19 +30,13 @@ class Entity(BaseEntity):
     def __init__(
         self,
         element: dict,
+        type_name: Text = None,
         *,
-        type_name: Optional[Text] = None,
         parent: 'Entity' = None
     ) -> Text:
         """Constructor."""
-        if type_name is None:
-            if len(element) != 1:
-                raise RuntimeError('Expected a len 1 dictionary')
-            self.__type_name = list(element.keys())[0]
-            self.__element = element[self.__type_name]
-        else:
-            self.__type_name = type_name
-            self.__element = element
+        self.__type_name = type_name
+        self.__element = element
         self.__parent = parent
 
     @property
@@ -60,7 +54,13 @@ class Entity(BaseEntity):
         """Get the Entity's children."""
         if not isinstance(self.__element, list):
             raise TypeError('Expected a list, got {}'.format(type(self.element)))
-        return [Entity(child) for child in self.__element]
+        entities = []
+        for child in self.__element:
+            if len(child) != 1:
+                raise RuntimeError('Expected one root per child')
+            type_name = list(child.keys())[0]
+            entities.append(Entity(child[type_name], type_name))
+        return entities
 
     def get_attr(
         self,
@@ -88,7 +88,7 @@ class Entity(BaseEntity):
         data = self.__element[name]
         if types == 'list[Entity]':
             if isinstance(data, list) and isinstance(data[0], dict):
-                return [Entity(child, type_name=name) for child in data]
+                return [Entity(child, name) for child in data]
             raise TypeError(
                 'Attribute {} of Entity {} expected to be a list of dictionaries.'.format(
                     name, self.type_name

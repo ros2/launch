@@ -36,4 +36,8 @@ class Parser(launch_frontend.Parser):
         if isinstance(stream, str):
             stream = open(stream, 'r')
         """Return entity loaded with markup file."""
-        return (Entity(yaml.safe_load(stream)), cls)
+        tree = yaml.safe_load(stream)
+        if len(tree) != 1:
+            raise RuntimeError('Expected only one root')
+        type_name = list(tree.keys())[0]
+        return (Entity(tree[type_name], type_name), cls)
