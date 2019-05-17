@@ -47,11 +47,52 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+
+macro(parse_launch_test_arguments namespace filename)
+  cmake_parse_arguments(${namespace}
+    ""
+    "TARGET;TIMEOUT;PYTHON_EXECUTABLE"
+    "ARGS"
+    ${ARGN})
+
+  if(NOT ${namespace}_TIMEOUT)
+    set(${namespace}_TIMEOUT 60)
+  endif()
+
+  if(NOT ${namespace}_PYTHON_EXECUTABLE)
+    set(${namespace}_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}")
+  endif()
+
+  set(${namespace}_FILE_NAME NOTFOUND)
+  if(IS_ABSOLUTE ${filename})
+    set(${namespace}_FILE_NAME ${filename})
+  else()
+    find_file(${namespace}_FILE_NAME ${filename}
+              PATHS ${CMAKE_CURRENT_SOURCE_DIR}
+              NO_DEFAULT_PATH
+              NO_CMAKE_FIND_ROOT_PATH)
+    if(NOT ${namespace}_FILE_NAME)
+      message(FATAL_ERROR "Can't find launch test file \"${filename}\"")
+    endif()
+  endif()
+
+  if (NOT ${namespace}_TARGET)
+    # strip PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR from absolute filename to get unique test name (as rostest does it internally)
+    set(${namespace}_TARGET ${${namespace}_FILE_NAME})
+    rostest__strip_prefix(${namespace}_TARGET "${PROJECT_SOURCE_DIR}/")
+    rostest__strip_prefix(${namespace}_TARGET "${PROJECT_BINARY_DIR}/")
+    string(REPLACE "/" "_" ${namespace}_TARGET ${${namespace}_TARGET})
+  endif()
+
+  set(${namespace}_RESULT_FILE "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${${namespace}_TARGET}.xunit.xml")
+endmacro()
+
+
 #
 # Add a launch test
 #
-# :param file: The launch test file containing the test to run
-# :type file: string
+# :param filename: The launch test file containing the test to run
+# :type filename: string
 # :param TARGET: The test target name
 # :type TARGET: string
 # :param PYTHON_EXECUTABLE: The python executable to use for the test
@@ -60,64 +101,27 @@
 # :type TIMEOUT: integer
 # :param ARGS: Launch arguments to pass to the launch test
 # :type ARGS: string
-function(add_launch_test file)
-
-  cmake_parse_arguments(_add_launch_test
-    ""
-    "TARGET;TIMEOUT;PYTHON_EXECUTABLE"
-    "ARGS"
-    ${ARGN})
-
-  if(NOT _add_launch_test_TIMEOUT)
-    set(_add_launch_test_TIMEOUT 60)
-  endif()
-
-  if(NOT _add_launch_test_PYTHON_EXECUTABLE)
-    set(_add_launch_test_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}")
-  endif()
-
-  set(_file_name _file_name-NOTFOUND)
-  if(IS_ABSOLUTE ${file})
-    set(_file_name ${file})
-  else()
-    find_file(_file_name ${file}
-              PATHS ${CMAKE_CURRENT_SOURCE_DIR}
-              NO_DEFAULT_PATH
-              NO_CMAKE_FIND_ROOT_PATH)
-    if(NOT _file_name)
-      message(FATAL_ERROR "Can't find launch test file \"${file}\"")
-    endif()
-  endif()
-
-  if (NOT _add_launch_test_TARGET)
-    # strip PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR from absolute filename to get unique test name (as rostest does it internally)
-    set(_add_launch_test_TARGET ${_file_name})
-    rostest__strip_prefix(_add_launch_test_TARGET "${PROJECT_SOURCE_DIR}/")
-    rostest__strip_prefix(_add_launch_test_TARGET "${PROJECT_BINARY_DIR}/")
-    string(REPLACE "/" "_" _add_launch_test_TARGET ${_add_launch_test_TARGET})
-  endif()
-
-  set(result_file "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${_add_launch_test_TARGET}.xunit.xml")
+function(add_launch_test filename)
+  parse_launch_test_arguments(_launch_test ${filename} ${ARGN})
 
   set(cmd
-    "${_add_launch_test_PYTHON_EXECUTABLE}"
+    "${_launch_test_PYTHON_EXECUTABLE}"
     "-m"
     "launch_testing.launch_test"
-    "${_file_name}"
-    "${_add_launch_test_ARGS}"
-    "--junit-xml=${result_file}"
+    "${_launch_test_FILE_NAME}"
+    "${_launch_test_ARGS}"
+    "--junit-xml=${_launch_test_RESULT_FILE}"
     "--package-name=${PROJECT_NAME}"
   )
 
   ament_add_test(
-    "${_add_launch_test_TARGET}"
+    "${_launch_test_TARGET}"
     COMMAND ${cmd}
     OUTPUT_FILE "${CMAKE_BINARY_DIR}/launch_test/CHANGEME.txt"
-    RESULT_FILE "${result_file}"
-    TIMEOUT "${_add_launch_test_TIMEOUT}"
-    ${_add_launch_test_UNPARSED_ARGUMENTS}
+    RESULT_FILE "${_launch_test_RESULT_FILE}"
+    TIMEOUT "${_launch_test_TIMEOUT}"
+    ${_launch_test_UNPARSED_ARGUMENTS}
   )
-
 endfunction()
 
 macro(rostest__strip_prefix var prefix)

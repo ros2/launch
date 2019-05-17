@@ -45,7 +45,7 @@ def get_matching_function(expected_output):
         return lambda expected, actual: expected in actual
     elif hasattr(expected_output, 'search'):
         return lambda expected, actual: (
-            expected.match(actual.replace(os.linesep, '\n')) is not None
+            expected.search(actual.replace(os.linesep, '\n')) is not None
         )
     raise ValueError('Unknown format for expected output')
 
