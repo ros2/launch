@@ -102,6 +102,9 @@ endmacro()
 # :param ARGS: Launch arguments to pass to the launch test
 # :type ARGS: string
 function(add_launch_test filename)
+  # Convert filename to CMake path before calling macro to
+  # avoid problems with backslashes in the filename string.
+  file(TO_CMAKE_PATH "${filename}" filename)
   parse_launch_test_arguments(_launch_test ${filename} ${ARGN})
 
   set(cmd

@@ -23,7 +23,6 @@ if(BUILD_TESTING)
   if(NOT LAUNCH_TESTING_INSTALL_PREFIX)
       message(FATAL_ERROR "launch_testing package not found")
   endif()
-  file(TO_CMAKE_PATH "${LAUNCH_TESTING_INSTALL_PREFIX}" LAUNCH_TESTING_INSTALL_PREFIX)
 
   # Test argument passing.  This test won't pass unless you give it an argument
   add_launch_test(
