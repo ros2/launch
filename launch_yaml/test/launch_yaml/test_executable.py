@@ -14,7 +14,8 @@
 
 """Test parsing an executable action."""
 
-from pathlib import Path
+import io
+import textwrap
 
 from launch import LaunchService
 
@@ -23,7 +24,23 @@ from launch_frontend import Parser
 
 def test_executable():
     """Parse executable yaml example."""
-    root_entity, parser = Parser.load(str(Path(__file__).parent / 'executable.yaml'))
+    yaml_file = \
+        """\
+        launch:
+          - executable:
+              cmd: ls
+              cwd: '/'
+              name: my_ls
+              args: -l -a -s
+              shell: true
+              output: log
+              launch_prefix: $(env LAUNCH_PREFIX)
+              env:
+                - name: var
+                  value: '1'
+        """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = Parser.load(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]

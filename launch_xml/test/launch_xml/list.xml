@@ -1,5 +1,0 @@
-<root> 
-    <tag attr="1,2,3" attr-sep=","/>
-    <tag attr="1 2 3" attr-sep=" "/>
-    <tag attr="1, 2, 3" attr-sep=", "/>
-</root>

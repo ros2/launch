@@ -14,7 +14,8 @@
 
 """Test parsing an executable action."""
 
-from pathlib import Path
+import io
+import textwrap
 
 from launch import LaunchService
 
@@ -23,7 +24,16 @@ from launch_frontend import Parser
 
 def test_executable():
     """Parse node xml example."""
-    root_entity, parser = Parser.load(str(Path(__file__).parent / 'executable.xml'))
+    xml_file = \
+        """\
+        <launch>
+            <executable cmd="ls" cwd="/" name="my_ls" args="-l -a -s" shell="true" output='log' launch-prefix='$(env LAUNCH_PREFIX)'>
+                <env name="var" value="1"/>
+            </executable>
+        </launch>
+        """  # noqa: E501
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = Parser.load(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]

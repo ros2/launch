@@ -14,7 +14,8 @@
 
 """Test parsing an executable action."""
 
-from pathlib import Path
+import io
+import textwrap
 
 from launch import LaunchContext
 
@@ -23,7 +24,15 @@ from launch_frontend import Parser
 
 def test_let_var():
     """Parse node xml example."""
-    root_entity, parser = Parser.load(str(Path(__file__).parent / 'let_var.xml'))
+    xml_file = \
+        """\
+        <launch>
+            <let name="var1" value="asd"/>
+            <let name="var2" value="2 $(var var1)"/>
+        </launch>
+        """
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = Parser.load(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     context = LaunchContext()
     assert len(ld.entities) == 2

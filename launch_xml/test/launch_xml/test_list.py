@@ -14,17 +14,24 @@
 
 """Test parsing list attributes."""
 
-from pathlib import Path
-import xml.etree.ElementTree as ET
+import io
+import textwrap
 
-from launch_xml import Entity
+from launch_frontend import Parser
 
 
 def test_list():
     """Parse tags with list attributes."""
-    tree = ET.parse(str(Path(__file__).parent / 'list.xml'))
-    root = tree.getroot()
-    root_entity = Entity(root)
+    xml_file = \
+        """\
+        <root>
+            <tag attr="1,2,3" attr-sep=","/>
+            <tag attr="1 2 3" attr-sep=" "/>
+            <tag attr="1, 2, 3" attr-sep=", "/>
+        </root>
+        """
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = Parser.load(io.StringIO(xml_file))
     tags = root_entity.children
     assert tags[0].get_attr('attr', types='list[str]') == ['1', '2', '3']
     assert tags[0].get_attr('attr', types='list[int]') == [1, 2, 3]
