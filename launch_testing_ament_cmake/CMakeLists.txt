@@ -17,7 +17,9 @@ if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
   ament_add_pytest_test(launch_testing_ament_cmake_pytests test)
 
-  include(cmake/add_launch_test.cmake)
+  # Include 'add_launch_test' and it's package dependencies
+  set(launch_testing_ament_cmake_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+  include(${PROJECT_NAME}-extras.cmake)
 
   ament_index_has_resource(LAUNCH_TESTING_INSTALL_PREFIX packages launch_testing)
   if(NOT LAUNCH_TESTING_INSTALL_PREFIX)
