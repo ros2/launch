@@ -89,7 +89,7 @@ class LaunchService:
         self.__debug = debug
 
         # Setup logging
-        self.__logger = launch.logging.get_logger('launch')
+        self.__logger = launch.logging.get_logger(__name__)
         # Install signal handlers if not already installed, will raise if not
         # in main-thread, call manually in main-thread to avoid this.
         install_signal_handlers()
