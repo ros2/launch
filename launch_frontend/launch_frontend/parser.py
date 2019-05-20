@@ -108,5 +108,6 @@ class Parser:
             try:
                 return implementation.load(file)
             except Exception:
-                pass
+                if is_a(file, io.TextIOBase):
+                    file.seek(0)
         raise RuntimeError('Not recognized front-end implementation.')
