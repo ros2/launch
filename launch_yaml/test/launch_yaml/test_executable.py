@@ -27,17 +27,17 @@ def test_executable():
     yaml_file = \
         """\
         launch:
-          - executable:
-              cmd: ls
-              cwd: '/'
-              name: my_ls
-              args: -l -a -s
-              shell: true
-              output: log
-              launch_prefix: $(env LAUNCH_PREFIX)
-              env:
-                - name: var
-                  value: '1'
+        -   executable:
+                cmd: ls
+                cwd: '/'
+                name: my_ls
+                args: -l -a -s
+                shell: true
+                output: log
+                launch_prefix: $(env LAUNCH_PREFIX)
+                env:
+                    -   name: var
+                        value: '1'
         """
     yaml_file = textwrap.dedent(yaml_file)
     root_entity, parser = Parser.load(io.StringIO(yaml_file))
