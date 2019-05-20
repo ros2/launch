@@ -79,7 +79,7 @@ def check_type(value: Any, types: Union[Text, Tuple[Text]]) -> bool:
         ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
     """
     if types == 'guess':
-        types = types_guess__
+        types = types_for_guess__
     if isinstance(types, Text):
         types = [types]
     for x in types:
@@ -116,7 +116,7 @@ def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
         ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
     """
     if types == 'guess':
-        types = types_guess__
+        types = types_for_guess__
     elif isinstance(types, Text):
         types = [types]
 
