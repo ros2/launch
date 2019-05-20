@@ -61,6 +61,11 @@ macro(parse_launch_test_arguments namespace filename)
 
   if(NOT ${namespace}_PYTHON_EXECUTABLE)
     set(${namespace}_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}")
+    if(WIN32)
+      if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(${namespace}_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE_DEBUG}")
+      endif()
+    endif()
   endif()
 
   set(${namespace}_FILE_NAME NOTFOUND)
