@@ -2,6 +2,9 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.2 (2019-05-20)
+------------------
+
 0.8.1 (2019-05-08)
 ------------------
 * Merge apex_launchtest functionality into launch_testing (`#215 <https://github.com/ros2/launch/issues/215>`_)

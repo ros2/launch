@@ -2,6 +2,13 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.2 (2019-05-20)
+------------------
+* add non-asserting waitFor method (`#243 <https://github.com/ros2/launch/issues/243>`_)
+* Enable reuse of launch testing functionality (`#236 <https://github.com/ros2/launch/issues/236>`_)
+* Stop randomizing ROS_DOMAIN_ID by default in launch tests (`#240 <https://github.com/ros2/launch/issues/240>`_)
+* Contributors: Dirk Thomas, Michel Hidalgo
+
 0.8.1 (2019-05-08)
 ------------------
 

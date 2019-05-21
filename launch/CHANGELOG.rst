@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.2 (2019-05-20)
+------------------
+* Moved some common code to LaunchDescriptionSource (`#234 <https://github.com/ros2/launch/issues/234>`_)
+* Please flake8 on launch package. (`#241 <https://github.com/ros2/launch/issues/241>`_)
+* Allow substitution in variable_name of LaunchConfiguration substitutions (`#235 <https://github.com/ros2/launch/issues/235>`_)
+* Add support for custom launch log file handling (`#233 <https://github.com/ros2/launch/issues/233>`_)
+* Contributors: Michel Hidalgo, ivanpauno
+
 0.8.1 (2019-05-08)
 ------------------
 
