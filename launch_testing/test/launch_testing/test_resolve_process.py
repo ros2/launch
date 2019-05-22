@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 import types
 import unittest
 
@@ -89,17 +90,17 @@ class TestStringProcessResolution(unittest.TestCase):
 
         def generate_test_description(ready_fn):
             no_arg_proc = launch.actions.ExecuteProcess(
-                cmd=[proc_command],
+                cmd=[sys.executable],
                 env=proc_env
             )
 
             one_arg_proc = launch.actions.ExecuteProcess(
-                cmd=[proc_command, '--one-arg'],
+                cmd=[sys.executable, proc_command, '--one-arg'],
                 env=proc_env
             )
 
             two_arg_proc = launch.actions.ExecuteProcess(
-                cmd=[proc_command, '--two-arg', 'arg_two'],
+                cmd=[sys.executable, proc_command, '--two-arg', 'arg_two'],
                 env=proc_env
             )
 
@@ -146,7 +147,7 @@ class TestStringProcessResolution(unittest.TestCase):
     def test_proc_string_lookup_multiple_args(self):
         found_proc = launch_testing.util.resolveProcesses(
             self.proc_info,
-            process='good_proc',
+            process=os.path.basename(sys.executable),
             cmd_args=['--two-arg', 'arg_two']
         )
 
@@ -155,7 +156,7 @@ class TestStringProcessResolution(unittest.TestCase):
     def test_proc_string_lookup_no_args(self):
         found_proc = launch_testing.util.resolveProcesses(
             self.proc_info,
-            process='good_proc',
+            process=os.path.basename(sys.executable),
             cmd_args=launch_testing.util.NO_CMD_ARGS
         )
 
@@ -165,12 +166,12 @@ class TestStringProcessResolution(unittest.TestCase):
         with self.assertRaisesRegexp(Exception, 'Found multiple processes'):
             launch_testing.util.resolveProcesses(
                 self.proc_info,
-                process='good_proc',
+                process=os.path.basename(sys.executable),
             )
 
         found_proc = launch_testing.util.resolveProcesses(
             self.proc_info,
-            process='good_proc',
+            process=os.path.basename(sys.executable),
             strict_proc_matching=False
         )
 
@@ -183,7 +184,7 @@ class TestStringProcessResolution(unittest.TestCase):
 
         found_proc = launch_testing.util.resolveProcesses(
             self.proc_info,
-            process='good_proc',
+            process=os.path.basename(sys.executable),
             cmd_args='--one-arg',
         )
 
