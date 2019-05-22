@@ -74,7 +74,7 @@ def parse_arguments():
 def run(parser, args, test_runner_cls=LaunchTestRunner):
     if args.isolated:
         domain_id = get_coordinated_domain_id()  # Must copy this to a local to keep it alive
-        _logger_.debug('Running with ROS_DOMAIN_ID {}'.format(domain_id))
+        _logger_.info('Running with ROS_DOMAIN_ID {}'.format(domain_id))
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
 
     # Load the test file as a module and make sure it has the required
