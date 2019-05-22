@@ -394,6 +394,9 @@ class LaunchLogger(logging.getLoggerClass()):
         LaunchLogger.all_loggers.append(instance)
         return instance
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.propagate = False
 
 default_log_dir = _make_unique_log_dir(
     base_path=os.path.join(os.path.expanduser('~'), '.ros/log')
