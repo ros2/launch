@@ -159,6 +159,19 @@ launch_test examples/args.test.py dut_arg:=value
 
 See the [launch_testing example with arguments](examples/args.test.py) for further reference.
 
+## ROS_DOMAIN_ID Isolation
+
+If the ROS_DOMAIN_ID environment variable isn't set, `launch_test` will automatically coordinate with other `launch_test` processes running on the same host
+to use a unique ROS_DOMAIN_ID for the launched processes.
+This allows multiple instances to run in parallel (the default with `colcon test`).
+Note that `launch_test` cannot coordinate unique domains across multiple hosts.  
+If the ROS_DOMAIN_ID environment variable is already set, `launch_test` respects the environment variable and won't attempt to select a different ID.
+In this case it's the responsibility of the user to design tests that can be safely run in parallel, or not use parallel test workers.
+
+When working on a system without a ROS_DOMAIN_ID set, the automatic domain isolation behavior can be disabled with the --disable-isolation flag.
+This can be useful for debugging tests by running without isolation and running a command like `ros2 topic echo` in another terminal window to see what's
+happening in the test as it runs.
+
 ## Using CMake
 
 To run launch tests from a CMakeLists.txt file, you'll need to declare a dependency on
