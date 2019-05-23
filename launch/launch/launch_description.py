@@ -57,7 +57,12 @@ class LaunchDescription(LaunchDescriptionEntity):
         """Override describe_sub_entities from LaunchDescriptionEntity to return sub entities."""
         return self.__entities
 
-    def get_launch_arguments(self, conditional_inclusion=False) -> List[DeclareLaunchArgument]:
+    def get_launch_arguments(
+        self,
+        *,
+        conditional_inclusion=False,
+        include_launch_description_parent=None
+    ) -> List[DeclareLaunchArgument]:
         """
         Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
 
@@ -69,6 +74,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         and :py:meth:`launch.LaunchDescriptionEntity.describe_conditional_sub_entities`
         in order to discover as many instances of the declare launch argument
         actions as is possible.
+
         Also, specifically in the case of the
         :py:class:`launch.actions.IncludeLaunchDescription` action, the method
         :py:meth:`launch.LaunchDescriptionSource.try_get_launch_description_without_context`
@@ -85,7 +91,14 @@ class LaunchDescription(LaunchDescriptionEntity):
         """
         declared_launch_arguments = []  # type: List[DeclareLaunchArgument]
 
-        def process_entities(entities, *, _conditional_inclusion):
+        def process_entities(
+            entities,
+            *,
+            _conditional_inclusion,
+            _include_launch_description_parent
+        ):
+            from .actions import IncludeLaunchDescription  # import here to avoid circular import
+
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
@@ -95,14 +108,24 @@ class LaunchDescription(LaunchDescriptionEntity):
                     # potential use in command-line descriptions or errors.
                     entity._conditionally_included = _conditional_inclusion
                     entity._conditionally_included |= entity.condition is not None
+                    entity._include_launch_description_parent = _include_launch_description_parent
                     declared_launch_arguments.append(entity)
                 else:
+                    if isinstance(entity, IncludeLaunchDescription):
+                        _include_launch_description_parent = entity
                     process_entities(
-                        entity.describe_sub_entities(), _conditional_inclusion=False)
+                        entity.describe_sub_entities(),
+                        _conditional_inclusion=False,
+                        _include_launch_description_parent=_include_launch_description_parent)
                     process_entities(
-                        entity.describe_conditional_sub_entities(), _conditional_inclusion=True)
+                        entity.describe_conditional_sub_entities(),
+                        _conditional_inclusion=True,
+                        _include_launch_description_parent=_include_launch_description_parent)
 
-        process_entities(self.entities, _conditional_inclusion=conditional_inclusion)
+        process_entities(
+            self.entities,
+            _conditional_inclusion=conditional_inclusion,
+            _include_launch_description_parent=include_launch_description_parent)
 
         return declared_launch_arguments
 

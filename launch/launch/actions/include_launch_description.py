@@ -106,19 +106,30 @@ class IncludeLaunchDescription(Action):
 
         # Do best effort checking to see if non-optional, non-default declared arguments
         # are being satisfied.
-        argument_names = [
-            perform_substitutions(context, normalize_to_list_of_substitutions(arg_name))
-            for arg_name, arg_value in self.launch_arguments
-        ]
-        declared_launch_arguments = launch_description.get_launch_arguments()
+        declared_launch_arguments = launch_description.get_launch_arguments(
+            include_launch_description_parent=self
+        )
         for argument in declared_launch_arguments:
             if argument._conditionally_included or argument.default_value is not None:
                 continue
+            argument_names: List[str] = []
+            if argument._include_launch_description_parent is not None:
+                argument_names = [
+                    perform_substitutions(context, normalize_to_list_of_substitutions(arg_name))
+                    for arg_name, arg_value
+                    in argument._include_launch_description_parent.launch_arguments
+                ]
             if argument.name not in argument_names:
+                launch_file_location = os.path.abspath(self.__launch_description_source.location)
                 raise RuntimeError(
-                    "Included launch description missing required argument '{}' "
-                    "(description: '{}'), given: [{}]"
-                    .format(argument.name, argument.description, ', '.join(argument_names))
+                    "Included launch description (located at '{}') missing required argument '{}' "
+                    "(argument description: '{}'), arguments that were given: [{}]"
+                    .format(
+                        launch_file_location,
+                        argument.name,
+                        argument.description,
+                        ', '.join(["'{}'".format(a) for a in argument_names])
+                    )
                 )
 
         # Create actions to set the launch arguments into the launch configurations.

@@ -17,6 +17,7 @@
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import TYPE_CHECKING
 
 import launch.logging
 
@@ -26,6 +27,9 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
+
+if TYPE_CHECKING:
+    from ..actions import IncludeLaunchDescription  # noqa
 
 
 class DeclareLaunchArgument(Action):
@@ -94,6 +98,13 @@ class DeclareLaunchArgument(Action):
         # Its value will be read and set at different times and so the value
         # may change depending at different times based on the context.
         self._conditionally_included = False
+
+        # This is used later to determine if the instance of
+        # IncludeLaunchDescription which included this action passed the
+        # required arguments.
+        # Its value will be read and set at different times and so the value
+        # may change depending at different times based on the context.
+        self._include_launch_description_parent: Optional['IncludeLaunchDescription'] = None
 
     @property
     def name(self) -> Text:
