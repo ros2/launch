@@ -61,24 +61,12 @@ def test_launch_description_get_launch_arguments():
         ]))),
     ])
     la = ld.get_launch_arguments()
-    assert len(la) == 1
-    assert la[0]._conditionally_included is False
+    assert len(la) == 0
 
     this_dir = os.path.dirname(os.path.abspath(__file__))
     ld = LaunchDescription([
         IncludeLaunchDescription(PythonLaunchDescriptionSource(
             os.path.join(this_dir, 'launch_file_with_argument.launch.py'))),
-    ])
-    la = ld.get_launch_arguments()
-    assert len(la) == 1
-    assert la[0]._conditionally_included is False
-
-    ld = LaunchDescription([
-        IncludeLaunchDescription(PythonLaunchDescriptionSource([
-            # This will prevent loading of this launch file to find arguments in it.
-            ThisLaunchFileDir(),
-            'launch_file_with_argument.launch.py',
-        ])),
     ])
     la = ld.get_launch_arguments()
     assert len(la) == 0

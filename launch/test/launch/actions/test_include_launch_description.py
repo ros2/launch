@@ -19,6 +19,7 @@ import os
 from launch import LaunchContext
 from launch import LaunchDescription
 from launch import LaunchDescriptionSource
+from launch import LaunchService
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.actions import SetLaunchConfiguration
@@ -127,6 +128,60 @@ def test_include_launch_description_launch_arguments():
     ld2 = LaunchDescription([DeclareLaunchArgument('foo', default_value='FOO')])
     action2 = IncludeLaunchDescription(
         LaunchDescriptionSource(ld2)
+    )
+    lc2 = LaunchContext()
+    action2.visit(lc2)
+
+    # Test that default arguments in nested IncludeLaunchDescription actions do not raise
+    ld1 = LaunchDescription([DeclareLaunchArgument('foo', default_value='FOO')])
+    action1 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld1),
+    )
+    ld2 = LaunchDescription([action1, DeclareLaunchArgument('foo2')])
+    action2 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld2),
+        launch_arguments={'foo2': 'FOO2'}.items(),
+    )
+    lc2 = LaunchContext()
+    action2.visit(lc2)
+
+    # Test that provided launch arguments of nested IncludeLaunchDescription actions do not raise
+    ld1 = LaunchDescription([DeclareLaunchArgument('foo')])
+    action1 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld1), launch_arguments={'foo': 'FOO'}.items(),
+    )
+    ld2 = LaunchDescription([action1, DeclareLaunchArgument('foo2')])
+    action2 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld2),
+        launch_arguments={'foo2': 'FOO2'}.items(),
+    )
+    lc2 = LaunchContext()
+    action2.visit(lc2)
+
+    # Test that arguments can not be passed from the parent launch description
+    ld1 = LaunchDescription([DeclareLaunchArgument('foo')])
+    action1 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld1)
+    )
+    ld2 = LaunchDescription([action1, DeclareLaunchArgument('foo2')])
+    action2 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld2),
+        launch_arguments={'foo': 'FOO', 'foo2': 'FOO2'}.items(),
+    )
+    ld3 = LaunchDescription([action2])
+    ls = LaunchService()
+    ls.include_launch_description(ld3)
+    assert 1 == ls.run()
+
+    # Test that arguments can be redeclared in the parent launch description
+    ld1 = LaunchDescription([DeclareLaunchArgument('foo')])
+    action1 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld1)
+    )
+    ld2 = LaunchDescription([action1, DeclareLaunchArgument('foo'), DeclareLaunchArgument('foo2')])
+    action2 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld2),
+        launch_arguments={'foo': 'FOO', 'foo2': 'FOO2'}.items(),
     )
     lc2 = LaunchContext()
     action2.visit(lc2)
