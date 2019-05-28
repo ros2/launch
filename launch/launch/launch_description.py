@@ -97,6 +97,10 @@ class LaunchDescription(LaunchDescriptionEntity):
                     entity._conditionally_included |= entity.condition is not None
                     declared_launch_arguments.append(entity)
                 else:
+                    from .actions import IncludeLaunchDescription
+                    if isinstance(entity, IncludeLaunchDescription):
+                        # Do not check launch arguments of included descriptions.
+                        continue
                     process_entities(
                         entity.describe_sub_entities(), _conditional_inclusion=False)
                     process_entities(
