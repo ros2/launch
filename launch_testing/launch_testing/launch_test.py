@@ -65,7 +65,8 @@ def add_arguments(parser):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description='Launch integration testing tool.'
+        description='Launch integration testing tool. Uses a unique domain id '
+                    "if the environment variable ROS_DOMAIN_ID isn't set."
     )
     add_arguments(parser)
     return parser, parser.parse_args()
