@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Changed behavior to use ``--isolated`` if no ``ROS_DOMAIN_ID`` is set to help parallel testing. (`#251 <https://github.com/ros2/launch/issues/251>`_)
+* Contributors: Peter Baughman
+
 0.8.2 (2019-05-20)
 ------------------
 * add non-asserting waitFor method (`#243 <https://github.com/ros2/launch/issues/243>`_)

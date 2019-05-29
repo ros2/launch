@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.8.2 (2019-05-20)
 ------------------
 * Revert "Include cmake extras for testing (`#245 <https://github.com/ros2/launch/issues/245>`_)"

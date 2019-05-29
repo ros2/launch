@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Changed IncludeLaunchDescription to not check declared arguments of subentities in order to work around an issue preventing nested arugments until a better fix can be done. (`#249 <https://github.com/ros2/launch/issues/249>`_)
+* Fixed a bug where logging messages could be duplicated and improved logging's apperance on the CLI. (`#250 <https://github.com/ros2/launch/issues/250>`_)
+* Contributors: Michel Hidalgo, ivanpauno
+
 0.8.2 (2019-05-20)
 ------------------
 * Moved some common code to LaunchDescriptionSource (`#234 <https://github.com/ros2/launch/issues/234>`_)
