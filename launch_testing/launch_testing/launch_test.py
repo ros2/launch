@@ -80,11 +80,10 @@ def run(parser, args, test_runner_cls=LaunchTestRunner):
     # This is to allow launch_test to run in parallel and not have ROS cross-talk.
     # If the user needs to debug a test and they don't have ROS_DOMAIN_ID set in their environment
     # they can disable isolation by passing the --disable-isolation flag.
-    if 'ROS_DOMAIN_ID' not in os.environ:
-        if not args.disable_isolation:
-            domain_id = get_coordinated_domain_id()  # Must keep this as a local to keep it alive
-            _logger_.info('Running with ROS_DOMAIN_ID {}'.format(domain_id))
-            os.environ['ROS_DOMAIN_ID'] = str(domain_id)
+    if 'ROS_DOMAIN_ID' not in os.environ and not args.disable_isolation:
+        domain_id = get_coordinated_domain_id()  # Must keep this as a local to keep it alive
+        _logger_.info('Running with ROS_DOMAIN_ID {}'.format(domain_id))
+        os.environ['ROS_DOMAIN_ID'] = str(domain_id)
 
     # Load the test file as a module and make sure it has the required
     # components to run it as a launch test
