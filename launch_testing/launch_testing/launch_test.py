@@ -50,8 +50,8 @@ def add_arguments(parser):
     )
     # TODO(hidmic): Provide this option for rostests only.
     parser.add_argument(
-        '-i', '--isolated', action='store_true', default=False,
-        help='Isolate tests using a custom ROS_DOMAIN_ID. Useful for test parallelization.'
+        '--disable-isolation', action='store_true', default=False,
+        help='Disable automatic ROS_DOMAIN_ID isolation.'
     )
     parser.add_argument(
         'launch_arguments', nargs='*',
@@ -65,16 +65,24 @@ def add_arguments(parser):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description='Launch integration testing tool.'
+        description='Launch integration testing tool. Uses a unique domain id '
+                    "if the environment variable ROS_DOMAIN_ID isn't set."
     )
     add_arguments(parser)
     return parser, parser.parse_args()
 
 
 def run(parser, args, test_runner_cls=LaunchTestRunner):
-    if args.isolated:
-        domain_id = get_coordinated_domain_id()  # Must copy this to a local to keep it alive
-        _logger_.debug('Running with ROS_DOMAIN_ID {}'.format(domain_id))
+
+    # If ROS_DOMAIN_ID is already set, launch_test will respect that domain ID and use it.
+    # If ROS_DOMAIN_ID is not set, launch_test will pick a ROS_DOMAIN_ID that's not being used
+    # by another launch_test process.
+    # This is to allow launch_test to run in parallel and not have ROS cross-talk.
+    # If the user needs to debug a test and they don't have ROS_DOMAIN_ID set in their environment
+    # they can disable isolation by passing the --disable-isolation flag.
+    if 'ROS_DOMAIN_ID' not in os.environ and not args.disable_isolation:
+        domain_id = get_coordinated_domain_id()  # Must keep this as a local to keep it alive
+        _logger_.info('Running with ROS_DOMAIN_ID {}'.format(domain_id))
         os.environ['ROS_DOMAIN_ID'] = str(domain_id)
 
     # Load the test file as a module and make sure it has the required

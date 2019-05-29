@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import random
 import socket
 
 # To coordinate ROS_DOMAIN_IDs between multiple instances of launch_test, we
@@ -36,7 +35,17 @@ class _default_selector:
     # value, then increment from there until we find one that isn't taken
 
     def __init__(self):
-        self._value = random.randint(1, 100)
+        # When we need to coordinate 10 or 20 domains, it's about 10x faster
+        # to start with a random seed value here.  It's also the difference between
+        # 1ms and 100us so it's totally insignificant
+        # Leaving this here in case it's ever useful in the future to speed up
+        # domain selection
+        # self._value = random.randint(1, 100)
+
+        # Slower, but deterministic:
+        # Always start at '1' so if there's weirdness where domains are colliding when
+        # they shouldn't, it's easier to debug
+        self._value = 1
 
     def __call__(self):
         retval = ((self._value - 1) % 100) + 1
