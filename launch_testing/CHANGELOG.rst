@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.8.3 (2019-05-29)
+------------------
 * Changed behavior to use ``--isolated`` if no ``ROS_DOMAIN_ID`` is set to help parallel testing. (`#251 <https://github.com/ros2/launch/issues/251>`_)
 * Contributors: Peter Baughman
 

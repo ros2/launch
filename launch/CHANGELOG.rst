@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.8.3 (2019-05-29)
+------------------
 * Changed IncludeLaunchDescription to not check declared arguments of subentities in order to work around an issue preventing nested arugments until a better fix can be done. (`#249 <https://github.com/ros2/launch/issues/249>`_)
 * Fixed a bug where logging messages could be duplicated and improved logging's apperance on the CLI. (`#250 <https://github.com/ros2/launch/issues/250>`_)
 * Contributors: Michel Hidalgo, ivanpauno
@@ -56,27 +56,6 @@ Forthcoming
 ------------------
 * Fixed setup.py versions (`#155 <https://github.com/ros2/launch/issues/155>`_)
 * Contributors: Steven! Ragnarök
-
-* Merge pull request `#158 <https://github.com/ros2/launch/issues/158>`_ from ros2/fix_deprecation_warning
-  fix deprecation warning related to collections.abc
-* fix deprecation warning related to collections.abc
-  Signed-off-by: William Woodall <william@osrfoundation.org>
-* 0.7.2
-* changelogs
-  Signed-off-by: William Woodall <william@osrfoundation.org>
-* signit executes the shutdown event synchronously (`#156 <https://github.com/ros2/launch/issues/156>`_)
-  * signit executes the shutdown event synchronously
-  * line length
-  * avoid split parameter indention
-* 0.7.1
-* changelogs
-  Signed-off-by: William Woodall <william@osrfoundation.org>
-* Fix setup py versions (`#155 <https://github.com/ros2/launch/issues/155>`_)
-  * Make setup.py version agree with package.xml version.
-  Drive-by cleanup while I'm doing other things.
-  * Missed it by that much.
-  Between creating this branch and submitting it a release happened.
-* Contributors: Jonathan Chapple, Steven! Ragnarök, William Woodall
 
 0.7.0 (2018-11-16)
 ------------------
