@@ -81,10 +81,12 @@ class Entity:
         Types that can not be combined with the others:
             - 'guess'
             - 'list[Entity]'
+            - 'yaml_format'
 
         'guess' work in the same way as:
             ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
         'list[Entity]' will return a list of more entities.
+        'yaml_format' will return an string in yaml_format.
 
         See the frontend documentation to see how 'list' and 'list[Entity]' look like.
 
