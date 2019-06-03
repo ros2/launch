@@ -23,8 +23,6 @@ from typing import Union
 from launch_frontend import Entity as BaseEntity
 from launch_frontend.type_utils import check_type
 
-import yaml
-
 
 class Entity(BaseEntity):
     """Single item in the intermediate YAML front_end representation."""
@@ -96,8 +94,6 @@ class Entity(BaseEntity):
                     name, self.type_name
                 )
             )
-        if types == 'yaml_format':
-            return yaml.safe_dump(data)  # Return it again as an string in yaml format
         if not check_type(data, types):
             raise TypeError(
                 'Attribute {} of Entity {} expected to be of type {}, got {}'.format(

@@ -19,7 +19,6 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
-import yaml
 
 types_for_guess__ = (
     'int', 'float', 'bool', 'list[int]', 'list[float]',
@@ -115,15 +114,9 @@ def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
 
     types = 'guess' works in the same way as:
         ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
-    types = 'yaml_format' works as guess, but the value is converted back to a string in yaml
-    format.
     """
-    convert_to_yaml = False
     if types == 'guess':
         types = types_for_guess__
-    elif types == 'yaml_format':
-        types = types_for_guess__
-        convert_to_yaml = True
     elif isinstance(types, Text):
         types = [types]
 
@@ -159,11 +152,4 @@ def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
                 value, types
             )
         )
-    if convert_to_yaml:
-        yaml_value = yaml.safe_dump(typed_value)
-        if not yaml.safe_load(yaml_value) == typed_value and isinstance(yaml_value, str):
-            yaml_value = "'" + yaml_value + "'"
-            if not yaml.safe_load(yaml_value) == typed_value:
-                raise RuntimeError('Unexpected failure. Inconsistency while dumping file to yaml format.')
-        return yaml_value
     return typed_value
