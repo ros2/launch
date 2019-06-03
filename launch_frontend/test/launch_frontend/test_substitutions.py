@@ -22,9 +22,12 @@ from launch_frontend.parse_substitution import default_parse_substitution
 
 
 def test_text_only():
-    subst = default_parse_substitution('yes')
+    subst = default_parse_substitution("\\'yes\\'")
     assert len(subst) == 1
-    assert subst[0].perform(None) == 'yes'
+    assert subst[0].perform(None) == "'yes'"
+    subst = default_parse_substitution('\\"yes\\"')
+    assert len(subst) == 1
+    assert subst[0].perform(None) == '"yes"'
     subst = default_parse_substitution('10')
     assert len(subst) == 1
     assert subst[0].perform(None) == '10'
