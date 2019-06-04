@@ -330,10 +330,9 @@ class ExecuteProcess(Action):
                 else:
                     last_line = line
                     break
+        self.__stdout_buffer = io.StringIO()
         if last_line is not None:
-            self.__stdout_buffer = io.StringIO(last_line)
-        else:
-            self.__stdout_buffer = io.StringIO()
+            self.__stdout_buffer.write(last_line)
 
     def __on_process_stderr(
         self, event: ProcessIO
@@ -351,10 +350,9 @@ class ExecuteProcess(Action):
                 else:
                     last_line = line
                     break
+        self.__stderr_buffer = io.StringIO()
         if last_line is not None:
-            self.__stderr_buffer = io.StringIO(last_line)
-        else:
-            self.__stderr_buffer = io.StringIO()
+            self.__stderr_buffer.write(last_line)
 
     def __flush_buffers(self, event, context):
         with self.__stdout_buffer as buf:
