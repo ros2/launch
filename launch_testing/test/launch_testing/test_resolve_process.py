@@ -23,8 +23,6 @@ import launch_testing.util
 class TestResolveProcess(unittest.TestCase):
 
     def test_unlaunched_process_lookup(self):
-        # Regression test for https://github.com/ApexAI/apex_rostest/issues/35
-
         info_obj = launch_testing.ProcInfoHandler()
 
         lookup_obj = launch.actions.ExecuteProcess(
