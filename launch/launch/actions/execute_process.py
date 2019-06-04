@@ -15,6 +15,7 @@
 """Module for the ExecuteProcess action."""
 
 import asyncio
+import io
 import os
 import platform
 import shlex
@@ -221,8 +222,8 @@ class ExecuteProcess(Action):
         self.__sigterm_timer = None  # type: Optional[TimerAction]
         self.__sigkill_timer = None  # type: Optional[TimerAction]
         self.__shutdown_received = False
-        self.__stdout_buffer = ''
-        self.__stderr_buffer = ''
+        self.__stdout_buffer = io.StringIO()
+        self.__stderr_buffer = io.StringIO()
 
     @property
     def output(self):
@@ -316,46 +317,58 @@ class ExecuteProcess(Action):
     def __on_process_stdout(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        output = (event.text.decode(errors='replace') + 'a').splitlines()
-        new_buffer = ''
-        # Check if the event text ended in a new line or not.
-        # If ended in a new line, print everything. If not, save the ending in the buffer.
-        if output[-1] != 'a':
-            new_buffer = output[-1][:-1]
-        output[0] = self.__stdout_buffer + output[0]
-        output = output[:-1]
-        self.__stdout_buffer = new_buffer
-        for line in output:
-            self.__stdout_logger.info(
-                self.__output_format.format(line=line, this=self)
-            )
+        with self.__stdout_buffer as buf:
+            buf.write(event.text.decode(errors='replace'))
+            buf.seek(0)
+            last_line = None
+            len_linesep = len(os.linesep)
+            for line in buf:
+                if len(line) >= len_linesep and line[-len_linesep:] == os.linesep:
+                    self.__stdout_logger.info(
+                        self.__output_format.format(line=line[:-len_linesep], this=self)
+                    )
+                else:
+                    last_line = line
+                    break
+        if last_line is not None:
+            self.__stdout_buffer = io.StringIO(last_line)
+        else:
+            self.__stdout_buffer = io.StringIO()
 
     def __on_process_stderr(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        output = (event.text.decode(errors='replace') + 'a').splitlines()
-        new_buffer = ''
-        # Check if the event text ended in a new line or not.
-        # If ended in a new line, print everything. If not, save the ending in the buffer.
-        if output[-1] != 'a':
-            new_buffer = output[-1][:-1]
-        output[0] = self.__stderr_buffer + output[0]
-        output = output[:-1]
-        self.__stderr_buffer = new_buffer
-        for line in output:
-            self.__stderr_logger.info(
-                self.__output_format.format(line=line, this=self)
-            )
+        with self.__stderr_buffer as buf:
+            buf.write(event.text.decode(errors='replace'))
+            buf.seek(0)
+            last_line = None
+            len_linesep = len(os.linesep)
+            for line in buf:
+                if len(line) >= len_linesep and line[-len_linesep:] == os.linesep:
+                    self.__stderr_logger.info(
+                        self.__output_format.format(line=line[:-len_linesep], this=self)
+                    )
+                else:
+                    last_line = line
+                    break
+        if last_line is not None:
+            self.__stderr_buffer = io.StringIO(last_line)
+        else:
+            self.__stderr_buffer = io.StringIO()
 
     def __flush_buffers(self, event, context):
-        if self.__stdout_buffer:
-            self.__stdout_logger.info(
-                self.__output_format.format(line=self.__stdout_buffer, this=self)
-            )
-        if self.__stderr_buffer:
-            self.__stderr_logger.info(
-                self.__output_format.format(line=self.__stderr_buffer, this=self)
-            )
+        with self.__stdout_buffer as buf:
+            line = buf.getvalue()
+            if line != '':
+                self.__stdout_logger.info(
+                    self.__output_format.format(line=line, this=self)
+                )
+        with self.__stderr_buffer as buf:
+            line = buf.getvalue()
+            if line != '':
+                self.__stdout_logger.info(
+                    self.__output_format.format(line=line, this=self)
+                )
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         return self._shutdown_process(
