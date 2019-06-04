@@ -317,40 +317,36 @@ class ExecuteProcess(Action):
     def __on_process_stdout(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        with self.__stdout_buffer as buf:
-            buf.write(event.text.decode(errors='replace'))
-            buf.seek(0)
-            last_line = None
-            len_linesep = len(os.linesep)
-            for line in buf:
-                if len(line) >= len_linesep and line[-len_linesep:] == os.linesep:
-                    self.__stdout_logger.info(
-                        self.__output_format.format(line=line[:-len_linesep], this=self)
-                    )
-                else:
-                    last_line = line
-                    break
-        self.__stdout_buffer = io.StringIO()
+        self.__stdout_buffer.write(event.text.decode(errors='replace'))
+        self.__stdout_buffer.seek(0)
+        last_line = None
+        for line in self.__stdout_buffer:
+            if line.endswith(os.linesep):
+                self.__stdout_logger.info(
+                    self.__output_format.format(line=line[:-len(os.linesep)], this=self)
+                )
+            else:
+                last_line = line
+                break
+        self.__stdout_buffer.truncate(0)
         if last_line is not None:
             self.__stdout_buffer.write(last_line)
 
     def __on_process_stderr(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        with self.__stderr_buffer as buf:
-            buf.write(event.text.decode(errors='replace'))
-            buf.seek(0)
-            last_line = None
-            len_linesep = len(os.linesep)
-            for line in buf:
-                if len(line) >= len_linesep and line[-len_linesep:] == os.linesep:
-                    self.__stderr_logger.info(
-                        self.__output_format.format(line=line[:-len_linesep], this=self)
-                    )
-                else:
-                    last_line = line
-                    break
-        self.__stderr_buffer = io.StringIO()
+        self.__stderr_buffer.write(event.text.decode(errors='replace'))
+        self.__stderr_buffer.seek(0)
+        last_line = None
+        for line in self.__stderr_buffer:
+            if line.endswith(os.linesep):
+                self.__stderr_logger.info(
+                    self.__output_format.format(line=line[:-len(os.linesep)], this=self)
+                )
+            else:
+                last_line = line
+                break
+        self.__stderr_buffer.truncate(0)
         if last_line is not None:
             self.__stderr_buffer.write(last_line)
 
