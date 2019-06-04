@@ -221,6 +221,8 @@ class ExecuteProcess(Action):
         self.__sigterm_timer = None  # type: Optional[TimerAction]
         self.__sigkill_timer = None  # type: Optional[TimerAction]
         self.__shutdown_received = False
+        self.__stdout_buffer = ''
+        self.__stderr_buffer = ''
 
     @property
     def output(self):
@@ -314,7 +316,16 @@ class ExecuteProcess(Action):
     def __on_process_stdout(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        for line in event.text.decode(errors='replace').splitlines():
+        output = (event.text.decode(errors='replace') + 'a').splitlines()
+        new_buffer = ''
+        # Check if the event text ended in a new line or not.
+        # If ended in a new line, print everything. If not, save the ending in the buffer.
+        if output[-1] != 'a':
+            new_buffer = output[-1][:-1]
+        output[0] = self.__stdout_buffer + output[0]
+        output = output[:-1]
+        self.__stdout_buffer = new_buffer
+        for line in output:
             self.__stdout_logger.info(
                 self.__output_format.format(line=line, this=self)
             )
@@ -322,9 +333,28 @@ class ExecuteProcess(Action):
     def __on_process_stderr(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        for line in event.text.decode(errors='replace').splitlines():
+        output = (event.text.decode(errors='replace') + 'a').splitlines()
+        new_buffer = ''
+        # Check if the event text ended in a new line or not.
+        # If ended in a new line, print everything. If not, save the ending in the buffer.
+        if output[-1] != 'a':
+            new_buffer = output[-1][:-1]
+        output[0] = self.__stderr_buffer + output[0]
+        output = output[:-1]
+        self.__stderr_buffer = new_buffer
+        for line in output:
             self.__stderr_logger.info(
                 self.__output_format.format(line=line, this=self)
+            )
+
+    def __flush_buffers(self, event, context):
+        if self.__stdout_buffer:
+            self.__stdout_logger.info(
+                self.__output_format.format(line=self.__stdout_buffer, this=self)
+            )
+        if self.__stderr_buffer:
+            self.__stderr_logger.info(
+                self.__output_format.format(line=self.__stderr_buffer, this=self)
             )
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
@@ -543,6 +573,10 @@ class ExecuteProcess(Action):
             OnProcessExit(
                 target_action=self,
                 on_exit=self.__on_exit,
+            ),
+            OnProcessExit(
+                target_action=self,
+                on_exit=self.__flush_buffers,
             ),
         ]
         for event_handler in event_handlers:
