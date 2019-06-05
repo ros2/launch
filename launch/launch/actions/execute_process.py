@@ -360,7 +360,7 @@ class ExecuteProcess(Action):
         with self.__stderr_buffer as buf:
             line = buf.getvalue()
             if line != '':
-                self.__stdout_logger.info(
+                self.__stderr_buffer.info(
                     self.__output_format.format(line=line, this=self)
                 )
 
