@@ -103,8 +103,10 @@ class LaunchDescription(LaunchDescriptionEntity):
                         continue
                     process_entities(
                         entity.describe_sub_entities(), _conditional_inclusion=False)
-                    process_entities(
-                        entity.describe_conditional_sub_entities(), _conditional_inclusion=True)
+                    for conditional_sub_entity in entity.describe_conditional_sub_entities():
+                        process_entities(
+                            conditional_sub_entity[1],
+                            _conditional_inclusion=True)
 
         process_entities(self.entities, _conditional_inclusion=conditional_inclusion)
 

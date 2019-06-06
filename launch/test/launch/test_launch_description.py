@@ -70,6 +70,19 @@ def test_launch_description_get_launch_arguments():
     la = ld.get_launch_arguments()
     assert len(la) == 0
 
+    # From issue #144: get_launch_arguments was broken when an entitity had conditional
+    # sub entities
+    class EntityWithConditional(LaunchDescriptionEntity):
+
+        def describe_conditional_sub_entities(self):
+            return [('String describing condition', [DeclareLaunchArgument('foo')])]
+
+    ld = LaunchDescription([
+        EntityWithConditional()
+    ])
+    la = ld.get_launch_arguments()
+    assert len(la) == 1
+
 
 def test_launch_description_add_things():
     """Test adding things to the LaunchDescription class."""
