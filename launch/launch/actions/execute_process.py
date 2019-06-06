@@ -15,6 +15,7 @@
 """Module for the ExecuteProcess action."""
 
 import asyncio
+import io
 import os
 import platform
 import shlex
@@ -221,6 +222,8 @@ class ExecuteProcess(Action):
         self.__sigterm_timer = None  # type: Optional[TimerAction]
         self.__sigkill_timer = None  # type: Optional[TimerAction]
         self.__shutdown_received = False
+        self.__stdout_buffer = io.StringIO()
+        self.__stderr_buffer = io.StringIO()
 
     @property
     def output(self):
@@ -314,18 +317,52 @@ class ExecuteProcess(Action):
     def __on_process_stdout(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        for line in event.text.decode(errors='replace').splitlines():
-            self.__stdout_logger.info(
-                self.__output_format.format(line=line, this=self)
-            )
+        self.__stdout_buffer.write(event.text.decode(errors='replace'))
+        self.__stdout_buffer.seek(0)
+        last_line = None
+        for line in self.__stdout_buffer:
+            if line.endswith(os.linesep):
+                self.__stdout_logger.info(
+                    self.__output_format.format(line=line[:-len(os.linesep)], this=self)
+                )
+            else:
+                last_line = line
+                break
+        self.__stdout_buffer.truncate(0)
+        if last_line is not None:
+            self.__stdout_buffer.write(last_line)
 
     def __on_process_stderr(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
-        for line in event.text.decode(errors='replace').splitlines():
-            self.__stderr_logger.info(
-                self.__output_format.format(line=line, this=self)
-            )
+        self.__stderr_buffer.write(event.text.decode(errors='replace'))
+        self.__stderr_buffer.seek(0)
+        last_line = None
+        for line in self.__stderr_buffer:
+            if line.endswith(os.linesep):
+                self.__stderr_logger.info(
+                    self.__output_format.format(line=line[:-len(os.linesep)], this=self)
+                )
+            else:
+                last_line = line
+                break
+        self.__stderr_buffer.truncate(0)
+        if last_line is not None:
+            self.__stderr_buffer.write(last_line)
+
+    def __flush_buffers(self, event, context):
+        with self.__stdout_buffer as buf:
+            line = buf.getvalue()
+            if line != '':
+                self.__stdout_logger.info(
+                    self.__output_format.format(line=line, this=self)
+                )
+        with self.__stderr_buffer as buf:
+            line = buf.getvalue()
+            if line != '':
+                self.__stderr_buffer.info(
+                    self.__output_format.format(line=line, this=self)
+                )
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         return self._shutdown_process(
@@ -543,6 +580,10 @@ class ExecuteProcess(Action):
             OnProcessExit(
                 target_action=self,
                 on_exit=self.__on_exit,
+            ),
+            OnProcessExit(
+                target_action=self,
+                on_exit=self.__flush_buffers,
             ),
         ]
         for event_handler in event_handlers:
