@@ -328,6 +328,7 @@ class ExecuteProcess(Action):
             else:
                 last_line = line
                 break
+        self.__stdout_buffer.seek(0)
         self.__stdout_buffer.truncate(0)
         if last_line is not None:
             self.__stdout_buffer.write(last_line)
@@ -346,6 +347,7 @@ class ExecuteProcess(Action):
             else:
                 last_line = line
                 break
+        self.__stderr_buffer.seek(0)
         self.__stderr_buffer.truncate(0)
         if last_line is not None:
             self.__stderr_buffer.write(last_line)
