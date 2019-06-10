@@ -22,8 +22,8 @@ import time
 # an exit code of zero
 if __name__ == "__main__":
 
-    # if sys.argv[1:]:    
-    #     print("Called with arguments {}".format(sys.argv[1:]))
+    if sys.argv[1:]:
+        print("Called with arguments {}".format(sys.argv[1:]))
 
     print("Starting Up")
 
