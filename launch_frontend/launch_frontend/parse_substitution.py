@@ -15,6 +15,7 @@
 """Module for parsing substitutions."""
 
 import os
+import re
 from typing import Text
 
 from lark import Lark
@@ -26,12 +27,9 @@ from launch.substitutions import TextSubstitution
 from launch_frontend.expose import substitution_parse_methods
 
 
-def replace_escaped_characters(data: Text, beg: int = 0) -> Text:
+def replace_escaped_characters(data: Text) -> Text:
     """Search escaped characters and replace them."""
-    pos = data.find('\\', beg)
-    if pos == -1:
-        return data[beg:]
-    return data[beg:pos] + data[pos+1] + replace_escaped_characters(data, pos+2)
+    return re.sub(r'\\(.)', r'\1', data)
 
 
 class ExtractSubstitution(Transformer):
@@ -71,11 +69,11 @@ class ExtractSubstitution(Transformer):
         name = args[0]
         assert isinstance(name, Token)
         assert name.type == 'IDENTIFIER'
-        # TODO(hidmic): Lookup and instantiate Substitution
         if name.value not in substitution_parse_methods:
             raise RuntimeError(
                 'Unknown substitution: {}'.format(name.value))
-        return substitution_parse_methods[name.value](*args[1:])
+        subst, kwargs = substitution_parse_methods[name.value](*args[1:])
+        return subst(**kwargs)
 
     single_quoted_substitution = substitution
     double_quoted_substitution = substitution
@@ -103,6 +101,6 @@ parser = Lark.open(grammar_file, start='template')
 transformer = ExtractSubstitution()
 
 
-def default_parse_substitution(string_value):
+def parse_substitution(string_value):
     tree = parser.parse(string_value)
     return transformer.transform(tree)

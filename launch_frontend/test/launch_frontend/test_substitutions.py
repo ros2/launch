@@ -18,23 +18,23 @@ from launch import LaunchContext
 from launch.substitutions import TextSubstitution
 
 from launch_frontend.expose import expose_substitution
-from launch_frontend.parse_substitution import default_parse_substitution
+from launch_frontend.parse_substitution import parse_substitution
 
 
 def test_text_only():
-    subst = default_parse_substitution("\\'yes\\'")
+    subst = parse_substitution("\\'yes\\'")
     assert len(subst) == 1
     assert subst[0].perform(None) == "'yes'"
-    subst = default_parse_substitution('\\"yes\\"')
+    subst = parse_substitution('\\"yes\\"')
     assert len(subst) == 1
     assert subst[0].perform(None) == '"yes"'
-    subst = default_parse_substitution('10')
+    subst = parse_substitution('10')
     assert len(subst) == 1
     assert subst[0].perform(None) == '10'
-    subst = default_parse_substitution('10e4')
+    subst = parse_substitution('10e4')
     assert len(subst) == 1
     assert subst[0].perform(None) == '10e4'
-    subst = default_parse_substitution('10e4')
+    subst = parse_substitution('10e4')
     assert len(subst) == 1
     assert subst[0].perform(None) == '10e4'
 
@@ -43,11 +43,13 @@ def test_text_only():
 def parse_test_substitution(data):
     if not data or len(data) > 1:
         raise RuntimeError()
-    return TextSubstitution(text=''.join([i.perform(None) for i in data[0]]))
+    kwargs = {}
+    kwargs['text'] = ''.join([i.perform(None) for i in data[0]])
+    return TextSubstitution, kwargs
 
 
 def test_text_with_embedded_substitutions():
-    subst = default_parse_substitution('why_$(test asd)_asdasd_$(test bsd)')
+    subst = parse_substitution('why_$(test asd)_asdasd_$(test bsd)')
     assert len(subst) == 4
     assert subst[0].perform(None) == 'why_'
     assert subst[1].perform(None) == 'asd'
@@ -59,7 +61,7 @@ def test_text_with_embedded_substitutions():
 
 
 def test_substitution_with_multiple_arguments():
-    subst = default_parse_substitution('$(env what heck)')
+    subst = parse_substitution('$(env what heck)')
     assert len(subst) == 1
     subst = subst[0]
     assert subst.name[0].perform(None) == 'what'
@@ -67,7 +69,7 @@ def test_substitution_with_multiple_arguments():
 
 
 def test_escaped_characters():
-    subst = default_parse_substitution(r'$(env what/\$\(test asd\\\)) 10 10)')
+    subst = parse_substitution(r'$(env what/\$\(test asd\\\)) 10 10)')
     assert len(subst) == 2
     assert subst[0].name[0].perform(None) == 'what/$(test'
     assert subst[0].default_value[0].perform(None) == r'asd\)'
@@ -75,7 +77,7 @@ def test_escaped_characters():
 
 
 def test_nested_substitutions():
-    subst = default_parse_substitution('$(env what/$(test asd) 10) 10 10)')
+    subst = parse_substitution('$(env what/$(test asd) 10) 10 10)')
     assert len(subst) == 2
     assert len(subst[0].name) == 2
     assert subst[0].name[0].perform(None) == 'what/'
@@ -85,7 +87,7 @@ def test_nested_substitutions():
 
 
 def test_quoted_nested_substitution():
-    subst = default_parse_substitution(
+    subst = parse_substitution(
         'go_to_$(env WHERE asd)_of_$(env '
         "'something $(test 10)')"
     )
@@ -100,7 +102,7 @@ def test_quoted_nested_substitution():
 
 
 def test_double_quoted_nested_substitution():
-    subst = default_parse_substitution(
+    subst = parse_substitution(
         r'$(env "asd_bsd_qsd_$(test \"asd_bds\")" "$(env DEFAULT)_qsd")'
     )
     context = LaunchContext()
@@ -115,7 +117,7 @@ def test_double_quoted_nested_substitution():
 
 
 def test_combining_quotes_nested_substitution():
-    subst = default_parse_substitution(
+    subst = parse_substitution(
         '$(env "asd_bsd_qsd_$(test \'asd_bds\')" \'$(env DEFAULT)_qsd\')'
     )
     context = LaunchContext()

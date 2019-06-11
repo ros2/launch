@@ -82,11 +82,6 @@ def parse_executable(
     # `unset_enviroment_variable` actions should be used.
     env = entity.get_attr('env', types='list[Entity]', optional=True)
     if env is not None:
-        # TODO(ivanpauno): Change `ExecuteProcess` api. `additional_env`
-        # argument is supposed to be a dictionary with `SomeSubstitutionType`
-        # keys, but `SomeSubstitutionType` is not always hashable.
-        # Proposed `additional_env` type:
-        #   Iterable[Tuple[SomeSubstitutionType, SomeSubstitutionsType]]
         env = {e.get_attr('name'): parser.parse_substitution(e.get_attr('value')) for e in env}
         kwargs['additional_env'] = env
     args = entity.get_attr('args', optional=True)

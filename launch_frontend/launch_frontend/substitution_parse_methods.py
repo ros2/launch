@@ -25,24 +25,25 @@ from .expose import expose_substitution
 def parse_env(data: Iterable[launch.SomeSubstitutionsType]):
     """Parse EnviromentVariable substitution."""
     if not data or len(data) > 2:
-        raise AttributeError('env substitution expects 1 or 2 arguments')
-    name = data[0]
+        raise TypeError('env substitution expects 1 or 2 arguments')
     kwargs = {}
+    kwargs['name'] = data[0]
     if len(data) == 2:
         kwargs['default_value'] = data[1]
-    return launch.substitutions.EnvironmentVariable(name, **kwargs)
+    return launch.substitutions.EnvironmentVariable, kwargs
 
 
 @expose_substitution('var')
 def parse_var(data: Iterable[launch.SomeSubstitutionsType]):
     """Parse FindExecutable substitution."""
+    # Reuse parse_env, as it is similar
     if not data or len(data) > 2:
-        raise AttributeError('var substitution expects 1 or 2 arguments')
-    name = data[0]
+        raise TypeError('var substitution expects 1 or 2 arguments')
     kwargs = {}
+    kwargs['variable_name'] = data[0]
     if len(data) == 2:
         kwargs['default'] = data[1]
-    return launch.substitutions.LaunchConfiguration(name, **kwargs)
+    return launch.substitutions.LaunchConfiguration, kwargs
 
 
 @expose_substitution('find-exec')
@@ -50,5 +51,6 @@ def parse_find_exec(data: Iterable[launch.SomeSubstitutionsType]):
     """Parse FindExecutable substitution."""
     if not data or len(data) > 1:
         raise AttributeError('find-exec substitution expects 1 argument')
-    name = data[0]
-    return launch.substitutions.FindExecutable(name=name)
+    kwargs = {}
+    kwargs['name'] = data[0]
+    return launch.substitutions.FindExecutable, kwargs

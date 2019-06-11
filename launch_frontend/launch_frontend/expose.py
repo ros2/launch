@@ -35,10 +35,10 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
     If two different parsing methods are exposed using the same `name`, a `RuntimeError`
     will be raised.
 
-    :param: name a string which specifies the key used for storing the parsing
+    :param name: a string which specifies the key used for storing the parsing
         method in the dictionary.
-    :param: parse_methods_map a dict where the parsing method will be stored.
-    :exposed_type: A string specifing the parsing function type.
+    :param parse_methods_map: a dict where the parsing method will be stored.
+    :param exposed_type: A string specifing the parsing function type.
         Only used for having clearer error log messages.
     """
     # TODO(ivanpauno): Check signature of the registered method/parsing function.
@@ -47,13 +47,13 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
     def expose_impl_decorator(exposed):
         found_parse_method = None
         if inspect.isclass(exposed):
-            if 'parse' in dir(exposed):
+            if 'parse' in dir(exposed) and inspect.isfunction(exposed.parse):
                 found_parse_method = exposed.parse
             else:
                 raise RuntimeError(
-                    "Did not found a method called 'parse' in the class being decorated."
+                    "Did not find an static method called 'parse' in the class being decorated."
                 )
-        elif callable(exposed):
+        elif inspect.isfunction(exposed):
             found_parse_method = exposed
         if not found_parse_method:
             raise RuntimeError(

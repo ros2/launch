@@ -88,7 +88,7 @@ All the children can be directly accessed:
 e.children
 ```
 
-It returns a list of launch_xml.Entity wrapping each of the xml children.
+It returns a list of `launch_xml.Entity` wrapping each of the XML children.
 
 ## Built-in substitutions
 

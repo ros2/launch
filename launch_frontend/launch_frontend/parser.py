@@ -15,7 +15,9 @@
 """Module for Parser class and parsing methods."""
 
 import io
+from typing import Any
 from typing import Text
+from typing import Tuple
 from typing import Union
 
 import launch
@@ -25,19 +27,17 @@ from pkg_resources import iter_entry_points
 
 from .entity import Entity
 from .expose import action_parse_methods
-from .parse_substitution import default_parse_substitution
+from .parse_substitution import parse_substitution
 
 interpolation_fuctions = {
     entry_point.name: entry_point.load()
     for entry_point in iter_entry_points('launch_frontend.interpolate_substitution')
 }
 
-extensions_loaded = False
-
 
 class Parser:
     """
-    Abstract class for parsing actions, substitutions and descriptions.
+    Abstract class for parsing launch actions, substitutions and descriptions.
 
     Implementations of the parser class, should override the load method.
     They could also override the parse_substitution method, or not.
@@ -49,9 +49,9 @@ class Parser:
 
     @classmethod
     def load_parser_extensions(cls):
-        """Load parser extension, in order to get all the exposed substitutions and actions."""
+        """Load launch extensions, in order to get all the exposed substitutions and actions."""
         if cls.extensions_loaded is False:
-            for entry_point in iter_entry_points('launch_frontend.parser_extension'):
+            for entry_point in iter_entry_points('launch_frontend.launch_extension'):
                 entry_point.load()
             cls.extensions_loaded = True
 
@@ -65,7 +65,7 @@ class Parser:
             }
 
     @classmethod
-    def parse_action(cls, entity: Entity) -> launch.Action:
+    def parse_action(cls, entity: Entity) -> (launch.Action, Tuple[Any]):
         """Parse an action, using its registered parsing method."""
         cls.load_parser_extensions()
         if entity.type_name not in action_parse_methods:
@@ -76,7 +76,7 @@ class Parser:
     @classmethod
     def parse_substitution(cls, value: Text) -> launch.SomeSubstitutionsType:
         """Parse a substitution."""
-        return default_parse_substitution(value)
+        return parse_substitution(value)
 
     @classmethod
     def parse_description(cls, entity: Entity) -> launch.LaunchDescription:

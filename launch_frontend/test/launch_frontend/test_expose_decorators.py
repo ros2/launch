@@ -20,12 +20,12 @@ import pytest
 class ToBeExposed:
 
     @staticmethod
-    def parse(entity):
-        return ToBeExposed()
+    def parse(entity, parser):
+        return ToBeExposed(), ()
 
 
-def to_be_exposed(entity):
-    return ToBeExposed()
+def to_be_exposed(entity, parser):
+    return ToBeExposed(), ()
 
 
 register = dict({})

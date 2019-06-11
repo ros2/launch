@@ -55,18 +55,11 @@ class Entity:
         List['Entity']
     ]]:
         """
-        Access an element in the tree.
+        Access an element of the entity.
 
         By default, it will try to return it as an string.
-        `types` is used in the following way:
-        - For frontends that natively recoginize data types (like yaml),
-        it will check if the attribute read match with one in `types`.
-        If it is one of them, the value is returned.
-        If not, an `TypeError` is raised.
-        - For frontends that don't natively recognize data types (like xml),
-        it will try to convert the value read to one of the specified `types`.
-        The first convertion that success is returned.
-        If no conversion success, a `TypeError` is raised.
+        `types` states the expected types of the attribute. Type coercion or type checking is
+        applied depending on the particular frontend.
 
         The allowed types are:
             - 'str'
@@ -90,8 +83,14 @@ class Entity:
 
         If `optional` argument is `True`, will return `None` instead of raising `AttributeError`.
 
-        Possible errors:
-        - `AttributeError`: Attribute not found. Only possible if `optional` is `False`.
-        - `TypeError`: Attribute found but it is not of the correct type.
+        :param name: name of the attribute
+        :param types: type of the attribute to be read. Default to 'str'
+        :param optional: when `True`, it doesn't raise an error when the attribute is not found.
+            It returns `None` instead. Defaults to `False`
+        :raises `AttributeError`: Attribute not found. Only possible if `optional` is `False`
+        :raises `TypeError`: Attribute found but it is not of the correct type.
+            Only happens in froentends that do type checking
+        :raises `ValueError`: Attribute found but can't be coerced to one of the types.
+            Only happens in froentends that do type coercion
         """
         raise NotImplementedError()
