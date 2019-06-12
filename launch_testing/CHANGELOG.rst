@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix proc lookup for processes with multiple command-line arguments (`#229 <https://github.com/ros2/launch/issues/229>`_)
+* Contributors: Peter Baughman
+
 0.8.3 (2019-05-29)
 ------------------
 * Changed behavior to use ``--isolated`` if no ``ROS_DOMAIN_ID`` is set to help parallel testing. (`#251 <https://github.com/ros2/launch/issues/251>`_)

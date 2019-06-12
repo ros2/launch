@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix build_cop `#214 <https://github.com/ros2/launch/issues/214>`_ (`#259 <https://github.com/ros2/launch/issues/259>`_)
+* Fix get_launch_arguments to not crash on conditional sub entities (`#257 <https://github.com/ros2/launch/issues/257>`_)
+* Use stderr logger instead of buffer (`#258 <https://github.com/ros2/launch/issues/258>`_)
+* Line buffering of logger output (`#255 <https://github.com/ros2/launch/issues/255>`_)
+* Contributors: Jacob Perron, Peter Baughman, ivanpauno
+
 0.8.3 (2019-05-29)
 ------------------
 * Changed IncludeLaunchDescription to not check declared arguments of subentities in order to work around an issue preventing nested arugments until a better fix can be done. (`#249 <https://github.com/ros2/launch/issues/249>`_)
