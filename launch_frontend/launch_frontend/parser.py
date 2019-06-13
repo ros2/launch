@@ -64,26 +64,23 @@ class Parser:
                 for entry_point in iter_entry_points('launch_frontend.parser')
             }
 
-    @classmethod
-    def parse_action(cls, entity: Entity) -> (launch.Action, Tuple[Any]):
+    def parse_action(self, entity: Entity) -> (launch.Action, Tuple[Any]):
         """Parse an action, using its registered parsing method."""
-        cls.load_parser_extensions()
+        self.load_parser_extensions()
         if entity.type_name not in action_parse_methods:
             raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
-        action, kwargs = action_parse_methods[entity.type_name](entity, cls)
+        action, kwargs = action_parse_methods[entity.type_name](entity, self)
         return action(**kwargs)
 
-    @classmethod
-    def parse_substitution(cls, value: Text) -> launch.SomeSubstitutionsType:
+    def parse_substitution(self, value: Text) -> launch.SomeSubstitutionsType:
         """Parse a substitution."""
         return parse_substitution(value)
 
-    @classmethod
-    def parse_description(cls, entity: Entity) -> launch.LaunchDescription:
+    def parse_description(self, entity: Entity) -> launch.LaunchDescription:
         """Parse a launch description."""
         if entity.type_name != 'launch':
             raise RuntimeError('Expected \'launch\' as root tag')
-        actions = [cls.parse_action(child) for child in entity.children]
+        actions = [self.parse_action(child) for child in entity.children]
         return launch.LaunchDescription(actions)
 
     @classmethod

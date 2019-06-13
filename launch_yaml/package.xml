@@ -3,7 +3,7 @@
 <package format="2">
   <name>launch_yaml</name>
   <version>0.8.1</version>
-  <description>The ROS launch YAML frontend.</description>
+  <description>YAML frontend for the launch package.</description>
   <maintainer email="ivanpauno@ekumenlabs.com">Ivan Paunovic</maintainer>
   <license>Apache License 2.0</license>
 

@@ -32,4 +32,4 @@ class Parser(launch_frontend.Parser):
         file: Union[str, io.TextIOBase],
     ) -> (Entity, 'Parser'):
         """Return entity loaded with markup file."""
-        return (Entity(ET.parse(file).getroot()), cls)
+        return (Entity(ET.parse(file).getroot()), cls())

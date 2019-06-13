@@ -20,7 +20,7 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    description='XML `launch` front-end extension.',
+    description='XML frontend for the `launch` package.',
     long_description=(
         'This package provides XML parsing ability to `launch-frontend` package.'
     ),

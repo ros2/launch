@@ -20,7 +20,7 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    description='YAML `launch` front-end extension.',
+    description='YAML frontend for the `launch` package.',
     long_description=(
         'This package provides YAML parsing ability to `launch-frontend` package.'
     ),

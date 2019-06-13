@@ -20,9 +20,9 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    description='Front-end extensions to `launch`.',
+    description='Frontend extensions for the `launch` package.',
     long_description=(
-        'This package provides front-end extensions to the `launch` package.'
+        'This package provides front-end extensions for the `launch` package.'
     ),
     license='Apache License, Version 2.0',
     tests_require=['pytest'],

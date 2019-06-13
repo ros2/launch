@@ -55,7 +55,7 @@ class Entity:
         List['Entity']
     ]]:
         """
-        Access an element of the entity.
+        Access an attribute of the entity.
 
         By default, it will try to return it as an string.
         `types` states the expected types of the attribute. Type coercion or type checking is
@@ -89,8 +89,8 @@ class Entity:
             It returns `None` instead. Defaults to `False`
         :raises `AttributeError`: Attribute not found. Only possible if `optional` is `False`
         :raises `TypeError`: Attribute found but it is not of the correct type.
-            Only happens in froentends that do type checking
+            Only happens in frontend implementations that do type checking
         :raises `ValueError`: Attribute found but can't be coerced to one of the types.
-            Only happens in froentends that do type coercion
+            Only happens in frontend implementations that do type coercion
         """
         raise NotImplementedError()

@@ -40,4 +40,4 @@ class Parser(launch_frontend.Parser):
         if len(tree) != 1:
             raise RuntimeError('Expected only one root')
         type_name = list(tree.keys())[0]
-        return (Entity(tree[type_name], type_name), cls)
+        return (Entity(tree[type_name], type_name), cls())

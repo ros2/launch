@@ -88,11 +88,6 @@ def parse_executable(
     # `args` is supposed to be a list separated with ' '.
     # All the found `TextSubstitution` items are split and
     # added to the list again as a `TextSubstitution`.
-    # TODO(ivanpauno): Change `ExecuteProcess` api from accepting
-    # `Iterable[SomeSubstitutionType]` `cmd` to `SomeSubstitutionType`.
-    # After performing the substitution in `cmd`, shlex.split should be done.
-    # This will also allow having a substitution which ends in more than one
-    # argument.
     if args is not None:
         args = parser.parse_substitution(args)
         new_args = []
