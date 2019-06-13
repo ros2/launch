@@ -74,7 +74,7 @@ Asserts that a message is found in the stdout of a particular process.
 
     The text to look for in the process standard out
 
-  -` proc`:
+  - `proc`:
 
     Either the process name as a string, or a `launch.actions.ExecuteProcess` object that was used to start the process.
     Pass `None` or an empty string to search all processes.
