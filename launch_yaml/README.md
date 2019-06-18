@@ -95,6 +95,22 @@ group:
 e.children
 ```
 
+or:
+
+```yaml
+group:
+    scoped: False
+    children:
+        - executable:
+            cmd: ls
+        - executable:
+            cmd: ps
+```
+
+```python
+e.children
+```
+
 It returns a list of launch_xml.Entity wrapping each of the xml children.
 In the example, the list has two `Entity` objects wrapping each of the `executable` tags.
 

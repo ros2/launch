@@ -119,3 +119,37 @@ def parse_let(entity: Entity, parser: Parser):
     kwargs['name'] = name
     kwargs['value'] = value
     return launch.actions.SetLaunchConfiguration, kwargs
+
+
+@expose_action('include')
+def parse_include(entity: Entity, parser: Parser):
+    """Parse include tag."""
+    # import here for avoiding recursive import
+    # TODO(ivanpauno): Put it at the top of the file after merging launch and
+    #   launch_frontend packages.
+    from launch.launch_description_sources import AnyLaunchDescriptionSource
+    _, kwargs = parse_action(entity, parser)
+    file = parser.parse_substitution(entity.get_attr('file'))
+    kwargs['launch_description_source'] = AnyLaunchDescriptionSource(file)
+    args = entity.get_attr('arg', types='list[Entity]', optional=True)
+    if args is not None:
+        args = [
+            (
+                parser.parse_substitution(e.get_attr('name')),
+                parser.parse_substitution(e.get_attr('value'))
+            )
+            for e in args
+        ]
+        kwargs['launch_arguments'] = args
+    return launch.actions.IncludeLaunchDescription, kwargs
+
+
+@expose_action('group')
+def parse_group(entity: Entity, parser: Parser):
+    """Parse include tag."""
+    _, kwargs = parse_action(entity, parser)
+    scoped = entity.get_attr('scoped', types='bool', optional=True)
+    if scoped is not None:
+        kwargs['scoped'] = scoped
+    kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
+    return launch.actions.GroupAction, kwargs

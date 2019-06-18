@@ -52,10 +52,18 @@ class Entity(BaseEntity):
     @property
     def children(self) -> List['Entity']:
         """Get the Entity's children."""
-        if not isinstance(self.__element, list):
-            raise TypeError('Expected a list, got {}'.format(type(self.element)))
+        if not type(self.__element) in (dict, list):
+            raise TypeError('Expected a dict or list, got {}'.format(type(self.element)))
+        if isinstance(self.__element, dict):
+            if 'children' not in self.__element:
+                raise KeyError('Missing `children` key in Entity {}'.format(self.__type_name))
+            children = self.__element['children']
+        else:
+            children = self.__element
+        if not isinstance(children, list):
+            raise TypeError('children should be a list')
         entities = []
-        for child in self.__element:
+        for child in children:
             if len(child) != 1:
                 raise RuntimeError('Expected one root per child')
             type_name = list(child.keys())[0]
