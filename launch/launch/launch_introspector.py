@@ -23,7 +23,7 @@ from .actions import EmitEvent
 from .actions import ExecuteProcess
 from .actions import LogInfo
 from .actions import RegisterEventHandler
-from .event_handler import EventHandler
+from .event_handler import BaseEventHandler
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
 from .some_substitutions_type import SomeSubstitutionsType
@@ -80,7 +80,7 @@ def format_substitutions(substitutions: SomeSubstitutionsType) -> Text:
     return ' + '.join([sub.describe() for sub in normalized_substitutions])
 
 
-def format_event_handler(event_handler: EventHandler) -> List[Text]:
+def format_event_handler(event_handler: BaseEventHandler) -> List[Text]:
     """Return a text representation of an event handler."""
     if hasattr(event_handler, 'describe'):
         # TODO(wjwwood): consider supporting mode complex descriptions of branching
