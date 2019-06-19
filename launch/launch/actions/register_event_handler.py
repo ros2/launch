@@ -15,7 +15,7 @@
 """Module for the RegisterEventHandler action."""
 
 from ..action import Action
-from ..event_handler import EventHandler
+from ..event_handler import BaseEventHandler
 from ..launch_context import LaunchContext
 
 
@@ -32,13 +32,13 @@ class RegisterEventHandler(Action):
     place.
     """
 
-    def __init__(self, event_handler: EventHandler, **kwargs) -> None:
+    def __init__(self, event_handler: BaseEventHandler, **kwargs) -> None:
         """Constructor."""
         super().__init__(**kwargs)
         self.__event_handler = event_handler
 
     @property
-    def event_handler(self) -> EventHandler:
+    def event_handler(self) -> BaseEventHandler:
         """Getter for self.__event_handler."""
         return self.__event_handler
 
