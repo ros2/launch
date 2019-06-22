@@ -22,6 +22,7 @@ import shlex
 import signal
 import threading
 import traceback
+import yaml
 from typing import Any  # noqa: F401
 from typing import Callable
 from typing import cast
@@ -95,6 +96,7 @@ class ExecuteProcess(Action):
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
+        emulate_tty: bool = True,
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Text = 'log',
         output_format: Text = '[{this.name}] {line}',
@@ -173,6 +175,8 @@ class ExecuteProcess(Action):
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
             'sigkill_timeout'
+        :param: emulate_tty emulate a tty (terminal), defaults to
+            the LaunchConfiguration called 'emulate_tty'
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'
@@ -211,6 +215,7 @@ class ExecuteProcess(Action):
         self.__shell = shell
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
+        self.__emulate_tty = emulate_tty
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
@@ -578,6 +583,16 @@ class ExecuteProcess(Action):
                 ', '.join(cmd), cwd, 'True' if env is not None else 'False'
             ))
         try:
+            emulate_tty = yaml.safe_load(
+                context.launch_configurations['emulate_tty']
+            )
+            if type(emulate_tty) is not bool:
+                raise TypeError(
+                    "emulate_tty is not boolean [{}]".format(type(emulate_tty))
+                )
+        except KeyError:
+            emulate_tty = self.__emulate_tty
+        try:
             transport, self._subprocess_protocol = await async_execute_process(
                 lambda **kwargs: self.__ProcessProtocol(
                     self, context, process_event_args, **kwargs
@@ -586,7 +601,7 @@ class ExecuteProcess(Action):
                 cwd=cwd,
                 env=env,
                 shell=self.__shell,
-                emulate_tty=False,
+                emulate_tty=emulate_tty,
                 stderr_to_stdout=False,
             )
         except Exception:
