@@ -18,6 +18,7 @@ from .environment_variable import EnvironmentVariable
 from .find_executable import FindExecutable
 from .launch_configuration import LaunchConfiguration
 from .local_substitution import LocalSubstitution
+from .path_join_substitution import PathJoinSubstitution
 from .python_expression import PythonExpression
 from .substitution_failure import SubstitutionFailure
 from .text_substitution import TextSubstitution
@@ -28,6 +29,7 @@ __all__ = [
     'FindExecutable',
     'LaunchConfiguration',
     'LocalSubstitution',
+    'PathJoinSubstitution',
     'PythonExpression',
     'SubstitutionFailure',
     'TextSubstitution',
