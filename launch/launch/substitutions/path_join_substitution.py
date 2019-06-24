@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the LocalSubstitution substitution."""
+"""Module for the PathJoinSubstitution substitution."""
 
 import os
 from typing import Iterable
@@ -27,6 +27,7 @@ class PathJoinSubstitution(Substitution):
     """Substitution that join paths, in a platform independent way."""
 
     def __init__(self, substitutions: Iterable[SomeSubstitutionsType]) -> None:
+        """Constructor."""
         from ..utilities import normalize_to_list_of_substitutions
         self.__substitutions = normalize_to_list_of_substitutions(substitutions)
 

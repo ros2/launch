@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the ThisLaunchFileDir substitution class."""
+"""Tests for the PathJoinSubstitution substitution class."""
 
 import os
 
@@ -20,7 +20,6 @@ from launch.substitutions import PathJoinSubstitution
 
 
 def test_this_launch_file_path():
-    """Test the constructors for ThisLaunchFileDir class."""
     path = ['asd', 'bsd', 'cds']
     sub = PathJoinSubstitution(path)
     assert sub.perform(None) == os.path.join(*path)
