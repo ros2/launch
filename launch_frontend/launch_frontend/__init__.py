@@ -17,6 +17,7 @@
 # All files containing parsing methods should be imported here.
 # If not, the action or substitution are not going to be exposed.
 from . import action_parse_methods  # noqa: F401
+from . import launch_description_sources
 from . import substitution_parse_methods  # noqa: F401
 from . import type_utils
 from .entity import Entity
@@ -32,5 +33,6 @@ __all__ = [
     'expose_substitution',
     'Parser',
     # Modules
+    'launch_description_sources',
     'type_utils',
 ]

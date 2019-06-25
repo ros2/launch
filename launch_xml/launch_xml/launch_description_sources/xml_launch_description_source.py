@@ -14,10 +14,11 @@
 
 """Module for the XMLLaunchDescriptionSource class."""
 
-from launch_xml import Parser
+from launch import SomeSubstitutionsType
 
-from . import FrontendLaunchDescriptionSource
-from ..some_substitutions_type import SomeSubstitutionsType
+from launch_frontend.launch_description_sources import FrontendLaunchDescriptionSource
+
+from ..parser import Parser
 
 
 class XMLLaunchDescriptionSource(FrontendLaunchDescriptionSource):
@@ -31,13 +32,11 @@ class XMLLaunchDescriptionSource(FrontendLaunchDescriptionSource):
         Constructor.
 
         The given file path should be to a launch XML style file (`.launch.xml`).
-        The path should probably be absolute, since the current working
-        directory will be wherever the launch file was run from, which might
-        change depending on the situation.
-        The path can be made up of Substitution instances which are expanded
-        when :py:meth:`get_launch_description()` is called.
+        If a relative path is passed, it will be relative to the current working
+        directory wherever the launch file was run from.
 
-        :param launch_file_path: the path to the launch file
+        :param launch_file_path: the path to the launch file. It can be made up of Substitution
+            instances which are expanded when :py:meth:`get_launch_description()` is called.
         """
         super().__init__(
             launch_file_path,

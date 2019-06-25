@@ -32,10 +32,9 @@ class Parser(launch_frontend.Parser):
         cls,
         stream: Union[str, io.TextIOBase],
     ) -> (Entity, 'Parser'):
-        """Load a YAML launch file."""
+        """Return entity loaded from YAML file."""
         if isinstance(stream, str):
             stream = open(stream, 'r')
-        """Return entity loaded with markup file."""
         tree = yaml.safe_load(stream)
         if len(tree) != 1:
             raise RuntimeError('Expected only one root')

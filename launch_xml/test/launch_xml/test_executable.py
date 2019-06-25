@@ -48,7 +48,6 @@ def test_executable():
     value = value[0].perform(None)
     assert(key == 'var')
     assert(value == '1')
-    # assert(executable.prefix[0].perform(None) == 'time')
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert(0 == ls.run())

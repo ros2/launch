@@ -16,14 +16,18 @@
 
 from typing import Type
 
-from launch_frontend import Parser
+from launch.launch_description_source import LaunchDescriptionSource
+from launch.some_substitutions_type import SomeSubstitutionsType
 
-from ..launch_description_source import LaunchDescriptionSource
-from ..some_substitutions_type import SomeSubstitutionsType
+from ..parser import Parser
 
 
 class FrontendLaunchDescriptionSource(LaunchDescriptionSource):
-    """Encapsulation of a FrontEnd launch file, which can be loaded during launch."""
+    """
+    Encapsulation of a declarative (markup based) launch file.
+
+    It can be loaded during launch using an `IncludeLaunchDescription` action.
+    """
 
     def __init__(
         self,
@@ -36,13 +40,11 @@ class FrontendLaunchDescriptionSource(LaunchDescriptionSource):
         Constructor.
 
         The given file path should be to a launch frontend style file (like xml or yaml).
-        The path should probably be absolute, since the current working
-        directory will be wherever the launch file was run from, which might
-        change depending on the situation.
-        The path can be made up of Substitution instances which are expanded
-        when :py:meth:`get_launch_description()` is called.
+        If a relative path is passed, it will be relative to the current working
+        directory wherever the launch file was run from.
 
-        :param launch_file_path: the path to the launch file
+        :param launch_file_path: the path to the launch file. It can be made up of Substitution
+            instances which are expanded when :py:meth:`get_launch_description()` is called.
         :param parser: an specific parser implementation
         """
         super().__init__(

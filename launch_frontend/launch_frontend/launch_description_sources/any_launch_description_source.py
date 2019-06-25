@@ -14,19 +14,22 @@
 
 """Module for the AnyLaunchDescriptionSource class."""
 
-from launch_frontend import Parser
+from launch import SomeSubstitutionsType
+from launch.launch_description_source import LaunchDescriptionSource
+from launch.launch_description_sources.python_launch_file_utilities import \
+    get_launch_description_from_python_launch_file
+from launch.launch_description_sources.python_launch_file_utilities import \
+    InvalidPythonLaunchFileError
 
-from .python_launch_file_utilities import get_launch_description_from_python_launch_file
-from .python_launch_file_utilities import InvalidPythonLaunchFileError
-from ..launch_description_source import LaunchDescriptionSource
-from ..some_substitutions_type import SomeSubstitutionsType
+from ..parser import Parser
 
 
 class AnyLaunchDescriptionSource(LaunchDescriptionSource):
     """
     Encapsulation of a launch file, which can be loaded during launch.
 
-    This try to load the file as a python launch file, or as a frontend launch file.
+    This launch description source will attempt to load the file at the given location as a python
+    launch file first, and as a declarative (markup based) launch file if the former fails.
     It is recommended to use a specific `LaunchDescriptionSource` subclasses when possible.
     """
 
@@ -37,14 +40,11 @@ class AnyLaunchDescriptionSource(LaunchDescriptionSource):
         """
         Constructor.
 
-        The given file path should be to a launch file of any style.
-        The path should probably be absolute, since the current working
-        directory will be wherever the launch file was run from, which might
-        change depending on the situation.
-        The path can be made up of Substitution instances which are expanded
-        when :py:meth:`get_launch_description()` is called.
+        If a relative path is passed, it will be relative to the current working
+        directory wherever the launch file was run from.
 
-        :param launch_file_path: the path to the launch file
+        :param launch_file_path: the path to the launch file. It can be made up of Substitution
+            instances which are expanded when :py:meth:`get_launch_description()` is called.
         """
         super().__init__(
             None,

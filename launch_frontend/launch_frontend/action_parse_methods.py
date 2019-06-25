@@ -30,7 +30,7 @@ def parse_action(entity: Entity, parser: Parser):
     """
     Parse action.
 
-    This is only intented for code reusage, and it's not exposed.
+    This is only intended for code reuse, and it's not exposed.
     """
     if_cond = entity.get_attr('if', optional=True)
     unless_cond = entity.get_attr('unless', optional=True)
@@ -127,20 +127,19 @@ def parse_include(entity: Entity, parser: Parser):
     # import here for avoiding recursive import
     # TODO(ivanpauno): Put it at the top of the file after merging launch and
     #   launch_frontend packages.
-    from launch.launch_description_sources import AnyLaunchDescriptionSource
+    from .launch_description_sources import AnyLaunchDescriptionSource
     _, kwargs = parse_action(entity, parser)
     file = parser.parse_substitution(entity.get_attr('file'))
     kwargs['launch_description_source'] = AnyLaunchDescriptionSource(file)
     args = entity.get_attr('arg', types='list[Entity]', optional=True)
     if args is not None:
-        args = [
+        kwargs['launch_arguments'] = [
             (
                 parser.parse_substitution(e.get_attr('name')),
                 parser.parse_substitution(e.get_attr('value'))
             )
             for e in args
         ]
-        kwargs['launch_arguments'] = args
     return launch.actions.IncludeLaunchDescription, kwargs
 
 

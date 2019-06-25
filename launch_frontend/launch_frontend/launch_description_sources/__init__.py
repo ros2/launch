@@ -1,4 +1,4 @@
-# Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2018 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,11 @@
 
 """Package for launch_description_sources."""
 
-from . import launch_description_sources
-from .entity import Entity
-from .parser import Parser
+from .any_launch_description_source import AnyLaunchDescriptionSource
+from .frontend_launch_description_source import FrontendLaunchDescriptionSource
+
 
 __all__ = [
-    'launch_description_sources',
-    'Entity',
-    'Parser',
+    'AnyLaunchDescriptionSource',
+    'FrontendLaunchDescriptionSource',
 ]

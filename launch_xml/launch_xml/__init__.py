@@ -14,10 +14,12 @@
 
 """Main entry point for the `launch_xml` package."""
 
+from . import launch_description_sources
 from .entity import Entity
 from .parser import Parser
 
 __all__ = [
+    'launch_description_sources',
     'Entity',
     'Parser',
 ]

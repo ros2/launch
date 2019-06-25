@@ -14,12 +14,8 @@
 
 """Package for launch_description_sources."""
 
-from . import launch_description_sources
-from .entity import Entity
-from .parser import Parser
+from .xml_launch_description_source import XMLLaunchDescriptionSource
 
 __all__ = [
-    'launch_description_sources',
-    'Entity',
-    'Parser',
+    'XMLLaunchDescriptionSource',
 ]
