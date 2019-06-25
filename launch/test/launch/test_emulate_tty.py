@@ -21,6 +21,7 @@ import pytest
 
 
 class OnExit(object):
+
     def __init__(self):
         self.returncode = None
 

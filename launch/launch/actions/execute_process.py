@@ -22,7 +22,6 @@ import shlex
 import signal
 import threading
 import traceback
-import yaml
 from typing import Any  # noqa: F401
 from typing import Callable
 from typing import cast
@@ -33,6 +32,8 @@ from typing import Optional
 from typing import Text
 from typing import Tuple  # noqa: F401
 from typing import Union
+
+import yaml
 
 import launch.logging
 
@@ -587,9 +588,9 @@ class ExecuteProcess(Action):
                 context.launch_configurations['emulate_tty']
             )
             if type(emulate_tty) is not bool:
-                raise TypeError(
-                    "emulate_tty is not boolean [{}]".format(type(emulate_tty))
-                )
+                raise TypeError("emulate_tty is not boolean [{}]".format(
+                    type(emulate_tty)
+                ))
         except KeyError:
             emulate_tty = self.__emulate_tty
         try:
