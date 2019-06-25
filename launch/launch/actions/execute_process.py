@@ -33,12 +33,12 @@ from typing import Text
 from typing import Tuple  # noqa: F401
 from typing import Union
 
-import yaml
-
 import launch.logging
 
 from osrf_pycommon.process_utils import async_execute_process
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
+
+import yaml
 
 from .emit_event import EmitEvent
 from .opaque_function import OpaqueFunction
@@ -588,7 +588,7 @@ class ExecuteProcess(Action):
                 context.launch_configurations['emulate_tty']
             )
             if type(emulate_tty) is not bool:
-                raise TypeError("emulate_tty is not boolean [{}]".format(
+                raise TypeError('emulate_tty is not boolean [{}]'.format(
                     type(emulate_tty)
                 ))
         except KeyError:
