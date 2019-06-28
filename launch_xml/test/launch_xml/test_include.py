@@ -18,9 +18,8 @@ import io
 import textwrap
 
 from launch.actions import IncludeLaunchDescription
-
-from launch_frontend import Parser
-from launch_frontend.launch_description_sources import AnyLaunchDescriptionSource
+from launch.launch_description_sources import AnyLaunchDescriptionSource
+from launch.launch_frontend import Parser
 
 
 def test_include():

@@ -20,14 +20,15 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
-import launch
-from launch.utilities import is_a
-
 from pkg_resources import iter_entry_points
 
 from .entity import Entity
 from .expose import action_parse_methods
 from .parse_substitution import parse_substitution
+from ..action import Action
+from ..launch_description import LaunchDescription
+from ..some_substitutions_type import SomeSubstitutionsType
+from ..utilities import is_a
 
 interpolation_fuctions = {
     entry_point.name: entry_point.load()
@@ -64,7 +65,7 @@ class Parser:
                 for entry_point in iter_entry_points('launch_frontend.parser')
             }
 
-    def parse_action(self, entity: Entity) -> (launch.Action, Tuple[Any]):
+    def parse_action(self, entity: Entity) -> (Action, Tuple[Any]):
         """Parse an action, using its registered parsing method."""
         self.load_parser_extensions()
         if entity.type_name not in action_parse_methods:
@@ -72,16 +73,16 @@ class Parser:
         action, kwargs = action_parse_methods[entity.type_name](entity, self)
         return action(**kwargs)
 
-    def parse_substitution(self, value: Text) -> launch.SomeSubstitutionsType:
+    def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
         """Parse a substitution."""
         return parse_substitution(value)
 
-    def parse_description(self, entity: Entity) -> launch.LaunchDescription:
+    def parse_description(self, entity: Entity) -> LaunchDescription:
         """Parse a launch description."""
         if entity.type_name != 'launch':
             raise RuntimeError('Expected \'launch\' as root tag')
         actions = [self.parse_action(child) for child in entity.children]
-        return launch.LaunchDescription(actions)
+        return LaunchDescription(actions)
 
     @classmethod
     def load(

@@ -18,8 +18,7 @@ import io
 import textwrap
 
 from launch import LaunchService
-
-from launch_frontend import Parser
+from launch.launch_frontend import Parser
 
 
 def test_executable():

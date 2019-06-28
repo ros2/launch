@@ -18,8 +18,7 @@ import io
 import textwrap
 
 from launch.actions import SetLaunchConfiguration
-
-from launch_frontend import Parser
+from launch.launch_frontend import Parser
 
 
 def test_group():

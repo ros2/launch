@@ -17,7 +17,7 @@
 import io
 from typing import Union
 
-import launch_frontend
+from launch import launch_frontend
 
 import yaml
 

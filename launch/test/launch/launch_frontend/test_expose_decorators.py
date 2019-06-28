@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch_frontend.expose import __expose_impl
+from launch.launch_frontend.expose import __expose_impl
 
 import pytest
 

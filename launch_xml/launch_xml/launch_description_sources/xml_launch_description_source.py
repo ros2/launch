@@ -15,8 +15,7 @@
 """Module for the XMLLaunchDescriptionSource class."""
 
 from launch import SomeSubstitutionsType
-
-from launch_frontend.launch_description_sources import FrontendLaunchDescriptionSource
+from launch.launch_description_sources import FrontendLaunchDescriptionSource
 
 from ..parser import Parser
 

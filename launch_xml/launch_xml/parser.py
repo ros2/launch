@@ -18,7 +18,7 @@ import io
 from typing import Union
 import xml.etree.ElementTree as ET
 
-import launch_frontend
+from launch import launch_frontend
 
 from .entity import Entity
 

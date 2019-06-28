@@ -21,8 +21,8 @@ from typing import Tuple
 from typing import Union
 import xml.etree.ElementTree as ET
 
-from launch_frontend import Entity as BaseEntity
-from launch_frontend.type_utils import get_typed_value
+from launch.launch_frontend import Entity as BaseEntity
+from launch.launch_frontend.type_utils import get_typed_value
 
 
 class Entity(BaseEntity):

@@ -21,11 +21,13 @@ from typing import List
 from .class_tools_impl import is_a_subclass
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
-from ..substitutions import TextSubstitution
 
 
 def normalize_to_list_of_substitutions(subs: SomeSubstitutionsType) -> List[Substitution]:
     """Return a list of Substitutions given a variety of starting inputs."""
+    # Avoid recursive import
+    from ..substitutions import TextSubstitution
+
     def normalize(x):
         if isinstance(x, Substitution):
             return x

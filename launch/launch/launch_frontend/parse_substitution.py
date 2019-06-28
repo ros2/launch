@@ -22,9 +22,8 @@ from lark import Lark
 from lark import Token
 from lark import Transformer
 
-from launch.substitutions import TextSubstitution
-
-from launch_frontend.expose import substitution_parse_methods
+from .expose import substitution_parse_methods
+from ..substitutions import TextSubstitution
 
 
 def replace_escaped_characters(data: Text) -> Text:

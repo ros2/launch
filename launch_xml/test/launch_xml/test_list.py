@@ -17,7 +17,7 @@
 import io
 import textwrap
 
-from launch_frontend import Parser
+from launch.launch_frontend import Parser
 
 
 def test_list():

@@ -23,6 +23,10 @@ from .condition import Condition
 from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
 
+if False:
+    from .launch_frontend import Entity
+    from .launch_frontend import Parser
+
 
 class Action(LaunchDescriptionEntity):
     """
@@ -43,6 +47,28 @@ class Action(LaunchDescriptionEntity):
         :param condition: Either a :py:class:`Condition` or None
         """
         self.__condition = condition
+
+    @staticmethod
+    def parse(entity: 'Entity', parser: 'Parser'):
+        """
+        Return the `Action` action and kwargs for constructing it.
+
+        This is only intended for code reuse.
+        This class is not exposed with `expose_action`.
+        """
+        # Import here for avoiding cyclic imports.
+        from .conditions import IfCondition
+        from .conditions import UnlessCondition
+        if_cond = entity.get_attr('if', optional=True)
+        unless_cond = entity.get_attr('unless', optional=True)
+        kwargs = {}
+        if if_cond is not None and unless_cond is not None:
+            raise RuntimeError("if and unless conditions can't be used simultaneously")
+        if if_cond is not None:
+            kwargs['condition'] = IfCondition(predicate_expression=if_cond)
+        if unless_cond is not None:
+            kwargs['condition'] = UnlessCondition(predicate_expression=unless_cond)
+        return Action, kwargs
 
     @property
     def condition(self) -> Optional[Condition]:

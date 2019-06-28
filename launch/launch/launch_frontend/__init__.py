@@ -14,11 +14,6 @@
 
 """Main entry point for the `launch_frontend` package."""
 
-# All files containing parsing methods should be imported here.
-# If not, the action or substitution are not going to be exposed.
-from . import action_parse_methods  # noqa: F401
-from . import launch_description_sources
-from . import substitution_parse_methods  # noqa: F401
 from . import type_utils
 from .entity import Entity
 from .expose import expose_action, expose_substitution
@@ -30,6 +25,5 @@ __all__ = [
     'Parser',
     'expose_action',
     'expose_substitution',
-    'launch_description_sources',
     'type_utils',
 ]

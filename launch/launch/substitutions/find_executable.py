@@ -14,6 +14,7 @@
 
 """Module for the FindExecutable substitution."""
 
+from typing import Iterable
 from typing import List
 from typing import Text
 
@@ -21,10 +22,12 @@ from osrf_pycommon.process_utils import which
 
 from .substitution_failure import SubstitutionFailure
 from ..launch_context import LaunchContext
+from ..launch_frontend import expose_substitution
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
 
+@expose_substitution('find-exec')
 class FindExecutable(Substitution):
     """
     Substitution that tries to locate an executable on the PATH.
@@ -38,6 +41,15 @@ class FindExecutable(Substitution):
 
         from ..utilities import normalize_to_list_of_substitutions  # import here to avoid loop
         self.__name = normalize_to_list_of_substitutions(name)
+
+    @staticmethod
+    def parse(data: Iterable[SomeSubstitutionsType]):
+        """Parse `FindExecutable` substitution."""
+        if not data or len(data) > 1:
+            raise AttributeError('find-exec substitution expects 1 argument')
+        kwargs = {}
+        kwargs['name'] = data[0]
+        return FindExecutable, kwargs
 
     @property
     def name(self) -> List[Substitution]:

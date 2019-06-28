@@ -18,12 +18,16 @@ from typing import List
 
 from ..action import Action
 from ..launch_context import LaunchContext
+from ..launch_frontend import Entity
+from ..launch_frontend import expose_action
+from ..launch_frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
+@expose_action('let')
 class SetLaunchConfiguration(Action):
     """
     Action that sets a launch configuration by name.
@@ -43,6 +47,16 @@ class SetLaunchConfiguration(Action):
         super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
         self.__value = normalize_to_list_of_substitutions(value)
+
+    @staticmethod
+    def parse(entity: Entity, parser: Parser):
+        """Return `SetLaunchConfiguration` action and kwargs for constructing it."""
+        name = parser.parse_substitution(entity.get_attr('name'))
+        value = parser.parse_substitution(entity.get_attr('value'))
+        _, kwargs = super(SetLaunchConfiguration, SetLaunchConfiguration).parse(entity, parser)
+        kwargs['name'] = name
+        kwargs['value'] = value
+        return SetLaunchConfiguration, kwargs
 
     @property
     def name(self) -> List[Substitution]:

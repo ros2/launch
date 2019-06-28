@@ -15,10 +15,9 @@
 """Test the default substitution interpolator."""
 
 from launch import LaunchContext
+from launch.launch_frontend.expose import expose_substitution
+from launch.launch_frontend.parse_substitution import parse_substitution
 from launch.substitutions import TextSubstitution
-
-from launch_frontend.expose import expose_substitution
-from launch_frontend.parse_substitution import parse_substitution
 
 
 def test_text_only():

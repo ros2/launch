@@ -20,8 +20,8 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
-from launch_frontend import Entity as BaseEntity
-from launch_frontend.type_utils import check_type
+from launch.launch_frontend import Entity as BaseEntity
+from launch.launch_frontend.type_utils import check_type
 
 
 class Entity(BaseEntity):

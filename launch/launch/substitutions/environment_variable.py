@@ -15,14 +15,17 @@
 """Module for the EnvironmentVariable substitution."""
 
 import os
+from typing import Iterable
 from typing import List
 from typing import Text
 
 from ..launch_context import LaunchContext
+from ..launch_frontend.expose import expose_substitution
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
 
+@expose_substitution('env')
 class EnvironmentVariable(Substitution):
     """
     Substitution that gets an environment variable value as a string.
@@ -42,6 +45,17 @@ class EnvironmentVariable(Substitution):
         from ..utilities import normalize_to_list_of_substitutions  # import here to avoid loop
         self.__name = normalize_to_list_of_substitutions(name)
         self.__default_value = normalize_to_list_of_substitutions(default_value)
+
+    @staticmethod
+    def parse(data: Iterable[SomeSubstitutionsType]):
+        """Parse `EnviromentVariable` substitution."""
+        if not data or len(data) > 2:
+            raise TypeError('env substitution expects 1 or 2 arguments')
+        kwargs = {}
+        kwargs['name'] = data[0]
+        if len(data) == 2:
+            kwargs['default_value'] = data[1]
+        return EnvironmentVariable, kwargs
 
     @property
     def name(self) -> List[Substitution]:

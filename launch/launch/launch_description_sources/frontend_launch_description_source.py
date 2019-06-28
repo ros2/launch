@@ -16,10 +16,9 @@
 
 from typing import Type
 
-from launch.launch_description_source import LaunchDescriptionSource
-from launch.some_substitutions_type import SomeSubstitutionsType
-
-from ..parser import Parser
+from ..launch_description_source import LaunchDescriptionSource
+from ..launch_frontend import Parser
+from ..some_substitutions_type import SomeSubstitutionsType
 
 
 class FrontendLaunchDescriptionSource(LaunchDescriptionSource):
