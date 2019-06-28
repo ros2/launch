@@ -26,13 +26,10 @@ from .parser import Parser
 
 
 __all__ = [
-    # Classes
     'Entity',
-    # Decorators
+    'Parser',
     'expose_action',
     'expose_substitution',
-    'Parser',
-    # Modules
     'launch_description_sources',
     'type_utils',
 ]

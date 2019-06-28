@@ -640,5 +640,5 @@ class ExecuteProcess(Action):
 
     @property
     def prefix(self):
-        """Getter for shell."""
+        """Getter for prefix."""
         return self.__prefix

@@ -30,7 +30,7 @@ def extract_type(name: Text):
     """
     Extract type information from string.
 
-    `name` can be one of:
+    :param name: a string specifying a type. can be one of:
         - 'str'
         - 'int'
         - 'float'
@@ -40,13 +40,13 @@ def extract_type(name: Text):
         - 'list[float]'
         - 'list[bool]'
 
-    Returns a tuple (type_obj, is_list).
-    is_list is `True` for the supported list types, if not is `False`.
-    type_obj is the object representing that type in python. In the case of list
-    is the type of the items.
-    e.g.:
-        name = 'list[int]' -> (int, True)
-        name = 'bool' -> (bool, False)
+    :returns: a tuple (type_obj, is_list).
+        is_list is `True` for the supported list types, if not is `False`.
+        type_obj is the object representing that type in python. In the case of list
+        is the type of the items.
+        e.g.:
+            name = 'list[int]' -> (int, True)
+            name = 'bool' -> (bool, False)
     """
     error = ValueError('Unrecognized type name: {}'.format(name))
     is_list = False
