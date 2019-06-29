@@ -14,6 +14,7 @@
 
 """Tests for emulate_tty configuration of ExecuteProcess actions."""
 
+import platform
 import sys
 
 import launch
@@ -29,19 +30,35 @@ class OnExit(object):
         self.returncode = event.returncode
 
 
+def tty_expected_unless_windows():
+    return 1 if platform.system() != 'Windows' else 0
+
+
 @pytest.mark.parametrize('test_input,expected', [
-    (None, 1),  # use the default defined by ExecuteProcess
-    ('true', 1),  # redundantly override the default via LaunchConfiguration
-    ('false', 0)  # override the default via LaunchConfiguration
+    # use the default defined by ExecuteProcess
+    (None, tty_expected_unless_windows()),
+    # redundantly override the default via LaunchConfiguration
+    ('true', tty_expected_unless_windows()),
+    # override the default via LaunchConfiguration
+    ('false', 0)
 ])
 def test_emulate_tty(test_input, expected):
     on_exit = OnExit()
     ld = launch.LaunchDescription()
     ld.add_action(launch.actions.ExecuteProcess(
-        cmd=[sys.executable, '-c', 'import sys; sys.exit(sys.stdout.isatty())'])
+        cmd=[sys.executable,
+             '-c',
+             'import sys; sys.exit(sys.stdout.isatty())'
+             ]
+        )
     )
     if test_input is not None:
-        ld.add_action(launch.actions.SetLaunchConfiguration('emulate_tty', test_input))
+        ld.add_action(
+            launch.actions.SetLaunchConfiguration(
+                'emulate_tty',
+                test_input
+            )
+        )
     ld.add_action(
         launch.actions.RegisterEventHandler(
             launch.event_handlers.OnProcessExit(on_exit=on_exit.handle)
