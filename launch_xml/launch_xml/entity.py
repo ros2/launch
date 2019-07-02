@@ -82,7 +82,9 @@ class Entity(BaseEntity):
                 name, types, self.type_name
             )
         )
-        if issubclass(types, List) and issubclass(types.__args__[0], BaseEntity):
+        is_list_entity = types is not None and not isinstance(types, tuple) \
+            and issubclass(types, List) and issubclass(types.__args__[0], BaseEntity)
+        if is_list_entity:
             return_list = filter(lambda x: x.tag == name, self.__xml_element)
             if not return_list:
                 if optional:

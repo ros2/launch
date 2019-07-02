@@ -125,7 +125,7 @@ def get_typed_value(
     if types is None:
         types = __types_for_guess
     elif types == str:
-        # Avoid unnecessary calculations for the usual case
+        # Avoid evaluating as yaml if types was just `str`
         return value
     elif not isinstance(types, Iterable):
         types = [types]
@@ -136,28 +136,24 @@ def get_typed_value(
         yaml_value = yaml.safe_load(value)
 
     for x in types:
-        if x is str:
-            # Return strings as-is
-            return value
         type_obj, is_list = extract_type(x)
-        if type_obj is str and is_list:
-            # Return list of strings as-is
-            return value
         if type_obj is float:
             # Allow coercing int to float
             if not is_list:
                 try:
                     return float(yaml_value)
-                except ValueError:
+                except (ValueError, TypeError):
                     continue
             else:
                 try:
                     return [float(x) for x in yaml_value]
-                except ValueError:
+                except (ValueError, TypeError):
                     continue
         if check_type(yaml_value, x):
-            # Any other case, check if type is ok and do yaml conversion
+            # Check if type is ok and do yaml conversion
             return yaml_value
+        if type_obj is str:
+            return value
     raise ValueError(
         'Can not convert value {} to one of the types in {}'.format(
             value, types
