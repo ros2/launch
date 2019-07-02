@@ -17,8 +17,10 @@
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import Tuple
+from typing import Type
 from typing import Union
+
+from .type_utils import SomeAllowedTypes
 
 
 class Entity:
@@ -43,7 +45,13 @@ class Entity:
         self,
         name: Text,
         *,
-        types: Union[Text, Tuple[Text]] = 'str',
+        types:
+            Optional[
+                Union[
+                    SomeAllowedTypes,
+                    Type[List['Entity']],
+                ]
+            ] = str,
         optional: bool = False
     ) -> Optional[Union[
         Text,
@@ -62,24 +70,24 @@ class Entity:
         applied depending on the particular frontend.
 
         The allowed types are:
-            - 'str'
-            - 'int'
-            - 'float'
-            - 'bool'
-            - 'list[str]'
-            - 'list[int]'
-            - 'list[float]'
-            - 'list[bool]'
+            - `str`
+            - `int`
+            - `float`
+            - `bool`
+            - `List[str]`
+            - `List[int]`
+            - `List[float]`
+            - `List[bool]`
 
         Types that can not be combined with the others:
-            - 'guess'
-            - 'list[Entity]'
+            - `List[Entity]`
 
-        'guess' work in the same way as:
-            ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
-        'list[Entity]' will return a list of more entities.
+        `types = None` work in the same way as:
+            `(int, float, bool, List[int], List[float], List[bool], List[str], str)`
+        `List[Entity]` will return a list of more entities.
 
-        See the frontend documentation to see how 'list' and 'list[Entity]' look like.
+        See the frontend documentation to see how `list` and `List[Entity]` look like for each
+        frontend implementation.
 
         If `optional` argument is `True`, will return `None` instead of raising `AttributeError`.
 

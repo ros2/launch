@@ -15,10 +15,36 @@
 """Module which adds methods for exposing parsing methods."""
 
 import inspect
+from typing import Iterable
 from typing import Text
+
+from ..action import Action
+from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitution import Substitution
+
+if False:
+    from .entity import Entity
+    from .parser import Parser
 
 action_parse_methods = {}
 substitution_parse_methods = {}
+
+
+def instantiate_action(entity: 'Entity', parser: 'Parser') -> Action:
+    """Call the registered parsing method for the `Entity`."""
+    if entity.type_name not in action_parse_methods:
+        raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
+    action_type, kwargs = action_parse_methods[entity.type_name](entity, parser)
+    return action_type(**kwargs)
+
+
+def instantiate_substitution(type_name: Text, args: Iterable[SomeSubstitutionsType]) -> Substitution:
+    """Call the registered substitution parsing method, according to `args`."""
+    if type_name not in substitution_parse_methods:
+        raise RuntimeError(
+            'Unknown substitution: {}'.format(type_name))
+    subst_type, kwargs = substitution_parse_methods[type_name](*args)
+    return subst_type(**kwargs)
 
 
 def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):

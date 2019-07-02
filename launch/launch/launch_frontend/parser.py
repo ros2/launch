@@ -23,7 +23,7 @@ from typing import Union
 from pkg_resources import iter_entry_points
 
 from .entity import Entity
-from .expose import action_parse_methods
+from .expose import instantiate_action
 from .parse_substitution import parse_substitution
 from ..action import Action
 from ..launch_description import LaunchDescription
@@ -68,10 +68,7 @@ class Parser:
     def parse_action(self, entity: Entity) -> (Action, Tuple[Any]):
         """Parse an action, using its registered parsing method."""
         self.load_parser_extensions()
-        if entity.type_name not in action_parse_methods:
-            raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
-        action, kwargs = action_parse_methods[entity.type_name](entity, self)
-        return action(**kwargs)
+        return instantiate_action(entity, self)
 
     def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
         """Parse a substitution."""

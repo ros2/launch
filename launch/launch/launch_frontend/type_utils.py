@@ -15,72 +15,76 @@
 """Module which implements get_typed_value function."""
 
 from typing import Any
+from typing import Iterable
+from typing import List
+from typing import Optional
 from typing import Text
-from typing import Tuple
+from typing import Type
 from typing import Union
 
+import yaml
 
-types_for_guess__ = (
-    'int', 'float', 'bool', 'list[int]', 'list[float]',
-    'list[bool]', 'list[str]', 'str'
+__types_for_guess = (
+    int, float, bool, List[int], List[float],
+    List[bool], List[str], str
 )
 
 
-def extract_type(name: Text):
-    """
-    Extract type information from string.
+AllowedTypes = Type[Union[__types_for_guess]]
+SomeAllowedTypes = Union[AllowedTypes, Iterable[AllowedTypes]]
 
-    :param name: a string specifying a type. can be one of:
-        - 'str'
-        - 'int'
-        - 'float'
-        - 'bool'
-        - 'list[str]'
-        - 'list[int]'
-        - 'list[float]'
-        - 'list[bool]'
+
+def extract_type(data_type: AllowedTypes):
+    """
+    Extract type information from type object.
+
+    :param data_type: Can be one of:
+        - `str`
+        - `int`
+        - `float`
+        - `bool`
+        - `List[str]`
+        - `List[int]`
+        - `List[float]`
+        - `List[bool]`
 
     :returns: a tuple (type_obj, is_list).
         is_list is `True` for the supported list types, if not is `False`.
         type_obj is the object representing that type in python. In the case of list
         is the type of the items.
         e.g.:
-            name = 'list[int]' -> (int, True)
-            name = 'bool' -> (bool, False)
+            `name = List[int]` -> `(int, True)`
+            `name = bool` -> `(bool, False)`
     """
-    error = ValueError('Unrecognized type name: {}'.format(name))
     is_list = False
-    type_name = name
-    if 'list[' in name:
+    if data_type not in __types_for_guess:
+        raise ValueError('Unrecognized data type: {}'.format(data_type))
+    if issubclass(data_type, List):
         is_list = True
-        type_name = name[5:-1]
-        if name[-1] != ']':
-            raise error
-    if type_name not in ('int', 'float', 'str', 'bool'):
-        raise error
-    return (eval(type_name), is_list)
+        data_type = data_type.__args__[0]
+    return (data_type, is_list)
 
 
-def check_type(value: Any, types: Union[Text, Tuple[Text]]) -> bool:
+def check_type(value: Any, types: Optional[SomeAllowedTypes]) -> bool:
     """
     Check if `value` is one of the types in `types`.
 
     The allowed types are:
-        - 'str'
-        - 'int'
-        - 'float'
-        - 'bool'
-        - 'list[str]'
-        - 'list[int]'
-        - 'list[float]'
-        - 'list[bool]'
+        - `str`
+        - `int`
+        - `float`
+        - `bool`
+        - `List[str]`
+        - `List[int]`
+        - `List[float]`
+        - `List[bool]`
 
-    types = 'guess' works in the same way as:
-        ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
+    `types = None` works in the same way as:
+        `(int, float, bool, List[int], List[float], List[bool], List[str], str)`
     """
-    if types == 'guess':
-        types = types_for_guess__
-    if isinstance(types, Text):
+    if types is None:
+        types = __types_for_guess
+    elif not isinstance(types, Iterable):
         types = [types]
     for x in types:
         type_obj, is_list = extract_type(x)
@@ -95,7 +99,10 @@ def check_type(value: Any, types: Union[Text, Tuple[Text]]) -> bool:
     return False
 
 
-def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
+def get_typed_value(
+    value: Union[Text, List[Text]],
+    types: Optional[SomeAllowedTypes]
+) -> Any:
     """
     Try to convert `value` to one of the types specified in `types`.
 
@@ -103,53 +110,56 @@ def get_typed_value(value: Text, types: Union[Text, Tuple[Text]]) -> Any:
     If not raise `AttributeError`.
 
     The allowed types are:
-        - 'str'
-        - 'int'
-        - 'float'
-        - 'bool'
-        - 'list[str]'
-        - 'list[int]'
-        - 'list[float]'
-        - 'list[bool]'
+        - `str`
+        - `int`
+        - `float`
+        - `bool`
+        - `List[str]`
+        - `List[int]`
+        - `List[float]`
+        - `List[bool]`
 
-    types = 'guess' works in the same way as:
-        ('int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str')
+    `types = None` works in the same way as:
+        `(int, float, bool, List[int], List[float], List[bool], List[str], str)`
     """
-    if types == 'guess':
-        types = types_for_guess__
-    elif isinstance(types, Text):
+    if types is None:
+        types = __types_for_guess
+    elif types == str:
+        # Avoid unnecessary calculations for the usual case
+        return value
+    elif not isinstance(types, Iterable):
         types = [types]
 
-    typed_value = None
+    if isinstance(value, list):
+        yaml_value = [yaml.safe_load(x) for x in value]
+    else:
+        yaml_value = yaml.safe_load(value)
+
     for x in types:
+        if x is str:
+            # Return strings as-is
+            return value
         type_obj, is_list = extract_type(x)
-        if type_obj is bool:
-            def type_obj(x):
-                if x.lower() in ('true', 'yes', 'on', '1', 'false', 'no', 'off', '0'):
-                    return x.lower() in ('true', 'yes', 'on', '1')
-                raise ValueError()
-        if is_list:
-            if not isinstance(value, list):
-                continue
-            try:
-                typed_value = [type_obj(x) for x in value]
-            except ValueError:
-                pass
+        if type_obj is str and is_list:
+            # Return list of strings as-is
+            return value
+        if type_obj is float:
+            # Allow coercing int to float
+            if not is_list:
+                try:
+                    return float(yaml_value)
+                except ValueError:
+                    continue
             else:
-                break
-        else:
-            if isinstance(value, list):
-                continue
-            try:
-                typed_value = type_obj(value)
-            except ValueError:
-                pass
-            else:
-                break
-    if typed_value is None:
-        raise ValueError(
-            'Can not convert value {} to one of the types in {}'.format(
-                value, types
-            )
+                try:
+                    return [float(x) for x in yaml_value]
+                except ValueError:
+                    continue
+        if check_type(yaml_value, x):
+            # Any other case, check if type is ok and do yaml conversion
+            return yaml_value
+    raise ValueError(
+        'Can not convert value {} to one of the types in {}'.format(
+            value, types
         )
-    return typed_value
+    )

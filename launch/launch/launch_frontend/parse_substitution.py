@@ -22,7 +22,7 @@ from lark import Lark
 from lark import Token
 from lark import Transformer
 
-from .expose import substitution_parse_methods
+from .expose import instantiate_substitution
 from ..substitutions import TextSubstitution
 
 
@@ -68,11 +68,7 @@ class ExtractSubstitution(Transformer):
         name = args[0]
         assert isinstance(name, Token)
         assert name.type == 'IDENTIFIER'
-        if name.value not in substitution_parse_methods:
-            raise RuntimeError(
-                'Unknown substitution: {}'.format(name.value))
-        subst, kwargs = substitution_parse_methods[name.value](*args[1:])
-        return subst(**kwargs)
+        return instantiate_substitution(name.value, args[1:])
 
     single_quoted_substitution = substitution
     double_quoted_substitution = substitution

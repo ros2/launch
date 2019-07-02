@@ -17,12 +17,13 @@
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import Tuple
+from typing import Type
 from typing import Union
 import xml.etree.ElementTree as ET
 
 from launch.launch_frontend import Entity as BaseEntity
 from launch.launch_frontend.type_utils import get_typed_value
+from launch.launch_frontend.type_utils import SomeAllowedTypes
 
 
 class Entity(BaseEntity):
@@ -57,7 +58,14 @@ class Entity(BaseEntity):
         self,
         name: Text,
         *,
-        types: Union[Text, Tuple[Text]] = 'str',
+        types:
+            Optional[
+                Union[
+                    SomeAllowedTypes,
+                    Type[List[BaseEntity]],
+                    Type[List['Entity']],
+                ]
+            ] = str,
         optional: bool = False
     ) -> Optional[Union[
         Text,
@@ -74,7 +82,7 @@ class Entity(BaseEntity):
                 name, types, self.type_name
             )
         )
-        if types == 'list[Entity]':
+        if issubclass(types, List) and issubclass(types.__args__[0], BaseEntity):
             return_list = filter(lambda x: x.tag == name, self.__xml_element)
             if not return_list:
                 if optional:
