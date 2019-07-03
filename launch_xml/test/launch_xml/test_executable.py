@@ -14,8 +14,7 @@
 
 """Test parsing an executable action."""
 
-import io
-import textwrap
+from pathlib import Path
 
 from launch import LaunchService
 from launch.launch_frontend import Parser
@@ -23,33 +22,24 @@ from launch.launch_frontend import Parser
 
 def test_executable():
     """Parse node xml example."""
-    xml_file = \
-        """\
-        <launch>
-            <executable cmd="ls" cwd="/" name="my_ls" args="-l -a -s" shell="true" output='log' launch-prefix='$(env LAUNCH_PREFIX)'>
-                <env name="var" value="1"/>
-            </executable>
-        </launch>
-        """  # noqa: E501
-    xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    xml_file = str(Path(__file__).parent / 'executable.xml')
+    root_entity, parser = Parser.load(xml_file)
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
-    assert(cmd ==
-           ['ls', '-l', '-a', '-s'])
-    assert(executable.cwd[0].perform(None) == '/')
-    assert(executable.name[0].perform(None) == 'my_ls')
-    assert(executable.shell is True)
-    assert(executable.output == 'log')
+    assert cmd == ['ls', '-l', '-a', '-s']
+    assert executable.cwd[0].perform(None) == '/'
+    assert executable.name[0].perform(None) == 'my_ls'
+    assert executable.shell is True
+    assert executable.output == 'log'
     key, value = executable.additional_env[0]
     key = key[0].perform(None)
     value = value[0].perform(None)
-    assert(key == 'var')
-    assert(value == '1')
+    assert key == 'var'
+    assert value == '1'
     ls = LaunchService()
     ls.include_launch_description(ld)
-    assert(0 == ls.run())
+    assert 0 == ls.run()
 
 
 if __name__ == '__main__':

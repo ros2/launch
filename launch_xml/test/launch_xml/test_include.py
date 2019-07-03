@@ -15,8 +15,10 @@
 """Test parsing an include action."""
 
 import io
+from pathlib import Path
 import textwrap
 
+from launch import LaunchService
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import AnyLaunchDescriptionSource
 from launch.launch_frontend import Parser
@@ -24,19 +26,22 @@ from launch.launch_frontend import Parser
 
 def test_include():
     """Parse node xml example."""
+    path = str(Path(__file__).parent / 'executable.xml')
     xml_file = \
         """\
         <launch>
-            <include file="some_file"/>
+            <include file="{}"/>
         </launch>
-        """  # noqa: E501
+        """.format(path)  # noqa: E501
     xml_file = textwrap.dedent(xml_file)
     root_entity, parser = Parser.load(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     include = ld.entities[0]
     assert isinstance(include, IncludeLaunchDescription)
     assert isinstance(include.launch_description_source, AnyLaunchDescriptionSource)
-    # TODO(ivanpauno): Load something really
+    ls = LaunchService(debug=True)
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
 
 
 if __name__ == '__main__':

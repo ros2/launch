@@ -54,7 +54,7 @@ class AnyLaunchDescriptionSource(LaunchDescriptionSource):
         launch_description = None
         try:
             launch_description = get_launch_description_from_python_launch_file(location)
-        except InvalidPythonLaunchFileError:
+        except (InvalidPythonLaunchFileError, SyntaxError):
             pass
         try:
             root_entity, parser = Parser.load(location)
