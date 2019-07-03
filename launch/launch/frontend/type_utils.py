@@ -130,16 +130,19 @@ def get_typed_value(
     elif not isinstance(types, Iterable):
         types = [types]
 
-    if isinstance(value, list):
+    value_is_list = isinstance(value, list)
+    if value_is_list:
         yaml_value = [yaml.safe_load(x) for x in value]
     else:
         yaml_value = yaml.safe_load(value)
 
     for x in types:
-        type_obj, is_list = extract_type(x)
+        type_obj, type_is_list = extract_type(x)
+        if value_is_list != type_is_list:
+            continue
         if type_obj is float:
             # Allow coercing int to float
-            if not is_list:
+            if not type_is_list:
                 try:
                     return float(yaml_value)
                 except (ValueError, TypeError):
