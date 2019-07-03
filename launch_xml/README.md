@@ -15,21 +15,22 @@ When having an xml tag like:
 If the entity `e` is wrapping it, the following statements will be true:
 ```python
 e.get_attr('value') == '2'
-e.get_attr('value', types='int') == 2
-e.get_attr('value', types='float') == 2.0
+e.get_attr('value', types=int) == 2
+e.get_attr('value', types=float) == 2.0
 ```
 
 By default, the value of the attribute is returned as a string.
 Allowed types are: 
 ```python
-'str', 'int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]'
+str, int, float, bool, List[int], List[float], List[bool], List[str]
 ```
-A combination of them can be specified with a tuple. e.g.: `('int', 'str')`.
+`List` is the usual object from the `typing` package.
+A combination of them can be specified with a tuple. e.g.: `(int, str)`.
 In that case, conversions are tried in order and the first successful conversion is returned.
-`types` can also be set to `guess`, which works in the same way as passing:
+`types` can also be set to `None`, which works in the same way as passing:
 
 ```python
-'int', 'float', 'bool', 'list[int]', 'list[float]', 'list[bool]', 'list[str]', 'str'
+int, float, bool, List[int], List[float], List[bool], List[str], str
 ```
 
 For handling lists, the `*-sep` attribute is used. e.g.:
@@ -41,12 +42,12 @@ For handling lists, the `*-sep` attribute is used. e.g.:
 ```
 
 ```python
-tag.get_attr('value', types='list[int]') == [2, 3, 4]
-tag2.get_attr('value', types='list[float]') == [2.0, 3.0, 4.0]
-tag3.get_attr('value', types='list[str]') == ['2', '3', '4']
+tag.get_attr('value', types=List[int]) == [2, 3, 4]
+tag2.get_attr('value', types=List[float]) == [2.0, 3.0, 4.0]
+tag3.get_attr('value', types=List[str]) == ['2', '3', '4']
 ```
 
-For checking if an attribute exists, use optional argument:
+For checking if an attribute exists, use an optional argument:
 
 ```python
 value = e.get_attr('value', optional=True)
@@ -70,7 +71,7 @@ In this xml:
 The `env` children could be accessed like:
 
 ```python
-env = e.get_attr('env', types='list[Entity]')
+env = e.get_attr('env', types=List[Entity])
 len(env) == 2
 env[0].get_attr('name') == 'a'
 env[0].get_attr('value') == '100'
