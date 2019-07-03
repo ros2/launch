@@ -78,8 +78,8 @@ class IncludeLaunchDescription(Action):
     def parse(cls, entity: Entity, parser: Parser):
         """Return `IncludeLaunchDescription` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        file = parser.parse_substitution(entity.get_attr('file'))
-        kwargs['launch_description_source'] = AnyLaunchDescriptionSource(file)
+        file_path = parser.parse_substitution(entity.get_attr('file'))
+        kwargs['launch_description_source'] = AnyLaunchDescriptionSource(file_path)
         args = entity.get_attr('arg', types=List[Entity], optional=True)
         if args is not None:
             kwargs['launch_arguments'] = [
@@ -89,7 +89,7 @@ class IncludeLaunchDescription(Action):
                 )
                 for e in args
             ]
-        return IncludeLaunchDescription, kwargs
+        return cls, kwargs
 
     @property
     def launch_description_source(self) -> LaunchDescriptionSource:

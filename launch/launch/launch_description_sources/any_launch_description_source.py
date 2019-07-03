@@ -27,7 +27,7 @@ class AnyLaunchDescriptionSource(LaunchDescriptionSource):
 
     This launch description source will attempt to load the file at the given location as a python
     launch file first, and as a declarative (markup based) launch file if the former fails.
-    It is recommended to use a specific `LaunchDescriptionSource` subclasses when possible.
+    It is recommended to use specific `LaunchDescriptionSource` subclasses when possible.
     """
 
     def __init__(
@@ -62,5 +62,5 @@ class AnyLaunchDescriptionSource(LaunchDescriptionSource):
         except RuntimeError:
             pass
         if launch_description is None:
-            raise RuntimeError('Can not load launch file')
+            raise RuntimeError('Cannot load launch file')
         return launch_description

@@ -82,14 +82,16 @@ class Entity:
         Types that can not be combined with the others:
             - `List[Entity]`
 
-        `types = None` work in the same way as:
+        `types=None` implies:
             `(int, float, bool, List[int], List[float], List[bool], List[str], str)`
-        `List[Entity]` will return a list of more entities.
+        `List[Entity]` will return the list of entities that are identified by the given
+        attribute.
 
         See the frontend documentation to see how `list` and `List[Entity]` look like for each
         frontend implementation.
 
-        If `optional` argument is `True`, will return `None` instead of raising `AttributeError`.
+        If `optional` is `True` and the attribute cannot be found, `None` will be returned
+        instead of raising `AttributeError`.
 
         :param name: name of the attribute
         :param types: type of the attribute to be read. Default to 'str'

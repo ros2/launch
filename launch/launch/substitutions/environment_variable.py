@@ -51,8 +51,7 @@ class EnvironmentVariable(Substitution):
         """Parse `EnviromentVariable` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('env substitution expects 1 or 2 arguments')
-        kwargs = {}
-        kwargs['name'] = data[0]
+        kwargs = {'name': data[0]}
         if len(data) == 2:
             kwargs['default_value'] = data[1]
         return cls, kwargs
