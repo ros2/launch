@@ -8,7 +8,6 @@
   <license>Apache License 2.0</license>
 
   <depend>launch</depend>
-  <depend>launch_frontend</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
