@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Main entry point for the `launch_frontend` package."""
+"""Package for launch markup."""
 
 from . import type_utils
 from .entity import Entity

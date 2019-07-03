@@ -38,7 +38,10 @@ def instantiate_action(entity: 'Entity', parser: 'Parser') -> Action:
     return action_type(**kwargs)
 
 
-def instantiate_substitution(type_name: Text, args: Iterable[SomeSubstitutionsType]) -> Substitution:
+def instantiate_substitution(
+    type_name: Text,
+    args: Iterable[SomeSubstitutionsType]
+) -> Substitution:
     """Call the registered substitution parsing method, according to `args`."""
     if type_name not in substitution_parse_methods:
         raise RuntimeError(
@@ -73,11 +76,11 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
     def expose_impl_decorator(exposed):
         found_parse_method = None
         if inspect.isclass(exposed):
-            if 'parse' in dir(exposed) and inspect.isfunction(exposed.parse):
+            if 'parse' in dir(exposed) and inspect.ismethod(exposed.parse):
                 found_parse_method = exposed.parse
             else:
                 raise RuntimeError(
-                    "Did not find an static method called 'parse' in the class being decorated."
+                    "Did not find a class method called 'parse' in the class being decorated."
                 )
         elif inspect.isfunction(exposed):
             found_parse_method = exposed

@@ -32,7 +32,7 @@ from ..utilities import is_a
 
 interpolation_fuctions = {
     entry_point.name: entry_point.load()
-    for entry_point in iter_entry_points('launch_frontend.interpolate_substitution')
+    for entry_point in iter_entry_points('launch.frontend.interpolate_substitution_method')
 }
 
 
@@ -42,17 +42,17 @@ class Parser:
 
     Implementations of the parser class, should override the load method.
     They could also override the parse_substitution method, or not.
-    load_parser_extensions, parse_action and parse_description are not suposed to be overrided.
+    load_launch_extensions, parse_action and parse_description are not suposed to be overrided.
     """
 
     extensions_loaded = False
     frontend_parsers = None
 
     @classmethod
-    def load_parser_extensions(cls):
+    def load_launch_extensions(cls):
         """Load launch extensions, in order to get all the exposed substitutions and actions."""
         if cls.extensions_loaded is False:
-            for entry_point in iter_entry_points('launch_frontend.launch_extension'):
+            for entry_point in iter_entry_points('launch.frontend.launch_extension'):
                 entry_point.load()
             cls.extensions_loaded = True
 
@@ -62,12 +62,12 @@ class Parser:
         if cls.frontend_parsers is None:
             cls.frontend_parsers = {
                 entry_point.name: entry_point.load()
-                for entry_point in iter_entry_points('launch_frontend.parser')
+                for entry_point in iter_entry_points('launch.frontend.parser')
             }
 
     def parse_action(self, entity: Entity) -> (Action, Tuple[Any]):
         """Parse an action, using its registered parsing method."""
-        self.load_parser_extensions()
+        self.load_launch_extensions()
         return instantiate_action(entity, self)
 
     def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
@@ -77,7 +77,7 @@ class Parser:
     def parse_description(self, entity: Entity) -> LaunchDescription:
         """Parse a launch description."""
         if entity.type_name != 'launch':
-            raise RuntimeError('Expected \'launch\' as root tag')
+            raise RuntimeError("Expected 'launch' as root tag")
         actions = [self.parse_action(child) for child in entity.children]
         return LaunchDescription(actions)
 

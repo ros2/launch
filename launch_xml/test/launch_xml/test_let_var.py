@@ -18,7 +18,7 @@ import io
 import textwrap
 
 from launch import LaunchContext
-from launch.launch_frontend import Parser
+from launch.frontend import Parser
 
 
 def test_let_var():

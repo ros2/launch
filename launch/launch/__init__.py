@@ -17,7 +17,7 @@
 from . import actions
 from . import conditions
 from . import events
-from . import launch_frontend
+from . import frontend
 from . import logging
 from . import substitutions
 from .action import Action
@@ -40,7 +40,7 @@ __all__ = [
     'actions',
     'conditions',
     'events',
-    'launch_frontend',
+    'frontend',
     'logging',
     'substitutions',
     'Action',

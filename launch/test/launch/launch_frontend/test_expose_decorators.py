@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch.launch_frontend.expose import __expose_impl
+from launch.frontend.expose import __expose_impl
 
 import pytest
 
 
 class ToBeExposed:
 
-    @staticmethod
-    def parse(entity, parser):
+    @classmethod
+    def parse(cls, entity, parser):
         return ToBeExposed(), ()
 
 
@@ -39,7 +39,7 @@ def test_expose_decorators():
     expose_test('ToBeExposed')(ToBeExposed)
     assert 'ToBeExposed' in register
     if 'ToBeExposed' in register:
-        assert register['ToBeExposed'] is ToBeExposed.parse
+        assert register['ToBeExposed'] == ToBeExposed.parse
     expose_test('to_be_exposed')(to_be_exposed)
     assert 'to_be_exposed' in register
     if 'to_be_exposed' in register:

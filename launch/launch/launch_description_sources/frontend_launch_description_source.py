@@ -16,8 +16,8 @@
 
 from typing import Type
 
+from ..frontend import Parser
 from ..launch_description_source import LaunchDescriptionSource
-from ..launch_frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
 
 

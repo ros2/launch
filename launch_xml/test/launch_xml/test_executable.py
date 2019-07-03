@@ -17,7 +17,7 @@
 from pathlib import Path
 
 from launch import LaunchService
-from launch.launch_frontend import Parser
+from launch.frontend import Parser
 
 
 def test_executable():

@@ -21,9 +21,9 @@ from typing import Type
 from typing import Union
 import xml.etree.ElementTree as ET
 
-from launch.launch_frontend import Entity as BaseEntity
-from launch.launch_frontend.type_utils import get_typed_value
-from launch.launch_frontend.type_utils import SomeAllowedTypes
+from launch.frontend import Entity as BaseEntity
+from launch.frontend.type_utils import get_typed_value
+from launch.frontend.type_utils import SomeAllowedTypes
 
 
 class Entity(BaseEntity):

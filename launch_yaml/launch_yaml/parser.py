@@ -17,14 +17,14 @@
 import io
 from typing import Union
 
-from launch import launch_frontend
+from launch import frontend
 
 import yaml
 
 from .entity import Entity
 
 
-class Parser(launch_frontend.Parser):
+class Parser(frontend.Parser):
     """YAML parser implementation."""
 
     @classmethod

@@ -20,8 +20,8 @@ import textwrap
 
 from launch import LaunchService
 from launch.actions import IncludeLaunchDescription
+from launch.frontend import Parser
 from launch.launch_description_sources import AnyLaunchDescriptionSource
-from launch.launch_frontend import Parser
 
 
 def test_include():

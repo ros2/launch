@@ -16,8 +16,8 @@
 
 from .python_launch_file_utilities import get_launch_description_from_python_launch_file
 from .python_launch_file_utilities import InvalidPythonLaunchFileError
+from ..frontend import Parser
 from ..launch_description_source import LaunchDescriptionSource
-from ..launch_frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
 
 

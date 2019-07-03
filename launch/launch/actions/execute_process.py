@@ -58,11 +58,11 @@ from ..events.process import ProcessStdin
 from ..events.process import ProcessStdout
 from ..events.process import ShutdownProcess
 from ..events.process import SignalProcess
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
-from ..launch_frontend import Entity
-from ..launch_frontend import expose_action
-from ..launch_frontend import Parser
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution  # noqa: F401
@@ -230,8 +230,9 @@ class ExecuteProcess(Action):
         self.__stdout_buffer = io.StringIO()
         self.__stderr_buffer = io.StringIO()
 
-    @staticmethod
+    @classmethod
     def parse(
+        cls,
         entity: Entity,
         parser: Parser,
         optional_cmd: bool = False
@@ -247,7 +248,7 @@ class ExecuteProcess(Action):
             cmd_list = [parser.parse_substitution(cmd)]
         else:
             cmd_list = []
-        kwargs = {}
+        _, kwargs = super().parse(entity, parser)
         cwd = entity.get_attr('cwd', optional=True)
         if cwd is not None:
             kwargs['cwd'] = parser.parse_substitution(cwd)
@@ -290,10 +291,8 @@ class ExecuteProcess(Action):
             args = []
         cmd_list.extend(args)
         kwargs['cmd'] = cmd_list
-        _, action_kwargs = super(ExecuteProcess, ExecuteProcess).parse(entity, parser)
-        kwargs.update(action_kwargs)
 
-        return ExecuteProcess, kwargs
+        return cls, kwargs
 
     @property
     def output(self):

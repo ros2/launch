@@ -23,8 +23,8 @@ from typing import Text
 from typing import Union
 
 from .substitution_failure import SubstitutionFailure
+from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
-from ..launch_frontend import expose_substitution
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
@@ -64,16 +64,16 @@ class LaunchConfiguration(Substitution):
                 normalize_to_list_of_substitutions(
                     str_normalized_default)  # type: List[Substitution]
 
-    @staticmethod
-    def parse(data: Iterable[SomeSubstitutionsType]):
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `FindExecutable` substitution."""
-        if not data or len(data) > 2:
+        if len(data) < 1 or len(data) > 2:
             raise TypeError('var substitution expects 1 or 2 arguments')
         kwargs = {}
         kwargs['variable_name'] = data[0]
         if len(data) == 2:
             kwargs['default'] = data[1]
-        return LaunchConfiguration, kwargs
+        return cls, kwargs
 
     @property
     def variable_name(self) -> List[Substitution]:

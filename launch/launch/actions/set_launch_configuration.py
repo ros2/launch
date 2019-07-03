@@ -17,10 +17,10 @@
 from typing import List
 
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
-from ..launch_frontend import Entity
-from ..launch_frontend import expose_action
-from ..launch_frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
@@ -48,15 +48,15 @@ class SetLaunchConfiguration(Action):
         self.__name = normalize_to_list_of_substitutions(name)
         self.__value = normalize_to_list_of_substitutions(value)
 
-    @staticmethod
-    def parse(entity: Entity, parser: Parser):
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
         """Return `SetLaunchConfiguration` action and kwargs for constructing it."""
         name = parser.parse_substitution(entity.get_attr('name'))
         value = parser.parse_substitution(entity.get_attr('value'))
-        _, kwargs = super(SetLaunchConfiguration, SetLaunchConfiguration).parse(entity, parser)
+        _, kwargs = super().parse(entity, parser)
         kwargs['name'] = name
         kwargs['value'] = value
-        return SetLaunchConfiguration, kwargs
+        return cls, kwargs
 
     @property
     def name(self) -> List[Substitution]:

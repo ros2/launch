@@ -20,9 +20,9 @@ from typing import Text
 from typing import Type
 from typing import Union
 
-from launch.launch_frontend import Entity as BaseEntity
-from launch.launch_frontend.type_utils import check_type
-from launch.launch_frontend.type_utils import SomeAllowedTypes
+from launch.frontend import Entity as BaseEntity
+from launch.frontend.type_utils import check_type
+from launch.frontend.type_utils import SomeAllowedTypes
 
 
 class Entity(BaseEntity):

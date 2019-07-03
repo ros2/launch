@@ -24,8 +24,8 @@ from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
 
 if False:
-    from .launch_frontend import Entity
-    from .launch_frontend import Parser
+    from .frontend import Entity
+    from .frontend import Parser
 
 
 class Action(LaunchDescriptionEntity):

@@ -23,10 +23,10 @@ from .pop_launch_configurations import PopLaunchConfigurations
 from .push_launch_configurations import PushLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
-from ..launch_frontend import Entity
-from ..launch_frontend import expose_action
-from ..launch_frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
 
 
@@ -58,15 +58,15 @@ class GroupAction(Action):
         else:
             self.__launch_configurations = {}
 
-    @staticmethod
-    def parse(entity: Entity, parser: Parser):
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
         """Return `GroupAction` action and kwargs for constructing it."""
-        _, kwargs = super(GroupAction, GroupAction).parse(entity, parser)
+        _, kwargs = super().parse(entity, parser)
         scoped = entity.get_attr('scoped', types=bool, optional=True)
         if scoped is not None:
             kwargs['scoped'] = scoped
         kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
-        return GroupAction, kwargs
+        return cls, kwargs
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """Execute the action."""

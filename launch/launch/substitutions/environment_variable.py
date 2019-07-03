@@ -19,8 +19,8 @@ from typing import Iterable
 from typing import List
 from typing import Text
 
+from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
-from ..launch_frontend.expose import expose_substitution
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
@@ -46,16 +46,16 @@ class EnvironmentVariable(Substitution):
         self.__name = normalize_to_list_of_substitutions(name)
         self.__default_value = normalize_to_list_of_substitutions(default_value)
 
-    @staticmethod
-    def parse(data: Iterable[SomeSubstitutionsType]):
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `EnviromentVariable` substitution."""
-        if not data or len(data) > 2:
+        if len(data) < 1 or len(data) > 2:
             raise TypeError('env substitution expects 1 or 2 arguments')
         kwargs = {}
         kwargs['name'] = data[0]
         if len(data) == 2:
             kwargs['default_value'] = data[1]
-        return EnvironmentVariable, kwargs
+        return cls, kwargs
 
     @property
     def name(self) -> List[Substitution]:

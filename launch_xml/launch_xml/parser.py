@@ -18,12 +18,12 @@ import io
 from typing import Union
 import xml.etree.ElementTree as ET
 
-from launch import launch_frontend
+from launch import frontend
 
 from .entity import Entity
 
 
-class Parser(launch_frontend.Parser):
+class Parser(frontend.Parser):
     """XML parser implementation."""
 
     @classmethod

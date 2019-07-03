@@ -22,13 +22,13 @@ from typing import Tuple
 
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..launch_description_source import LaunchDescriptionSource
 from ..launch_description_sources import AnyLaunchDescriptionSource
-from ..launch_frontend import Entity
-from ..launch_frontend import expose_action
-from ..launch_frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
@@ -74,13 +74,10 @@ class IncludeLaunchDescription(Action):
         self.__launch_description_source = launch_description_source
         self.__launch_arguments = launch_arguments
 
-    @staticmethod
-    def parse(entity: Entity, parser: Parser):
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
         """Return `IncludeLaunchDescription` action and kwargs for constructing it."""
-        _, kwargs = super(
-            IncludeLaunchDescription,
-            IncludeLaunchDescription
-        ).parse(entity, parser)
+        _, kwargs = super().parse(entity, parser)
         file = parser.parse_substitution(entity.get_attr('file'))
         kwargs['launch_description_source'] = AnyLaunchDescriptionSource(file)
         args = entity.get_attr('arg', types=List[Entity], optional=True)
