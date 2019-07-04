@@ -21,10 +21,10 @@ from launch.substitutions import TextSubstitution
 
 
 def test_text_only():
-    subst = parse_substitution("\\'yes\\'")
+    subst = parse_substitution("'yes'")
     assert len(subst) == 1
     assert subst[0].perform(None) == "'yes'"
-    subst = parse_substitution('\\"yes\\"')
+    subst = parse_substitution('"yes"')
     assert len(subst) == 1
     assert subst[0].perform(None) == '"yes"'
     subst = parse_substitution('10')
