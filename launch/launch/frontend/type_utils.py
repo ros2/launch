@@ -22,8 +22,6 @@ from typing import Text
 from typing import Type
 from typing import Union
 
-import yaml
-
 __types_for_guess = (
     int, float, bool, List[int], List[float],
     List[bool], List[str], str
@@ -131,32 +129,40 @@ def get_typed_value(
         types = [types]
 
     value_is_list = isinstance(value, list)
-    if value_is_list:
-        yaml_value = [yaml.safe_load(x) for x in value]
-    else:
-        yaml_value = yaml.safe_load(value)
 
     for x in types:
         type_obj, type_is_list = extract_type(x)
-        if value_is_list != type_is_list:
+        if type_obj is bool:
+            def type_obj(x):
+                """Convert string to bool value."""
+                if x.lower() in ('true', 'yes', 'on', '1', 'false', 'no', 'off', '0'):
+                    return x.lower() in ('true', 'yes', 'on', '1')
+                raise ValueError()
+        elif type_obj is str:
+            def type_obj(x):
+                """Strip outer quotes if we have them."""
+                if x.startswith("'") and x.endswith('"'):
+                    return x[1:-1]
+                elif x.startswith('"') and x.endswith('"'):
+                    return x[1:-1]
+                else:
+                    return x
+        if type_is_list != value_is_list:
             continue
-        if type_obj is float:
-            # Allow coercing int to float
-            if not type_is_list:
-                try:
-                    return float(yaml_value)
-                except (ValueError, TypeError):
-                    continue
+        if type_is_list:
+            try:
+                return [type_obj(x) for x in value]
+            except ValueError:
+                pass
             else:
-                try:
-                    return [float(x) for x in yaml_value]
-                except (ValueError, TypeError):
-                    continue
-        if check_type(yaml_value, x):
-            # Check if type is ok and do yaml conversion
-            return yaml_value
-        if type_obj is str:
-            return value
+                break
+        else:
+            if isinstance(value, list):
+                continue
+            try:
+                return type_obj(value)
+            except ValueError:
+                pass
     raise ValueError(
         'Can not convert value {} to one of the types in {}'.format(
             value, types
