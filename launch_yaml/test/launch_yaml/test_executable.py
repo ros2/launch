@@ -27,10 +27,9 @@ def test_executable():
         """\
         launch:
         -   executable:
-                cmd: ls
+                cmd: ls -l -a -s
                 cwd: '/'
                 name: my_ls
-                args: -l -a -s
                 shell: true
                 output: log
                 launch_prefix: $(env LAUNCH_PREFIX)

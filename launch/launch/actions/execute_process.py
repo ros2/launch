@@ -235,20 +235,32 @@ class ExecuteProcess(Action):
         cls,
         entity: Entity,
         parser: Parser,
-        optional_cmd: bool = False
+        cmd_arg_name: str = 'cmd'
     ):
         """
         Return the `ExecuteProcess` action and kwargs for constructing it.
 
-        :param: optional_cmd Allow not specifying `cmd` argument.
+        :param: cmd_arg_name Allow changing the name of `cmd` tag.
             Intended for code reuse in derived classes (e.g.: launch_ros.actions.Node).
         """
-        cmd = entity.get_attr('cmd', optional=optional_cmd)
-        if cmd is not None:
-            cmd_list = [parser.parse_substitution(cmd)]
-        else:
-            cmd_list = []
         _, kwargs = super().parse(entity, parser)
+
+        cmd = entity.get_attr(cmd_arg_name)
+        # `cmd` is supposed to be a list separated with ' '.
+        # All the found `TextSubstitution` items are split and
+        # added to the list again as a `TextSubstitution`.
+        cmd = parser.parse_substitution(cmd)
+        cmd_list = []
+        for arg in cmd:
+            if isinstance(arg, TextSubstitution):
+                text = arg.text
+                text = shlex.split(text)
+                text = [TextSubstitution(text=item) for item in text]
+                cmd_list.extend(text)
+            else:
+                cmd_list.append(arg)
+        kwargs[cmd_arg_name] = cmd_list
+
         cwd = entity.get_attr('cwd', optional=True)
         if cwd is not None:
             kwargs['cwd'] = parser.parse_substitution(cwd)
@@ -271,26 +283,6 @@ class ExecuteProcess(Action):
         if env is not None:
             env = {e.get_attr('name'): parser.parse_substitution(e.get_attr('value')) for e in env}
             kwargs['additional_env'] = env
-        args = entity.get_attr('args', optional=True)
-        # `args` is supposed to be a list separated with ' '.
-        # All the found `TextSubstitution` items are split and
-        # added to the list again as a `TextSubstitution`.
-        if args is not None:
-            args = parser.parse_substitution(args)
-            new_args = []
-            for arg in args:
-                if isinstance(arg, TextSubstitution):
-                    text = arg.text
-                    text = shlex.split(text)
-                    text = [TextSubstitution(text=item) for item in text]
-                    new_args.extend(text)
-                else:
-                    new_args.append(arg)
-            args = new_args
-        else:
-            args = []
-        cmd_list.extend(args)
-        kwargs['cmd'] = cmd_list
 
         return cls, kwargs
 
