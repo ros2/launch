@@ -57,5 +57,7 @@ substitution: "$" "(" IDENTIFIER (" " arguments)? ")"
 
 fragment: substitution
   | UNQUOTED_STRING
+  | SINGLE_QUOTED_STRING
+  | DOUBLE_QUOTED_STRING
 
 template: fragment+
