@@ -25,6 +25,7 @@ from pkg_resources import iter_entry_points
 from .entity import Entity
 from .expose import instantiate_action
 from .parse_substitution import parse_substitution
+from .parse_substitution import replace_escaped_characters
 from ..action import Action
 from ..launch_description import LaunchDescription
 from ..some_substitutions_type import SomeSubstitutionsType
@@ -73,6 +74,10 @@ class Parser:
     def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
         """Parse a substitution."""
         return parse_substitution(value)
+
+    def escape_characters(self, value: Text) -> SomeSubstitutionsType:
+        """Escape characters in strings."""
+        return replace_escaped_characters(value)
 
     def parse_description(self, entity: Entity) -> LaunchDescription:
         """Parse a launch description."""
