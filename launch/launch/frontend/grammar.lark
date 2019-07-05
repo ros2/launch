@@ -6,7 +6,7 @@
 
 IDENTIFIER: LETTER (LETTER | DIGIT | "_" | "-")*
 
-UNQUOTED_STRING: (/[^'\\"$]|\$(?=!\()|(?<=\\)\$|(?<=\\)\"|(?<=\\)'|(?<=\\)\\/)+
+UNQUOTED_STRING: (/[^$]|\$(?=!\()|(?<=\\)\$/)+
 UNQUOTED_RSTRING: (/[^ '\\"$\(\)]|(?<=\\)\(|(?<=\\)\)|\$(?=!\()|(?<=\\)\$/ | "\\\"" | "\\'" | "\\")+
 
 SINGLE_QUOTED_STRING: (/[^'\\$]|\$(?=!\()|(?<=\\)\$/ | "\\'" | "\\")+
@@ -57,7 +57,5 @@ substitution: "$" "(" IDENTIFIER (" " arguments)? ")"
 
 fragment: substitution
   | UNQUOTED_STRING
-  | SINGLE_QUOTED_STRING
-  | DOUBLE_QUOTED_STRING
 
 template: fragment+
