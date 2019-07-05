@@ -22,13 +22,20 @@ from typing import Text
 from typing import Type
 from typing import Union
 
+__supported_types = (
+    int, float, bool, str, List[str], List[int], List[float], List[bool], list, List
+)
+
+__scalar_types = (
+    int, float, bool, str
+)
+
 __types_for_guess = (
-    int, float, bool, List[int], List[float],
-    List[bool], List[str], str
+    int, float, bool, list, str
 )
 
 
-AllowedTypes = Type[Union[__types_for_guess]]
+AllowedTypes = Type[Union[__supported_types]]
 SomeAllowedTypes = Union[AllowedTypes, Iterable[AllowedTypes]]
 
 
@@ -45,6 +52,7 @@ def extract_type(data_type: AllowedTypes):
         - `List[int]`
         - `List[float]`
         - `List[bool]`
+        - `list` or `List`
 
     :returns: a tuple (type_obj, is_list).
         is_list is `True` for the supported list types, if not is `False`.
@@ -53,13 +61,17 @@ def extract_type(data_type: AllowedTypes):
         e.g.:
             `name = List[int]` -> `(int, True)`
             `name = bool` -> `(bool, False)`
+        For `data_type=list`, the returned value is (None, True).
     """
-    is_list = False
-    if data_type not in __types_for_guess:
+    if data_type not in __supported_types:
         raise ValueError('Unrecognized data type: {}'.format(data_type))
+    is_list = False
     if issubclass(data_type, List):
         is_list = True
         data_type = data_type.__args__[0]
+    elif data_type is list:
+        is_list = True
+        data_type = None
     return (data_type, is_list)
 
 
@@ -76,9 +88,10 @@ def check_type(value: Any, types: Optional[SomeAllowedTypes]) -> bool:
         - `List[int]`
         - `List[float]`
         - `List[bool]`
+        - `list` or `List`
 
     `types = None` works in the same way as:
-        `(int, float, bool, List[int], List[float], List[bool], List[str], str)`
+        `(int, float, bool, list, str)`
     """
     if types is None:
         types = __types_for_guess
@@ -89,12 +102,68 @@ def check_type(value: Any, types: Optional[SomeAllowedTypes]) -> bool:
         if is_list:
             if not isinstance(value, list) or not value:
                 continue
-            if isinstance(value[0], type_obj):
+            if type_obj is None:
+                return True
+            if all(isinstance(x, type_obj) for x in value):
                 return True
         else:
             if isinstance(value, type_obj):
                 return True
     return False
+
+
+def coerce_to_bool(x: str):
+    """Convert string to bool value."""
+    if x.lower() in ('true', 'yes', 'on', '1', 'false', 'no', 'off', '0'):
+        return x.lower() in ('true', 'yes', 'on', '1')
+    raise ValueError()
+
+
+def coerce_to_str(x: str):
+    """Strip outer quotes if we have them."""
+    if x.startswith("'") and x.endswith('"'):
+        return x[1:-1]
+    elif x.startswith('"') and x.endswith('"'):
+        return x[1:-1]
+    else:
+        return x
+
+
+__coercion_rules = {
+    str: coerce_to_str,
+    bool: coerce_to_bool,
+    int: int,
+    float: float,
+}
+
+
+def coerce_scalar(x: str, types=None):
+    """
+    Convert string to int, flot, bool, str with the above conversion rules.
+
+    If types is not `None`, only those conversions are tried.
+    If not, all the possible convertions are tried in order.
+
+    :param x: string to be converted.
+    :param type_obj: should be `int`, `float`, `bool`, `str`.
+        It can also be an iterable combining the above types, or `None`.
+    """
+    conversions_to_try = types
+    if conversions_to_try is None:
+        conversions_to_try = __scalar_types
+    elif not isinstance(conversions_to_try, Iterable):
+        conversions_to_try = [conversions_to_try]
+    for t in conversions_to_try:
+        try:
+            return __coercion_rules[t](x)
+        except ValueError:
+            pass
+    raise ValueError('Not conversion is possible')
+
+
+def coerce_list(x: List[str], types=None):
+    """Coerce each member of the list using `coerce_scalar` function."""
+    return [coerce_scalar(i, types) for i in x]
 
 
 def get_typed_value(
@@ -116,15 +185,13 @@ def get_typed_value(
         - `List[int]`
         - `List[float]`
         - `List[bool]`
+        - `list` or `List`
 
     `types = None` works in the same way as:
-        `(int, float, bool, List[int], List[float], List[bool], List[str], str)`
+        `(int, float, bool, list)`
     """
     if types is None:
         types = __types_for_guess
-    elif types == str:
-        # Avoid evaluating as yaml if types was just `str`
-        return value
     elif not isinstance(types, Iterable):
         types = [types]
 
@@ -132,35 +199,16 @@ def get_typed_value(
 
     for x in types:
         type_obj, type_is_list = extract_type(x)
-        if type_obj is bool:
-            def type_obj(x):
-                """Convert string to bool value."""
-                if x.lower() in ('true', 'yes', 'on', '1', 'false', 'no', 'off', '0'):
-                    return x.lower() in ('true', 'yes', 'on', '1')
-                raise ValueError()
-        elif type_obj is str:
-            def type_obj(x):
-                """Strip outer quotes if we have them."""
-                if x.startswith("'") and x.endswith('"'):
-                    return x[1:-1]
-                elif x.startswith('"') and x.endswith('"'):
-                    return x[1:-1]
-                else:
-                    return x
         if type_is_list != value_is_list:
             continue
         if type_is_list:
             try:
-                return [type_obj(x) for x in value]
+                return coerce_list(value, type_obj)
             except ValueError:
                 pass
-            else:
-                break
         else:
-            if isinstance(value, list):
-                continue
             try:
-                return type_obj(value)
+                return coerce_scalar(value, type_obj)
             except ValueError:
                 pass
     raise ValueError(
