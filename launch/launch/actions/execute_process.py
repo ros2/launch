@@ -272,7 +272,7 @@ class ExecuteProcess(Action):
             kwargs['prefix'] = parser.parse_substitution(prefix)
         output = entity.get_attr('output', optional=True)
         if output is not None:
-            kwargs['output'] = output
+            kwargs['output'] = parser.escape_characters(output)
         shell = entity.get_attr('shell', types=bool, optional=True)
         if shell is not None:
             kwargs['shell'] = shell
@@ -281,7 +281,10 @@ class ExecuteProcess(Action):
         # `unset_enviroment_variable` actions should be used.
         env = entity.get_attr('env', types=List[Entity], optional=True)
         if env is not None:
-            env = {e.get_attr('name'): parser.parse_substitution(e.get_attr('value')) for e in env}
+            env = {
+                tuple(parser.parse_substitution(e.get_attr('name'))):
+                parser.parse_substitution(e.get_attr('value')) for e in env
+            }
             kwargs['additional_env'] = env
 
         return cls, kwargs
