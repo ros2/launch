@@ -597,7 +597,7 @@ class ExecuteProcess(Action):
         #     https://github.com/ros2/launch/issues/268
         if emulate_tty and platform.system() == 'Windows':
             self.__logger.warning(
-                "tty emulation not yet supported on windows, disabling"
+                'tty emulation not yet supported on windows, disabling'
             )
             emulate_tty = False
         try:
