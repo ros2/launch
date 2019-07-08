@@ -14,15 +14,14 @@
 
 """Module for YAML Entity class."""
 
+from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import Type
 from typing import Union
 
 from launch.frontend import Entity as BaseEntity
 from launch.frontend.type_utils import check_type
-from launch.frontend.type_utils import SomeAllowedTypes
 
 
 class Entity(BaseEntity):
@@ -75,22 +74,11 @@ class Entity(BaseEntity):
         self,
         name: Text,
         *,
-        types:
-            Optional[
-                Union[
-                    SomeAllowedTypes,
-                    Type[List[BaseEntity]],
-                    Type[List['Entity']],
-                ]
-            ] = str,
+        data_type: Any = str,
         optional: bool = False
     ) -> Optional[Union[
-        Text,
-        int,
-        float,
-        List[Text],
-        List[int],
-        List[float],
+        List[Union[int, str, float, bool]],
+        Union[int, str, float, bool],
         List['Entity']
     ]]:
         """Access an attribute of the entity."""
@@ -102,8 +90,8 @@ class Entity(BaseEntity):
             else:
                 return None
         data = self.__element[name]
-        is_list_entity = types is not None and not isinstance(types, tuple) \
-            and issubclass(types, List) and issubclass(types.__args__[0], BaseEntity)
+        is_list_entity = data_type is not None and not isinstance(data_type, tuple) \
+            and issubclass(data_type, List) and issubclass(data_type.__args__[0], BaseEntity)
         if is_list_entity:
             if isinstance(data, list) and isinstance(data[0], dict):
                 return [Entity(child, name) for child in data]
@@ -112,10 +100,10 @@ class Entity(BaseEntity):
                     name, self.type_name
                 )
             )
-        if not check_type(data, types):
+        if not check_type(data, data_type):
             raise TypeError(
                 'Attribute {} of Entity {} expected to be of type {}, got {}'.format(
-                    name, self.type_name, types, type(data)
+                    name, self.type_name, data_type, type(data)
                 )
             )
         return data

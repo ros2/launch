@@ -15,44 +15,43 @@
 """Module which implements get_typed_value function."""
 
 from typing import Any
-from typing import Iterable
 from typing import List
-from typing import Optional
 from typing import Text
-from typing import Type
+from typing import Tuple
 from typing import Union
 
-__supported_types = (
-    int, float, bool, str, List[str], List[int], List[float], List[bool], list, List
-)
-
-__scalar_types = (
+__ScalarTypesTuple = (
     int, float, bool, str
 )
 
-__types_for_guess = (
+__TypesForGuessTuple = (
     int, float, bool, list, str
 )
 
 
-AllowedTypes = Type[Union[__supported_types]]
-SomeAllowedTypes = Union[AllowedTypes, Iterable[AllowedTypes]]
+def get_tuple_of_types(data_type: Any) -> Tuple:
+    """Convert typing.Union to tuple of types. If not, return `(data_type,)`."""
+    if hasattr(data_type, '__origin__') and data_type.__origin__ is Union:
+        return data_type.__args__
+    else:
+        return (data_type,)
 
 
-def extract_type(data_type: AllowedTypes):
+def check_valid_scalar_type(data_type: Any) -> bool:
+    """Check if it is a valid scalar type."""
+    return all(data_type in __ScalarTypesTuple for x in get_tuple_of_types(data_type))
+
+
+def extract_type(data_type: Any) -> Tuple[Any, bool]:
     """
     Extract type information from type object.
 
-    :param data_type: Can be one of:
-        - `str`
-        - `int`
-        - `float`
-        - `bool`
-        - `List[str]`
-        - `List[int]`
-        - `List[float]`
-        - `List[bool]`
-        - `list` or `List`
+    :param data_type: It can be:
+        - a scalar type: `str`, `int`, `float`, `bool`
+        - a uniform list: `List[str]`, `List[int]`, `List[float]`, `List[bool]`
+        - a non-uniform list.
+            Can specify some of the scalar types for its members, e.g.: List[Union[int, str]].
+            `list` or `List`, means that any of the scalar types are allowed.
 
     :returns: a tuple (type_obj, is_list).
         is_list is `True` for the supported list types, if not is `False`.
@@ -61,42 +60,43 @@ def extract_type(data_type: AllowedTypes):
         e.g.:
             `name = List[int]` -> `(int, True)`
             `name = bool` -> `(bool, False)`
-        For `data_type=list`, the returned value is (None, True).
+            `name = Union[bool, str]` -> `(Union[bool, str], False)`
+            `name = List[Union[bool, str]]` -> `(Union[bool, str], True)`
+            `name = List -> `(None, True)`
     """
-    if data_type not in __supported_types:
-        raise ValueError('Unrecognized data type: {}'.format(data_type))
     is_list = False
-    if issubclass(data_type, List):
-        is_list = True
-        data_type = data_type.__args__[0]
-    elif data_type is list:
+    if data_type is list:
         is_list = True
         data_type = None
+    elif issubclass(data_type, List):
+        is_list = True
+        data_type = data_type.__args__[0]
+    if data_type is not None and check_valid_scalar_type(data_type) is False:
+        raise ValueError('Unrecognized data type: {}'.format(data_type))
     return (data_type, is_list)
 
 
-def check_type(value: Any, types: Optional[SomeAllowedTypes]) -> bool:
+def check_type(value: Any, data_type: Any) -> bool:
     """
-    Check if `value` is one of the types in `types`.
+    Check if `value` is of `type`.
 
     The allowed types are:
-        - `str`
-        - `int`
-        - `float`
-        - `bool`
-        - `List[str]`
-        - `List[int]`
-        - `List[float]`
-        - `List[bool]`
-        - `list` or `List`
+        - a scalar type: `str`, `int`, `float`, `bool`
+        - a uniform list: `List[str]`, `List[int]`, `List[float]`, `List[bool]`
+        - a non-uniform list.
+            Can specify some of the scalar types for its members, e.g.: List[Union[int, str]].
+            `list` or `List`, means that any of the scalar types are allowed.
+        - an union of the above.
 
     `types = None` works in the same way as:
-        `(int, float, bool, list, str)`
+        `Union[int, float, bool, list, str]`
     """
-    if types is None:
-        types = __types_for_guess
-    elif not isinstance(types, Iterable):
-        types = [types]
+    def check_scalar_type(value, data_type):
+        data_type = get_tuple_of_types(data_type)
+        return isinstance(value, data_type)
+    types = __TypesForGuessTuple
+    if data_type is not None:
+        data_type = get_tuple_of_types(data_type)
     for x in types:
         type_obj, is_list = extract_type(x)
         if is_list:
@@ -104,22 +104,22 @@ def check_type(value: Any, types: Optional[SomeAllowedTypes]) -> bool:
                 continue
             if type_obj is None:
                 return True
-            if all(isinstance(x, type_obj) for x in value):
+            if all(check_scalar_type(x, type_obj) for x in value):
                 return True
         else:
-            if isinstance(value, type_obj):
+            if check_scalar_type(value, type_obj):
                 return True
     return False
 
 
-def coerce_to_bool(x: str):
+def coerce_to_bool(x: str) -> bool:
     """Convert string to bool value."""
     if x.lower() in ('true', 'yes', 'on', '1', 'false', 'no', 'off', '0'):
         return x.lower() in ('true', 'yes', 'on', '1')
     raise ValueError()
 
 
-def coerce_to_str(x: str):
+def coerce_to_str(x: str) -> str:
     """Strip outer quotes if we have them."""
     if x.startswith("'") and x.endswith('"'):
         return x[1:-1]
@@ -129,71 +129,83 @@ def coerce_to_str(x: str):
         return x
 
 
-__coercion_rules = {
-    str: coerce_to_str,
-    bool: coerce_to_bool,
-    int: int,
-    float: float,
-}
+def scalar_type_key(data_type: Any) -> int:
+    """Get key. Used for sorting the scalar data_types."""
+    keys = {
+        int: 0,
+        float: 1,
+        bool: 2,
+        str: 3,
+    }
+    return keys[data_type]
 
 
-def coerce_scalar(x: str, types=None):
+def coerce_scalar(x: str, data_type: Any = None) -> Union[int, str, float, bool]:
     """
     Convert string to int, flot, bool, str with the above conversion rules.
 
-    If types is not `None`, only those conversions are tried.
-    If not, all the possible convertions are tried in order.
+    If data_type is not `None`, only those conversions are tried.
+    If not, all the possible convertions are tried.
+    The order is always: `int`, `float`, `bool`, `str`.
 
     :param x: string to be converted.
     :param type_obj: should be `int`, `float`, `bool`, `str`.
         It can also be an iterable combining the above types, or `None`.
     """
-    conversions_to_try = types
-    if conversions_to_try is None:
-        conversions_to_try = __scalar_types
-    elif not isinstance(conversions_to_try, Iterable):
-        conversions_to_try = [conversions_to_try]
+    coercion_rules = {
+        str: coerce_to_str,
+        bool: coerce_to_bool,
+        int: int,
+        float: float,
+    }
+    if data_type is None:
+        conversions_to_try = __ScalarTypesTuple
+    else:
+        conversions_to_try = sorted(get_tuple_of_types(data_type), key=scalar_type_key)
+        if not set(conversions_to_try).issubset(set(__ScalarTypesTuple)):
+            raise ValueError('Unrecognized data type: {}'.format(data_type))
     for t in conversions_to_try:
         try:
-            return __coercion_rules[t](x)
+            return coercion_rules[t](x)
         except ValueError:
             pass
     raise ValueError('Not conversion is possible')
 
 
-def coerce_list(x: List[str], types=None):
+def coerce_list(x: List[str], data_type: Any = None) -> List[Union[int, str, float, bool]]:
     """Coerce each member of the list using `coerce_scalar` function."""
-    return [coerce_scalar(i, types) for i in x]
+    return [coerce_scalar(i, data_type) for i in x]
 
 
 def get_typed_value(
     value: Union[Text, List[Text]],
-    types: Optional[SomeAllowedTypes]
-) -> Any:
+    data_type: Any
+) -> Union[
+    List[Union[int, str, float, bool]],
+    Union[int, str, float, bool],
+]:
     """
-    Try to convert `value` to one of the types specified in `types`.
+    Try to convert `value` to the type specified in `data_type`.
 
-    It returns the first successful conversion.
     If not raise `AttributeError`.
 
     The allowed types are:
-        - `str`
-        - `int`
-        - `float`
-        - `bool`
-        - `List[str]`
-        - `List[int]`
-        - `List[float]`
-        - `List[bool]`
-        - `list` or `List`
+        - a scalar type: `str`, `int`, `float`, `bool`
+        - a uniform list: `List[str]`, `List[int]`, `List[float]`, `List[bool]`
+        - a non-uniform list.
+            Can specify some of the scalar types for its members, e.g.: List[Union[int, str]].
+            `list` or `List`, means that any of the scalar types are allowed.
+        - an union of the above.
 
     `types = None` works in the same way as:
-        `(int, float, bool, list)`
+        `Union[int, float, bool, list, str]`
+
+    The coercion order for scalars is always: `int`, `float`, `bool`, `str`.
     """
-    if types is None:
-        types = __types_for_guess
-    elif not isinstance(types, Iterable):
-        types = [types]
+    if data_type is None:
+        types = __TypesForGuessTuple
+    else:
+        types = get_tuple_of_types(data_type)
 
     value_is_list = isinstance(value, list)
 

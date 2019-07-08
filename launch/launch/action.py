@@ -65,9 +65,13 @@ class Action(LaunchDescriptionEntity):
         if if_cond is not None and unless_cond is not None:
             raise RuntimeError("if and unless conditions can't be used simultaneously")
         if if_cond is not None:
-            kwargs['condition'] = IfCondition(predicate_expression=if_cond)
+            kwargs['condition'] = IfCondition(
+                predicate_expression=parser.parse_substitution(if_cond)
+            )
         if unless_cond is not None:
-            kwargs['condition'] = UnlessCondition(predicate_expression=unless_cond)
+            kwargs['condition'] = UnlessCondition(
+                predicate_expression=parser.parse_substitution(unless_cond)
+            )
         return Action, kwargs
 
     @property

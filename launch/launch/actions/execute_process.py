@@ -273,13 +273,13 @@ class ExecuteProcess(Action):
         output = entity.get_attr('output', optional=True)
         if output is not None:
             kwargs['output'] = parser.escape_characters(output)
-        shell = entity.get_attr('shell', types=bool, optional=True)
+        shell = entity.get_attr('shell', data_type=bool, optional=True)
         if shell is not None:
             kwargs['shell'] = shell
         # Conditions won't be allowed in the `env` tag.
         # If that feature is needed, `set_enviroment_variable` and
         # `unset_enviroment_variable` actions should be used.
-        env = entity.get_attr('env', types=List[Entity], optional=True)
+        env = entity.get_attr('env', data_type=List[Entity], optional=True)
         if env is not None:
             env = {
                 tuple(parser.parse_substitution(e.get_attr('name'))):

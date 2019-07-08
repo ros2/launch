@@ -80,7 +80,7 @@ class IncludeLaunchDescription(Action):
         _, kwargs = super().parse(entity, parser)
         file_path = parser.parse_substitution(entity.get_attr('file'))
         kwargs['launch_description_source'] = AnyLaunchDescriptionSource(file_path)
-        args = entity.get_attr('arg', types=List[Entity], optional=True)
+        args = entity.get_attr('arg', data_type=List[Entity], optional=True)
         if args is not None:
             kwargs['launch_arguments'] = [
                 (

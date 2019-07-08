@@ -14,16 +14,15 @@
 
 """Module for Entity class."""
 
+from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import Type
 from typing import Union
 import xml.etree.ElementTree as ET
 
 from launch.frontend import Entity as BaseEntity
 from launch.frontend.type_utils import get_typed_value
-from launch.frontend.type_utils import SomeAllowedTypes
 
 
 class Entity(BaseEntity):
@@ -58,32 +57,21 @@ class Entity(BaseEntity):
         self,
         name: Text,
         *,
-        types:
-            Optional[
-                Union[
-                    SomeAllowedTypes,
-                    Type[List[BaseEntity]],
-                    Type[List['Entity']],
-                ]
-            ] = str,
+        data_type: Any = str,
         optional: bool = False
     ) -> Optional[Union[
-        Text,
-        int,
-        float,
-        List[Text],
-        List[int],
-        List[float],
+        List[Union[int, str, float, bool]],
+        Union[int, str, float, bool],
         List['Entity']
     ]]:
         """Access an attribute of the entity."""
         attr_error = AttributeError(
             'Attribute {} of type {} not found in Entity {}'.format(
-                name, types, self.type_name
+                name, data_type, self.type_name
             )
         )
-        is_list_entity = types is not None and not isinstance(types, tuple) \
-            and issubclass(types, List) and issubclass(types.__args__[0], BaseEntity)
+        is_list_entity = data_type is not None and not isinstance(data_type, tuple) \
+            and issubclass(data_type, List) and issubclass(data_type.__args__[0], BaseEntity)
         if is_list_entity:
             return_list = filter(lambda x: x.tag == name, self.__xml_element)
             if not return_list:
@@ -106,12 +94,12 @@ class Entity(BaseEntity):
             else:
                 return None
         try:
-            value = get_typed_value(value, types)
+            value = get_typed_value(value, data_type)
         except ValueError:
             raise TypeError(
                 'Attribute {} of Entity {} expected to be of type {}.'
                 '`{}` can not be converted to one of those types'.format(
-                    name, self.type_name, types, value
+                    name, self.type_name, data_type, value
                 )
             )
         return value

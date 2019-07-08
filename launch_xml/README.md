@@ -15,22 +15,24 @@ When having an xml tag like:
 If the entity `e` is wrapping it, the following statements will be true:
 ```python
 e.get_attr('value') == '2'
-e.get_attr('value', types=int) == 2
-e.get_attr('value', types=float) == 2.0
+e.get_attr('value', data_type=int) == 2
+e.get_attr('value', data_type=float) == 2.0
 ```
 
 By default, the value of the attribute is returned as a string.
-Allowed types are: 
-```python
-str, int, float, bool, List[int], List[float], List[bool], List[str]
-```
+
+Allowed types are:
+    - scalar types: `str, int, float, bool`
+    - lists: Can be uniform like `List[int]`, or non-uniform like `List[Union[str, int]]`, `List` (same as `list`).
+        In any case, the members should be of one of the scalar types.
+    - An union of both any of the above. e.g.: `Union[List[int], int]`.
+    - The list of entities type: `List[Entity]` (see below).
+
 `List` is the usual object from the `typing` package.
-A combination of them can be specified with a tuple. e.g.: `(int, str)`.
-In that case, conversions are tried in order and the first successful conversion is returned.
-`types` can also be set to `None`, which works in the same way as passing:
+`data_type` can also be set to `None`, which works in the same way as passing:
 
 ```python
-int, float, bool, List[int], List[float], List[bool], List[str], str
+Union[int, float, bool, list, str]
 ```
 
 For handling lists, the `*-sep` attribute is used. e.g.:
@@ -42,9 +44,9 @@ For handling lists, the `*-sep` attribute is used. e.g.:
 ```
 
 ```python
-tag.get_attr('value', types=List[int]) == [2, 3, 4]
-tag2.get_attr('value', types=List[float]) == [2.0, 3.0, 4.0]
-tag3.get_attr('value', types=List[str]) == ['2', '3', '4']
+tag.get_attr('value', data_type=List[int]) == [2, 3, 4]
+tag2.get_attr('value', data_type=List[float]) == [2.0, 3.0, 4.0]
+tag3.get_attr('value', data_type=List[str]) == ['2', '3', '4']
 ```
 
 For checking if an attribute exists, use an optional argument:
@@ -71,7 +73,7 @@ In this xml:
 The `env` children could be accessed like:
 
 ```python
-env = e.get_attr('env', types=List[Entity])
+env = e.get_attr('env', data_type=List[Entity])
 len(env) == 2
 env[0].get_attr('name') == 'a'
 env[0].get_attr('value') == '100'

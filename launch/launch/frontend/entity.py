@@ -14,13 +14,12 @@
 
 """Module for Entity class."""
 
+from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
 from typing import Type
 from typing import Union
-
-from .type_utils import SomeAllowedTypes
 
 
 class Entity:
@@ -45,21 +44,11 @@ class Entity:
         self,
         name: Text,
         *,
-        types:
-            Optional[
-                Union[
-                    SomeAllowedTypes,
-                    Type[List['Entity']],
-                ]
-            ] = str,
+        data_type: Any = str,
         optional: bool = False
     ) -> Optional[Union[
-        Text,
-        int,
-        float,
-        List[Text],
-        List[int],
-        List[float],
+        List[Union[int, str, float, bool]],
+        Union[int, str, float, bool],
         List['Entity']
     ]]:
         """
@@ -70,22 +59,15 @@ class Entity:
         applied depending on the particular frontend.
 
         The allowed types are:
-            - `str`
-            - `int`
-            - `float`
-            - `bool`
-            - `List[str]`
-            - `List[int]`
-            - `List[float]`
-            - `List[bool]`
+            - a scalar type: `str`, `int`, `float`, `bool`
+            - a uniform list: `List[str]`, `List[int]`, `List[float]`, `List[bool]`
+            - a non-uniform list.
+                Can specify some of the scalar types for its members, e.g.: List[Union[int, str]].
+                `list` or `List`, means that any of the scalar types are allowed.
+            - an union of the above.
 
-        Types that can not be combined with the others:
-            - `List[Entity]`
-
-        `types=None` implies:
-            `(int, float, bool, List[int], List[float], List[bool], List[str], str)`
-        `List[Entity]` will return the list of entities that are identified by the given
-        attribute.
+        `types = None` works in the same way as:
+            `Union[int, float, bool, list, str]`
 
         See the frontend documentation to see how `list` and `List[Entity]` look like for each
         frontend implementation.

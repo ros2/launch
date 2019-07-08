@@ -34,9 +34,9 @@ def test_list():
     xml_file = textwrap.dedent(xml_file)
     root_entity, parser = Parser.load(io.StringIO(xml_file))
     tags = root_entity.children
-    assert tags[0].get_attr('attr', types=List[str]) == ['1', '2', '3']
-    assert tags[0].get_attr('attr', types=List[int]) == [1, 2, 3]
-    assert tags[0].get_attr('attr', types=List[float]) == [1., 2., 3.]
+    assert tags[0].get_attr('attr', data_type=List[str]) == ['1', '2', '3']
+    assert tags[0].get_attr('attr', data_type=List[int]) == [1, 2, 3]
+    assert tags[0].get_attr('attr', data_type=List[float]) == [1., 2., 3.]
 
 
 if __name__ == '__main__':

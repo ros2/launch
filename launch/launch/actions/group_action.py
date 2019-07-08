@@ -62,7 +62,7 @@ class GroupAction(Action):
     def parse(cls, entity: Entity, parser: Parser):
         """Return `GroupAction` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        scoped = entity.get_attr('scoped', types=bool, optional=True)
+        scoped = entity.get_attr('scoped', data_type=bool, optional=True)
         if scoped is not None:
             kwargs['scoped'] = scoped
         kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
