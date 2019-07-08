@@ -18,6 +18,8 @@ import os
 import re
 from typing import Text
 
+from ament_index_python.packages import get_package_share_directory
+
 from lark import Lark
 from lark import Token
 from lark import Transformer
@@ -91,7 +93,7 @@ class ExtractSubstitution(Transformer):
     double_quoted_template = template
 
 
-grammar_file = os.path.join(os.path.dirname(__file__), 'grammar.lark')
+grammar_file = os.path.join(get_package_share_directory('launch'), 'frontend', 'grammar.lark')
 parser = Lark.open(grammar_file, start='template')
 transformer = ExtractSubstitution()
 

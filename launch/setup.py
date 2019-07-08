@@ -1,10 +1,14 @@
 from setuptools import find_packages
 from setuptools import setup
 
+
 setup(
     name='launch',
     version='0.8.3',
     packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/launch/frontend', ['launch/frontend/grammar.lark']),
+    ],
     install_requires=['setuptools'],
     zip_safe=True,
     author='Dirk Thomas',
