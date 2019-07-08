@@ -121,7 +121,7 @@ def coerce_to_bool(x: str) -> bool:
 
 def coerce_to_str(x: str) -> str:
     """Strip outer quotes if we have them."""
-    if x.startswith("'") and x.endswith('"'):
+    if x.startswith("'") and x.endswith("'"):
         return x[1:-1]
     elif x.startswith('"') and x.endswith('"'):
         return x[1:-1]
