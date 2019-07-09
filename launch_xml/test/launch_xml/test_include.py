@@ -15,7 +15,6 @@
 """Test parsing an include action."""
 
 import io
-from pathlib import Path
 import textwrap
 
 from launch import LaunchService
@@ -26,7 +25,7 @@ from launch.launch_description_sources import AnyLaunchDescriptionSource
 
 def test_include():
     """Parse node xml example."""
-    path = str(Path(__file__).parent / 'executable.xml')
+    path = __file__ + '/executable.xml'
     xml_file = \
         """\
         <launch>
