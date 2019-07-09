@@ -40,7 +40,9 @@ def check_typing_object_origin(data_type: Any, origin: Any) -> bool:
         `check_typing_object_origin(Union[int, str], Union)` returns `True`.
         `check_typing_object_origin(int, Union)` returns `False`.
     """
-    return hasattr(data_type, '__origin__') and data_type.__origin__ is origin
+    # Checking __origin__ in two ways, because it works differently on Linux/Windows.
+    return hasattr(data_type, '__origin__') and \
+        (data_type.__origin__ is origin or data_type.__origin__ is origin.__origin__)
 
 
 def check_is_list_entity(data_type: Any) -> bool:
