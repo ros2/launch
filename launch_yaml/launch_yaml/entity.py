@@ -21,6 +21,7 @@ from typing import Text
 from typing import Union
 
 from launch.frontend import Entity as BaseEntity
+from launch.frontend.type_utils import check_is_list_entity
 from launch.frontend.type_utils import check_type
 
 
@@ -90,9 +91,7 @@ class Entity(BaseEntity):
             else:
                 return None
         data = self.__element[name]
-        is_list_entity = data_type is not None and not isinstance(data_type, tuple) \
-            and issubclass(data_type, List) and issubclass(data_type.__args__[0], BaseEntity)
-        if is_list_entity:
+        if check_is_list_entity(data_type):
             if isinstance(data, list) and isinstance(data[0], dict):
                 return [Entity(child, name) for child in data]
             raise TypeError(

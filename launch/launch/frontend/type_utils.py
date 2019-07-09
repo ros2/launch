@@ -20,6 +20,8 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
+from .entity import Entity
+
 __ScalarTypesTuple = (
     int, float, bool, str
 )
@@ -29,9 +31,31 @@ __TypesForGuessTuple = (
 )
 
 
+def check_typing_object_origin(data_type: Any, origin: Any) -> bool:
+    """
+    Check if `data_type` was origined from `origin`.
+
+    e.g.:
+        `check_typing_object_origin(List[int], List)` returns `True`.
+        `check_typing_object_origin(Union[int, str], Union)` returns `True`.
+        `check_typing_object_origin(int, Union)` returns `False`.
+    """
+    return hasattr(data_type, '__origin__') and data_type.__origin__ is origin
+
+
+def check_is_list_entity(data_type: Any) -> bool:
+    """
+    Return `True` if `data_type` is `List[launch.frontend.Entity]`.
+
+    It returns also `True` the member type is a subclass of `launch.frontend.Entity`.
+    """
+    return check_typing_object_origin(data_type, List) and \
+        issubclass(data_type.__args__[0], Entity)
+
+
 def get_tuple_of_types(data_type: Any) -> Tuple:
     """Convert typing.Union to tuple of types. If not, return `(data_type,)`."""
-    if hasattr(data_type, '__origin__') and data_type.__origin__ is Union:
+    if check_typing_object_origin(data_type, Union):
         return data_type.__args__
     else:
         return (data_type,)
@@ -68,7 +92,7 @@ def extract_type(data_type: Any) -> Tuple[Any, bool]:
     if data_type is list:
         is_list = True
         data_type = None
-    elif issubclass(data_type, List):
+    elif check_typing_object_origin(data_type, List):
         is_list = True
         data_type = data_type.__args__[0]
     if data_type is not None and check_valid_scalar_type(data_type) is False:

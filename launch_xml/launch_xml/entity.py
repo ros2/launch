@@ -22,6 +22,7 @@ from typing import Union
 import xml.etree.ElementTree as ET
 
 from launch.frontend import Entity as BaseEntity
+from launch.frontend.type_utils import check_is_list_entity
 from launch.frontend.type_utils import get_typed_value
 
 
@@ -70,9 +71,7 @@ class Entity(BaseEntity):
                 name, data_type, self.type_name
             )
         )
-        is_list_entity = data_type is not None and not isinstance(data_type, tuple) \
-            and issubclass(data_type, List) and issubclass(data_type.__args__[0], BaseEntity)
-        if is_list_entity:
+        if check_is_list_entity(data_type):
             return_list = filter(lambda x: x.tag == name, self.__xml_element)
             if not return_list:
                 if optional:
