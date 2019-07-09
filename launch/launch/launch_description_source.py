@@ -14,6 +14,7 @@
 
 """Module for the LaunchDescriptionSource class."""
 
+from pathlib import Path
 import traceback
 from typing import Optional
 from typing import Text
@@ -77,8 +78,9 @@ class LaunchDescriptionSource:
     def get_launch_description(self, context: LaunchContext) -> LaunchDescription:
         """Get the LaunchDescription, loading it if necessary."""
         if self.__expanded_location is None:
-            self.__expanded_location = \
+            self.__expanded_location = str(Path(
                 perform_substitutions(context, self.__location)
+            ))
         if self.__launch_description is None:
             self.__launch_description = \
                 self._get_launch_description(self.__expanded_location)
