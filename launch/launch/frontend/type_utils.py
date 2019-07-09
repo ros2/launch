@@ -31,18 +31,16 @@ __TypesForGuessTuple = (
 )
 
 
-def check_typing_object_origin(data_type: Any, origin: Any) -> bool:
-    """
-    Check if `data_type` was origined from `origin`.
-
-    e.g.:
-        `check_typing_object_origin(List[int], List)` returns `True`.
-        `check_typing_object_origin(Union[int, str], Union)` returns `True`.
-        `check_typing_object_origin(int, Union)` returns `False`.
-    """
-    # Checking __origin__ in two ways, because it works differently on Linux/Windows.
+def check_is_list(data_type: Any) -> bool:
+    """Check if `data_type` was origined from `typing.List`."""
     return hasattr(data_type, '__origin__') and \
-        (data_type.__origin__ is origin or data_type.__origin__ is origin.__origin__)
+        data_type.__origin__ in (list, List)  # On Linux/Mac is List, on Windows is list.
+
+
+def check_is_union(data_type: Any) -> bool:
+    """Check if `data_type` was origined from `typing.Union`."""
+    return hasattr(data_type, '__origin__') and \
+        data_type.__origin__ is Union
 
 
 def check_is_list_entity(data_type: Any) -> bool:
@@ -51,13 +49,13 @@ def check_is_list_entity(data_type: Any) -> bool:
 
     It returns also `True` the member type is a subclass of `launch.frontend.Entity`.
     """
-    return check_typing_object_origin(data_type, List) and \
+    return check_is_list(data_type) and \
         issubclass(data_type.__args__[0], Entity)
 
 
 def get_tuple_of_types(data_type: Any) -> Tuple:
     """Convert typing.Union to tuple of types. If not, return `(data_type,)`."""
-    if check_typing_object_origin(data_type, Union):
+    if check_is_union(data_type):
         return data_type.__args__
     else:
         return (data_type,)
@@ -94,7 +92,7 @@ def extract_type(data_type: Any) -> Tuple[Any, bool]:
     if data_type is list:
         is_list = True
         data_type = None
-    elif check_typing_object_origin(data_type, List):
+    elif check_is_list(data_type):
         is_list = True
         data_type = data_type.__args__[0]
     if data_type is not None and check_valid_scalar_type(data_type) is False:
