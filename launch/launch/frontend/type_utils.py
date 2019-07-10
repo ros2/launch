@@ -32,29 +32,30 @@ __TypesForGuessTuple = (
 
 
 def check_is_list(data_type: Any) -> bool:
-    """Check if `data_type` was origined from `typing.List`."""
+    """Check if `data_type` is based on a `typing.List`."""
     return hasattr(data_type, '__origin__') and \
         data_type.__origin__ in (list, List)  # On Linux/Mac is List, on Windows is list.
 
 
 def check_is_union(data_type: Any) -> bool:
-    """Check if `data_type` was origined from `typing.Union`."""
+    """Check if `data_type` is based on a `typing.Union`."""
     return hasattr(data_type, '__origin__') and \
         data_type.__origin__ is Union
 
 
 def check_is_list_entity(data_type: Any) -> bool:
-    """
-    Return `True` if `data_type` is `List[launch.frontend.Entity]`.
-
-    It returns also `True` the member type is a subclass of `launch.frontend.Entity`.
-    """
+    """Check if `data_type` is a `typing.List` with elements of `Entity` type or derived."""
     return check_is_list(data_type) and \
         issubclass(data_type.__args__[0], Entity)
 
 
 def get_tuple_of_types(data_type: Any) -> Tuple:
-    """Convert typing.Union to tuple of types. If not, return `(data_type,)`."""
+    """
+    Normalize `data_type` to a tuple of types.
+
+    If `data_type` is based on a `typing.Union`, return union types.
+    Otherwise, return a `(data_type,)` tuple.
+    """
     if check_is_union(data_type):
         return data_type.__args__
     else:
@@ -62,7 +63,7 @@ def get_tuple_of_types(data_type: Any) -> Tuple:
 
 
 def check_valid_scalar_type(data_type: Any) -> bool:
-    """Check if it is a valid scalar type."""
+    """Check if `data_type` is a valid scalar type."""
     return all(data_type in __ScalarTypesTuple for x in get_tuple_of_types(data_type))
 
 
@@ -71,11 +72,10 @@ def extract_type(data_type: Any) -> Tuple[Any, bool]:
     Extract type information from type object.
 
     :param data_type: It can be:
-        - a scalar type: `str`, `int`, `float`, `bool`
-        - a uniform list: `List[str]`, `List[int]`, `List[float]`, `List[bool]`
-        - a non-uniform list.
-            Can specify some of the scalar types for its members, e.g.: List[Union[int, str]].
-            `list` or `List`, means that any of the scalar types are allowed.
+        - a scalar type i.e. `str`, `int`, `float`, `bool`;
+        - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`;
+        - a non-uniform list of known scalar types e.g. `List[Union[int, str]]`;
+        - a non-uniform list of any scalar type i.e. `list` or `List`;
 
     :returns: a tuple (type_obj, is_list).
         is_list is `True` for the supported list types, if not is `False`.
@@ -105,12 +105,11 @@ def check_type(value: Any, data_type: Any) -> bool:
     Check if `value` is of `type`.
 
     The allowed types are:
-        - a scalar type: `str`, `int`, `float`, `bool`
-        - a uniform list: `List[str]`, `List[int]`, `List[float]`, `List[bool]`
-        - a non-uniform list.
-            Can specify some of the scalar types for its members, e.g.: List[Union[int, str]].
-            `list` or `List`, means that any of the scalar types are allowed.
-        - an union of the above.
+        - a scalar type i.e. `str`, `int`, `float`, `bool`;
+        - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`;
+        - a non-uniform list of known scalar types e.g. `List[Union[int, str]]`;
+        - a non-uniform list of any scalar type i.e. `list` or `List`;
+        - a `Union` of any of the above.
 
     `types = None` works in the same way as:
         `Union[int, float, bool, list, str]`
@@ -214,12 +213,11 @@ def get_typed_value(
     If not raise `AttributeError`.
 
     The allowed types are:
-        - a scalar type: `str`, `int`, `float`, `bool`
-        - a uniform list: `List[str]`, `List[int]`, `List[float]`, `List[bool]`
-        - a non-uniform list.
-            Can specify some of the scalar types for its members, e.g.: List[Union[int, str]].
-            `list` or `List`, means that any of the scalar types are allowed.
-        - an union of the above.
+        - a scalar type i.e. `str`, `int`, `float`, `bool`;
+        - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`;
+        - a non-uniform list of known scalar types e.g. `List[Union[int, str]]`;
+        - a non-uniform list of any scalar type i.e. `list` or `List`;
+        - a `Union` of any of the above.
 
     `types = None` works in the same way as:
         `Union[int, float, bool, list, str]`

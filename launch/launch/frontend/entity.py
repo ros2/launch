@@ -58,18 +58,19 @@ class Entity:
         applied depending on the particular frontend.
 
         The allowed types are:
-            - a scalar type: `str`, `int`, `float`, `bool`
-            - a uniform list: `List[str]`, `List[int]`, `List[float]`, `List[bool]`
-            - a non-uniform list.
-                Can specify some of the scalar types for its members, e.g.: List[Union[int, str]].
-                `list` or `List`, means that any of the scalar types are allowed.
-            - an union of the above.
+            - a scalar type i.e. `str`, `int`, `float`, `bool`;
+            - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`;
+            - a non-uniform list of known scalar types e.g. `List[Union[int, str]]`;
+            - a non-uniform list of any scalar type i.e. `list` or `List`;
+            - a `Union` of any of the above;
+            - `List[Entity]`, see below.
 
         `types = None` works in the same way as:
             `Union[int, float, bool, list, str]`
 
-        See the frontend documentation to see how `list` and `List[Entity]` look like for each
-        frontend implementation.
+        `List[Entity]` allows accessing a list of subentities with an specific name.
+        Check the documentation of each specific frontend implementation to see how `list`
+        and `List[Entity]` look like.
 
         If `optional` is `True` and the attribute cannot be found, `None` will be returned
         instead of raising `AttributeError`.

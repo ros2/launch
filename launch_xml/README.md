@@ -38,9 +38,9 @@ Union[int, float, bool, list, str]
 For handling lists, the `*-sep` attribute is used. e.g.:
 
 ```xml
-<tag value="2,3,4" sth-sep=","/>
-<tag2 value="2 3 4" sth-sep=" "/>
-<tag3 value="2, 3, 4" sth-sep=", "/>
+<tag value="2,3,4" value-sep=","/>
+<tag2 value="2 3 4" value-sep=" "/>
+<tag3 value="2, 3, 4" value-sep=", "/>
 ```
 
 ```python
