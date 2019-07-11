@@ -22,14 +22,19 @@ from typing import Tuple
 
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..launch_description_source import LaunchDescriptionSource
+from ..launch_description_sources import AnyLaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
+@expose_action('include')
 class IncludeLaunchDescription(Action):
     """
     Action that includes a launch description source and yields its entities when visited.
@@ -68,6 +73,23 @@ class IncludeLaunchDescription(Action):
         super().__init__()
         self.__launch_description_source = launch_description_source
         self.__launch_arguments = launch_arguments
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Return `IncludeLaunchDescription` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+        file_path = parser.parse_substitution(entity.get_attr('file'))
+        kwargs['launch_description_source'] = AnyLaunchDescriptionSource(file_path)
+        args = entity.get_attr('arg', data_type=List[Entity], optional=True)
+        if args is not None:
+            kwargs['launch_arguments'] = [
+                (
+                    parser.parse_substitution(e.get_attr('name')),
+                    parser.parse_substitution(e.get_attr('value'))
+                )
+                for e in args
+            ]
+        return cls, kwargs
 
     @property
     def launch_description_source(self) -> LaunchDescriptionSource:

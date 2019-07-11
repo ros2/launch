@@ -58,6 +58,9 @@ from ..events.process import ProcessStdin
 from ..events.process import ProcessStdout
 from ..events.process import ShutdownProcess
 from ..events.process import SignalProcess
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
 from ..some_actions_type import SomeActionsType
@@ -65,6 +68,7 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution  # noqa: F401
 from ..substitutions import LaunchConfiguration
 from ..substitutions import PythonExpression
+from ..substitutions import TextSubstitution
 from ..utilities import create_future
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
@@ -74,6 +78,7 @@ _global_process_counter_lock = threading.Lock()
 _global_process_counter = 0  # in Python3, this number is unbounded (no rollover)
 
 
+@expose_action('executable')
 class ExecuteProcess(Action):
     """Action that begins executing a process and sets up event handlers for the process."""
 
@@ -224,6 +229,65 @@ class ExecuteProcess(Action):
         self.__shutdown_received = False
         self.__stdout_buffer = io.StringIO()
         self.__stderr_buffer = io.StringIO()
+
+    @classmethod
+    def parse(
+        cls,
+        entity: Entity,
+        parser: Parser,
+        cmd_arg_name: str = 'cmd'
+    ):
+        """
+        Return the `ExecuteProcess` action and kwargs for constructing it.
+
+        :param: cmd_arg_name Allow changing the name of `cmd` tag.
+            Intended for code reuse in derived classes (e.g.: launch_ros.actions.Node).
+        """
+        _, kwargs = super().parse(entity, parser)
+
+        cmd = entity.get_attr(cmd_arg_name)
+        # `cmd` is supposed to be a list separated with ' '.
+        # All the found `TextSubstitution` items are split and
+        # added to the list again as a `TextSubstitution`.
+        cmd = parser.parse_substitution(cmd)
+        cmd_list = []
+        for arg in cmd:
+            if isinstance(arg, TextSubstitution):
+                text = arg.text
+                text = shlex.split(text)
+                text = [TextSubstitution(text=item) for item in text]
+                cmd_list.extend(text)
+            else:
+                cmd_list.append(arg)
+        kwargs[cmd_arg_name] = cmd_list
+
+        cwd = entity.get_attr('cwd', optional=True)
+        if cwd is not None:
+            kwargs['cwd'] = parser.parse_substitution(cwd)
+        name = entity.get_attr('name', optional=True)
+        if name is not None:
+            kwargs['name'] = parser.parse_substitution(name)
+        prefix = entity.get_attr('launch-prefix', optional=True)
+        if prefix is not None:
+            kwargs['prefix'] = parser.parse_substitution(prefix)
+        output = entity.get_attr('output', optional=True)
+        if output is not None:
+            kwargs['output'] = parser.escape_characters(output)
+        shell = entity.get_attr('shell', data_type=bool, optional=True)
+        if shell is not None:
+            kwargs['shell'] = shell
+        # Conditions won't be allowed in the `env` tag.
+        # If that feature is needed, `set_enviroment_variable` and
+        # `unset_enviroment_variable` actions should be used.
+        env = entity.get_attr('env', data_type=List[Entity], optional=True)
+        if env is not None:
+            env = {
+                tuple(parser.parse_substitution(e.get_attr('name'))):
+                parser.parse_substitution(e.get_attr('value')) for e in env
+            }
+            kwargs['additional_env'] = env
+
+        return cls, kwargs
 
     @property
     def output(self):
@@ -637,3 +701,8 @@ class ExecuteProcess(Action):
     def shell(self):
         """Getter for shell."""
         return self.__shell
+
+    @property
+    def prefix(self):
+        """Getter for prefix."""
+        return self.__prefix

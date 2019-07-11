@@ -421,3 +421,8 @@ class LaunchService:
             if self.__loop_from_run_thread is not None:
                 ret = self._shutdown(reason='LaunchService.shutdown() called', due_to_sigint=False)
                 assert ret is None, ret
+
+    @property
+    def context(self):
+        """Getter for context."""
+        return self.__context

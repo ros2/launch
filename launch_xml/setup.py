@@ -1,20 +1,16 @@
 from setuptools import find_packages
 from setuptools import setup
 
-
 setup(
-    name='launch',
-    version='0.8.3',
+    name='launch_xml',
+    version='0.8.1',
     packages=find_packages(exclude=['test']),
-    data_files=[
-        ('share/launch/frontend', ['share/launch/frontend/grammar.lark']),
-    ],
     install_requires=['setuptools'],
     zip_safe=True,
-    author='Dirk Thomas',
-    author_email='dthomas@osrfoundation.org',
-    maintainer='Dirk Thomas',
-    maintainer_email='dthomas@osrfoundation.org',
+    author='Ivan Paunovic',
+    author_email='ivanpauno@ekumenlabs.com',
+    maintainer='Ivan Paunovic',
+    maintainer_email='ivanpauno@ekumenlabs.com',
     url='https://github.com/ros2/launch',
     download_url='https://github.com/ros2/launch/releases',
     keywords=['ROS'],
@@ -24,10 +20,15 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    description='Launch processes specified in launch files.',
+    description='XML frontend for the `launch` package.',
     long_description=(
-        'This package provides the ability to run multiple '
-        'processes and react on individual processes exiting.'),
+        'This package provides XML parsing ability to `launch-frontend` package.'
+    ),
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
+    entry_points={
+        'launch.frontend.parser': [
+            'xml = launch_xml:Parser',
+        ],
+    }
 )

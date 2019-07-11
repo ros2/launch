@@ -23,10 +23,14 @@ from .pop_launch_configurations import PopLaunchConfigurations
 from .push_launch_configurations import PushLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 
 
+@expose_action('group')
 class GroupAction(Action):
     """
     Action that yields other actions, optionally scoping launch configurations.
@@ -53,6 +57,16 @@ class GroupAction(Action):
             self.__launch_configurations = launch_configurations
         else:
             self.__launch_configurations = {}
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Return `GroupAction` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+        scoped = entity.get_attr('scoped', data_type=bool, optional=True)
+        if scoped is not None:
+            kwargs['scoped'] = scoped
+        kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
+        return cls, kwargs
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """Execute the action."""
