@@ -103,14 +103,14 @@ class DeclareLaunchArgument(Action):
     def parse(
         cls,
         entity: Entity,
-        parser: Parser
+        parser: 'Parser'
     ):
         """Parse `arg` tag."""
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.escape_characters(entity.get_attr('name'))
         default_value = entity.get_attr('default', optional=True)
         if default_value is not None:
-            kwargs['default'] = parser.parse_substitution(default_value)
+            kwargs['default_value'] = parser.parse_substitution(default_value)
         description = entity.get_attr('description', optional=True)
         if description is not None:
             kwargs['description'] = parser.escape_characters(description)
