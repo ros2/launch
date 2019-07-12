@@ -21,6 +21,9 @@ from typing import Text
 import launch.logging
 
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
@@ -28,6 +31,7 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
+@expose_action('arg')
 class DeclareLaunchArgument(Action):
     """
     Action that declares a new launch argument.
@@ -94,6 +98,23 @@ class DeclareLaunchArgument(Action):
         # Its value will be read and set at different times and so the value
         # may change depending at different times based on the context.
         self._conditionally_included = False
+
+    @classmethod
+    def parse(
+        cls,
+        entity: Entity,
+        parser: 'Parser'
+    ):
+        """Parse `arg` tag."""
+        _, kwargs = super().parse(entity, parser)
+        kwargs['name'] = parser.escape_characters(entity.get_attr('name'))
+        default_value = entity.get_attr('default', optional=True)
+        if default_value is not None:
+            kwargs['default_value'] = parser.parse_substitution(default_value)
+        description = entity.get_attr('description', optional=True)
+        if description is not None:
+            kwargs['description'] = parser.escape_characters(description)
+        return cls, kwargs
 
     @property
     def name(self) -> Text:

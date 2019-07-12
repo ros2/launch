@@ -27,7 +27,6 @@ from .expose import instantiate_action
 from .parse_substitution import parse_substitution
 from .parse_substitution import replace_escaped_characters
 from ..action import Action
-from ..launch_description import LaunchDescription
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import is_a
 
@@ -35,6 +34,9 @@ interpolation_fuctions = {
     entry_point.name: entry_point.load()
     for entry_point in iter_entry_points('launch.frontend.interpolate_substitution_method')
 }
+
+if False:
+    from ..launch_description import LaunchDescription
 
 
 class Parser:
@@ -79,8 +81,9 @@ class Parser:
         """Escape characters in strings."""
         return replace_escaped_characters(value)
 
-    def parse_description(self, entity: Entity) -> LaunchDescription:
+    def parse_description(self, entity: Entity) -> 'LaunchDescription':
         """Parse a launch description."""
+        from ..launch_description import LaunchDescription  # Avoid recursive import
         if entity.type_name != 'launch':
             raise RuntimeError("Expected 'launch' as root tag")
         actions = [self.parse_action(child) for child in entity.children]
