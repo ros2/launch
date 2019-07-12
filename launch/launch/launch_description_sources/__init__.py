@@ -15,14 +15,22 @@
 """Package for launch_description_sources."""
 
 from .any_launch_description_source import AnyLaunchDescriptionSource
+from .any_launch_file_utilities import get_launch_description_from_any_launch_file
+from .any_launch_file_utilities import InvalidLaunchFileError
 from .frontend_launch_description_source import FrontendLaunchDescriptionSource
+from .frontend_launch_file_utilities import get_launch_description_from_frontend_launch_file
+from .frontend_launch_file_utilities import InvalidFrontendLaunchFileError
 from .python_launch_description_source import PythonLaunchDescriptionSource
 from .python_launch_file_utilities import get_launch_description_from_python_launch_file
 from .python_launch_file_utilities import InvalidPythonLaunchFileError
 from .python_launch_file_utilities import load_python_launch_file_as_module
 
 __all__ = [
+    'get_launch_description_from_any_launch_file',
     'get_launch_description_from_python_launch_file',
+    'get_launch_description_from_frontend_launch_file',
+    'InvalidFrontendLaunchFileError',
+    'InvalidLaunchFileError',
     'InvalidPythonLaunchFileError',
     'load_python_launch_file_as_module',
     'AnyLaunchDescriptionSource',

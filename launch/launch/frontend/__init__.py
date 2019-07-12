@@ -17,11 +17,13 @@
 from . import type_utils
 from .entity import Entity
 from .expose import expose_action, expose_substitution
+from .parser import InvalidFrontendLaunchFileError
 from .parser import Parser
 
 
 __all__ = [
     'Entity',
+    'InvalidFrontendLaunchFileError',
     'Parser',
     'expose_action',
     'expose_substitution',

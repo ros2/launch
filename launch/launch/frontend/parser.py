@@ -16,6 +16,7 @@
 
 import io
 from typing import Any
+from typing import Optional
 from typing import Text
 from typing import Tuple
 from typing import Union
@@ -37,6 +38,12 @@ interpolation_fuctions = {
 
 if False:
     from ..launch_description import LaunchDescription  # noqa: F401
+
+
+class InvalidFrontendLaunchFileError(Exception):
+    """Exception raised when the given Frontend launch file is not valid."""
+
+    ...
 
 
 class Parser:
@@ -91,6 +98,27 @@ class Parser:
         return LaunchDescription(actions)
 
     @classmethod
+    def is_extension_valid(
+        cls,
+        extension: Text,
+    ) -> bool:
+        """Return an entity loaded with a markup file."""
+        cls.load_parser_implementations()
+        return extension in cls.frontend_parsers
+
+    @classmethod
+    def get_parser_from_extension(
+        cls,
+        extension: Text,
+    ) -> Optional['Parser']:
+        """Return an entity loaded with a markup file."""
+        cls.load_parser_implementations()
+        try:
+            return cls.frontend_parsers[extension]
+        except KeyError:
+            raise RuntimeError('Not recognized frontend implementation')
+
+    @classmethod
     def load(
         cls,
         file: Union[str, io.TextIOBase],
@@ -98,14 +126,10 @@ class Parser:
         """Return an entity loaded with a markup file."""
         cls.load_parser_implementations()
         if is_a(file, str):
-            # This automatically recognizes the launch frontend markup
-            # from the extension.
             frontend_name = file.rsplit('.', 1)[1]
-            if frontend_name in cls.frontend_parsers:
-                return cls.frontend_parsers[frontend_name].load(file)
+            if cls.is_extension_valid(frontend_name):
+                return cls.get_parser_from_extension(frontend_name).load(file)
         # If not, apply brute force.
-        # TODO(ivanpauno): Maybe, we want to force correct file naming.
-        # In that case, we should raise an error here.
         # TODO(ivanpauno): Recognize a wrong formatted file error from
         # unknown front-end implementation error.
         for implementation in cls.frontend_parsers.values():
@@ -114,4 +138,7 @@ class Parser:
             except Exception:
                 if is_a(file, io.TextIOBase):
                     file.seek(0)
-        raise RuntimeError('Not recognized front-end implementation.')
+        raise InvalidFrontendLaunchFileError(
+            'The launch file may have a syntax error, or the frontend implementation '
+            'was not recognized.'
+        )
