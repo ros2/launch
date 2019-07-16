@@ -593,13 +593,6 @@ class ExecuteProcess(Action):
                 ))
         except KeyError:
             emulate_tty = self.__emulate_tty
-        # guard against windows - tty emulation is not yet working
-        #     https://github.com/ros2/launch/issues/268
-        if emulate_tty and platform.system() == 'Windows':
-            self.__logger.warning(
-                'tty emulation not yet supported on windows, disabling'
-            )
-            emulate_tty = False
         try:
             transport, self._subprocess_protocol = await async_execute_process(
                 lambda **kwargs: self.__ProcessProtocol(
