@@ -37,17 +37,35 @@ def get_launch_description_from_any_launch_file(
     parser: Type[Parser] = Parser
 ) -> LaunchDescription:
     """Load a given launch file (by path), and return the launch description from it."""
-    extension = launch_file_path.rsplit('.', 1)[1]
+    try:
+        extension = launch_file_path.rsplit('.', 1)[1]
+    except IndexError:
+        extension = None
+    ex_to_show = None
+    tried_frontend = False
     if extension == 'py':
-        return get_launch_description_from_python_launch_file(launch_file_path)
-    if Parser.is_extension_valid(extension):
-        return get_launch_description_from_frontend_launch_file(launch_file_path)
+        try:
+            return get_launch_description_from_python_launch_file(launch_file_path)
+        except Exception as ex:
+            ex_to_show = ex
+    elif Parser.is_extension_valid(extension):
+        tried_frontend = True
+        try:
+            return get_launch_description_from_frontend_launch_file(launch_file_path)
+        except InvalidLaunchFileError:
+            pass
+        except Exception as ex:
+            ex_to_show = ex
     try:
         return get_launch_description_from_python_launch_file(launch_file_path)
     except (InvalidPythonLaunchFileError, SyntaxError):
         pass
-    try:
-        return get_launch_description_from_frontend_launch_file(launch_file_path)
-    except InvalidFrontendLaunchFileError:
-        pass
-    raise InvalidLaunchFileError('Failed to load launch file')
+    if not tried_frontend:
+        try:
+            return get_launch_description_from_frontend_launch_file(launch_file_path)
+        except InvalidFrontendLaunchFileError:
+            pass
+    if ex_to_show is None:
+        raise InvalidLaunchFileError('Failed to load launch file')
+    else:
+        raise ex_to_show

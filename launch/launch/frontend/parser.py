@@ -19,6 +19,7 @@ from typing import Any
 from typing import Optional
 from typing import Text
 from typing import Tuple
+from typing import Type
 from typing import Union
 
 from pkg_resources import iter_entry_points
@@ -41,7 +42,7 @@ if False:
 
 
 class InvalidFrontendLaunchFileError(Exception):
-    """Exception raised when the given Frontend launch file is not valid."""
+    """Exception raised when the given frontend launch file is not valid."""
 
     ...
 
@@ -110,7 +111,7 @@ class Parser:
     def get_parser_from_extension(
         cls,
         extension: Text,
-    ) -> Optional['Parser']:
+    ) -> Optional[Type['Parser']]:
         """Return an entity loaded with a markup file."""
         cls.load_parser_implementations()
         try:
@@ -123,22 +124,38 @@ class Parser:
         cls,
         file: Union[str, io.TextIOBase],
     ) -> (Entity, 'Parser'):
-        """Return an entity loaded with a markup file."""
+        """
+        Return an entity loaded with a markup file.
+
+        It first try the implementation specified by the extension (if it has).
+        Then, it tries every possible implementation.
+        """
         cls.load_parser_implementations()
+        ex_to_show = None
+        extension = None
         if is_a(file, str):
-            frontend_name = file.rsplit('.', 1)[1]
-            if cls.is_extension_valid(frontend_name):
-                return cls.get_parser_from_extension(frontend_name).load(file)
-        # If not, apply brute force.
-        # TODO(ivanpauno): Recognize a wrong formatted file error from
-        # unknown front-end implementation error.
-        for implementation in cls.frontend_parsers.values():
+            try:
+                extension = file.rsplit('.', 1)[1]
+            except IndexError:
+                pass
+            else:
+                if cls.is_extension_valid(extension):
+                    try:
+                        return cls.get_parser_from_extension(extension).load(file)
+                    except Exception as ex:
+                        ex_to_show = ex
+        for (frontend_name, implementation) in cls.frontend_parsers.items():
+            if frontend_name == extension:
+                continue
             try:
                 return implementation.load(file)
             except Exception:
                 if is_a(file, io.TextIOBase):
                     file.seek(0)
-        raise InvalidFrontendLaunchFileError(
-            'The launch file may have a syntax error, or the frontend implementation '
-            'was not recognized.'
-        )
+        if ex_to_show is None:
+            raise InvalidFrontendLaunchFileError(
+                'The launch file may have a syntax error, or the frontend implementation '
+                'was not recognized.'
+            )
+        else:
+            raise ex_to_show
