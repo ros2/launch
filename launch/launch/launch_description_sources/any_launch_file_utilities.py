@@ -36,7 +36,14 @@ def get_launch_description_from_any_launch_file(
     *,
     parser: Type[Parser] = Parser
 ) -> LaunchDescription:
-    """Load a given launch file (by path), and return the launch description from it."""
+    """
+    Load a given launch file (by path), and return the launch description from it.
+
+    :raise `InvalidLaunchFileError`: Failed to load launch file.
+        It's only showed with launch files without extension (or not recognized extensions).
+    :raise `SyntaxError`: Invalid file. The file may have a syntax error in it.
+    :raise `ValueError`: Invalid file. The file may not be a text file.
+    """
     try:
         extension = launch_file_path.rsplit('.', 1)[1]
     except IndexError:
@@ -63,7 +70,7 @@ def get_launch_description_from_any_launch_file(
     if not tried_frontend:
         try:
             return get_launch_description_from_frontend_launch_file(launch_file_path)
-        except InvalidFrontendLaunchFileError:
+        except Exception:
             pass
     if ex_to_show is None:
         raise InvalidLaunchFileError('Failed to load launch file')
