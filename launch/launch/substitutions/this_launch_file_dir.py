@@ -35,7 +35,7 @@ class ThisLaunchFileDir(Substitution):
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `EnviromentVariable` substitution."""
-        if len(data) > 1:
+        if len(data) != 0:
             raise TypeError("dirname substitution doesn't expect arguments")
         return cls, {}
 
