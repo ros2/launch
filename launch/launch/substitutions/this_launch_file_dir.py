@@ -14,19 +14,30 @@
 
 """Module for the ThisLaunchFileDir substitution."""
 
+from typing import Iterable
 from typing import Text
 
 from .substitution_failure import SubstitutionFailure
+from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
+from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
 
+@expose_substitution('dirname')
 class ThisLaunchFileDir(Substitution):
     """Substitution that returns the absolute path to the current launch file."""
 
     def __init__(self) -> None:
         """Constructor."""
         super().__init__()
+
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+        """Parse `EnviromentVariable` substitution."""
+        if len(data) > 1:
+            raise TypeError("dirname substitution doesn't expect arguments")
+        return cls, {}
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""

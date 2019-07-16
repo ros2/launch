@@ -17,7 +17,9 @@
 from launch import LaunchContext
 from launch.frontend.expose import expose_substitution
 from launch.frontend.parse_substitution import parse_substitution
+from launch.substitutions import EnvironmentVariable
 from launch.substitutions import TextSubstitution
+from launch.substitutions import ThisLaunchFileDir
 
 
 def test_text_only():
@@ -130,11 +132,22 @@ def test_combining_quotes_nested_substitution():
     assert subst[0].default_value[1].perform(context) == '_qsd'
 
 
-if __name__ == '__main__':
-    test_text_only()
-    test_text_with_embedded_substitutions()
-    test_substitution_with_multiple_arguments()
-    test_escaped_characters()
-    test_nested_substitutions()
-    test_quoted_nested_substitution()
-    test_double_quoted_nested_substitution()
+def test_dirname_subst():
+    subst = parse_substitution('$(dirname)')
+    assert len(subst) == 1
+    assert isinstance(subst[0], ThisLaunchFileDir)
+
+
+def test_env_subst():
+    subst = parse_substitution('$(env asd bsd)')
+    assert len(subst) == 1
+    env = subst[0]
+    assert isinstance(env, EnvironmentVariable)
+    assert 'asd' == ''.join([x.perform(None) for x in env.name])
+    assert 'bsd' == ''.join([x.perform(None) for x in env.default_value])
+    subst = parse_substitution('$(env asd)')
+    assert len(subst) == 1
+    env = subst[0]
+    assert isinstance(env, EnvironmentVariable)
+    assert 'asd' == ''.join([x.perform(None) for x in env.name])
+    assert '' == ''.join([x.perform(None) for x in env.default_value])
