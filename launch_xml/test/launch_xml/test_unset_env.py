@@ -17,6 +17,7 @@
 import io
 import textwrap
 
+from launch.actions import UnsetEnvironmentVariable
 from launch.frontend import Parser
 
 
@@ -30,5 +31,7 @@ def test_unset_env():
     xml_file = textwrap.dedent(xml_file)
     root_entity, parser = Parser.load(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
+    assert len(ld.entities) == 1
     unset_env = ld.entities[0]
+    assert isinstance(unset_env, UnsetEnvironmentVariable)
     assert 'my_env_var' == ''.join([x.perform(None) for x in unset_env.name])

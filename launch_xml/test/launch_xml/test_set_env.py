@@ -17,6 +17,7 @@
 import io
 import textwrap
 
+from launch.actions import SetEnvironmentVariable
 from launch.frontend import Parser
 
 
@@ -30,6 +31,8 @@ def test_set_env():
     xml_file = textwrap.dedent(xml_file)
     root_entity, parser = Parser.load(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
+    assert len(ld.entities) == 1
     set_env = ld.entities[0]
+    assert isinstance(set_env, SetEnvironmentVariable)
     assert 'my_env_var' == ''.join([x.perform(None) for x in set_env.name])
     assert 'asd' == ''.join([x.perform(None) for x in set_env.value])
