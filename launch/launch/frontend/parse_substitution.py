@@ -70,7 +70,7 @@ class ExtractSubstitution(Transformer):
         name = args[0]
         assert isinstance(name, Token)
         assert name.type == 'IDENTIFIER'
-        return instantiate_substitution(name.value, args[1:])
+        return instantiate_substitution(name.value, *args[1:])
 
     single_quoted_substitution = substitution
     double_quoted_substitution = substitution

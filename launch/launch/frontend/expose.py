@@ -40,16 +40,13 @@ def instantiate_action(entity: 'Entity', parser: 'Parser') -> Action:
 
 def instantiate_substitution(
     type_name: Text,
-    args: Iterable[Iterable[SomeSubstitutionsType]]
+    args: Iterable[SomeSubstitutionsType] = []
 ) -> Substitution:
     """Call the registered substitution parsing method, according to `args`."""
     if type_name not in substitution_parse_methods:
         raise RuntimeError(
             'Unknown substitution: {}'.format(type_name))
-    if args:
-        subst_type, kwargs = substitution_parse_methods[type_name](*args)
-    else:
-        subst_type, kwargs = substitution_parse_methods[type_name]([])
+    subst_type, kwargs = substitution_parse_methods[type_name](args)
     return subst_type(**kwargs)
 
 
