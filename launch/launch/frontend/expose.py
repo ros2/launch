@@ -16,6 +16,7 @@
 
 import inspect
 from typing import Iterable
+from typing import Optional
 from typing import Text
 
 from ..action import Action
@@ -40,12 +41,13 @@ def instantiate_action(entity: 'Entity', parser: 'Parser') -> Action:
 
 def instantiate_substitution(
     type_name: Text,
-    args: Iterable[SomeSubstitutionsType] = []
+    args: Optional[Iterable[SomeSubstitutionsType]] = None
 ) -> Substitution:
     """Call the registered substitution parsing method, according to `args`."""
     if type_name not in substitution_parse_methods:
         raise RuntimeError(
             'Unknown substitution: {}'.format(type_name))
+    args = [] if args is None else args
     subst_type, kwargs = substitution_parse_methods[type_name](args)
     return subst_type(**kwargs)
 
