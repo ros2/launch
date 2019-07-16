@@ -19,6 +19,9 @@ import os
 from typing import List
 
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
@@ -26,6 +29,7 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
+@expose_action('unset_env')
 class UnsetEnvironmentVariable(Action):
     """Action that unsets an environment variable if it is set, otherwise does nothing."""
 
@@ -37,6 +41,17 @@ class UnsetEnvironmentVariable(Action):
         """Constructor."""
         super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
+
+    @classmethod
+    def parse(
+        cls,
+        entity: Entity,
+        parser: Parser,
+    ):
+        """Parse a 'set_env' entity."""
+        _, kwargs = super().parse(entity, parser)
+        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
+        return cls, kwargs
 
     @property
     def name(self) -> List[Substitution]:
