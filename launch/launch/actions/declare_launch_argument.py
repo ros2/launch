@@ -23,7 +23,7 @@ import launch.logging
 from ..action import Action
 from ..frontend import Entity
 from ..frontend import expose_action
-from ..frontend import Parser
+from ..frontend import Parser  # noqa: F401
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
