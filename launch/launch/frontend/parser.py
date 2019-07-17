@@ -36,7 +36,7 @@ interpolation_fuctions = {
 }
 
 if False:
-    from ..launch_description import LaunchDescription
+    from ..launch_description import LaunchDescription  # noqa: F401
 
 
 class Parser:
@@ -83,7 +83,8 @@ class Parser:
 
     def parse_description(self, entity: Entity) -> 'LaunchDescription':
         """Parse a launch description."""
-        from ..launch_description import LaunchDescription  # Avoid recursive import
+        # Avoid recursive import
+        from ..launch_description import LaunchDescription  # noqa: F811
         if entity.type_name != 'launch':
             raise RuntimeError("Expected 'launch' as root tag")
         actions = [self.parse_action(child) for child in entity.children]

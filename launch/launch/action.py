@@ -24,8 +24,8 @@ from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
 
 if False:
-    from .frontend import Entity
-    from .frontend import Parser
+    from .frontend import Entity  # noqa: F401
+    from .frontend import Parser  # noqa: F401
 
 
 class Action(LaunchDescriptionEntity):
