@@ -110,13 +110,15 @@ class ActiveProcInfoHandler(ProcInfoHandler):
 
         def proc_is_shutdown():
             try:
-                resolveProcesses(
+                resolved_process = resolveProcesses(
                     info_obj=self._proc_info_handler,
                     process=process,
                     cmd_args=cmd_args,
                     strict_proc_matching=True
-                )
-                return True
+                )[0]
+
+                process_event = self._proc_info_handler[resolved_process]
+                return hasattr(process_event, 'returncode')
             except NoMatchingProcessException:
                 return False
 
