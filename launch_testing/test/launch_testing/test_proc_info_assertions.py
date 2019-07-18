@@ -84,3 +84,54 @@ def test_wait_for_shutdown():
 
     for result in results.values():
         assert result.wasSuccessful()
+
+
+def test_wait_for_startup():
+
+    def generate_test_description(ready_fn):
+        TEST_PROC_PATH = os.path.join(
+            ament_index_python.get_package_prefix('launch_testing'),
+            'lib/launch_testing',
+            'good_proc'
+        )
+
+        good_process = launch.actions.ExecuteProcess(
+                cmd=[sys.executable, TEST_PROC_PATH],
+        )
+
+        # Start 'good_proc' after a ten second timer elapses
+        return launch.LaunchDescription([
+            launch.actions.TimerAction(
+                period=10.0,
+                actions=[good_process]
+            ), 
+            launch.actions.OpaqueFunction(function=lambda context: ready_fn())
+        ]), {'good_process': good_process}
+
+    # This is kind of a weird test-within-a-test, but it's the easiest way to get
+    # all of the proc_info handlers hooked up correctly without digging deep into
+    # the guts of the runner
+    class ProcInfoTests(unittest.TestCase):
+
+        def test_01_check_for_non_running_process(self, proc_info, good_process):
+            try:
+                proc_info.assertWaitForStartup(good_process, timeout=3)  # Should raise
+                assert False, "assertWaitForStartup did not raise"
+            except AssertionError as e:
+                assert "Timed out waiting for process" in str(e)
+
+        def test_02_check_when_process_runs(self, proc_info, good_process):
+            # The process we're waiting for should start about 7 seconds into this wait
+            proc_info.assertWaitForStartup(good_process, timeout=15)
+
+    test_module = types.ModuleType('test_module')
+    test_module.generate_test_description = generate_test_description
+    test_module.ProcInfoTests = ProcInfoTests
+
+    runner = LaunchTestRunner(
+        LoadTestsFromPythonModule(test_module)
+    )
+    results = runner.run()
+
+    for result in results.values():
+        assert result.wasSuccessful()

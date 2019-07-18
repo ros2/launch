@@ -20,7 +20,7 @@ import launch
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import RegisterEventHandler
-from launch.event_handlers import OnProcessExit
+from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.event_handlers import OnProcessIO
 
 from .io_handler import ActiveIoHandler
@@ -125,6 +125,9 @@ class _RunnerWorker():
             launch.actions.IncludeLaunchDescription(
                 launch.LaunchDescriptionSource(launch_description=test_ld),
                 launch_arguments=parsed_launch_arguments
+            ),
+            RegisterEventHandler(
+                OnProcessStart(on_start=lambda info, unused: proc_info.append(info))
             ),
             RegisterEventHandler(
                 OnProcessExit(on_exit=lambda info, unused: proc_info.append(info))

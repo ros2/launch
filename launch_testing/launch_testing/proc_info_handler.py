@@ -129,3 +129,30 @@ class ActiveProcInfoHandler(ProcInfoHandler):
             )
 
         assert success, "Timed out waiting for process '{}' to finish".format(process)
+
+    def assertWaitForStartup(self,
+                             process,
+                             cmd_args=None,
+                             *,
+                             timeout=10):
+        success = False
+
+        def proc_is_started():
+            try:
+                resolveProcesses(
+                    info_obj=self._proc_info_handler,
+                    process=process,
+                    cmd_args=cmd_args,
+                    strict_proc_matching=True
+                )
+                return True
+            except NoMatchingProcessException:
+                return False
+
+        with self._sync_lock:
+            success = self._sync_lock.wait_for(
+                proc_is_started,
+                timeout=timeout
+            )
+
+        assert success, "Timed out waiting for process '{}' to start".format(process)
