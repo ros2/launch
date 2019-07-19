@@ -358,7 +358,8 @@ def get_log_file_handler(file_name='launch.log'):
             else:
                 launch_config.log_handler_factory = handlers.FileHandler
         file_path = get_log_file_path(file_name)
-        file_handler = launch_config.log_handler_factory(file_path)
+        file_handler = launch_config.log_handler_factory(
+            file_path, encoding='utf-8')
         file_handler.setFormatter(launch_config.file_formatter)
         launch_config.file_handlers[file_name] = file_handler
     return launch_config.file_handlers[file_name]

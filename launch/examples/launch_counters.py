@@ -41,7 +41,7 @@ def main(argv=sys.argv[1:]):
     # Configure rotating logs.
     launch.logging.launch_config(
         log_handler_factory=lambda path: launch.logging.handlers.RotatingFileHandler(
-            path, maxBytes=1024, backupCount=3
+            path, maxBytes=1024, backupCount=3, encoding='utf-8'
         )
     )
 
