@@ -16,6 +16,8 @@ import os
 
 from ..util import resolveProcesses
 
+from osrf_pycommon.terminal_color import remove_ansi_escape_senquences
+
 
 def get_matching_function(expected_output):
     if isinstance(expected_output, (list, tuple)):
@@ -56,7 +58,8 @@ def assertInStdout(proc_output,
                    cmd_args=None,
                    *,
                    output_filter=None,
-                   strict_proc_matching=True):
+                   strict_proc_matching=True,
+                   strip_ansi_escape_sequences=True):
     """
     Assert that 'output' was found in the standard out of a process.
 
@@ -82,6 +85,11 @@ def assertInStdout(proc_output,
     of proc and cmd_args matches multiple processes, then strict_proc_matching=True will raise
     an error.
     :type strict_proc_matching: bool
+
+    :param strip_ansi_escape_sequences: If True (default), strip ansi escape
+    sequences from actual output before comparing with the output filter or
+    expected output.
+    :type strip_ansi_escape_sequences: bool
     """
     resolved_procs = resolveProcesses(
         info_obj=proc_output,
@@ -98,6 +106,8 @@ def assertInStdout(proc_output,
         full_output = ''.join(
             output.text.decode() for output in proc_output[proc] if output.from_stdout
         )
+        if strip_ansi_escape_sequences:
+            full_output = remove_ansi_escape_senquences(full_output)
         if output_filter is not None:
             full_output = output_filter(full_output)
         if output_match(expected_output, full_output):
