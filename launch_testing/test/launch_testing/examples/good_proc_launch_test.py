@@ -39,7 +39,7 @@ proc_env['PYTHONUNBUFFERED'] = '1'
 
 dut_process = launch.actions.ExecuteProcess(
     cmd=[sys.executable, TEST_PROC_PATH],
-    env=proc_env,
+    env=proc_env, output='screen'
 )
 
 

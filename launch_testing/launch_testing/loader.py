@@ -80,6 +80,8 @@ class TestRun:
                  pre_shutdown_tests,
                  post_shutdown_tests):
         self.name = name
+        if not hasattr(test_description_function, '__markers__'):
+            test_description_function.__markers__ = {}
         self._test_description_function = test_description_function
         self.normalized_test_description = _normalize_ld(test_description_function)
 
@@ -99,6 +101,10 @@ class TestRun:
                 new_name = tc._testMethodName + self._format_params()
                 setattr(tc, '_testMethodName', new_name)
                 setattr(tc, new_name, test_method)
+
+    @property
+    def markers(self):
+        return self.test_description_function.__markers__
 
     def bind(self, tests, injected_attributes={}, injected_args={}):
         """
@@ -176,13 +182,16 @@ def _make_loader(load_post_shutdown):
         """TestLoader selectively loads pre-shutdown or post-shutdown tests."""
 
         def loadTestsFromTestCase(self, testCaseClass):
-
             if getattr(testCaseClass, '__post_shutdown_test__', False) == load_post_shutdown:
-                cases = super(_loader, self).loadTestsFromTestCase(testCaseClass)
+                # Isolate test classes instances on a per parameterization basis
+                cases = super(_loader, self).loadTestsFromTestCase(
+                    type(testCaseClass.__name__, (testCaseClass,), {
+                        '__module__': testCaseClass.__module__
+                    })
+                )
                 return cases
-            else:
-                # Empty test suites will be ignored by the test runner
-                return self.suiteClass()
+            # Empty test suites will be ignored by the test runner
+            return self.suiteClass()
 
     return _loader()
 

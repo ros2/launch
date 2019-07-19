@@ -15,6 +15,11 @@
 import os
 import re
 
+from osrf_pycommon.terminal_color import remove_ansi_escape_sequences
+
+from .text import build_line_match
+from .text import build_text_match
+
 
 def get_default_filtered_prefixes():
     return [
@@ -77,3 +82,49 @@ def expected_output_from_file(path):
             return [re.compile(regex) for regex in f.read().splitlines()]
 
     raise RuntimeError('could not find output check file: {}'.format(path))
+
+
+def expect_output(
+    text=None,
+    *,
+    lines=None,
+    expected_text=None,
+    expected_lines=None,
+    strip_ansi_escape_sequences=True,
+    strict=False
+):
+    """
+    Match output text or lines with expected text or lines.
+
+    Either (expected) text or (expected) lines can be provided but
+    giving both results in a ValueError.
+
+    :param expected_text: output text expectation, as supported
+        by `launch_testing.tools.text.build_text_match`
+    :param expected_lines: output lines expectation, as supported
+        by `launch_testing.tools.text.build_line_match`
+    :param text: output text to be matched
+    :param lines: output text lines to be matched
+    :param strip_ansi_escape_sequences: If True (default), strip
+        ansi escape sequences from actual output before comparing
+    """
+    if (text is not None) == (lines is not None):
+        raise ValueError('Either lines or text, but not both, must be specified')
+
+    if (expected_text is not None) == (expected_lines is not None):
+        raise ValueError('Either expected lines or text, but not both, must be specified')
+
+    if expected_text is not None:
+        if text is None:
+            text = '\n'.join(lines)
+        match = build_text_match(expected_text, strict=strict)
+        if strip_ansi_escape_sequences:
+            text = remove_ansi_escape_sequences(text)
+        return match(text) is not None
+
+    match = build_line_match(expected_lines, strict=strict)
+    if lines is None:
+        lines = text.splitlines()
+    if strip_ansi_escape_sequences:
+        lines = [remove_ansi_escape_sequences(line) for line in lines]
+    return match(lines) is not None

@@ -22,6 +22,7 @@ import ament_index_python
 import launch
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessIO
+from launch.event_handlers import OnProcessStart
 
 from launch_testing import ActiveIoHandler
 from launch_testing.asserts import assertInStdout
@@ -77,6 +78,11 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
             cls.proc_2,
             cls.proc_3,
             # This plumbs all the output to our IoHandler just like the LaunchTestRunner does
+            RegisterEventHandler(
+                OnProcessStart(
+                    on_start=lambda event, _: cls.proc_output.track(event.process_name)
+                )
+            ),
             RegisterEventHandler(
                 OnProcessIO(
                     on_stdout=cls.proc_output.append,

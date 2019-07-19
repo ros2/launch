@@ -129,6 +129,11 @@ class _RunnerWorker():
                 OnProcessStart(on_start=lambda info, unused: proc_info.append(info))
             ),
             RegisterEventHandler(
+                OnProcessStart(
+                    on_start=lambda info, unused: proc_output.track(info.process_name)
+                )
+            ),
+            RegisterEventHandler(
                 OnProcessExit(on_exit=lambda info, unused: proc_info.append(info))
             ),
             RegisterEventHandler(
@@ -148,7 +153,11 @@ class _RunnerWorker():
         )
 
         self._test_tr.start()  # Run the tests on another thread
-        self._launch_service.run()  # This will block until the test thread stops it
+
+        # This will block until the test thread stops it
+        self._launch_service.run(
+            shutdown_when_idle=not self._test_run.markers.get('keep_alive', False)
+        )
 
         if not self._tests_completed.wait(timeout=0):
             # LaunchService.run returned before the tests completed.  This can be because the user
