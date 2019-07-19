@@ -335,7 +335,8 @@ def get_screen_handler():
     if launch_config.screen_handler is None:
         stream = codecs.StreamWriter(sys.stdout, errors='replace')
         stream.encode = lambda msg, errors='replace': (
-            msg.encode(locale.getpreferredencoding(False), errors).decode(),
+            msg.encode(locale.getpreferredencoding(False), errors).decode(
+                locale.getpreferredencoding(False), errors=errors),
             msg)
         launch_config.screen_handler = handlers.StreamHandler(stream)
         launch_config.screen_handler.setFormatter(launch_config.screen_formatter)
