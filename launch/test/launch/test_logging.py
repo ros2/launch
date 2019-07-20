@@ -250,7 +250,7 @@ def test_log_handler_factory(log_dir):
         log_dir=log_dir,
         log_format='default',
         log_handler_factory=(
-            lambda path: TestStreamHandler(
+            lambda path, encoding=None: TestStreamHandler(
                 output=outputs[path]
             )
         )
