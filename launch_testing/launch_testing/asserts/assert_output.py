@@ -19,6 +19,17 @@ from ..util import resolveProcesses
 from osrf_pycommon.terminal_color import remove_ansi_escape_senquences
 
 
+def normalize_lineseps(lines):
+    """
+    Normalize and then return the given lines to all use `\n`.
+    """
+    lines = lines.replace(os.linesep, '\n')
+    # This happens (even on Linux and macOS) when capturing I/O from an
+    # emulated tty.
+    lines = lines.replace('\r\n', '\n')
+    return lines
+
+
 def get_matching_function(expected_output):
     if isinstance(expected_output, (list, tuple)):
         if len(expected_output) > 0:
@@ -35,7 +46,7 @@ def get_matching_function(expected_output):
             if hasattr(expected_output[0], 'search'):
                 def _match(expected, actual):
                     start = 0
-                    actual = actual.replace(os.linesep, '\n')
+                    actual = normalize_lineseps(actual)
                     for pattern in expected:
                         match = pattern.search(actual, start)
                         if match is None:
@@ -47,7 +58,7 @@ def get_matching_function(expected_output):
         return lambda expected, actual: expected in actual
     elif hasattr(expected_output, 'search'):
         return lambda expected, actual: (
-            expected.search(actual.replace(os.linesep, '\n')) is not None
+            expected.search(normalize_lineseps(actual)) is not None
         )
     raise ValueError('Unknown format for expected output')
 
