@@ -40,19 +40,19 @@ def tty_expected_unless_windows():
     # redundantly override the default via LaunchConfiguration
     ('true', tty_expected_unless_windows()),
     # override the default via LaunchConfiguration
-    ('false', 0)
+    ('false', 0),
+    # redundantly override the default via constructor
+    (True, tty_expected_unless_windows()),
+    # override the default via constructor
+    (False, 0),
 ])
 def test_emulate_tty(test_input, expected):
     on_exit = OnExit()
     ld = launch.LaunchDescription()
-    ld.add_action(launch.actions.ExecuteProcess(
-        cmd=[sys.executable,
-             '-c',
-             'import sys; sys.exit(sys.stdout.isatty())'
-             ]
-        )
-    )
-    if test_input is not None:
+    kwargs = {}
+    if isinstance(test_input, bool):
+        kwargs['emulate_tty'] = test_input
+    elif isinstance(test_input, str):
         ld.add_action(
             launch.actions.SetLaunchConfiguration(
                 'emulate_tty',
@@ -64,6 +64,14 @@ def test_emulate_tty(test_input, expected):
             launch.event_handlers.OnProcessExit(on_exit=on_exit.handle)
         )
     )
+    ld.add_action(launch.actions.ExecuteProcess(
+        cmd=[
+            sys.executable,
+            '-c',
+            'import sys; sys.exit(sys.stdout.isatty())',
+        ],
+        **kwargs
+    ))
     ls = launch.LaunchService()
     ls.include_launch_description(ld)
     ls.run()
