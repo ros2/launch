@@ -15,15 +15,18 @@
 """Module for the PythonExpression substitution."""
 
 import collections.abc
+from typing import Iterable
 from typing import List
 from typing import Text
 
+from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import ensure_argument_type
 
 
+@expose_substitution('eval')
 class PythonExpression(Substitution):
     """
     Substitution that can access contextual local variables.
@@ -44,6 +47,13 @@ class PythonExpression(Substitution):
 
         from ..utilities import normalize_to_list_of_substitutions
         self.__expression = normalize_to_list_of_substitutions(expression)
+
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+        """Parse `PythonExpression` substitution."""
+        if len(data) != 1:
+            raise TypeError('eval substitution expects 1 argument')
+        return cls, {'expression': data[0]}
 
     @property
     def expression(self) -> List[Substitution]:
