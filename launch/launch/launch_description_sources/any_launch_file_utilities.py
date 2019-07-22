@@ -19,9 +19,7 @@ from typing import Text
 from typing import Type
 
 from .frontend_launch_file_utilities import get_launch_description_from_frontend_launch_file
-from .frontend_launch_file_utilities import InvalidFrontendLaunchFileError
 from .python_launch_file_utilities import get_launch_description_from_python_launch_file
-from .python_launch_file_utilities import InvalidPythonLaunchFileError
 from ..frontend import Parser
 from ..launch_description import LaunchDescription
 
@@ -46,9 +44,10 @@ def get_launch_description_from_any_launch_file(
     :raise `ValueError`: Invalid file. The file may not be a text file.
     """
     loaders = {
-        'py': get_launch_description_from_python_launch_file
+        'py': get_launch_description_from_python_launch_file,
         'frontend': get_launch_description_from_frontend_launch_file
     }
+
     def get_key(extension):
         def key(x):
             if extension == 'py' and x[0] == 'py':

@@ -141,6 +141,7 @@ class Parser:
         If format inference fails, it'll try all available parsers one after the other.
         """
         cls.load_parser_implementations()
+
         def get_key(extension):
             def key(x):
                 return x[0] != extension
