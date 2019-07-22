@@ -38,13 +38,12 @@ import launch.logging
 from osrf_pycommon.process_utils import async_execute_process
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
 
-import yaml
-
 from .emit_event import EmitEvent
 from .opaque_function import OpaqueFunction
 from .timer_action import TimerAction
 
 from ..action import Action
+from ..condition import evaluate_condition_expression
 from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
@@ -176,8 +175,12 @@ class ExecuteProcess(Action):
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
             'sigkill_timeout'
-        :param: emulate_tty emulate a tty (terminal), defaults to
-            the LaunchConfiguration called 'emulate_tty'
+        :param: emulate_tty emulate a tty (terminal), defaults to True, but can
+            be overridden with the LaunchConfiguration called 'emulate_tty',
+            the value of which is evaluated as true or false according to
+            :py:func:`evaluate_condition_expression`.
+            Throws :py:exception:`InvalidConditionExpressionError` if the
+            'emulate_tty' configuration does not represent a boolean.
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'
@@ -583,16 +586,16 @@ class ExecuteProcess(Action):
             self.__logger.info("process details: cmd=[{}], cwd='{}', custom_env?={}".format(
                 ', '.join(cmd), cwd, 'True' if env is not None else 'False'
             ))
-        try:
-            emulate_tty = yaml.safe_load(
-                context.launch_configurations['emulate_tty']
+
+        emulate_tty = self.__emulate_tty
+        if 'emulate_tty' in context.launch_configurations:
+            emulate_tty = evaluate_condition_expression(
+                context,
+                normalize_to_list_of_substitutions(
+                    context.launch_configurations['emulate_tty']
+                ),
             )
-            if type(emulate_tty) is not bool:
-                raise TypeError('emulate_tty is not boolean [{}]'.format(
-                    type(emulate_tty)
-                ))
-        except KeyError:
-            emulate_tty = self.__emulate_tty
+
         try:
             transport, self._subprocess_protocol = await async_execute_process(
                 lambda **kwargs: self.__ProcessProtocol(
