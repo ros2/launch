@@ -14,6 +14,7 @@
 
 """Python package utility functions related to loading Frontend Launch Files."""
 
+import os
 from typing import Text
 from typing import Type
 
@@ -44,35 +45,33 @@ def get_launch_description_from_any_launch_file(
     :raise `SyntaxError`: Invalid file. The file may have a syntax error in it.
     :raise `ValueError`: Invalid file. The file may not be a text file.
     """
-    try:
-        extension = launch_file_path.rsplit('.', 1)[1]
-    except IndexError:
-        extension = None
+    loaders = {
+        'py': get_launch_description_from_python_launch_file
+        'frontend': get_launch_description_from_frontend_launch_file
+    }
+    def get_key(extension):
+        def key(x):
+            if extension == 'py' and x[0] == 'py':
+                return 0
+            if x[0] == 'frontend' and Parser.is_extension_valid(extension):
+                return 0
+            return 1
+        return key
+    extension = os.path.splitext(launch_file_path)[1]
+    if extension:
+        extension = extension[1:]
     ex_to_show = None
-    tried_frontend = False
-    if extension == 'py':
+    for (loader_type, loader) in sorted(
+        loaders.items(), key=get_key(extension)
+    ):
         try:
-            return get_launch_description_from_python_launch_file(launch_file_path)
+            return loader(launch_file_path)
         except Exception as ex:
-            ex_to_show = ex
-    elif Parser.is_extension_valid(extension):
-        tried_frontend = True
-        try:
-            return get_launch_description_from_frontend_launch_file(launch_file_path)
-        except InvalidLaunchFileError:
-            pass
-        except Exception as ex:
-            ex_to_show = ex
-    try:
-        return get_launch_description_from_python_launch_file(launch_file_path)
-    except (InvalidPythonLaunchFileError, SyntaxError):
-        pass
-    if not tried_frontend:
-        try:
-            return get_launch_description_from_frontend_launch_file(launch_file_path)
-        except Exception:
-            pass
+            if loader_type == extension:
+                ex_to_show = ex
     if ex_to_show is None:
         raise InvalidLaunchFileError('Failed to load launch file')
     else:
-        raise ex_to_show
+        raise InvalidLaunchFileError(
+                'Failed to load file of format [{}]: {}'.format(extension, str(ex_to_show))
+            )
