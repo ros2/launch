@@ -43,7 +43,7 @@ from .opaque_function import OpaqueFunction
 from .timer_action import TimerAction
 
 from ..action import Action
-from ..condition import evaluate_condition_expression
+from ..conditions import evaluate_condition_expression
 from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
