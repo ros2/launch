@@ -43,30 +43,24 @@ def get_launch_description_from_any_launch_file(
     :raise `SyntaxError`: Invalid file. The file may have a syntax error in it.
     :raise `ValueError`: Invalid file. The file may not be a text file.
     """
-    loaders = {
-        'py': get_launch_description_from_python_launch_file,
-        'frontend': get_launch_description_from_frontend_launch_file
-    }
-
-    def get_key(extension):
-        def key(x):
-            if extension == 'py' and x[0] == 'py':
-                return 0
-            if x[0] == 'frontend' and Parser.is_extension_valid(extension):
-                return 0
-            return 1
-        return key
+    loaders = [
+        ('py', get_launch_description_from_python_launch_file),
+        ('frontend', get_launch_description_from_frontend_launch_file),
+    ]
     extension = os.path.splitext(launch_file_path)[1]
     if extension:
         extension = extension[1:]
+    if extension != 'py':
+        loaders.reverse()
     ex_to_show = None
-    for (loader_type, loader) in sorted(
-        loaders.items(), key=get_key(extension)
-    ):
+    for loader_type, loader in loaders:
         try:
             return loader(launch_file_path)
         except Exception as ex:
-            if loader_type == extension:
+            if (
+                extension == loader_type or
+                ('frontend' == loader_type and Parser.is_extension_valid(extension))
+            ):
                 ex_to_show = ex
     if ex_to_show is None:
         raise InvalidLaunchFileError('Failed to load launch file')
