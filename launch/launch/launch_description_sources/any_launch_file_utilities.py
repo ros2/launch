@@ -21,13 +21,8 @@ from typing import Type
 from .frontend_launch_file_utilities import get_launch_description_from_frontend_launch_file
 from .python_launch_file_utilities import get_launch_description_from_python_launch_file
 from ..frontend import Parser
+from ..invalid_launch_file_error import InvalidLaunchFileError
 from ..launch_description import LaunchDescription
-
-
-class InvalidLaunchFileError(Exception):
-    """Exception raised when the given launch file is not valid."""
-
-    ...
 
 
 def get_launch_description_from_any_launch_file(
@@ -43,28 +38,19 @@ def get_launch_description_from_any_launch_file(
     :raise `SyntaxError`: Invalid file. The file may have a syntax error in it.
     :raise `ValueError`: Invalid file. The file may not be a text file.
     """
-    loaders = [
-        ('py', get_launch_description_from_python_launch_file),
-        ('frontend', get_launch_description_from_frontend_launch_file),
-    ]
+    loaders = [get_launch_description_from_frontend_launch_file]
     extension = os.path.splitext(launch_file_path)[1]
     if extension:
         extension = extension[1:]
-    if extension != 'py':
-        loaders.reverse()
-    ex_to_show = None
-    for loader_type, loader in loaders:
+    if extension == 'py':
+        loaders.insert(0, get_launch_description_from_python_launch_file)
+    else:
+        loaders.append(get_launch_description_from_python_launch_file)
+    extension = '' if not Parser.is_extension_valid(extension) else extension
+    exceptions = []
+    for loader in loaders:
         try:
             return loader(launch_file_path)
         except Exception as ex:
-            if (
-                extension == loader_type or
-                ('frontend' == loader_type and Parser.is_extension_valid(extension))
-            ):
-                ex_to_show = ex
-    if ex_to_show is None:
-        raise InvalidLaunchFileError('Failed to load launch file')
-    else:
-        raise InvalidLaunchFileError(
-                'Failed to load file of format [{}]: {}'.format(extension, str(ex_to_show))
-            )
+            exceptions.append(ex)
+    raise InvalidLaunchFileError(extension, exceptions)

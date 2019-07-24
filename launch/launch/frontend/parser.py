@@ -31,6 +31,7 @@ from .expose import instantiate_action
 from .parse_substitution import parse_substitution
 from .parse_substitution import replace_escaped_characters
 from ..action import Action
+from ..invalid_launch_file_error import InvalidLaunchFileError
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import is_a
 
@@ -43,7 +44,7 @@ if False:
     from ..launch_description import LaunchDescription  # noqa: F401
 
 
-class InvalidFrontendLaunchFileError(Exception):
+class InvalidFrontendLaunchFileError(InvalidLaunchFileError):
     """Exception raised when the given frontend launch file is not valid."""
 
     ...
@@ -140,13 +141,14 @@ class Parser:
         description format based on the filename extension, if any.
         If format inference fails, it'll try all available parsers one after the other.
         """
+        # Imported here, to avoid recursive import.
         cls.load_parser_implementations()
 
         def get_key(extension):
             def key(x):
                 return x[0] != extension
             return key
-        ex_to_show = None
+        exceptions = []
         extension = ''
         if is_a(file, str):
             extension = os.path.splitext(file)[1]
@@ -160,13 +162,7 @@ class Parser:
             except Exception as ex:
                 if is_a(file, io.TextIOBase):
                     file.seek(0)
-                elif frontend_name == extension:
-                    ex_to_show = ex
-        if ex_to_show is None:
-            raise InvalidFrontendLaunchFileError(
-                'The launch file may have a syntax error, or its format is unknown'
-            )
-        else:
-            raise InvalidFrontendLaunchFileError(
-                'Failed to load file of format [{}]: {}'.format(extension, str(ex_to_show))
-            )
+                else:
+                    exceptions.append(ex)
+        extension = '' if not cls.is_extension_valid(extension) else extension
+        raise InvalidFrontendLaunchFileError(extension, exceptions)
