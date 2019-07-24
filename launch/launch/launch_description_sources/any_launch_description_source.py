@@ -14,9 +14,7 @@
 
 """Module for the AnyLaunchDescriptionSource class."""
 
-from .python_launch_file_utilities import get_launch_description_from_python_launch_file
-from .python_launch_file_utilities import InvalidPythonLaunchFileError
-from ..frontend import Parser
+from .any_launch_file_utilities import get_launch_description_from_any_launch_file
 from ..launch_description_source import LaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
 
@@ -25,8 +23,9 @@ class AnyLaunchDescriptionSource(LaunchDescriptionSource):
     """
     Encapsulation of a launch file, which can be loaded during launch.
 
-    This launch description source will attempt to load the file at the given location as a python
-    launch file first, and as a declarative (markup based) launch file if the former fails.
+    This launch description source will attempt to load a launch file based on its extension
+    first, then it will try to load the file as a python launch file, and then as a declarative
+    (markup based) launch file.
     It is recommended to use specific `LaunchDescriptionSource` subclasses when possible.
     """
 
@@ -51,16 +50,4 @@ class AnyLaunchDescriptionSource(LaunchDescriptionSource):
 
     def _get_launch_description(self, location):
         """Get the LaunchDescription from location."""
-        launch_description = None
-        try:
-            launch_description = get_launch_description_from_python_launch_file(location)
-        except (InvalidPythonLaunchFileError, SyntaxError):
-            pass
-        try:
-            root_entity, parser = Parser.load(location)
-            launch_description = parser.parse_description(root_entity)
-        except RuntimeError:
-            pass
-        if launch_description is None:
-            raise RuntimeError('Cannot load launch file')
-        return launch_description
+        return get_launch_description_from_any_launch_file(location)

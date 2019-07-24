@@ -15,9 +15,13 @@
 """Module for Parser class and parsing methods."""
 
 import io
+import os
 from typing import Any
+from typing import List
+from typing import Optional
 from typing import Text
 from typing import Tuple
+from typing import Type
 from typing import Union
 
 from pkg_resources import iter_entry_points
@@ -27,6 +31,7 @@ from .expose import instantiate_action
 from .parse_substitution import parse_substitution
 from .parse_substitution import replace_escaped_characters
 from ..action import Action
+from ..invalid_launch_file_error import InvalidLaunchFileError
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import is_a
 
@@ -37,6 +42,12 @@ interpolation_fuctions = {
 
 if False:
     from ..launch_description import LaunchDescription  # noqa: F401
+
+
+class InvalidFrontendLaunchFileError(InvalidLaunchFileError):
+    """Exception raised when the given frontend launch file is not valid."""
+
+    ...
 
 
 class Parser:
@@ -91,27 +102,70 @@ class Parser:
         return LaunchDescription(actions)
 
     @classmethod
+    def get_available_extensions(cls) -> List[Text]:
+        """Return the registered extensions."""
+        cls.load_parser_implementations()
+        return cls.frontend_parsers.keys()
+
+    @classmethod
+    def is_extension_valid(
+        cls,
+        extension: Text,
+    ) -> bool:
+        """Return an entity loaded with a markup file."""
+        cls.load_parser_implementations()
+        return extension in cls.frontend_parsers
+
+    @classmethod
+    def get_parser_from_extension(
+        cls,
+        extension: Text,
+    ) -> Optional[Type['Parser']]:
+        """Return an entity loaded with a markup file."""
+        cls.load_parser_implementations()
+        try:
+            return cls.frontend_parsers[extension]
+        except KeyError:
+            raise RuntimeError('Not recognized frontend implementation')
+
+    @classmethod
     def load(
         cls,
         file: Union[str, io.TextIOBase],
     ) -> (Entity, 'Parser'):
-        """Return an entity loaded with a markup file."""
+        """
+        Parse an Entity from a markup language-based launch file.
+
+        Parsers are exposed and provided by available frontend implementations.
+        To choose the right parser, it'll first attempt to infer the launch
+        description format based on the filename extension, if any.
+        If format inference fails, it'll try all available parsers one after the other.
+        """
+        # Imported here, to avoid recursive import.
         cls.load_parser_implementations()
+
+        def get_key(extension):
+            def key(x):
+                return x[0] != extension
+            return key
+        exceptions = []
+        extension = ''
         if is_a(file, str):
-            # This automatically recognizes the launch frontend markup
-            # from the extension.
-            frontend_name = file.rsplit('.', 1)[1]
-            if frontend_name in cls.frontend_parsers:
-                return cls.frontend_parsers[frontend_name].load(file)
-        # If not, apply brute force.
-        # TODO(ivanpauno): Maybe, we want to force correct file naming.
-        # In that case, we should raise an error here.
-        # TODO(ivanpauno): Recognize a wrong formatted file error from
-        # unknown front-end implementation error.
-        for implementation in cls.frontend_parsers.values():
+            extension = file
+        elif hasattr(file, 'name'):
+            extension = file.name
+        extension = os.path.splitext(extension)[1]
+        if extension:
+            extension = extension[1:]
+        for (frontend_name, implementation) in sorted(
+            cls.frontend_parsers.items(), key=get_key(extension)
+        ):
             try:
                 return implementation.load(file)
-            except Exception:
+            except Exception as ex:
                 if is_a(file, io.TextIOBase):
                     file.seek(0)
-        raise RuntimeError('Not recognized front-end implementation.')
+                else:
+                    exceptions.append(ex)
+        extension = '' if not cls.is_extension_valid(extension) else extension
+        raise InvalidFrontendLaunchFileError(extension, likely_errors=exceptions)

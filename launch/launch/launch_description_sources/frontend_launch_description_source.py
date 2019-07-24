@@ -16,6 +16,7 @@
 
 from typing import Type
 
+from .frontend_launch_file_utilities import get_launch_description_from_frontend_launch_file
 from ..frontend import Parser
 from ..launch_description_source import LaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
@@ -51,8 +52,8 @@ class FrontendLaunchDescriptionSource(LaunchDescriptionSource):
             launch_file_path,
             method
         )
+        self._parser = Parser
 
     def _get_launch_description(self, location):
         """Get the LaunchDescription from location."""
-        root_entity, parser = Parser.load(location)
-        return parser.parse_description(root_entity)
+        return get_launch_description_from_frontend_launch_file(location, parser=self._parser)
