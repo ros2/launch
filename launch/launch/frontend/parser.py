@@ -165,4 +165,4 @@ class Parser:
                 else:
                     exceptions.append(ex)
         extension = '' if not cls.is_extension_valid(extension) else extension
-        raise InvalidFrontendLaunchFileError(extension, exceptions)
+        raise InvalidFrontendLaunchFileError(extension, likely_errors=exceptions)
