@@ -134,6 +134,7 @@ class ActiveIoHandler(IoHandler):
         strict_proc_matching=True,
         output_filter=None,
         timeout=10,
+        strip_ansi_escape_sequences=True
     ):
         success = False
 
@@ -145,7 +146,8 @@ class ActiveIoHandler(IoHandler):
                     process=process,
                     cmd_args=cmd_args,
                     output_filter=output_filter,
-                    strict_proc_matching=strict_proc_matching
+                    strict_proc_matching=strict_proc_matching,
+                    strip_ansi_escape_sequences=strip_ansi_escape_sequences,
                 )
                 return True
             except NoMatchingProcessException:

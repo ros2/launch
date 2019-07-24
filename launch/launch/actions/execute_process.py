@@ -43,6 +43,7 @@ from .opaque_function import OpaqueFunction
 from .timer_action import TimerAction
 
 from ..action import Action
+from ..conditions import evaluate_condition_expression
 from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
@@ -95,6 +96,7 @@ class ExecuteProcess(Action):
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
+        emulate_tty: bool = False,
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Text = 'log',
         output_format: Text = '[{this.name}] {line}',
@@ -173,6 +175,12 @@ class ExecuteProcess(Action):
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
             'sigkill_timeout'
+        :param: emulate_tty emulate a tty (terminal), defaults to False, but can
+            be overridden with the LaunchConfiguration called 'emulate_tty',
+            the value of which is evaluated as true or false according to
+            :py:func:`evaluate_condition_expression`.
+            Throws :py:exception:`InvalidConditionExpressionError` if the
+            'emulate_tty' configuration does not represent a boolean.
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'
@@ -211,6 +219,7 @@ class ExecuteProcess(Action):
         self.__shell = shell
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
+        self.__emulate_tty = emulate_tty
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
@@ -577,6 +586,16 @@ class ExecuteProcess(Action):
             self.__logger.info("process details: cmd=[{}], cwd='{}', custom_env?={}".format(
                 ', '.join(cmd), cwd, 'True' if env is not None else 'False'
             ))
+
+        emulate_tty = self.__emulate_tty
+        if 'emulate_tty' in context.launch_configurations:
+            emulate_tty = evaluate_condition_expression(
+                context,
+                normalize_to_list_of_substitutions(
+                    context.launch_configurations['emulate_tty']
+                ),
+            )
+
         try:
             transport, self._subprocess_protocol = await async_execute_process(
                 lambda **kwargs: self.__ProcessProtocol(
@@ -586,7 +605,7 @@ class ExecuteProcess(Action):
                 cwd=cwd,
                 env=env,
                 shell=self.__shell,
-                emulate_tty=False,
+                emulate_tty=emulate_tty,
                 stderr_to_stdout=False,
             )
         except Exception:

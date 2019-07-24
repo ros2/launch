@@ -122,10 +122,6 @@ class _RunnerWorker():
         # the test and add our own event handlers for process IO and process exit:
         launch_description = LaunchDescription([
             *self._test_run_preamble,
-            launch.actions.IncludeLaunchDescription(
-                launch.LaunchDescriptionSource(launch_description=test_ld),
-                launch_arguments=parsed_launch_arguments
-            ),
             RegisterEventHandler(
                 OnProcessExit(on_exit=lambda info, unused: proc_info.append(info))
             ),
@@ -134,6 +130,10 @@ class _RunnerWorker():
                     on_stdout=proc_output.append,
                     on_stderr=proc_output.append,
                 )
+            ),
+            launch.actions.IncludeLaunchDescription(
+                launch.LaunchDescriptionSource(launch_description=test_ld),
+                launch_arguments=parsed_launch_arguments
             ),
         ])
 
