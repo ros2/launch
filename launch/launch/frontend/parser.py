@@ -151,9 +151,12 @@ class Parser:
         exceptions = []
         extension = ''
         if is_a(file, str):
-            extension = os.path.splitext(file)[1]
-            if extension:
-                extension = extension[1:]
+            extension = file
+        elif hasattr(file, 'name'):
+            extension = file.name
+        extension = os.path.splitext(extension)[1]
+        if extension:
+            extension = extension[1:]
         for (frontend_name, implementation) in sorted(
             cls.frontend_parsers.items(), key=get_key(extension)
         ):
