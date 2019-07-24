@@ -18,6 +18,7 @@ from launch import LaunchContext
 from launch.frontend.expose import expose_substitution
 from launch.frontend.parse_substitution import parse_substitution
 from launch.substitutions import EnvironmentVariable
+from launch.substitutions import PythonExpression
 from launch.substitutions import TextSubstitution
 from launch.substitutions import ThisLaunchFileDir
 
@@ -151,3 +152,11 @@ def test_env_subst():
     assert isinstance(env, EnvironmentVariable)
     assert 'asd' == ''.join([x.perform(None) for x in env.name])
     assert '' == ''.join([x.perform(None) for x in env.default_value])
+
+
+def test_eval_subst():
+    subst = parse_substitution(r'$(eval "\'asd\' + \'bsd\'")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'asdbsd' == expr.perform(LaunchContext())
