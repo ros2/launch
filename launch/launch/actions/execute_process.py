@@ -96,7 +96,7 @@ class ExecuteProcess(Action):
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
-        emulate_tty: bool = True,
+        emulate_tty: bool = False,
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Text = 'log',
         output_format: Text = '[{this.name}] {line}',
@@ -175,7 +175,7 @@ class ExecuteProcess(Action):
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
             'sigkill_timeout'
-        :param: emulate_tty emulate a tty (terminal), defaults to True, but can
+        :param: emulate_tty emulate a tty (terminal), defaults to False, but can
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
             :py:func:`evaluate_condition_expression`.

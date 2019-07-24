@@ -14,15 +14,13 @@
 
 import os
 
-from ..util import resolveProcesses
-
 from osrf_pycommon.terminal_color import remove_ansi_escape_senquences
+
+from ..util import resolveProcesses
 
 
 def normalize_lineseps(lines):
-    """
-    Normalize and then return the given lines to all use `\n`.
-    """
+    r"""Normalize and then return the given lines to all use '\n'."""
     lines = lines.replace(os.linesep, '\n')
     # This happens (even on Linux and macOS) when capturing I/O from an
     # emulated tty.
