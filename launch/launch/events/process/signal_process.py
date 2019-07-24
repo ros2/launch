@@ -17,13 +17,13 @@
 import signal as signal_module  # to avoid confusion with .signal property in type annotations
 from typing import Callable
 from typing import Text
+from typing import TYPE_CHECKING
 from typing import Union
 
 from .process_targeted_event import ProcessTargetedEvent
 from ...utilities import ensure_argument_type
 
-if False:
-    # imports here would cause loops, but are only used as forward-references for type-checking
+if TYPE_CHECKING:
     from ...actions import ExecuteProcess  # noqa
 
 
