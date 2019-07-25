@@ -43,10 +43,10 @@ def basic_output_filter(
         filtered_prefixes = get_default_filtered_prefixes()
     if filtered_patterns is None:
         filtered_patterns = get_default_filtered_patterns()
-    filtered_patterns = map(re.compile, filtered_patterns)
+    filtered_patterns = list(map(re.compile, filtered_patterns))
 
     def _filter(output):
-        filtered_output = []
+        filtered_output_lines = []
         for line in output.splitlines():
             # Filter out stdout that comes from underlying DDS implementation
             # Note: we do not currently support matching filters across multiple stdout lines.
@@ -54,10 +54,11 @@ def basic_output_filter(
                 continue
             if any(pattern.match(line) for pattern in filtered_patterns):
                 continue
-            filtered_output.append(line)
-        if output.endswith(os.linesep):
-            filtered_output.append(os.linesep)
-        return os.linesep.join(filtered_output)
+            filtered_output_lines.append(line)
+        filtered_output = os.linesep.join(filtered_output_lines)
+        if filtered_output and output.endswith(os.linesep):
+            filtered_output += os.linesep
+        return filtered_output
     return _filter
 
 
