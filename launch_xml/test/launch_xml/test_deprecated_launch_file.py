@@ -21,7 +21,7 @@ from launch import LaunchDescription
 from launch.frontend import Parser
 
 
-def test_set_env():
+def test_deprecated_launch_file():
     xml_file = \
         """\
         <launch deprecated="MY_DEPRECATED_MESSAGE"/>
