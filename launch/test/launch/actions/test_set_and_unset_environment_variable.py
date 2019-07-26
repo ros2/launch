@@ -69,5 +69,5 @@ def test_unset_nonexistent_key():
     lc1 = LaunchContext()
 
     assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
-    UnsetEnvironmentVariable(EnvironmentVariable('NONEXISTENT_KEY')).visit(lc1)
+    UnsetEnvironmentVariable('ANOTHER_NONEXISTENT_KEY').visit(lc1)
     assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
