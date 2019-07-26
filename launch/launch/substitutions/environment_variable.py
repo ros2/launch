@@ -44,25 +44,19 @@ class EnvironmentVariable(Substitution):
         """
         Construct an enviroment variable substitution.
 
-        The enviroment variable could be optional or not:
-            - When `default_value` is `None`, the environment variable is non optional.
-              If it doesn't exist, a `SubstitutionFailure` will be raised.
-            - For any other case, the environment variable is optional.
-              `default_value` will be used if it doesn't exist.
-
         :param name: name of the environment variable.
         :param default_value: used when the environment variable doesn't exist.
             If `None`, the substitution is not optional.
         :raise `SubstitutionFailure`:
-            If the environment variable doens't exist and `default_value` is `None`.
+            If the environment variable doesn't exist and `default_value` is `None`.
         """
         super().__init__()
 
         from ..utilities import normalize_to_list_of_substitutions  # import here to avoid loop
         self.__name = normalize_to_list_of_substitutions(name)
+        if default_value is not None:
+            default_value = normalize_to_list_of_substitutions(default_value)
         self.__default_value = default_value
-        if self.__default_value is not None:
-            self.__default_value = normalize_to_list_of_substitutions(default_value)
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
@@ -70,7 +64,8 @@ class EnvironmentVariable(Substitution):
         if len(data) < 1 or len(data) > 2:
             raise TypeError('env substitution expects 1 or 2 arguments')
         kwargs = {'name': data[0]}
-        kwargs['default_value'] = data[1] if len(data) == 2 else None
+        if len(data) == 2:
+            kwargs['default_value'] = data[1]
         return cls, kwargs
 
     @property
