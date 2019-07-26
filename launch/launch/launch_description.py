@@ -17,6 +17,9 @@
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Text
+
+import launch.logging
 
 from .action import Action
 from .actions import DeclareLaunchArgument
@@ -45,12 +48,19 @@ class LaunchDescription(LaunchDescriptionEntity):
     def __init__(
         self,
         initial_entities: Optional[Iterable[LaunchDescriptionEntity]] = None,
+        *,
+        deprecated: Optional[Text] = None
     ) -> None:
         """Constructor."""
         self.__entities = list(initial_entities) if initial_entities is not None else []
+        self.__deprecated = deprecated
 
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
+        if self.__deprecated is not None:
+            launch.logging.get_logger().warning(
+                'Deprecated launch file: {}'.format(self.__deprecated)
+            )
         return self.__entities
 
     def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
@@ -124,3 +134,8 @@ class LaunchDescription(LaunchDescriptionEntity):
     def add_action(self, action: Action) -> None:
         """Add an action to the LaunchDescription."""
         self.add_entity(action)
+
+    @property
+    def deprecated(self) -> Optional[Text]:
+        """Getter for deprecated."""
+        return self.__deprecated

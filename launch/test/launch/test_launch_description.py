@@ -94,15 +94,22 @@ def test_launch_description_add_things():
     assert len(ld.entities) == 2
 
 
+class MockLaunchContext:
+    ...
+
+
 def test_launch_description_visit():
     """Test visiting entities in the LaunchDescription class."""
     ld = LaunchDescription([LaunchDescriptionEntity()])
     ld.add_action(Action())
 
-    class MockLaunchContext:
-        ...
-
     result = ld.visit(MockLaunchContext())
     assert isinstance(result, collections.abc.Iterable)
     for entity in result:
         assert isinstance(entity, LaunchDescriptionEntity)
+
+
+def test_launch_description_deprecated():
+    ld = LaunchDescription(deprecated='DEPRECATED MESSAGE')
+    ld.visit(MockLaunchContext())
+    assert ld.deprecated == 'DEPRECATED MESSAGE'
