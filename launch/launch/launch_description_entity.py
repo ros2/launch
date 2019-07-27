@@ -23,7 +23,7 @@ from typing import Tuple
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .launch_context import LaunchContext  # noqa
+    from .launch_context import LaunchContext  #noqa: F401
 
 
 class LaunchDescriptionEntity:

@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 from .process_targeted_event import ProcessTargetedEvent
 
 if TYPE_CHECKING:
-    from ...actions import ExecuteProcess  # noqa
+    from ...actions import ExecuteProcess  #noqa: F401
 
 
 class ShutdownProcess(ProcessTargetedEvent):

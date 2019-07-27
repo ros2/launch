@@ -25,7 +25,7 @@ from .event import Event
 from .some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
-    from .launch_context import LaunchContext
+    from .launch_context import LaunchContext  #noqa: F401
 
 
 class BaseEventHandler:

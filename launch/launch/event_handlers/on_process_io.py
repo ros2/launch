@@ -27,7 +27,7 @@ from ..launch_context import LaunchContext
 from ..some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
-    from ..actions import ExecuteProcess  # noqa
+    from ..actions import ExecuteProcess  #noqa: F401
 
 
 class OnProcessIO(BaseEventHandler):

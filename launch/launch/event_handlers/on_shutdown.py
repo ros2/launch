@@ -28,7 +28,7 @@ from ..some_actions_type import SomeActionsType
 from ..utilities import is_a_subclass
 
 if TYPE_CHECKING:
-    from ..launch_context import LaunchContext
+    from ..launch_context import LaunchContext  #noqa: F401
 
 
 class OnShutdown(BaseEventHandler):

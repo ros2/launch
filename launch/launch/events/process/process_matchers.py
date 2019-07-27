@@ -19,7 +19,7 @@ from typing import Text
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ...actions import ExecuteProcess
+    from ...actions import ExecuteProcess  #noqa: F401
 
 
 def matches_pid(pid: int) -> Callable[['ExecuteProcess'], bool]:

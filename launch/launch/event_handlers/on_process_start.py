@@ -31,7 +31,7 @@ from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
-    from ..actions import ExecuteProcess
+    from ..actions import ExecuteProcess  #noqa: F401
 
 
 class OnProcessStart(BaseEventHandler):
