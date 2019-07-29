@@ -95,7 +95,9 @@ def test_launch_description_add_things():
 
 
 class MockLaunchContext:
-    ...
+
+    def get_locals_as_dict(self):
+        return {}
 
 
 def test_launch_description_visit():

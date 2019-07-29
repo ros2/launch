@@ -22,6 +22,7 @@ from .path_join_substitution import PathJoinSubstitution
 from .python_expression import PythonExpression
 from .substitution_failure import SubstitutionFailure
 from .text_substitution import TextSubstitution
+from .this_launch_file import ThisLaunchFile
 from .this_launch_file_dir import ThisLaunchFileDir
 
 __all__ = [
@@ -33,5 +34,6 @@ __all__ = [
     'PythonExpression',
     'SubstitutionFailure',
     'TextSubstitution',
+    'ThisLaunchFile',
     'ThisLaunchFileDir',
 ]
