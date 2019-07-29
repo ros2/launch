@@ -24,7 +24,7 @@ from .process_targeted_event import ProcessTargetedEvent
 from ...utilities import ensure_argument_type
 
 if TYPE_CHECKING:
-    from ...actions import ExecuteProcess  #noqa: F401
+    from ...actions import ExecuteProcess  # noqa: F401
 
 
 class SignalProcess(ProcessTargetedEvent):

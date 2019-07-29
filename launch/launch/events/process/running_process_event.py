@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 from ...event import Event
 
 if TYPE_CHECKING:
-    from ...actions import ExecuteProcess  #noqa: F401
+    from ...actions import ExecuteProcess  # noqa: F401
 
 
 class RunningProcessEvent(Event):

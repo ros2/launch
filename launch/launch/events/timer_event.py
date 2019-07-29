@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 from ..event import Event
 
 if TYPE_CHECKING:
-    from ..actions import TimerAction  #noqa: F401
+    from ..actions import TimerAction  # noqa: F401
 
 
 class TimerEvent(Event):
