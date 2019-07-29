@@ -49,18 +49,18 @@ class LaunchDescription(LaunchDescriptionEntity):
         self,
         initial_entities: Optional[Iterable[LaunchDescriptionEntity]] = None,
         *,
-        deprecated: Optional[Text] = None
+        deprecated_reason: Optional[Text] = None
     ) -> None:
         """Constructor."""
         self.__entities = list(initial_entities) if initial_entities is not None else []
-        self.__deprecated = deprecated
+        self.__deprecated_reason = deprecated_reason
 
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
         if 'current_launch_file_path' in context.get_locals_as_dict():
-            if self.__deprecated is not None:
+            if self.__deprecated_reason is not None:
                 launch.logging.get_logger().warning(
-                    ' launch file [{}] is deprecated: {}'.format(
+                    'launch file [{}] is deprecated: {}'.format(
                         context.locals.current_launch_file_path,
                         self.__deprecated,
                     )
@@ -140,6 +140,15 @@ class LaunchDescription(LaunchDescriptionEntity):
         self.add_entity(action)
 
     @property
-    def deprecated(self) -> Optional[Text]:
+    def deprecated(self) -> bool:
         """Getter for deprecated."""
-        return self.__deprecated
+        return self.__deprecated_reason is not None
+
+    @property
+    def deprecated_reason(self) -> Optional[Text]:
+        """
+        Getter for deprecated.
+
+        Returns `None` if the launch description is not deprecated.
+        """
+        return self.__deprecated_reason

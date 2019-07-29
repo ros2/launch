@@ -104,8 +104,18 @@ class IncludeLaunchDescription(Action):
         else:
             return self.__launch_arguments
 
-    def _get_launch_file_location(self):
+    def _get_launch_file(self):
         return os.path.abspath(self.__launch_description_source.location)
+
+    def _get_launch_file_directory(self):
+        launch_file_location = self._get_launch_file()
+        if os.path.exists(launch_file_location):
+            launch_file_location = os.path.dirname(launch_file_location)
+        else:
+            # If the location does not exist, then it's likely set to '<script>' or something
+            # so just pass it along.
+            launch_file_location = self.__launch_description_source.location
+        return launch_file_location
 
     def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
         """Override describe_sub_entities from LaunchDescriptionEntity to return sub entities."""
@@ -115,15 +125,13 @@ class IncludeLaunchDescription(Action):
     def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Override visit to return an Entity rather than an action."""
         launch_description = self.__launch_description_source.get_launch_description(context)
-        location = self._get_launch_file_location()
-        if os.path.exists(location):
-            # If the location does not exist, then it's likely set to '<script>' or something.
-            context.extend_locals({
-                'current_launch_file_path': location,
-            })
-            context.extend_locals({
-                'current_launch_file_directory': os.path.dirname(location),
-            })
+        # If the location does not exist, then it's likely set to '<script>' or something.
+        context.extend_locals({
+            'current_launch_file_path': self._get_launch_file(),
+        })
+        context.extend_locals({
+            'current_launch_file_directory': self._get_launch_file_directory(),
+        })
 
         # Do best effort checking to see if non-optional, non-default declared arguments
         # are being satisfied.

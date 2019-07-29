@@ -69,6 +69,7 @@ def test_include_launch_description_launch_file_location():
     lc1 = LaunchContext()
     # Result should only contain the launch description as there are no launch arguments.
     assert action.visit(lc1) == [ld]
+    assert lc1.locals.current_launch_file_directory == '<script>'
     assert action.get_asyncio_future() is None
 
     this_file = os.path.abspath(__file__)

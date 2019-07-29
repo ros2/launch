@@ -52,7 +52,8 @@ class ThisLaunchFile(Substitution):
 
         :raises: SubstitutionFailure if not in a launch file
         """
-        if 'current_launch_file_path' not in context.get_locals_as_dict():
-            raise SubstitutionFailure(
+        subst_failure = SubstitutionFailure(
                 'ThisLaunchFile used outside of a launch file (in a script)')
+        if 'current_launch_file_path' not in context.get_locals_as_dict():
+            raise subst_failure
         return context.locals.current_launch_file_path

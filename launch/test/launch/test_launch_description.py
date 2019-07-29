@@ -112,6 +112,7 @@ def test_launch_description_visit():
 
 
 def test_launch_description_deprecated():
-    ld = LaunchDescription(deprecated='DEPRECATED MESSAGE')
+    ld = LaunchDescription(deprecated_reason='DEPRECATED MESSAGE')
     ld.visit(MockLaunchContext())
-    assert ld.deprecated == 'DEPRECATED MESSAGE'
+    assert ld.deprecated is True
+    assert ld.deprecated_reason == 'DEPRECATED MESSAGE'

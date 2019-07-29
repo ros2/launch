@@ -30,4 +30,4 @@ def test_deprecated_launch_file():
     root_entity, parser = Parser.load(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     assert isinstance(ld, LaunchDescription)
-    assert 'MY_DEPRECATED_MESSAGE' == ld.deprecated
+    assert 'MY_DEPRECATED_MESSAGE' == ld.deprecated_reason
