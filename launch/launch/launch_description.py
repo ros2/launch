@@ -57,14 +57,15 @@ class LaunchDescription(LaunchDescriptionEntity):
 
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
-        if 'current_launch_file_path' in context.get_locals_as_dict():
-            if self.__deprecated_reason is not None:
-                launch.logging.get_logger().warning(
-                    'launch file [{}] is deprecated: {}'.format(
-                        context.locals.current_launch_file_path,
-                        self.__deprecated,
-                    )
+        if self.__deprecated_reason is not None:
+            if 'current_launch_file_path' in context.get_locals_as_dict():
+                message = 'launch file [{}] is deprecated: {}'.format(
+                    context.locals.current_launch_file_path,
+                    self.__deprecated_reason,
                 )
+            else:
+                message = 'deprecated launch description: {}'.format(self.__deprecated_reason)
+            launch.logging.get_logger().warning(message)
         return self.__entities
 
     def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
