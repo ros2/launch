@@ -104,8 +104,11 @@ class IncludeLaunchDescription(Action):
         else:
             return self.__launch_arguments
 
-    def _get_launch_file_location(self):
-        launch_file_location = os.path.abspath(self.__launch_description_source.location)
+    def _get_launch_file(self):
+        return os.path.abspath(self.__launch_description_source.location)
+
+    def _get_launch_file_directory(self):
+        launch_file_location = self._get_launch_file()
         if os.path.exists(launch_file_location):
             launch_file_location = os.path.dirname(launch_file_location)
         else:
@@ -122,8 +125,12 @@ class IncludeLaunchDescription(Action):
     def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Override visit to return an Entity rather than an action."""
         launch_description = self.__launch_description_source.get_launch_description(context)
+        # If the location does not exist, then it's likely set to '<script>' or something.
         context.extend_locals({
-            'current_launch_file_directory': self._get_launch_file_location(),
+            'current_launch_file_path': self._get_launch_file(),
+        })
+        context.extend_locals({
+            'current_launch_file_directory': self._get_launch_file_directory(),
         })
 
         # Do best effort checking to see if non-optional, non-default declared arguments

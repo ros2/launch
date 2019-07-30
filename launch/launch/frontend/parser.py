@@ -98,8 +98,9 @@ class Parser:
         from ..launch_description import LaunchDescription  # noqa: F811
         if entity.type_name != 'launch':
             raise RuntimeError("Expected 'launch' as root tag")
+        deprecated = entity.get_attr('deprecated', optional=True)
         actions = [self.parse_action(child) for child in entity.children]
-        return LaunchDescription(actions)
+        return LaunchDescription(actions, deprecated_reason=deprecated)
 
     @classmethod
     def get_available_extensions(cls) -> List[Text]:
