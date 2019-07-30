@@ -18,12 +18,12 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import TYPE_CHECKING
 
 from ...event import Event
 
-if False:
-    # imports here would cause loops, but are only used as forward-references for type-checking
-    from ...actions import ExecuteProcess  # noqa
+if TYPE_CHECKING:
+    from ...actions import ExecuteProcess  # noqa: F401
 
 
 class RunningProcessEvent(Event):

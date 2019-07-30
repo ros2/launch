@@ -15,12 +15,12 @@
 """Module for ShutdownProcess event."""
 
 from typing import Callable
+from typing import TYPE_CHECKING
 
 from .process_targeted_event import ProcessTargetedEvent
 
-if False:
-    # imports here would cause loops, but are only used as forward-references for type-checking
-    from ...actions import ExecuteProcess  # noqa
+if TYPE_CHECKING:
+    from ...actions import ExecuteProcess  # noqa: F401
 
 
 class ShutdownProcess(ProcessTargetedEvent):

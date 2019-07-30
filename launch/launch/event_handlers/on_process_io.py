@@ -18,6 +18,7 @@ from typing import Callable
 from typing import cast
 from typing import Optional
 from typing import Text
+from typing import TYPE_CHECKING
 
 from ..event import Event
 from ..event_handler import BaseEventHandler
@@ -25,9 +26,8 @@ from ..events.process import ProcessIO
 from ..launch_context import LaunchContext
 from ..some_actions_type import SomeActionsType
 
-if False:
-    # imports here would cause loops, but are only used as forward-references for type-checking
-    from ..actions import ExecuteProcess  # noqa
+if TYPE_CHECKING:
+    from ..actions import ExecuteProcess  # noqa: F401
 
 
 class OnProcessIO(BaseEventHandler):

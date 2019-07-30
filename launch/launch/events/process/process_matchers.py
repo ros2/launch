@@ -16,10 +16,10 @@
 
 from typing import Callable
 from typing import Text
+from typing import TYPE_CHECKING
 
-if False:
-    # imports here would cause loops, but are only used as forward-references for type-checking
-    from ...actions import ExecuteProcess  # noqa
+if TYPE_CHECKING:
+    from ...actions import ExecuteProcess  # noqa: F401
 
 
 def matches_pid(pid: int) -> Callable[['ExecuteProcess'], bool]:
