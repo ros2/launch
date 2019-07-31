@@ -14,7 +14,9 @@
 
 """Module for the launch specific logging."""
 
+import codecs
 import datetime
+import locale
 import logging
 import logging.handlers
 
@@ -331,7 +333,12 @@ def get_screen_handler():
     See launch_config() documentation for screen logging configuration.
     """
     if launch_config.screen_handler is None:
-        launch_config.screen_handler = handlers.StreamHandler(sys.stdout)
+        stream = codecs.StreamWriter(sys.stdout, errors='replace')
+        stream.encode = lambda msg, errors='replace': (
+            msg.encode(locale.getpreferredencoding(False), errors).decode(
+                locale.getpreferredencoding(False), errors=errors),
+            msg)
+        launch_config.screen_handler = handlers.StreamHandler(stream)
         launch_config.screen_handler.setFormatter(launch_config.screen_formatter)
     return launch_config.screen_handler
 
@@ -358,7 +365,8 @@ def get_log_file_handler(file_name='launch.log'):
             else:
                 launch_config.log_handler_factory = handlers.FileHandler
         file_path = get_log_file_path(file_name)
-        file_handler = launch_config.log_handler_factory(file_path)
+        file_handler = launch_config.log_handler_factory(
+            file_path, encoding='utf-8')
         file_handler.setFormatter(launch_config.file_formatter)
         launch_config.file_handlers[file_name] = file_handler
     return launch_config.file_handlers[file_name]

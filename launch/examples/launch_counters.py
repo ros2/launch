@@ -40,9 +40,9 @@ def main(argv=sys.argv[1:]):
     """Main."""
     # Configure rotating logs.
     launch.logging.launch_config(
-        log_handler_factory=lambda path: launch.logging.handlers.RotatingFileHandler(
-            path, maxBytes=1024, backupCount=3
-        )
+        log_handler_factory=lambda path, encoding=None:
+            launch.logging.handlers.RotatingFileHandler(
+                path, maxBytes=1024, backupCount=3, encoding=encoding)
     )
 
     # Any number of actions can optionally be given to the constructor of LaunchDescription.
