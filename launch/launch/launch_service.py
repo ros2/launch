@@ -316,7 +316,7 @@ class LaunchService:
 
             def _on_sigterm(signum, frame):
                 # Ignore additional signals until we finish processing this one.
-                prev_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
+                prev_handler = signal.signal(signal.SIGTERM, signal.SIG_IGN)
                 if prev_handler is signal.SIG_IGN:
                     # This function has been called re-entrantly.
                     return
