@@ -18,6 +18,7 @@ import asyncio
 import atexit
 import collections.abc
 import logging
+import os
 import signal
 import threading
 import traceback
@@ -54,12 +55,15 @@ _g_loops_used = set()  # type: Set
 # This is only really required pre-3.6, see:
 #   https://github.com/ros2/launch/issues/84
 #   https://bugs.python.org/issue23548
-@atexit.register
-def close_loop():
-    global _g_loops_used
-    for loop in _g_loops_used:
-        if not loop.is_closed():
-            loop.close()
+# Don't add this on Windows. It causes:
+#   https://github.com/ros2/demos/issues/354.
+if os.name != 'nt':
+    @atexit.register
+    def close_loop():
+        global _g_loops_used
+        for loop in _g_loops_used:
+            if not loop.is_closed():
+                loop.close()
 
 
 class LaunchService:
