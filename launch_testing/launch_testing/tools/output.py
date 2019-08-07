@@ -47,7 +47,7 @@ def basic_output_filter(
 
     def _filter(output):
         filtered_output_lines = []
-        for line in output.splitlines():
+        for line in output.splitlines(keepends=True):
             # Filter out stdout that comes from underlying DDS implementation
             # Note: we do not currently support matching filters across multiple stdout lines.
             if any(line.startswith(prefix) for prefix in filtered_prefixes):
@@ -55,10 +55,7 @@ def basic_output_filter(
             if any(pattern.match(line) for pattern in filtered_patterns):
                 continue
             filtered_output_lines.append(line)
-        filtered_output = os.linesep.join(filtered_output_lines)
-        if filtered_output and output.endswith('\n'):
-            filtered_output += '\n'
-        return filtered_output
+        return ''.join(filtered_output_lines)
     return _filter
 
 
