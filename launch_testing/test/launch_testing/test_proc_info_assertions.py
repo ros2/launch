@@ -15,19 +15,16 @@
 import os
 import signal
 import sys
-import types
-import unittest
 
 import ament_index_python
 import launch
 import launch.actions
 import launch.events.process
-from launch_testing.loader import LoadTestsFromPythonModule
 from launch_testing.test_runner import LaunchTestRunner
 import launch_testing.util
 
 
-def test_wait_for_shutdown():
+def test_wait_for_shutdown(source_test_loader):
 
     def generate_test_description(ready_fn):
         TEST_PROC_PATH = os.path.join(
@@ -61,21 +58,21 @@ def test_wait_for_shutdown():
     # This is kind of a weird test-within-a-test, but it's the easiest way to get
     # all of the proc_info handlers hooked up correctly without digging deep into
     # the guts of the runner
-    class ProcInfoTests(unittest.TestCase):
+    def test_01_check_running_process(self, proc_info, good_process):
+        with self.assertRaisesRegex(AssertionError, 'Timed out waiting for process'):
+            proc_info.assertWaitForShutdown(good_process, timeout=3)  # Should raise
 
-        def test_01_check_running_process(self, proc_info, good_process):
-            with self.assertRaisesRegexp(AssertionError, 'Timed out waiting for process'):
-                proc_info.assertWaitForShutdown(good_process, timeout=3)  # Should raise
-
-        def test_02_check_when_process_exits(self, proc_info, good_process):
-            proc_info.assertWaitForShutdown(good_process, timeout=15)
-
-    test_module = types.ModuleType('test_module')
-    test_module.generate_test_description = generate_test_description
-    test_module.ProcInfoTests = ProcInfoTests
+    def test_02_check_when_process_exits(self, proc_info, good_process):
+        proc_info.assertWaitForShutdown(good_process, timeout=15)
 
     runner = LaunchTestRunner(
-        LoadTestsFromPythonModule(test_module)
+        source_test_loader(
+            generate_test_description,
+            pre_shutdown_tests=[
+                test_01_check_running_process,
+                test_02_check_when_process_exits,
+            ]
+        )
     )
     results = runner.run()
 
@@ -83,7 +80,7 @@ def test_wait_for_shutdown():
         assert result.wasSuccessful()
 
 
-def test_wait_for_startup():
+def test_wait_for_startup(source_test_loader):
 
     def generate_test_description(ready_fn):
         TEST_PROC_PATH = os.path.join(
@@ -108,22 +105,22 @@ def test_wait_for_startup():
     # This is kind of a weird test-within-a-test, but it's the easiest way to get
     # all of the proc_info handlers hooked up correctly without digging deep into
     # the guts of the runner
-    class ProcInfoTests(unittest.TestCase):
+    def test_01_check_for_non_running_process(self, proc_info, good_process):
+        with self.assertRaisesRegex(AssertionError, 'Timed out waiting for process'):
+            proc_info.assertWaitForStartup(good_process, timeout=3)  # Should raise
 
-        def test_01_check_for_non_running_process(self, proc_info, good_process):
-            with self.assertRaisesRegexp(AssertionError, 'Timed out waiting for process'):
-                proc_info.assertWaitForStartup(good_process, timeout=3)  # Should raise
-
-        def test_02_check_when_process_runs(self, proc_info, good_process):
-            # The process we're waiting for should start about 7 seconds into this wait
-            proc_info.assertWaitForStartup(good_process, timeout=15)
-
-    test_module = types.ModuleType('test_module')
-    test_module.generate_test_description = generate_test_description
-    test_module.ProcInfoTests = ProcInfoTests
+    def test_02_check_when_process_runs(self, proc_info, good_process):
+        # The process we're waiting for should start about 7 seconds into this wait
+        proc_info.assertWaitForStartup(good_process, timeout=15)
 
     runner = LaunchTestRunner(
-        LoadTestsFromPythonModule(test_module)
+        source_test_loader(
+            generate_test_description,
+            pre_shutdown_tests=[
+                test_01_check_for_non_running_process,
+                test_02_check_when_process_runs
+            ]
+        )
     )
     results = runner.run()
 

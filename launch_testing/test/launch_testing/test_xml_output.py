@@ -15,18 +15,15 @@
 import os
 import subprocess
 import tempfile
-import types
 import unittest
 import xml.etree.ElementTree as ET
 
 import ament_index_python
-
-import launch_testing
 from launch_testing.junitxml import unittestResultsToXml
-from launch_testing.loader import LoadTestsFromPythonModule
 from launch_testing.test_result import FailResult
 from launch_testing.test_result import SkipResult
 from launch_testing.test_result import TestResult as TR
+import pytest
 
 
 class TestGoodXmlOutput(unittest.TestCase):
@@ -78,6 +75,7 @@ class TestGoodXmlOutput(unittest.TestCase):
         self.assertIn('test_full_output', case_names)
 
 
+@pytest.mark.usefixtures('source_test_loader_class_fixture')
 class TestXmlFunctions(unittest.TestCase):
     # This are closer to unit tests - just call the functions that generate XML
 
@@ -118,25 +116,22 @@ class TestXmlFunctions(unittest.TestCase):
         def generate_test_description(ready_fn):
             raise Exception('This should never be invoked')  # pragma: no cover
 
-        class FakePreShutdownTests(unittest.TestCase):
+        def test_fail_always(self):
+            assert False  # pragma: no cover
 
-            def test_fail_always(self):
-                assert False  # pragma: no cover
+        def test_pass_always(self):
+            pass  # pragma: no cover
 
-        @launch_testing.post_shutdown_test()
-        class FakePostShutdownTests(unittest.TestCase):
-
-            def test_fail_always(self):
-                assert False  # pragma: no cover
-
-            def test_pass_always(self):
-                pass  # pragma: no cover
-
-        test_module = types.ModuleType('test_module')
-        test_module.generate_test_description = generate_test_description
-        test_module.FakePreShutdownTests = FakePreShutdownTests
-        test_module.FakePostShutdownTests = FakePostShutdownTests
-        test_runs = LoadTestsFromPythonModule(test_module)
+        test_runs = self.source_test_loader(
+            generate_test_description,
+            pre_shutdown_tests=[
+                test_fail_always,
+            ],
+            post_shutdown_tests=[
+                test_fail_always,
+                test_pass_always
+            ]
+        )
 
         self.assertEqual(1, len(test_runs))  # Not a parametrized launch, so only 1 run
 
