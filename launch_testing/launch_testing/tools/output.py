@@ -56,8 +56,8 @@ def basic_output_filter(
                 continue
             filtered_output_lines.append(line)
         filtered_output = os.linesep.join(filtered_output_lines)
-        if filtered_output and output.endswith(os.linesep):
-            filtered_output += os.linesep
+        if filtered_output and output.endswith('\n'):
+            filtered_output += '\n'
         return filtered_output
     return _filter
 
