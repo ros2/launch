@@ -51,10 +51,10 @@ def test_wait_for_shutdown():
                         event=launch.events.process.SignalProcess(
                             signal_number=signal.SIGINT,
                             process_matcher=lambda proc: proc is good_process
-                        ) 
+                        )
                     )
                 ]
-            ), 
+            ),
             launch.actions.OpaqueFunction(function=lambda context: ready_fn())
         ]), {'good_process': good_process}
 
@@ -64,11 +64,8 @@ def test_wait_for_shutdown():
     class ProcInfoTests(unittest.TestCase):
 
         def test_01_check_running_process(self, proc_info, good_process):
-            try:
+            with self.assertRaisesRegexp(AssertionError, 'Timed out waiting for process'):
                 proc_info.assertWaitForShutdown(good_process, timeout=3)  # Should raise
-                assert False, "assertWaitForShutdown did not raise"
-            except AssertionError as e:
-                assert "Timed out waiting for process" in str(e)
 
         def test_02_check_when_process_exits(self, proc_info, good_process):
             proc_info.assertWaitForShutdown(good_process, timeout=15)
@@ -104,7 +101,7 @@ def test_wait_for_startup():
             launch.actions.TimerAction(
                 period=10.0,
                 actions=[good_process]
-            ), 
+            ),
             launch.actions.OpaqueFunction(function=lambda context: ready_fn())
         ]), {'good_process': good_process}
 
@@ -114,11 +111,8 @@ def test_wait_for_startup():
     class ProcInfoTests(unittest.TestCase):
 
         def test_01_check_for_non_running_process(self, proc_info, good_process):
-            try:
+            with self.assertRaisesRegexp(AssertionError, 'Timed out waiting for process'):
                 proc_info.assertWaitForStartup(good_process, timeout=3)  # Should raise
-                assert False, "assertWaitForStartup did not raise"
-            except AssertionError as e:
-                assert "Timed out waiting for process" in str(e)
 
         def test_02_check_when_process_runs(self, proc_info, good_process):
             # The process we're waiting for should start about 7 seconds into this wait

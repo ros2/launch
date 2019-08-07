@@ -14,6 +14,7 @@
 
 import threading
 from launch.actions import ExecuteProcess  # noqa
+from launch.events.process import ProcessExited
 
 from .util import NoMatchingProcessException
 from .util import resolveProcesses
@@ -118,7 +119,7 @@ class ActiveProcInfoHandler(ProcInfoHandler):
                 )[0]
 
                 process_event = self._proc_info_handler[resolved_process]
-                return hasattr(process_event, 'returncode')
+                return isinstance(process_event, ProcessExited)
             except NoMatchingProcessException:
                 return False
 
