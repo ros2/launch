@@ -247,14 +247,14 @@ def test_log_handler_factory(log_dir):
     launch.logging.reset()
     launch.logging.launch_config.configure(
         log_format='default',
-        log_handler_factory=(
-            lambda path, encoding=None: TestStreamHandler(
-                output=outputs[path]
-            )
-        )
     )
     launch.logging.launch_config.level = logging.WARN
     launch.logging.launch_config.log_dir = log_dir
+    launch.logging.launch_config.log_handler_factory = (
+        lambda path, encoding=None: TestStreamHandler(
+            output=outputs[path]
+        )
+    )
 
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())

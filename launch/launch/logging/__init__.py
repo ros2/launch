@@ -44,13 +44,13 @@ class LaunchConfig:
         self._log_dir = None
         self.file_handlers = {}
         self.screen_handler = None
-        self.log_handler_factory = None
+        self._log_handler_factory = None
 
     def reset(self):
         self._log_dir = None
         self.file_handlers = {}
         self.screen_handler = None
-        self.log_handler_factory = None
+        self._log_handler_factory = None
 
     def configure(
         self,
@@ -59,7 +59,6 @@ class LaunchConfig:
         screen_style=None,
         log_format=None,
         log_style=None,
-        log_handler_factory=None
     ):
         """
         Set up launch logging.
@@ -88,12 +87,6 @@ class LaunchConfig:
             logger name and logged message.
         :param log_style: the log style used if no alias is given for log_format.
             No style can be provided if a format alias is given.
-        :param log_handler_factory: a callable to build log file handler.
-           It takes a path to the log file and it must return a `logging.Handler`
-           variant with per logger formatting support.
-           See `launch.logging.handlers` module for further reference and easy reuse
-           of existing standard `logging.handlers` module handlers.
-           Defaults to regular log file handlers for logging if no factory is given.
         """
         if screen_format is not None:
             if screen_format == 'default':
@@ -130,8 +123,6 @@ class LaunchConfig:
             )
             for handler in self.file_handlers.values():
                 handler.setFormatter(self.file_formatter)
-        if log_handler_factory is not None:
-            self.log_handler_factory = log_handler_factory
 
     def set_level(self, new_level):
         """
@@ -144,7 +135,7 @@ class LaunchConfig:
     level = property(None, set_level)
 
     def get_log_dir(self):
-        """Get the current log directory."""
+        """Get the current log directory, generating it if necessary."""
         if self._log_dir is None:
             self._log_dir = _make_unique_log_dir(
                 base_path=os.path.join(os.path.expanduser('~'), '.ros/log')
@@ -170,6 +161,30 @@ class LaunchConfig:
         self._log_dir = new_log_dir
 
     log_dir = property(get_log_dir, set_log_dir)
+
+    def set_log_handler_factory(self, new_log_handler_factory):
+        """
+        Set up log handler factory.
+
+        :param new_log_handler_factory: a callable to build log file handler.
+           It takes a path to the log file and it must return a `logging.Handler`
+           variant with per logger formatting support.
+           See `launch.logging.handlers` module for further reference and easy reuse
+           of existing standard `logging.handlers` module handlers.
+           Defaults to regular log file handlers for logging if no factory is given.
+        """
+        self._log_handler_factory = new_log_handler_factory
+
+    def get_log_handler_factory(self):
+        """Get the log_handler_factory, generating it if necessary."""
+        if self._log_handler_factory is None:
+            if os.name != 'nt':
+                self._log_handler_factory = handlers.WatchedFileHandler
+            else:
+                self._log_handler_factory = handlers.FileHandler
+        return self._log_handler_factory
+
+    log_handler_factory = property(get_log_handler_factory, set_log_handler_factory)
 
     def get_screen_handler(self):
         """
@@ -208,14 +223,9 @@ class LaunchConfig:
         once constructed).
         """
         if file_name not in self.file_handlers:
-            if self.log_handler_factory is None:
-                if os.name != 'nt':
-                    self.log_handler_factory = handlers.WatchedFileHandler
-                else:
-                    self.log_handler_factory = handlers.FileHandler
             file_path = self.get_log_file_path(file_name)
-            file_handler = self.log_handler_factory(
-                file_path, encoding='utf-8')
+            factory = self.log_handler_factory
+            file_handler = factory(file_path, encoding='utf-8')
             file_handler.setFormatter(self.file_formatter)
             self.file_handlers[file_name] = file_handler
         return self.file_handlers[file_name]
