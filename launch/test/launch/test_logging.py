@@ -37,7 +37,7 @@ def test_bad_logging_launch_config():
         launch.logging.launch_config.log_dir = 'not/a/real/dir'
 
     with pytest.raises(ValueError):
-        launch.logging.launch_config.configure(screen_format='default', screen_style='%')
+        launch.logging.launch_config.set_screen_format('default', '%')
 
     with pytest.raises(ValueError):
         launch.logging.launch_config.configure(log_format='default', log_style='%')
@@ -85,11 +85,11 @@ def test_output_loggers_configuration(capsys, log_dir, config, checks):
     checks = {'stdout': set(), 'stderr': set(), 'both': set(), **checks}
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        screen_format='default',
         log_format='default'
     )
     launch.logging.launch_config.level = logging.INFO
     launch.logging.launch_config.log_dir = log_dir
+    launch.logging.launch_config.set_screen_format('default', None)
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_screen_handler())
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())
@@ -168,11 +168,9 @@ def test_output_loggers_configuration(capsys, log_dir, config, checks):
 def test_screen_default_format_with_timestamps(capsys, log_dir):
     """Test screen logging when using the default logs format with timestamps."""
     launch.logging.reset()
-    launch.logging.launch_config.configure(
-        screen_format='default_with_timestamp',
-    )
     launch.logging.launch_config.level = logging.DEBUG
     launch.logging.launch_config.log_dir = log_dir
+    launch.logging.launch_config.set_screen_format('default_with_timestamp', None)
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_screen_handler())
     assert logger.getEffectiveLevel() == logging.DEBUG
@@ -189,10 +187,8 @@ def test_screen_default_format_with_timestamps(capsys, log_dir):
 def test_screen_default_format(capsys):
     """Test screen logging when using the default logs format."""
     launch.logging.reset()
-    launch.logging.launch_config.configure(
-        screen_format='default'
-    )
     launch.logging.launch_config.level = logging.INFO
+    launch.logging.launch_config.set_screen_format('default', None)
 
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_screen_handler())

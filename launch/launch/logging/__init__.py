@@ -44,19 +44,19 @@ class LaunchConfig:
         self._log_dir = None
         self.file_handlers = {}
         self.screen_handler = None
+        self.screen_formatter = None
         self._log_handler_factory = None
 
     def reset(self):
         self._log_dir = None
         self.file_handlers = {}
         self.screen_handler = None
+        self.screen_formatter = None
         self._log_handler_factory = None
 
     def configure(
         self,
         *,
-        screen_format=None,
-        screen_style=None,
         log_format=None,
         log_style=None,
     ):
@@ -65,22 +65,11 @@ class LaunchConfig:
 
         This function allows you to:
 
-          - Configure screen and log file formats.
+          - Configure log file formats.
 
         Setup only has side effects for the arguments provided.
         The setup process is idempotent.
 
-        For the ``screen_format`` argument there are a few aliases:
-
-          - 'default' to log verbosity level, logger name and logged message
-          - 'default_with_timestamp' to add timestamps to the 'default' format
-
-        :param screen_format: format specification used when logging to the screen,
-            as expected by the `logging.Formatter` constructor.
-            Alternatively, aliases for common formats are available, see above.
-        :param screen_style: the screen style used if no alias is used for
-            screen_format.
-            No style can be provided if a format alias is given.
         :param log_format: the format used when logging to the main launch log file,
             as expected by the `logging.Formatter` constructor.
             Alternatively, the 'default' alias can be given to log verbosity level,
@@ -88,27 +77,6 @@ class LaunchConfig:
         :param log_style: the log style used if no alias is given for log_format.
             No style can be provided if a format alias is given.
         """
-        if screen_format is not None:
-            if screen_format == 'default':
-                screen_format = '[{levelname}] [{name}]: {msg}'
-                if screen_style is not None:
-                    raise ValueError(
-                        'Cannot set a custom format style for the "default" screen format.'
-                    )
-            if screen_format == 'default_with_timestamp':
-                screen_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
-                if screen_style is not None:
-                    raise ValueError(
-                        'Cannot set a custom format style for the '
-                        '"default_with_timestamp" screen format.'
-                    )
-            if screen_style is None:
-                screen_style = '{'
-            self.screen_formatter = logging.Formatter(
-                screen_format, style=screen_style
-            )
-            if self.screen_handler is not None:
-                self.screen_handler.setFormatter(self.screen_formatter)
         if log_format is not None:
             if log_format == 'default':
                 log_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
@@ -185,6 +153,46 @@ class LaunchConfig:
         return self._log_handler_factory
 
     log_handler_factory = property(get_log_handler_factory, set_log_handler_factory)
+
+    def set_screen_format(self, screen_format, screen_style):
+        """
+        Set up screen formats.
+
+        For the ``screen_format`` argument there are a few aliases:
+
+          - 'default' to log verbosity level, logger name and logged message
+          - 'default_with_timestamp' to add timestamps to the 'default' format
+
+        :param screen_format: format specification used when logging to the screen,
+            as expected by the `logging.Formatter` constructor.
+            Alternatively, aliases for common formats are available, see above.
+        :param screen_style: the screen style used if no alias is used for
+            screen_format.
+            No style can be provided if a format alias is given.
+        """
+        if screen_format is not None:
+            if screen_format == 'default':
+                screen_format = '[{levelname}] [{name}]: {msg}'
+                if screen_style is not None:
+                    raise ValueError(
+                        'Cannot set a custom format style for the "default" screen format.'
+                    )
+            if screen_format == 'default_with_timestamp':
+                screen_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
+                if screen_style is not None:
+                    raise ValueError(
+                        'Cannot set a custom format style for the '
+                        '"default_with_timestamp" screen format.'
+                    )
+            if screen_style is None:
+                screen_style = '{'
+            self.screen_formatter = logging.Formatter(
+                screen_format, style=screen_style
+            )
+            if self.screen_handler is not None:
+                self.screen_handler.setFormatter(self.screen_formatter)
+        else:
+            self.screen_formatter = None
 
     def get_screen_handler(self):
         """
@@ -453,8 +461,9 @@ def reset():
         logger.setLevel(logging.NOTSET)
         del logger.handlers[:]
     launch_config.reset()
-    launch_config.configure(log_format='default', screen_format='default')
+    launch_config.configure(log_format='default')
     launch_config.level = logging.INFO
+    launch_config.set_screen_format('default', None)
     logging.setLoggerClass(LaunchLogger)
 
 
