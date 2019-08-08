@@ -55,7 +55,6 @@ class LaunchConfig:
     def configure(
         self,
         *,
-        log_dir=None,
         screen_format=None,
         screen_style=None,
         log_format=None,
@@ -67,7 +66,6 @@ class LaunchConfig:
 
         This function allows you to:
 
-          - Configure the location of log files on disk.
           - Configure screen and log file formats.
 
         Setup only has side effects for the arguments provided.
@@ -78,7 +76,6 @@ class LaunchConfig:
           - 'default' to log verbosity level, logger name and logged message
           - 'default_with_timestamp' to add timestamps to the 'default' format
 
-        :param log_dir: used as base path for all log file collections.
         :param screen_format: format specification used when logging to the screen,
             as expected by the `logging.Formatter` constructor.
             Alternatively, aliases for common formats are available, see above.
@@ -135,26 +132,44 @@ class LaunchConfig:
                 handler.setFormatter(self.file_formatter)
         if log_handler_factory is not None:
             self.log_handler_factory = log_handler_factory
-        if log_dir is not None:
+
+    def set_level(self, new_level):
+        """
+        Set up launch logging verbosity level for all loggers.
+
+        :param new_level: the default log level used for all loggers.
+        """
+        logging.root.setLevel(new_level)
+
+    level = property(None, set_level)
+
+    def get_log_dir(self):
+        """Get the current log directory."""
+        if self._log_dir is None:
+            self._log_dir = _make_unique_log_dir(
+                base_path=os.path.join(os.path.expanduser('~'), '.ros/log')
+            )
+
+        return self._log_dir
+
+    def set_log_dir(self, new_log_dir):
+        """
+        Set up launch logging directory.
+
+        :param new_log_dir: used as base path for all log file collections.
+        """
+        if new_log_dir is not None:
             if any(self.file_handlers):
                 import warnings
                 warnings.warn((
                     'Loggers have been already configured to output to log files below {}. '
                     'Proceed at your own risk.'
                 ).format(self._log_dir))
-            if not os.path.isdir(log_dir):
-                raise ValueError('{} is not a directory'.format(log_dir))
-        self._log_dir = log_dir
+            if not os.path.isdir(new_log_dir):
+                raise ValueError('{} is not a directory'.format(new_log_dir))
+        self._log_dir = new_log_dir
 
-    def set_level(self, new_level):
-        """
-        Set up launch logging verbosity level for all loggers.
-
-        :param level: the default log level used for all loggers.
-        """
-        logging.root.setLevel(new_level)
-
-    level = property(None, set_level)
+    log_dir = property(get_log_dir, set_log_dir)
 
     def get_screen_handler(self):
         """
@@ -204,15 +219,6 @@ class LaunchConfig:
             file_handler.setFormatter(self.file_formatter)
             self.file_handlers[file_name] = file_handler
         return self.file_handlers[file_name]
-
-    @property
-    def log_dir(self):
-        if self._log_dir is None:
-            self._log_dir = _make_unique_log_dir(
-                base_path=os.path.join(os.path.expanduser('~'), '.ros/log')
-            )
-
-        return self._log_dir
 
 
 launch_config = LaunchConfig()

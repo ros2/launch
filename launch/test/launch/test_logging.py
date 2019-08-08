@@ -34,7 +34,7 @@ def test_bad_logging_launch_config():
     launch.logging.reset()
 
     with pytest.raises(ValueError):
-        launch.logging.launch_config.configure(log_dir='not/a/real/dir')
+        launch.logging.launch_config.log_dir = 'not/a/real/dir'
 
     with pytest.raises(ValueError):
         launch.logging.launch_config.configure(screen_format='default', screen_style='%')
@@ -47,7 +47,7 @@ def test_output_loggers_bad_configuration(log_dir):
     """Tests that output loggers setup throws at bad configuration."""
     launch.logging.launch_config.reset()
 
-    launch.logging.launch_config.configure(log_dir=log_dir)
+    launch.logging.launch_config.log_dir = log_dir
 
     with pytest.raises(ValueError):
         launch.logging.get_output_loggers('some-proc', 'not_an_alias')
@@ -85,11 +85,11 @@ def test_output_loggers_configuration(capsys, log_dir, config, checks):
     checks = {'stdout': set(), 'stderr': set(), 'both': set(), **checks}
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        log_dir=log_dir,
         screen_format='default',
         log_format='default'
     )
     launch.logging.launch_config.level = logging.INFO
+    launch.logging.launch_config.log_dir = log_dir
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_screen_handler())
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())
@@ -169,10 +169,10 @@ def test_screen_default_format_with_timestamps(capsys, log_dir):
     """Test screen logging when using the default logs format with timestamps."""
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        log_dir=log_dir,
         screen_format='default_with_timestamp',
     )
     launch.logging.launch_config.level = logging.DEBUG
+    launch.logging.launch_config.log_dir = log_dir
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_screen_handler())
     assert logger.getEffectiveLevel() == logging.DEBUG
@@ -210,10 +210,10 @@ def test_log_default_format(log_dir):
     """Test logging to the main log file when using the default logs format."""
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        log_dir=log_dir,
         log_format='default'
     )
     launch.logging.launch_config.level = logging.WARN
+    launch.logging.launch_config.log_dir = log_dir
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())
     assert logger.getEffectiveLevel() == logging.WARN
@@ -246,7 +246,6 @@ def test_log_handler_factory(log_dir):
 
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        log_dir=log_dir,
         log_format='default',
         log_handler_factory=(
             lambda path, encoding=None: TestStreamHandler(
@@ -255,6 +254,7 @@ def test_log_handler_factory(log_dir):
         )
     )
     launch.logging.launch_config.level = logging.WARN
+    launch.logging.launch_config.log_dir = log_dir
 
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())
