@@ -87,9 +87,7 @@ class LaunchService:
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
         # Setup logging and debugging.
-        launch.logging.launch_config.configure(
-            level=logging.DEBUG if debug else logging.INFO
-        )
+        launch.logging.launch_config.level = logging.DEBUG if debug else logging.INFO
         self.__debug = debug
 
         # Setup logging

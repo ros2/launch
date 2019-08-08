@@ -55,7 +55,6 @@ class LaunchConfig:
     def configure(
         self,
         *,
-        level=None,
         log_dir=None,
         screen_format=None,
         screen_style=None,
@@ -68,7 +67,6 @@ class LaunchConfig:
 
         This function allows you to:
 
-          - Set the default verbosity level for all loggers.
           - Configure the location of log files on disk.
           - Configure screen and log file formats.
 
@@ -80,7 +78,6 @@ class LaunchConfig:
           - 'default' to log verbosity level, logger name and logged message
           - 'default_with_timestamp' to add timestamps to the 'default' format
 
-        :param level: the default log level used for all loggers.
         :param log_dir: used as base path for all log file collections.
         :param screen_format: format specification used when logging to the screen,
             as expected by the `logging.Formatter` constructor.
@@ -101,8 +98,6 @@ class LaunchConfig:
            of existing standard `logging.handlers` module handlers.
            Defaults to regular log file handlers for logging if no factory is given.
         """
-        if level is not None:
-            logging.root.setLevel(level)
         if screen_format is not None:
             if screen_format == 'default':
                 screen_format = '[{levelname}] [{name}]: {msg}'
@@ -150,6 +145,16 @@ class LaunchConfig:
             if not os.path.isdir(log_dir):
                 raise ValueError('{} is not a directory'.format(log_dir))
         self._log_dir = log_dir
+
+    def set_level(self, new_level):
+        """
+        Set up launch logging verbosity level for all loggers.
+
+        :param level: the default log level used for all loggers.
+        """
+        logging.root.setLevel(new_level)
+
+    level = property(None, set_level)
 
     def get_screen_handler(self):
         """
@@ -432,8 +437,8 @@ def reset():
         logger.setLevel(logging.NOTSET)
         del logger.handlers[:]
     launch_config.reset()
-    launch_config.configure(level=logging.INFO, log_dir=None,
-                            log_format='default', screen_format='default')
+    launch_config.configure(log_format='default', screen_format='default')
+    launch_config.level = logging.INFO
     logging.setLoggerClass(LaunchLogger)
 
 

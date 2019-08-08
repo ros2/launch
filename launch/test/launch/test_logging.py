@@ -85,11 +85,11 @@ def test_output_loggers_configuration(capsys, log_dir, config, checks):
     checks = {'stdout': set(), 'stderr': set(), 'both': set(), **checks}
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        level=logging.INFO,
         log_dir=log_dir,
         screen_format='default',
         log_format='default'
     )
+    launch.logging.launch_config.level = logging.INFO
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_screen_handler())
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())
@@ -169,10 +169,10 @@ def test_screen_default_format_with_timestamps(capsys, log_dir):
     """Test screen logging when using the default logs format with timestamps."""
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        level=logging.DEBUG,
         log_dir=log_dir,
         screen_format='default_with_timestamp',
     )
+    launch.logging.launch_config.level = logging.DEBUG
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_screen_handler())
     assert logger.getEffectiveLevel() == logging.DEBUG
@@ -190,9 +190,9 @@ def test_screen_default_format(capsys):
     """Test screen logging when using the default logs format."""
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        level=logging.INFO,
         screen_format='default'
     )
+    launch.logging.launch_config.level = logging.INFO
 
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_screen_handler())
@@ -210,10 +210,10 @@ def test_log_default_format(log_dir):
     """Test logging to the main log file when using the default logs format."""
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        level=logging.WARN,
         log_dir=log_dir,
         log_format='default'
     )
+    launch.logging.launch_config.level = logging.WARN
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())
     assert logger.getEffectiveLevel() == logging.WARN
@@ -246,7 +246,6 @@ def test_log_handler_factory(log_dir):
 
     launch.logging.reset()
     launch.logging.launch_config.configure(
-        level=logging.WARN,
         log_dir=log_dir,
         log_format='default',
         log_handler_factory=(
@@ -255,6 +254,7 @@ def test_log_handler_factory(log_dir):
             )
         )
     )
+    launch.logging.launch_config.level = logging.WARN
 
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())
