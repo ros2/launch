@@ -40,7 +40,7 @@ def test_bad_logging_launch_config():
         launch.logging.launch_config.set_screen_format('default', '%')
 
     with pytest.raises(ValueError):
-        launch.logging.launch_config.configure(log_format='default', log_style='%')
+        launch.logging.launch_config.set_log_format(log_format='default', log_style='%')
 
 
 def test_output_loggers_bad_configuration(log_dir):
@@ -84,9 +84,7 @@ def test_output_loggers_bad_configuration(log_dir):
 def test_output_loggers_configuration(capsys, log_dir, config, checks):
     checks = {'stdout': set(), 'stderr': set(), 'both': set(), **checks}
     launch.logging.reset()
-    launch.logging.launch_config.configure(
-        log_format='default'
-    )
+    launch.logging.launch_config.set_log_format('default', None)
     launch.logging.launch_config.level = logging.INFO
     launch.logging.launch_config.log_dir = log_dir
     launch.logging.launch_config.set_screen_format('default', None)
@@ -205,11 +203,9 @@ def test_screen_default_format(capsys):
 def test_log_default_format(log_dir):
     """Test logging to the main log file when using the default logs format."""
     launch.logging.reset()
-    launch.logging.launch_config.configure(
-        log_format='default'
-    )
     launch.logging.launch_config.level = logging.WARN
     launch.logging.launch_config.log_dir = log_dir
+    launch.logging.launch_config.set_log_format('default', None)
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())
     assert logger.getEffectiveLevel() == logging.WARN
@@ -241,9 +237,6 @@ def test_log_handler_factory(log_dir):
     outputs = collections.defaultdict(list)
 
     launch.logging.reset()
-    launch.logging.launch_config.configure(
-        log_format='default',
-    )
     launch.logging.launch_config.level = logging.WARN
     launch.logging.launch_config.log_dir = log_dir
     launch.logging.launch_config.log_handler_factory = (
@@ -251,6 +244,7 @@ def test_log_handler_factory(log_dir):
             output=outputs[path]
         )
     )
+    launch.logging.launch_config.set_log_format('default', None)
 
     logger = launch.logging.get_logger('some-proc')
     logger.addHandler(launch.logging.launch_config.get_log_file_handler())

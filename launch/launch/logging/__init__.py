@@ -41,56 +41,15 @@ class LaunchConfig:
     """Launch Logging Configuration class."""
 
     def __init__(self):
-        self._log_dir = None
-        self.file_handlers = {}
-        self.screen_handler = None
-        self.screen_formatter = None
-        self._log_handler_factory = None
+        self.reset()
 
     def reset(self):
         self._log_dir = None
         self.file_handlers = {}
         self.screen_handler = None
         self.screen_formatter = None
+        self.file_formatter = None
         self._log_handler_factory = None
-
-    def configure(
-        self,
-        *,
-        log_format=None,
-        log_style=None,
-    ):
-        """
-        Set up launch logging.
-
-        This function allows you to:
-
-          - Configure log file formats.
-
-        Setup only has side effects for the arguments provided.
-        The setup process is idempotent.
-
-        :param log_format: the format used when logging to the main launch log file,
-            as expected by the `logging.Formatter` constructor.
-            Alternatively, the 'default' alias can be given to log verbosity level,
-            logger name and logged message.
-        :param log_style: the log style used if no alias is given for log_format.
-            No style can be provided if a format alias is given.
-        """
-        if log_format is not None:
-            if log_format == 'default':
-                log_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
-                if log_style is not None:
-                    raise ValueError(
-                        'Cannot set a custom format style for the "default" log format.'
-                    )
-            if log_style is None:
-                log_style = '{'
-            self.file_formatter = logging.Formatter(
-                log_format, style=log_style
-            )
-            for handler in self.file_handlers.values():
-                handler.setFormatter(self.file_formatter)
 
     def set_level(self, new_level):
         """
@@ -209,6 +168,34 @@ class LaunchConfig:
             self.screen_handler = handlers.StreamHandler(stream)
             self.screen_handler.setFormatter(self.screen_formatter)
         return self.screen_handler
+
+    def set_log_format(self, log_format, log_style):
+        """
+        Set up launch log file format.
+
+        :param log_format: the format used when logging to the main launch log file,
+            as expected by the `logging.Formatter` constructor.
+            Alternatively, the 'default' alias can be given to log verbosity level,
+            logger name and logged message.
+        :param log_style: the log style used if no alias is given for log_format.
+            No style can be provided if a format alias is given.
+        """
+        if log_format is not None:
+            if log_format == 'default':
+                log_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
+                if log_style is not None:
+                    raise ValueError(
+                        'Cannot set a custom format style for the "default" log format.'
+                    )
+            if log_style is None:
+                log_style = '{'
+            self.file_formatter = logging.Formatter(
+                log_format, style=log_style
+            )
+            for handler in self.file_handlers.values():
+                handler.setFormatter(self.file_formatter)
+        else:
+            self.file_formatter = None
 
     def get_log_file_path(self, file_name='launch.log'):
         """
@@ -461,9 +448,9 @@ def reset():
         logger.setLevel(logging.NOTSET)
         del logger.handlers[:]
     launch_config.reset()
-    launch_config.configure(log_format='default')
     launch_config.level = logging.INFO
     launch_config.set_screen_format('default', None)
+    launch_config.set_log_format('default', None)
     logging.setLoggerClass(LaunchLogger)
 
 
