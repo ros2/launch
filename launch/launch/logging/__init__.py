@@ -37,6 +37,27 @@ __all__ = [
 ]
 
 
+def _make_unique_log_dir(*, base_path):
+    """
+    Make a unique directory for logging.
+
+    :param: base_path for directory creation
+    :return: the path to the created directory
+    """
+    while True:
+        now = datetime.datetime.now()
+        datetime_str = now.strftime('%Y-%m-%d-%H-%M-%S-%f')
+        log_dirname = '{0}-{1}-{2}'.format(
+            datetime_str, socket.gethostname(), os.getpid()
+        )
+        log_dir = os.path.join(base_path, log_dirname)
+        # Check that filename does not exist
+        # TODO(hidmic): fix (unlikely) TOCTTOU race
+        if not os.path.isdir(log_dir):
+            os.makedirs(log_dir, exist_ok=True)
+            return log_dir
+
+
 class LaunchConfig:
     """Launch Logging Configuration class."""
 
@@ -50,8 +71,16 @@ class LaunchConfig:
         self.screen_formatter = None
         self.file_formatter = None
         self._log_handler_factory = None
+        logging.root.setLevel(logging.INFO)
+        self.set_screen_format('default')
+        self.set_log_format('default')
 
-    def set_level(self, new_level):
+    @property
+    def level(self):
+        return logging.root.getEffectiveLevel()
+
+    @level.setter
+    def level(self, new_level):
         """
         Set up launch logging verbosity level for all loggers.
 
@@ -59,9 +88,8 @@ class LaunchConfig:
         """
         logging.root.setLevel(new_level)
 
-    level = property(None, set_level)
-
-    def get_log_dir(self):
+    @property
+    def log_dir(self):
         """Get the current log directory, generating it if necessary."""
         if self._log_dir is None:
             self._log_dir = _make_unique_log_dir(
@@ -70,7 +98,8 @@ class LaunchConfig:
 
         return self._log_dir
 
-    def set_log_dir(self, new_log_dir):
+    @log_dir.setter
+    def log_dir(self, new_log_dir):
         """
         Set up launch logging directory.
 
@@ -87,9 +116,18 @@ class LaunchConfig:
                 raise ValueError('{} is not a directory'.format(new_log_dir))
         self._log_dir = new_log_dir
 
-    log_dir = property(get_log_dir, set_log_dir)
+    @property
+    def log_handler_factory(self):
+        """Get the log_handler_factory, generating it if necessary."""
+        if self._log_handler_factory is None:
+            if os.name != 'nt':
+                self._log_handler_factory = handlers.WatchedFileHandler
+            else:
+                self._log_handler_factory = handlers.FileHandler
+        return self._log_handler_factory
 
-    def set_log_handler_factory(self, new_log_handler_factory):
+    @log_handler_factory.setter
+    def log_handler_factory(self, new_log_handler_factory):
         """
         Set up log handler factory.
 
@@ -102,18 +140,7 @@ class LaunchConfig:
         """
         self._log_handler_factory = new_log_handler_factory
 
-    def get_log_handler_factory(self):
-        """Get the log_handler_factory, generating it if necessary."""
-        if self._log_handler_factory is None:
-            if os.name != 'nt':
-                self._log_handler_factory = handlers.WatchedFileHandler
-            else:
-                self._log_handler_factory = handlers.FileHandler
-        return self._log_handler_factory
-
-    log_handler_factory = property(get_log_handler_factory, set_log_handler_factory)
-
-    def set_screen_format(self, screen_format, screen_style):
+    def set_screen_format(self, screen_format, *, screen_style=None):
         """
         Set up screen formats.
 
@@ -169,7 +196,7 @@ class LaunchConfig:
             self.screen_handler.setFormatter(self.screen_formatter)
         return self.screen_handler
 
-    def set_log_format(self, log_format, log_style):
+    def set_log_format(self, log_format, *, log_style=None):
         """
         Set up launch log file format.
 
@@ -406,27 +433,6 @@ def get_output_loggers(process_name, output_config):
     )
 
 
-def _make_unique_log_dir(*, base_path):
-    """
-    Make a unique directory for logging.
-
-    :param: base_path for directory creation
-    :return: the path to the created directory
-    """
-    while True:
-        now = datetime.datetime.now()
-        datetime_str = now.strftime('%Y-%m-%d-%H-%M-%S-%f')
-        log_dirname = '{0}-{1}-{2}'.format(
-            datetime_str, socket.gethostname(), os.getpid()
-        )
-        log_dir = os.path.join(base_path, log_dirname)
-        # Check that filename does not exist
-        # TODO(hidmic): fix (unlikely) TOCTTOU race
-        if not os.path.isdir(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-            return log_dir
-
-
 # Track all loggers to support module resets
 class LaunchLogger(logging.getLoggerClass()):
     all_loggers: List[logging.Logger] = []
@@ -448,9 +454,6 @@ def reset():
         logger.setLevel(logging.NOTSET)
         del logger.handlers[:]
     launch_config.reset()
-    launch_config.level = logging.INFO
-    launch_config.set_screen_format('default', None)
-    launch_config.set_log_format('default', None)
     logging.setLoggerClass(LaunchLogger)
 
 
