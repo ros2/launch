@@ -89,7 +89,7 @@ class LaunchDescription(LaunchDescriptionEntity):
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
-                    if entity.name in [e.name for e in declared_launch_arguments]:
+                    if entity.name in (e.name for e in declared_launch_arguments):
                         continue
                     # Stuff this contextual information into the class for
                     # potential use in command-line descriptions or errors.
