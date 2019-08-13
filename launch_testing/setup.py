@@ -14,7 +14,8 @@ setup(
         ('share/launch_testing/examples', glob.glob('examples/[!_]**')),
     ],
     entry_points={
-        'console_scripts': ['launch_test=launch_testing.launch_test:main']
+        'console_scripts': ['launch_test=launch_testing.launch_test:main'],
+        'pytest11': ['launch = launch_testing.pytest.hooks'],
     },
     install_requires=['setuptools'],
     zip_safe=True,
