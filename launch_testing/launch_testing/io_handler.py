@@ -174,7 +174,7 @@ class ActiveIoHandler(IoHandler):
                                        strict_proc_matching=False)
             if len(matches) == 0:
                 raise Exception(
-                    "After fimeout, found no processes matching '{}'  "
+                    "After timeout, found no processes matching '{}'  "
                     "It either doesn't exist, was never launched, "
                     "or didn't generate any output".format(
                         process
