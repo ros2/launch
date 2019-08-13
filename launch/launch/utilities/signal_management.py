@@ -32,10 +32,6 @@ def on_sigint(handler):
     Set the signal handler to be called on SIGINT.
 
     Pass None for no custom handler.
-    Note that if a custom handler is set (anything other than None is given),
-    then KeyboardInterrupt is caught and ignored around the original signal
-    handler (the once captured when install_signal_handlers() was called).
-    Passing None for handler will undo this behavior.
 
     install_signal_handlers() must have been called in the main thread before.
     It is called automatically by the constructor of `launch.LaunchService`.
@@ -114,8 +110,8 @@ def install_signal_handlers():
 
     def __on_sigint(signum, frame):
         if callable(__custom_sigint_handler):
-            __custom_sigint_handler(signum, frame)
-        if callable(__original_sigint_handler):
+            __custom_sigint_handler(signum, frame, __original_sigint_handler)
+        elif callable(__original_sigint_handler):
             __original_sigint_handler(signum, frame)
 
     if platform.system() != 'Windows':
@@ -124,14 +120,14 @@ def install_signal_handlers():
 
         def __on_sigquit(signum, frame):
             if callable(__custom_sigquit_handler):
-                __custom_sigquit_handler(signum, frame)
-            if callable(__original_sigquit_handler):
+                __custom_sigquit_handler(signum, frame, __original_sigquit_handler)
+            elif callable(__original_sigquit_handler):
                 __original_sigquit_handler(signum, frame)
 
     def __on_sigterm(signum, frame):
         if callable(__custom_sigterm_handler):
-            __custom_sigterm_handler(signum, frame)
-        if callable(__original_sigterm_handler):
+            __custom_sigterm_handler(signum, frame, __original_sigterm_handler)
+        elif callable(__original_sigterm_handler):
             __original_sigterm_handler(signum, frame)
 
     # signals must be registered in the main thread, but print a nicer message if we're not there
