@@ -403,11 +403,6 @@ class LaunchService:
 
         :param: shutdown_when_idle if True (default), the service will shutdown when idle
         """
-        # Make sure this has not been called from any thread but the main thread.
-        if threading.current_thread() is not threading.main_thread():
-            raise RuntimeError(
-                'LaunchService can only be run in the main thread.'
-            )
         loop = osrf_pycommon.process_utils.get_loop()
         run_async_task = loop.create_task(self.run_async(
             shutdown_when_idle=shutdown_when_idle, loop=loop
