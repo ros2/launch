@@ -18,6 +18,15 @@ After shutdown, we run a similar test that checks more output, and also checks t
 order of the output.  `test_out_of_order` demonstrates that the `assertSequentialStdout`
 context manager is able to detect out of order stdout.
 
+## `terminating_proc.test.py`
+
+Usage:
+```sh
+launch_test examples/terminating_proc.test.py
+```
+
+This test checks proper functionality of the _terminating\_proc_ example (source found in the [example\_processes\ folder](../example\_processes)).
+
 ## `args.test.py`
 
 Usage to view the arguments:

@@ -25,26 +25,25 @@ import launch_testing
 from launch_testing.asserts import assertSequentialStdout
 
 
-TEST_PROC_PATH = os.path.join(
-    ament_index_python.get_package_prefix('launch_testing'),
-    'lib/launch_testing',
-    'good_proc'
-)
+def get_test_process_action():
+    TEST_PROC_PATH = os.path.join(
+        ament_index_python.get_package_prefix('launch_testing'),
+        'lib/launch_testing',
+        'good_proc'
+    )
+    return launch.actions.ExecuteProcess(
+        cmd=[sys.executable, TEST_PROC_PATH],
+        name='good_proc',
+        # This is necessary to get unbuffered output from the process under test
+        additional_env={'PYTHONUNBUFFERED': '1'},
+    )
 
 
 # This launch description shows the prefered way to let the tests access launch actions.  By
 # adding them to the test context, it's not necessary to scope them at the module level like in
 # the good_proc.test.py example
 def generate_test_description(ready_fn):
-    # This is necessary to get unbuffered output from the process under test
-    proc_env = os.environ.copy()
-    proc_env['PYTHONUNBUFFERED'] = '1'
-
-    dut_process = launch.actions.ExecuteProcess(
-        cmd=[sys.executable, TEST_PROC_PATH],
-        name='good_proc',
-        env=proc_env,
-    )
+    dut_process = get_test_process_action()
 
     ld = launch.LaunchDescription([
         dut_process,
