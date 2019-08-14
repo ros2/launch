@@ -31,14 +31,14 @@ def _source_test_loader(generate_test_description_fn,
     and modules.
     Rather than refactoring launch_testing and python unittest, we leverage what we already have.
     This method stuffs test methods into unittest.TestCase classes, and then stuffs those
-    classes into modules before loading them as a TestRun
+    classes into modules before loading them as a TestRun.
 
     :param: generate_test_description_fn A python function with a signature matching
-        generate_test_description.
+        `generate_test_description`'s.
     :param: pre_shutdown_tests A list of test methods to run concurrently with the processes
-        described by the generate_test_description function
+        described by `generate_test_description`.
     :param: post_shutdown_tests A list of test methods to run after the launched processes
-        have shut down
+        have shut down.
     """
     test_module = types.ModuleType('test_module')
     test_module.generate_test_description = generate_test_description_fn
