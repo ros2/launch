@@ -67,10 +67,11 @@ class IncludeLaunchDescription(Action):
         *,
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
-        ] = None
+        ] = None,
+        **kwargs
     ) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(**kwargs)
         self.__launch_description_source = launch_description_source
         self.__launch_arguments = launch_arguments
 
