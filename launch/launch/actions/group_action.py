@@ -27,6 +27,7 @@ from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
+from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_substitutions_type import SomeSubstitutionsType
 
 
@@ -68,7 +69,7 @@ class GroupAction(Action):
         kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
         return cls, kwargs
 
-    def execute(self, context: LaunchContext) -> Optional[List[Action]]:
+    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
         actions = []  # type: List[Action]
         actions += [SetLaunchConfiguration(k, v) for k, v in self.__launch_configurations.items()]

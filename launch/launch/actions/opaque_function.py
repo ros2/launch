@@ -25,6 +25,7 @@ from typing import Text
 
 from ..action import Action
 from ..launch_context import LaunchContext
+from ..launch_description_entity import LaunchDescriptionEntity
 from ..utilities import ensure_argument_type
 
 
@@ -69,6 +70,6 @@ class OpaqueFunction(Action):
         if kwargs is not None:
             self.__kwargs = kwargs
 
-    def execute(self, context: LaunchContext) -> Optional[List[Action]]:
+    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
         return self.__function(context, *self.__args, **self.__kwargs)

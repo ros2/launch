@@ -28,6 +28,7 @@ from ..action import Action
 from ..event import Event
 from ..event_handlers import OnShutdown
 from ..launch_context import LaunchContext
+from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 from ..utilities import ensure_argument_type
 
@@ -97,7 +98,7 @@ class OpaqueCoroutine(Action):
             self.__future.cancel()
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List[Action]]:
+    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
         args = self.__args
         if not self.__ignore_context:

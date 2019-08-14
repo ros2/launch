@@ -122,8 +122,8 @@ class IncludeLaunchDescription(Action):
         ret = self.__launch_description_source.try_get_launch_description_without_context()
         return [ret] if ret is not None else []
 
-    def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
-        """Override visit to return an Entity rather than an action."""
+    def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
+        """Execute the action."""
         launch_description = self.__launch_description_source.get_launch_description(context)
         # If the location does not exist, then it's likely set to '<script>' or something.
         context.extend_locals({
