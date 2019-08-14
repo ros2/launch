@@ -354,12 +354,8 @@ class ExecuteProcess(Action):
             return None
         if platform.system() == 'Windows' and typed_event.signal_name == 'SIGINT':
             # TODO(wjwwood): remove this when/if SIGINT is fixed on Windows
-            self.__logger.warning(
-                "'SIGINT' sent to process[{}] not supported on Windows, escalating to 'SIGTERM'"
-                .format(self.process_details['name']),
-            )
             typed_event = SignalProcess(
-                signal_number=signal.SIGTERM,
+                signal_number=signal.CTRL_C_EVENT,
                 process_matcher=lambda process: True)
         self.__logger.info("sending signal '{}' to process[{}]".format(
             typed_event.signal_name, self.process_details['name']
