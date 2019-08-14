@@ -20,8 +20,9 @@ import launch
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import RegisterEventHandler
-from launch.event_handlers import OnProcessExit, OnProcessStart
+from launch.event_handlers import OnProcessExit
 from launch.event_handlers import OnProcessIO
+from launch.event_handlers import OnProcessStart
 
 from .io_handler import ActiveIoHandler
 from .parse_arguments import parse_launch_arguments
