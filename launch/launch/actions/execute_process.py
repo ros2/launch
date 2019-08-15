@@ -64,6 +64,7 @@ from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
+from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution  # noqa: F401
@@ -629,7 +630,7 @@ class ExecuteProcess(Action):
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
         self.__cleanup()
 
-    def execute(self, context: LaunchContext) -> Optional[List['Action']]:
+    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
         Execute the action.
 

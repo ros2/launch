@@ -14,7 +14,6 @@
 
 """Module for Action class."""
 
-from typing import cast
 from typing import List
 from typing import Optional
 from typing import Text
@@ -87,7 +86,7 @@ class Action(LaunchDescriptionEntity):
         """Override visit from LaunchDescriptionEntity so that it executes."""
         if self.__condition is None or self.__condition.evaluate(context):
             try:
-                return cast(Optional[List[LaunchDescriptionEntity]], self.execute(context))
+                return self.execute(context)
             finally:
                 from .events import ExecutionComplete  # noqa
                 event = ExecutionComplete(action=self)
@@ -101,7 +100,7 @@ class Action(LaunchDescriptionEntity):
                         context.emit_event_sync(event)
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List['Action']]:
+    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
         Execute the action.
 
