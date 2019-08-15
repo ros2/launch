@@ -93,7 +93,10 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
             )
         if name in parse_methods_map and found_parse_method != parse_methods_map[name]:
             raise RuntimeError(
-                'Two {} parsing methods exposed with same name.'.format(exposed_type)
+                'Two {} parsing methods exposed with the same name: [{}].'.format(
+                    exposed_type,
+                    name
+                )
             )
         parse_methods_map[name] = found_parse_method
         return exposed

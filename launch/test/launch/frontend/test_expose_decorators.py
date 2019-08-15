@@ -43,7 +43,7 @@ def test_expose_decorators():
     expose_test('to_be_exposed')(to_be_exposed)
     assert 'to_be_exposed' in register
     if 'to_be_exposed' in register:
-        assert register['to_be_exposed'] is to_be_exposed
+        assert register['to_be_exposed'] == to_be_exposed
     NotACallable = 5
     with pytest.raises(
         RuntimeError,
