@@ -14,6 +14,7 @@
 
 import threading
 from launch.actions import ExecuteProcess  # noqa
+from launch.events.process import ProcessExited
 
 from .util import NoMatchingProcessException
 from .util import resolveProcesses
@@ -110,6 +111,35 @@ class ActiveProcInfoHandler(ProcInfoHandler):
 
         def proc_is_shutdown():
             try:
+                resolved_process = resolveProcesses(
+                    info_obj=self._proc_info_handler,
+                    process=process,
+                    cmd_args=cmd_args,
+                    strict_proc_matching=True
+                )[0]
+
+                process_event = self._proc_info_handler[resolved_process]
+                return isinstance(process_event, ProcessExited)
+            except NoMatchingProcessException:
+                return False
+
+        with self._sync_lock:
+            success = self._sync_lock.wait_for(
+                proc_is_shutdown,
+                timeout=timeout
+            )
+
+        assert success, "Timed out waiting for process '{}' to finish".format(process)
+
+    def assertWaitForStartup(self,
+                             process,
+                             cmd_args=None,
+                             *,
+                             timeout=10):
+        success = False
+
+        def proc_is_started():
+            try:
                 resolveProcesses(
                     info_obj=self._proc_info_handler,
                     process=process,
@@ -122,8 +152,8 @@ class ActiveProcInfoHandler(ProcInfoHandler):
 
         with self._sync_lock:
             success = self._sync_lock.wait_for(
-                proc_is_shutdown,
+                proc_is_started,
                 timeout=timeout
             )
 
-        assert success, "Timed out waiting for process '{}' to finish".format(process)
+        assert success, "Timed out waiting for process '{}' to start".format(process)

@@ -22,6 +22,7 @@ from launch import LaunchService
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 from launch.event_handlers import OnProcessIO
+from launch.event_handlers import OnProcessStart
 
 from .io_handler import ActiveIoHandler
 from .parse_arguments import parse_launch_arguments
@@ -122,6 +123,9 @@ class _RunnerWorker():
         # the test and add our own event handlers for process IO and process exit:
         launch_description = LaunchDescription([
             *self._test_run_preamble,
+            RegisterEventHandler(
+                OnProcessStart(on_start=lambda info, unused: proc_info.append(info))
+            ),
             RegisterEventHandler(
                 OnProcessExit(on_exit=lambda info, unused: proc_info.append(info))
             ),
