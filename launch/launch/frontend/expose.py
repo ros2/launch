@@ -91,7 +91,7 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
                 'Exposed {} parser for {} is not a callable or a class'
                 ' containg a parse method'.format(exposed_type, name)
             )
-        if name in parse_methods_map and found_parse_method is not parse_methods_map[name]:
+        if name in parse_methods_map and found_parse_method != parse_methods_map[name]:
             raise RuntimeError(
                 'Two {} parsing methods exposed with same name.'.format(exposed_type)
             )
