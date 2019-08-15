@@ -14,9 +14,11 @@
 
 """Module for Action class."""
 
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
 
 from .condition import Condition
 from .launch_context import LaunchContext
@@ -81,6 +83,24 @@ class Action(LaunchDescriptionEntity):
     def describe(self) -> Text:
         """Return a description of this Action."""
         return self.__repr__()
+
+    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
+        """Return subentities."""
+        return []
+
+    def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
+        """Override describe_sub_entities from LaunchDescriptionEntity."""
+        return self.get_sub_entities() if self.condition is None else []
+
+    def describe_conditional_sub_entities(self) -> List[Tuple[
+        Text,  # text description of the condition
+        Iterable[LaunchDescriptionEntity],  # list of conditional sub-entities
+    ]]:
+        """Override describe_conditional_sub_entities from LaunchDescriptionEntity."""
+        return (
+            'Conditionally included by {}'.format(self.describe()),
+            self.get_sub_entities() if self.condition is not None else []
+        )
 
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity so that it executes."""

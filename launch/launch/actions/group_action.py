@@ -69,6 +69,10 @@ class GroupAction(Action):
         kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
         return cls, kwargs
 
+    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
+        """Return subentities."""
+        return self.actions
+
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
         actions = []  # type: List[Action]

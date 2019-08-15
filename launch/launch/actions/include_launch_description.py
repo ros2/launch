@@ -68,12 +68,19 @@ class IncludeLaunchDescription(Action):
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
         ] = None,
+        automatically_redeclare_arguments: bool = False,
         **kwargs
     ) -> None:
         """Constructor."""
         super().__init__(**kwargs)
         self.__launch_description_source = launch_description_source
         self.__launch_arguments = launch_arguments
+        self._automatically_redeclare_arguments = automatically_redeclare_arguments
+        if automatically_redeclare_arguments is True and launch_arguments is not None:
+            raise ValueError(
+                'Cannot pass `automatically_redeclare_arguments` as `True` and'
+                ' not `None` `launch_arguments`.'
+            )
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
@@ -118,8 +125,8 @@ class IncludeLaunchDescription(Action):
             launch_file_location = self.__launch_description_source.location
         return launch_file_location
 
-    def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
-        """Override describe_sub_entities from LaunchDescriptionEntity to return sub entities."""
+    def get_sub_entities(self):
+        """Get subentities."""
         ret = self.__launch_description_source.try_get_launch_description_without_context()
         return [ret] if ret is not None else []
 

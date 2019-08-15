@@ -113,7 +113,10 @@ class LaunchDescription(LaunchDescriptionEntity):
                     declared_launch_arguments.append(entity)
                 else:
                     from .actions import IncludeLaunchDescription
-                    if isinstance(entity, IncludeLaunchDescription):
+                    if (
+                        isinstance(entity, IncludeLaunchDescription)
+                        and not entity._automatically_redeclare_arguments
+                    ):
                         # Do not check launch arguments of included descriptions.
                         continue
                     process_entities(
