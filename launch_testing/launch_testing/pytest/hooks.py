@@ -31,30 +31,34 @@ class LaunchTestFailure(Exception):
 
 class LaunchTestItem(pytest.Item):
 
-    def __init__(self, name, parent, test_runs):
+    def __init__(self, name, parent, test_runs, runner_cls=LaunchTestRunner):
         super().__init__(name, parent)
         self.test_runs = test_runs
+        self.runner_cls = runner_cls
 
     def runtest(self):
         launch_args = sum((
             args_set for args_set in self.config.getoption('--launch-args')
         ), [])
-        runner = self.ihook.pytest_launch_test_makerunner(
+        runner = self.runner_cls(
             test_runs=self.test_runs,
-            launch_args=launch_args,
+            launch_file_arguments=launch_args,
             debug=self.config.getoption('verbose')
         )
-        runner.validate()
+        try:
+            runner.validate()
+        except Exception as e:
+            raise LaunchTestFailure(message=str(e), results=[])
+
         results_per_run = runner.run()
         if any(not result.wasSuccessful() for result in results_per_run.values()):
             raise LaunchTestFailure(
-                message=self.name + ' failed',
-                results=results_per_run
+                message='some test cases have failed', results=results_per_run
             )
 
     def repr_failure(self, excinfo):
         if isinstance(excinfo.value, LaunchTestFailure):
-            return '\n'.join({
+            return excinfo.value.message + ':\n' + '\n'.join({
                 '{} failed at {}.{}'.format(
                     str(test_run),
                     type(test_case).__name__,
@@ -71,9 +75,12 @@ class LaunchTestItem(pytest.Item):
 
 class LaunchTestModule(pytest.File):
 
+    def makeitem(self, *args, **kwargs):
+        return LaunchTestItem(*args, **kwargs)
+
     def collect(self):
         module = self.fspath.pyimport()
-        yield LaunchTestItem(
+        yield self.makeitem(
             name=module.__name__, parent=self,
             test_runs=LoadTestsFromPythonModule(
                 module, name=module.__name__
@@ -81,19 +88,28 @@ class LaunchTestModule(pytest.File):
         )
 
 
-def _is_launch_test(path):
+def find_launch_test_entrypoint(path):
     try:
-        return hasattr(path.pyimport(), 'generate_test_description')
+        return getattr(path.pyimport(), 'generate_test_description', None)
     except SyntaxError:
-        return False
+        return None
 
 
 def pytest_pycollect_makemodule(path, parent):
-    if _is_launch_test(path):
-        return LaunchTestModule(path, parent)
+    entrypoint = find_launch_test_entrypoint(path)
+    if entrypoint is not None:
+        ihook = parent.session.gethookproxy(path)
+        return ihook.pytest_launch_collect_makemodule(
+            path=path, parent=parent, entrypoint=entrypoint
+        )
     elif path.basename == '__init__.py':
         return pytest.Package(path, parent)
     return pytest.Module(path, parent)
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_launch_collect_makemodule(path, parent, entrypoint):
+    return LaunchTestModule(path, parent)
 
 
 def pytest_addhooks(pluginmanager):
@@ -105,10 +121,4 @@ def pytest_addoption(parser):
     parser.addoption(
         '--launch-args', action='append', nargs='*',
         default=[], help='One or more Launch test arguments'
-    )
-
-
-def pytest_launch_test_makerunner(test_runs, launch_args, debug):
-    return LaunchTestRunner(
-        test_runs=test_runs, launch_file_arguments=launch_args, debug=debug
     )

@@ -16,6 +16,6 @@ import pytest
 
 
 @pytest.hookspec(firstresult=True)
-def pytest_launch_test_makerunner(test_runs, launch_args, debug):
-    """Py.test hook for launch tests' runner construction."""
+def pytest_launch_collect_makemodule(path, parent, entrypoint):
+    """Make launch test module appropriate for the found test entrypoint."""
     pass
