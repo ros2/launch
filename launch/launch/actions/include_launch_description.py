@@ -68,19 +68,12 @@ class IncludeLaunchDescription(Action):
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
         ] = None,
-        automatically_redeclare_arguments: bool = False,
         **kwargs
     ) -> None:
         """Constructor."""
         super().__init__(**kwargs)
         self.__launch_description_source = launch_description_source
         self.__launch_arguments = launch_arguments
-        self._automatically_redeclare_arguments = automatically_redeclare_arguments
-        if automatically_redeclare_arguments is True and launch_arguments is not None:
-            raise ValueError(
-                'Cannot pass `automatically_redeclare_arguments` as `True` and'
-                ' not `None` `launch_arguments`.'
-            )
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
