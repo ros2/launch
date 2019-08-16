@@ -72,7 +72,11 @@ class LaunchDescription(LaunchDescriptionEntity):
         """Override describe_sub_entities from LaunchDescriptionEntity to return sub entities."""
         return self.__entities
 
-    def get_launch_arguments(self, conditional_inclusion=False) -> List[DeclareLaunchArgument]:
+    def get_launch_arguments(
+        self,
+        conditional_inclusion=False,
+        get_nested=True
+    ) -> List[DeclareLaunchArgument]:
         """
         Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
 
@@ -113,12 +117,10 @@ class LaunchDescription(LaunchDescriptionEntity):
                     declared_launch_arguments.append(entity)
                 else:
                     from .actions import IncludeLaunchDescription
-                    if (
-                        isinstance(entity, IncludeLaunchDescription)
-                        and not entity._automatically_redeclare_arguments
-                    ):
-                        # Do not check launch arguments of included descriptions.
-                        continue
+                    if isinstance(entity, IncludeLaunchDescription):
+                        if not entity._automatically_redeclare_arguments or not get_nested:
+                            # Do not check launch arguments of included descriptions.
+                            continue
                     process_entities(
                         entity.describe_sub_entities(), _conditional_inclusion=False)
                     for conditional_sub_entity in entity.describe_conditional_sub_entities():
