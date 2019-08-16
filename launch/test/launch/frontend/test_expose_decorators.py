@@ -28,14 +28,11 @@ def to_be_exposed(entity, parser):
     return ToBeExposed(), ()
 
 
-register = dict({})
-
-
-def expose_test(name):
-    return __expose_impl(name, register, 'test')
-
-
 def test_expose_decorators():
+    register = {}
+
+    def expose_test(name):
+        return __expose_impl(name, register, 'test')
     expose_test('ToBeExposed')(ToBeExposed)
     assert 'ToBeExposed' in register
     if 'ToBeExposed' in register:
