@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .launchers import launch_process
 from .output import basic_output_filter
 from .output import expected_output_from_file
+
 
 __all__ = [
     'basic_output_filter',
     'expected_output_from_file',
+    'launch_process',
 ]

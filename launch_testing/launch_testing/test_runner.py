@@ -87,6 +87,7 @@ class _RunnerWorker():
         self._test_run.bind(
             self._test_run.pre_shutdown_tests,
             injected_attributes={
+                'launch_service': self._launch_service,
                 'proc_info': proc_info,
                 'proc_output': proc_output,
                 'test_args': test_args,
@@ -95,6 +96,7 @@ class _RunnerWorker():
                 full_context,
                 # Add a few more things to the args dictionary:
                 **{
+                    'launch_service': self._launch_service,
                     'proc_info': proc_info,
                     'proc_output': proc_output,
                     'test_args': test_args

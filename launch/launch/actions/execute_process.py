@@ -332,6 +332,10 @@ class ExecuteProcess(Action):
         self,
         context: LaunchContext
     ) -> Optional[LaunchDescription]:
+        typed_event = cast(ShutdownProcess, context.locals.event)
+        if not typed_event.process_matcher(self):
+            # this event whas not intended for this process
+            return None
         return self._shutdown_process(context, send_sigint=True)
 
     def __on_signal_process_event(
