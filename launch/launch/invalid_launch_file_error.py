@@ -22,20 +22,15 @@ class InvalidLaunchFileError(Exception):
         """Constructor."""
         self._extension = extension
         self._likely_errors = likely_errors
+        if self._extension == '' or not self._likely_errors:
+            self._error_message = 'The launch file may have a syntax error, or its format is unknown'
+        else:
+            self._error_message = 'Caught exception when trying to load file of format [{}]: {}'.format(
+                self._extension,
+                self._likely_errors[0]
+            )
+            self.__cause__ = self._likely_errors[0]
 
     def __str__(self):
         """Pretty print."""
-        if self._extension == '' or not self._likely_errors:
-            return 'The launch file may have a syntax error, or its format is unknown'
-        else:
-            # If `self.likely_errors[0]` is `RuntimeError('asd')`, the following will be printed:
-            #   ```
-            #   InvalidLaunchFileError: Failed to load file of format [<extension>]:
-            #       RuntimeError: asd
-            #   ```
-            return 'Failed to load file of format [{}]:\n\t{}: {}'.format(
-                self._extension,
-                # Convert `<class 'ERROR_NAME'>` to `ERROR_NAME`
-                str(self._likely_errors[0].__class__)[8:-2],
-                str(self._likely_errors[0])
-            )
+        return self._error_message
