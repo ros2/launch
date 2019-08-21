@@ -99,17 +99,21 @@ def pytest_pycollect_makemodule(path, parent):
     entrypoint = find_launch_test_entrypoint(path)
     if entrypoint is not None:
         ihook = parent.session.gethookproxy(path)
-        return ihook.pytest_launch_collect_makemodule(
+        module = ihook.pytest_launch_collect_makemodule(
             path=path, parent=parent, entrypoint=entrypoint
         )
-    elif path.basename == '__init__.py':
+        if module is not None:
+            return module
+    if path.basename == '__init__.py':
         return pytest.Package(path, parent)
     return pytest.Module(path, parent)
 
 
 @pytest.hookimpl(trylast=True)
 def pytest_launch_collect_makemodule(path, parent, entrypoint):
-    return LaunchTestModule(path, parent)
+    marks = getattr(entrypoint, 'pytestmark', [])
+    if marks and any(m.name == 'launch_test' for m in marks):
+        return LaunchTestModule(path, parent)
 
 
 def pytest_addhooks(pluginmanager):
@@ -121,4 +125,10 @@ def pytest_addoption(parser):
     parser.addoption(
         '--launch-args', action='append', nargs='*',
         default=[], help='One or more Launch test arguments'
+    )
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        'markers', 'launch_test: mark a generate_test_description function as a launch test entrypoint'
     )

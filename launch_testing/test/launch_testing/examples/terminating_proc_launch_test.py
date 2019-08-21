@@ -25,6 +25,8 @@ import launch_testing
 import launch_testing.asserts
 import launch_testing.tools
 
+import pytest
+
 
 def get_test_process_action(*, args=[]):
     test_proc_path = os.path.join(
@@ -40,6 +42,7 @@ def get_test_process_action(*, args=[]):
     )
 
 
+@pytest.mark.launch_test
 def generate_test_description(ready_fn):
     return launch.LaunchDescription([
         launch_testing.util.KeepAliveProc(),

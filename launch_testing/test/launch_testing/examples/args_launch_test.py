@@ -25,6 +25,9 @@ import launch.substitutions
 import launch_testing
 import launch_testing.util
 
+import pytest
+
+
 dut_process = launch.actions.ExecuteProcess(
     cmd=[
         sys.executable,
@@ -40,6 +43,7 @@ dut_process = launch.actions.ExecuteProcess(
 )
 
 
+@pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
     return launch.LaunchDescription([
