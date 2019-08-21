@@ -46,7 +46,7 @@ def get_launch_description_from_any_launch_file(
         loaders.insert(0, get_launch_description_from_python_launch_file)
     else:
         loaders.append(get_launch_description_from_python_launch_file)
-    extension = '' if not Parser.is_extension_valid(extension) else extension
+        extension = '' if not Parser.is_extension_valid(extension) else extension
     exceptions = []
     for loader in loaders:
         try:
