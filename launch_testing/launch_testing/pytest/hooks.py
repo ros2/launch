@@ -45,12 +45,10 @@ class LaunchTestItem(pytest.Item):
             launch_file_arguments=launch_args,
             debug=self.config.getoption('verbose')
         )
-        try:
-            runner.validate()
-        except Exception as e:
-            raise LaunchTestFailure(message=str(e), results=[])
 
+        runner.validate()
         results_per_run = runner.run()
+
         if any(not result.wasSuccessful() for result in results_per_run.values()):
             raise LaunchTestFailure(
                 message='some test cases have failed', results=results_per_run
@@ -67,7 +65,8 @@ class LaunchTestItem(pytest.Item):
                 for test_run, test_result in excinfo.value.results.items()
                 for test_case, _ in (test_result.errors + test_result.failures)
                 if not test_result.wasSuccessful()
-            })
+            }) if excinfo.value.results else ''
+        return super().repr_failure(excinfo)
 
     def reportinfo(self):
         return self.fspath, 0, 'launch tests: {}'.format(self.name)
