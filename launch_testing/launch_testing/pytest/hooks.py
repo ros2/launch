@@ -129,5 +129,6 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'launch_test: mark a generate_test_description function as a launch test entrypoint'
+        'markers',
+        'launch_test: mark a generate_test_description function as a launch test entrypoint'
     )
