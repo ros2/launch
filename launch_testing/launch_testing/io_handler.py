@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A module providing process IO capturing classes.
+
+PYTEST_DONT_REWRITE
+"""
+
+
 import threading
 
 from .asserts.assert_output import assertInStdout

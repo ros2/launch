@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A module providing process output sequence assertions.
+
+PYTEST_DONT_REWRITE
+"""
+
+
 from contextlib import contextmanager
 
 from ..util import resolveProcesses

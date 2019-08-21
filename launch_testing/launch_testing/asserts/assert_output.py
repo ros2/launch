@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A module providing process output assertions.
+
+PYTEST_DONT_REWRITE
+"""
+
+
 import os
 
 from osrf_pycommon.terminal_color import remove_ansi_escape_senquences

@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A module providing exit code assertions.
+
+PYTEST_DONT_REWRITE
+"""
+
+
 import os
 
 from ..util import resolveProcesses
