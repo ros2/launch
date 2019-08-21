@@ -35,22 +35,16 @@ def parametrize(argnames, argvalues):
     argnames = [x.strip() for x in argnames.split(',') if x.strip()]
     argvalues = [_normalize_to_tuple(x) for x in argvalues]
 
-    class decorator:
-
-        def __init__(self, func):
-            setattr(self, '__parametrized__', True)
-            self.__calls = []
-
+    def _decorator(func):
+        @functools.wraps(func)
+        def _wrapped():
             for val in argvalues:
                 partial_args = dict(zip(argnames, val))
 
                 partial = functools.partial(func, **partial_args)
                 functools.update_wrapper(partial, func)
-                self.__calls.append(
-                    (partial, partial_args)
-                )
+                yield partial, partial_args
+        setattr(_wrapped, '__parametrized__', True)
+        return _wrapped
 
-        def __iter__(self):
-            return iter(self.__calls)
-
-    return decorator
+    return _decorator
