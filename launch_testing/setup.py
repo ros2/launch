@@ -11,7 +11,7 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/launch_testing']),
         ('lib/launch_testing', glob.glob('example_processes/**')),
-        ('share/launch_testing/examples', glob.glob('examples/[!_]**')),
+        ('share/launch_testing/examples', glob.glob('test/launch_testing/examples/[!_]**')),
     ],
     entry_points={
         'console_scripts': ['launch_test=launch_testing.launch_test:main'],
