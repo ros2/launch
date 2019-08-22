@@ -15,7 +15,9 @@
 """
 A module providing exit code assertions.
 
-PYTEST_DONT_REWRITE
+To prevent pytest from rewriting this module assertions, please PYTEST_DONT_REWRITE.
+See https://docs.pytest.org/en/latest/assert.html#disabling-assert-rewriting for
+further reference.
 """
 
 
