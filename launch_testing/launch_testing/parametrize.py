@@ -44,7 +44,7 @@ def parametrize(argnames, argvalues):
                 partial = functools.partial(func, **partial_args)
                 functools.update_wrapper(partial, func)
                 yield partial, partial_args
-        setattr(_wrapped, '__parametrized__', True)
+        _wrapped.__parametrized__ =  True
         return _wrapped
 
     return _decorator
