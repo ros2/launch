@@ -62,10 +62,11 @@ class IncludeLaunchDescription(Action):
         *,
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
-        ] = None
+        ] = None,
+        **kwargs
     ) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(**kwargs)
         self.__launch_description_source = launch_description_source
         self.__launch_arguments = launch_arguments
 
@@ -97,8 +98,8 @@ class IncludeLaunchDescription(Action):
         ret = self.__launch_description_source.try_get_launch_description_without_context()
         return [ret] if ret is not None else []
 
-    def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
-        """Override visit to return an Entity rather than an action."""
+    def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
+        """Execute the action."""
         launch_description = self.__launch_description_source.get_launch_description(context)
         context.extend_locals({
             'current_launch_file_directory': self._get_launch_file_location(),

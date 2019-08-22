@@ -24,6 +24,7 @@ from .push_launch_configurations import PushLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
 from ..launch_context import LaunchContext
+from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_substitutions_type import SomeSubstitutionsType
 
 
@@ -54,7 +55,7 @@ class GroupAction(Action):
         else:
             self.__launch_configurations = {}
 
-    def execute(self, context: LaunchContext) -> Optional[List[Action]]:
+    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
         actions = []  # type: List[Action]
         actions += [SetLaunchConfiguration(k, v) for k, v in self.__launch_configurations.items()]
