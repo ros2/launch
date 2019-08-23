@@ -32,7 +32,7 @@ def test_binding_arguments():
     def fake_test_description(val):
         results.append(val)
 
-    for func, params in fake_test_description:
+    for func, params in fake_test_description():
         func()
 
     assert results == [1, 2, 3]
@@ -46,7 +46,7 @@ def test_binding_one_tuples():
     def fake_test_description(val):
         results.append(val)
 
-    for func, params in fake_test_description:
+    for func, params in fake_test_description():
         func()
 
     assert results == [1, 2, 3]
@@ -60,7 +60,7 @@ def test_partial_binding():
     def fake_test_description(val, arg):
         results.append((val, arg))
 
-    for index, (func, params) in enumerate(fake_test_description):
+    for index, (func, params) in enumerate(fake_test_description()):
         func(arg=index)
 
     assert results == [('x', 0), ('y', 1), ('z', 2)]
@@ -74,7 +74,7 @@ def test_multiple_args():
     def fake_test_description(arg_1, arg_2):
         results.append((arg_1, arg_2))
 
-    for index, (func, params) in enumerate(fake_test_description):
+    for index, (func, params) in enumerate(fake_test_description()):
         func()
 
     assert results == [(5, 10), (15, 20), (25, 30)]

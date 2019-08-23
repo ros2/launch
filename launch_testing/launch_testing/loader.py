@@ -106,11 +106,12 @@ class TestRun:
 
 
 def LoadTestsFromPythonModule(module, *, name='launch_tests'):
-
-    if hasattr(module.generate_test_description, '__parametrized__'):
-        normalized_test_description_func = module.generate_test_description
+    if not hasattr(module.generate_test_description, '__parametrized__'):
+        normalized_test_description_func = (
+            lambda: [(module.generate_test_description, {})]
+        )
     else:
-        normalized_test_description_func = [(module.generate_test_description, {})]
+        normalized_test_description_func = module.generate_test_description
 
     # If our test description is parameterized, we'll load a set of tests for each
     # individual launch
@@ -119,7 +120,7 @@ def LoadTestsFromPythonModule(module, *, name='launch_tests'):
                     args,
                     PreShutdownTestLoader().loadTestsFromModule(module),
                     PostShutdownTestLoader().loadTestsFromModule(module))
-            for description, args in normalized_test_description_func]
+            for description, args in normalized_test_description_func()]
 
 
 def PreShutdownTestLoader():

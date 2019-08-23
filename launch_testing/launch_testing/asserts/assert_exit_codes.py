@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A module providing exit code assertions.
+
+To prevent pytest from rewriting this module assertions, please PYTEST_DONT_REWRITE.
+See https://docs.pytest.org/en/latest/assert.html#disabling-assert-rewriting for
+further reference.
+"""
+
+
 import os
 
 from ..util import resolveProcesses

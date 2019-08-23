@@ -39,7 +39,7 @@ class TestGoodXmlOutput(unittest.TestCase):
         path = os.path.join(
             ament_index_python.get_package_share_directory('launch_testing'),
             'examples',
-            'good_proc.test.py'
+            'good_proc_launch_test.py'
         )
 
         assert 0 == subprocess.run(
@@ -65,7 +65,7 @@ class TestGoodXmlOutput(unittest.TestCase):
         # Expecting an element called '{package}.{test_base_name}.launch_tests' since this
         # was not parametrized
         self.assertEqual(
-            test_suite.attrib['name'], 'test_xml_output.good_proc.test.launch_tests'
+            test_suite.attrib['name'], 'test_xml_output.good_proc_launch_test.launch_tests'
         )
 
         # Drilling down a little further, we expect the class names to show up in the testcase

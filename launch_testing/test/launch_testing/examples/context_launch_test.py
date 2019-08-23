@@ -24,6 +24,8 @@ import launch.actions
 import launch_testing
 from launch_testing.asserts import assertSequentialStdout
 
+import pytest
+
 
 def get_test_process_action():
     TEST_PROC_PATH = os.path.join(
@@ -42,6 +44,7 @@ def get_test_process_action():
 # This launch description shows the prefered way to let the tests access launch actions.  By
 # adding them to the test context, it's not necessary to scope them at the module level like in
 # the good_proc.test.py example
+@pytest.mark.launch_test
 def generate_test_description(ready_fn):
     dut_process = get_test_process_action()
 

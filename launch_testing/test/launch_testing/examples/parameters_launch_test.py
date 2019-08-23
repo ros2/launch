@@ -23,7 +23,10 @@ import launch.actions
 import launch_testing
 import launch_testing.util
 
+import pytest
 
+
+@pytest.mark.launch_test
 @launch_testing.parametrize('arg_param', ['thing=On', 'thing=Off', 'flag1'])
 def generate_test_description(arg_param, ready_fn):
 

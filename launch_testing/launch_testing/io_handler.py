@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A module providing process IO capturing classes.
+
+To prevent pytest from rewriting this module assertions, please PYTEST_DONT_REWRITE.
+See https://docs.pytest.org/en/latest/assert.html#disabling-assert-rewriting for
+further reference.
+"""
+
+
 import threading
 
 from .asserts.assert_output import assertInStdout
