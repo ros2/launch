@@ -35,8 +35,8 @@ def tty_expected_unless_windows():
 
 
 @pytest.mark.parametrize('test_input,expected', [
-    # use the default defined by ExecuteProcess
-    (None, not tty_expected_unless_windows()),
+    # use the default defined by ExecuteProcess (default is off or "false" right now)
+    (None, 0),
     # redundantly override the default via LaunchConfiguration
     ('true', tty_expected_unless_windows()),
     # override the default via LaunchConfiguration
