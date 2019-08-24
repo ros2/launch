@@ -60,7 +60,6 @@ class _RunnerWorker():
         self._test_tr = threading.Thread(
             target=self._run_test,
             name='test_runner_thread',
-            daemon=True
         )
 
     def run(self):
@@ -165,6 +164,9 @@ class _RunnerWorker():
         ).run(self._test_run.post_shutdown_tests)
 
         self._results.append(inactive_results)
+
+        # Join the test thread before returning to avoid it being daemonized.
+        self._test_tr.join()
 
         return self._results
 

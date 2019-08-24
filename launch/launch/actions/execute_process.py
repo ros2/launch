@@ -97,7 +97,7 @@ class ExecuteProcess(Action):
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
-        emulate_tty: bool = False,
+        emulate_tty: bool = True,
         prefix: Optional[SomeSubstitutionsType] = None,
         output: Text = 'log',
         output_format: Text = '[{this.name}] {line}',
@@ -176,7 +176,7 @@ class ExecuteProcess(Action):
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
             'sigkill_timeout'
-        :param: emulate_tty emulate a tty (terminal), defaults to False, but can
+        :param: emulate_tty emulate a tty (terminal), defaults to True, but can
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
             :py:func:`evaluate_condition_expression`.
@@ -350,6 +350,8 @@ class ExecuteProcess(Action):
             raise RuntimeError('Signal event received before execution.')
         if self._subprocess_transport is None:
             raise RuntimeError('Signal event received before subprocess transport available.')
+        if self._subprocess_protocol is None:
+            raise RuntimeError('Signal event received before subprocess protocol available.')
         if self._subprocess_protocol.complete.done():
             # the process is done or is cleaning up, no need to signal
             self.__logger.debug(
@@ -395,6 +397,8 @@ class ExecuteProcess(Action):
     def __on_process_stdout(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
+        if self.__stdout_buffer.closed:
+            raise RuntimeError('OnProcessIO (stdout) received after stdout buffer closed.')
         self.__stdout_buffer.write(event.text.decode(errors='replace'))
         self.__stdout_buffer.seek(0)
         last_line = None
@@ -414,6 +418,8 @@ class ExecuteProcess(Action):
     def __on_process_stderr(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
+        if self.__stderr_buffer.closed:
+            raise RuntimeError('OnProcessIO (stderr) received after stderr buffer closed.')
         self.__stderr_buffer.write(event.text.decode(errors='replace'))
         self.__stderr_buffer.seek(0)
         last_line = None
