@@ -26,7 +26,7 @@ if(BUILD_TESTING)
 
   # Test argument passing.  This test won't pass unless you give it an argument
   add_launch_test(
-    "${LAUNCH_TESTING_INSTALL_PREFIX}/share/launch_testing/examples/args.test.py"
+    "${LAUNCH_TESTING_INSTALL_PREFIX}/share/launch_testing/examples/args_launch_test.py"
     ARGS "dut_arg:=--anything"
   )
 endif()
