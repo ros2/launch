@@ -23,7 +23,7 @@ further reference.
 
 import os
 
-from osrf_pycommon.terminal_color import remove_ansi_escape_senquences
+from osrf_pycommon.terminal_color import remove_ansi_escape_sequences
 
 from ..util import resolveProcesses
 
@@ -125,7 +125,7 @@ def assertInStdout(proc_output,
             output.text.decode() for output in proc_output[proc] if output.from_stdout
         )
         if strip_ansi_escape_sequences:
-            full_output = remove_ansi_escape_senquences(full_output)
+            full_output = remove_ansi_escape_sequences(full_output)
         if output_filter is not None:
             full_output = output_filter(full_output)
         if output_match(expected_output, full_output):
