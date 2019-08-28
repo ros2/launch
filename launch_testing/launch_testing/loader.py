@@ -80,7 +80,7 @@ class TestRun:
                  pre_shutdown_tests,
                  post_shutdown_tests):
         self.name = name
-        self.test_description_function = test_description_function
+        self._test_description_function = test_description_function
         self.normalized_test_description = _normalize_ld(test_description_function)
 
         self.param_args = param_args
@@ -127,7 +127,7 @@ class TestRun:
         This should only be used for the purposes of introspecting the launch description.  The
         returned launch description is not meant to be launched
         """
-        return self.test_description_function(lambda: None)
+        return self.normalized_test_description(ready_fn=lambda: None)[0]
 
     def all_cases(self):
         yield from _iterate_tests_in_test_suite(self.pre_shutdown_tests)
