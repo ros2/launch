@@ -17,17 +17,36 @@ import inspect
 import itertools
 import unittest
 
+from .actions import ReadyToTest
+
 
 def _normalize_ld(launch_description_fn):
     # A launch description fn can return just a launch description, or a tuple of
     # (launch_description, test_context).  This wrapper function normalizes things
     # so we always get a tuple, sometimes with an empty dictionary for the test_context
-    def wrapper(*args, **kwargs):
-        result = launch_description_fn(*args, **kwargs)
+    def normalize(result):
         if isinstance(result, tuple):
             return result
         else:
             return result, {}
+
+    def wrapper(**kwargs):
+
+        fn_args = inspect.getfullargspec(launch_description_fn)
+
+        if 'ready_fn' in fn_args.args + fn_args.kwonlyargs:
+            # This is an old-style launch_description function which epects ready_fn to be passed
+            # in to the function
+            return normalize(launch_description_fn(**kwargs))
+        else:
+            # This is a new-style launch_description which should contain a ReadyToTest action
+            ready_fn = kwargs.pop('ready_fn')
+            result = normalize(launch_description_fn(**kwargs))
+            # Fish the ReadyToTest action out of the launch description and plumb our
+            # ready_fn to it
+            ready_action = next(e for e in result[0].entities if isinstance(e, ReadyToTest))
+            ready_action._add_callback(ready_fn)
+            return result
 
     return wrapper
 

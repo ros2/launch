@@ -290,4 +290,8 @@ class LaunchTestRunner(object):
                     )
 
             # This is a double-check
-            inspect.getcallargs(run.test_description_function, ready_fn=lambda: None)
+            try:
+                inspect.getcallargs(run.test_description_function, ready_fn=lambda: None)
+            except TypeError:
+                # We also support generate_test_description functions without a ready_fn
+                inspect.getcallargs(run.test_description_function)
