@@ -133,3 +133,19 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
 
         dut.validate()  # Make sure this passes initial validation (probably redundant with above)
         runs[0].normalized_test_description(ready_fn=lambda: None)
+
+    def test_parametrized_launch_description(self):
+
+        @launch_testing.parametrize('my_param', [1, 2, 3])
+        def generate_test_description(my_param):
+            return launch.LaunchDescription([
+                ReadyToTest()
+            ])
+
+        runs = make_test_run_for_dut(generate_test_description)
+        dut = LaunchTestRunner(
+            runs
+        )
+
+        dut.validate()  # Make sure this passes initial validation (probably redundant with above)
+        runs[0].normalized_test_description(ready_fn=lambda: None)
