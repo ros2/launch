@@ -15,7 +15,10 @@
 import imp
 import unittest
 
+import launch
+import launch.actions
 import launch_testing
+from launch_testing.actions import ReadyToTest
 from launch_testing.loader import LoadTestsFromPythonModule
 from launch_testing.test_runner import LaunchTestRunner
 
@@ -30,13 +33,20 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
 
     def test_catches_bad_signature(self):
 
+        # A `generate_test_description` function without a ready_fn argument is allowed because
+        # it might be a new style function that uses a ReadyToTest action to signal when it's time
+        # for tests to start.
+        # If there's no ReadyToTest action, we won't catch that until later because dut.validate()
+        # doesn't actually invoke the function.
+        # We will still expect to reject functions with wrong name arguments
+
         dut = LaunchTestRunner(
             make_test_run_for_dut(
-                lambda: None
+                lambda misspelled_ready_fn: None
             )
         )
 
-        with self.assertRaises(TypeError):
+        with self.assertRaisesRegex(Exception, "unexpected extra argument 'misspelled_ready_fn'"):
             dut.validate()
 
         dut = LaunchTestRunner(
@@ -69,3 +79,57 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
         with self.assertRaisesRegex(Exception, 'Could not find an argument') as cm:
             dut.validate()
         self.assertIn('bad_argument', str(cm.exception))
+
+
+class TestNewStyleTestDescriptions(unittest.TestCase):
+    # Tests for `generate_test_description` functions that include a ReadyToTest action in
+    # the test description
+
+    def test_good_launch_description(self):
+
+        def generate_test_description():
+            return launch.LaunchDescription([
+                ReadyToTest()
+            ])
+
+        runs = make_test_run_for_dut(generate_test_description)
+        dut = LaunchTestRunner(
+            runs
+        )
+
+        dut.validate()  # Make sure this passes initial validation (probably redundant with above)
+        runs[0].normalized_test_description(ready_fn=lambda: None)
+
+    def test_launch_description_with_missing_ready_action(self):
+
+        def generate_test_description():
+            return launch.LaunchDescription([
+            ])
+
+        runs = make_test_run_for_dut(generate_test_description)
+        dut = LaunchTestRunner(
+            runs
+        )
+
+        dut.validate()  # Make sure this passes initial validation (probably redundant with above)
+
+        with self.assertRaisesRegex(Exception, 'containing a ReadyToTest action'):
+            runs[0].normalized_test_description(ready_fn=lambda: None)
+
+    def test_launch_description_with_conditional_ready_action(self):
+
+        def generate_test_description():
+            return launch.LaunchDescription([
+                launch.actions.TimerAction(
+                    period=10.0,
+                    actions=[ReadyToTest()]
+                )
+            ])
+
+        runs = make_test_run_for_dut(generate_test_description)
+        dut = LaunchTestRunner(
+            runs
+        )
+
+        dut.validate()  # Make sure this passes initial validation (probably redundant with above)
+        runs[0].normalized_test_description(ready_fn=lambda: None)

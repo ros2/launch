@@ -44,7 +44,27 @@ def _normalize_ld(launch_description_fn):
             result = normalize(launch_description_fn(**kwargs))
             # Fish the ReadyToTest action out of the launch description and plumb our
             # ready_fn to it
-            ready_action = next(e for e in result[0].entities if isinstance(e, ReadyToTest))
+
+            def iterate_ready_to_test_actions(entities):
+                """Recursively search LaunchDescription entities for all ReadyToTest actions."""
+                for entity in entities:
+                    if isinstance(entity, ReadyToTest):
+                        yield entity
+                    yield from iterate_ready_to_test_actions(
+                        entity.describe_sub_entities()
+                    )
+                    for conditional_sub_entity in entity.describe_conditional_sub_entities():
+                        yield from iterate_ready_to_test_actions(
+                            conditional_sub_entity[1]
+                        )
+
+            try:
+                ready_action = next(e for e in iterate_ready_to_test_actions(result[0].entities))
+            except StopIteration:  # No ReadyToTest action found
+                raise Exception(
+                    'generate_test_description functions without a ready_fn argument must return '
+                    'a LaunchDescription containing a ReadyToTest action'
+                )
             ready_action._add_callback(ready_fn)
             return result
 
