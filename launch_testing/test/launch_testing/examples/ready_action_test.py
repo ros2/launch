@@ -28,31 +28,29 @@ from launch_testing.asserts import assertSequentialStdout
 import pytest
 
 
-TEST_PROC_PATH = os.path.join(
-    ament_index_python.get_package_prefix('launch_testing'),
-    'lib/launch_testing',
-    'good_proc'
-)
-
-# This is necessary to get unbuffered output from the process under test
-proc_env = os.environ.copy()
-proc_env['PYTHONUNBUFFERED'] = '1'
-
-dut_process = launch.actions.ExecuteProcess(
-    cmd=[sys.executable, TEST_PROC_PATH],
-    env=proc_env,
-)
-
-
 @pytest.mark.launch_test
 def generate_test_description():
+    TEST_PROC_PATH = os.path.join(
+        ament_index_python.get_package_prefix('launch_testing'),
+        'lib/launch_testing',
+        'good_proc'
+    )
+
+    # This is necessary to get unbuffered output from the process under test
+    proc_env = os.environ.copy()
+    proc_env['PYTHONUNBUFFERED'] = '1'
+
+    dut_process = launch.actions.ExecuteProcess(
+        cmd=[sys.executable, TEST_PROC_PATH],
+        env=proc_env,
+    )
 
     return launch.LaunchDescription([
         dut_process,
 
         # Start tests right away - no need to wait for anything
         launch_testing.actions.ReadyToTest(),
-    ])
+    ]), {'dut_process': dut_process}
 
 
 # These tests will run concurrently with the dut process.  After all these tests are done,
@@ -76,7 +74,7 @@ class TestProcessOutput(unittest.TestCase):
         # with code 0
         launch_testing.asserts.assertExitCodes(self.proc_info)
 
-    def test_full_output(self):
+    def test_full_output(self, dut_process):
         # Using the SequentialStdout context manager asserts that the following stdout
         # happened in the same order that it's checked
         with assertSequentialStdout(self.proc_output, dut_process) as cm:
@@ -88,7 +86,7 @@ class TestProcessOutput(unittest.TestCase):
                 # and thus the last print in good_proc never makes it.
                 cm.assertInStdout('Shutting Down')
 
-    def test_out_of_order(self):
+    def test_out_of_order(self, dut_process):
         # This demonstrates that we notice out-of-order IO
         with self.assertRaisesRegex(AssertionError, "'Loop 2' not found"):
             with assertSequentialStdout(self.proc_output, dut_process) as cm:
