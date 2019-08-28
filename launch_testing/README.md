@@ -23,6 +23,27 @@ launch_test launch_testing/examples/good_proc.test.py
 
 #### The Launch Description
 
+```python
+def generate_test_description():
+
+    return launch.LaunchDescription([
+        launch.actions.ExecuteProcess(
+            cmd=[path_to_process],
+        ),
+
+        # Start tests right away - no need to wait for anything in this example.
+        # In a more complicated launch description, we might want this action happen
+        # once some process starts or once some other event happens
+        launch_testing.actions.ReadyToTest()
+    ])
+```
+The `generate_test_description` function should return a `launch.LaunchDescription` object that launches the system to be tested.
+
+The launch description needs to include a ReadyToTest action to signal to the test framework that it's safe to start the active tests.
+
+In the above example, there is no need to delay the start of the tests so the ReadyToTest action is a peer to the process under test and will signal to the framework that it's safe to start around the same time the ExecuteProcess action is run.
+
+In older style tests, a function called `ready_fn` is declared as an argument to `generate_test_description` and must be plumbed into the launch description with an `OpaqueFunction`.
 
 ```python
 def generate_test_description(ready_fn):
@@ -36,9 +57,6 @@ def generate_test_description(ready_fn):
         launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
     ])
 ```
-
-The `generate_test_description` function should return a `launch.LaunchDescription` object that launches the system to be tested.
-It should also call the `ready_fn` that is passed in to signal when the tests should start.  In the `good_proc.test.py` example, there is no need to delay the start of the tests so the `ready_fn` is called concurrently when the launching of the process under test.
 
 #### Active Tests
 
