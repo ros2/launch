@@ -16,7 +16,7 @@
 
 import traceback
 from typing import Optional
-from typing import Text
+from typing import Text  # noqa: F401
 
 import launch.logging
 
