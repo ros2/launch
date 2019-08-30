@@ -15,7 +15,7 @@
 """Module for the IncludeLaunchDescription action."""
 
 import os
-from typing import Iterable
+from typing import Iterable, Sequence
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -73,7 +73,7 @@ class IncludeLaunchDescription(Action):
         """Constructor."""
         super().__init__(**kwargs)
         self.__launch_description_source = launch_description_source
-        self.__launch_arguments = launch_arguments
+        self.__launch_arguments = () if launch_arguments is None else tuple(launch_arguments)
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
@@ -98,12 +98,9 @@ class IncludeLaunchDescription(Action):
         return self.__launch_description_source
 
     @property
-    def launch_arguments(self) -> Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]:
+    def launch_arguments(self) -> Sequence[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]:
         """Getter for self.__launch_arguments."""
-        if self.__launch_arguments is None:
-            return []
-        else:
-            return self.__launch_arguments
+        return self.__launch_arguments
 
     def _get_launch_file(self):
         return os.path.abspath(self.__launch_description_source.location)
