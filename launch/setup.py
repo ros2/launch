@@ -1,12 +1,16 @@
 from setuptools import find_packages
 from setuptools import setup
 
+package_name = 'launch'
 
 setup(
-    name='launch',
+    name=package_name,
     version='0.8.3',
     packages=find_packages(exclude=['test']),
     data_files=[
+        ('share/' + package_name, ['package.xml']),
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
         ('share/launch/frontend', ['share/launch/frontend/grammar.lark']),
     ],
     install_requires=['setuptools'],
