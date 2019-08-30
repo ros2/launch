@@ -83,14 +83,14 @@ class OpaqueCoroutine(Action):
         ensure_argument_type(kwargs, (dict, type(None)), 'kwargs', 'OpaqueCoroutine')
         ensure_argument_type(ignore_context, bool, 'ignore_context', 'OpaqueCoroutine')
         self.__coroutine = coroutine
-        self.__args = []  # type: Iterable
+        self.__args = []   # type: Iterable
         if args is not None:
             self.__args = args
-        self.__kwargs = {}  # type: Dict[Text, Any]
+        self.__kwargs = {}   # type: Dict[Text, Any]
         if kwargs is not None:
             self.__kwargs = kwargs
-        self.__ignore_context = ignore_context  # type: bool
-        self.__future = None  # type: Optional[asyncio.Future]
+        self.__ignore_context = ignore_context   # type: bool
+        self.__future = None   # type: Optional[asyncio.Future]
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         """Cancel ongoing coroutine upon shutdown."""

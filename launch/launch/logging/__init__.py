@@ -56,7 +56,7 @@ def launch_config(
     screen_style=None,
     log_format=None,
     log_style=None,
-    log_handler_factory=None,
+    log_handler_factory=None
 ):
     """
     Set up launch logging.
@@ -387,7 +387,7 @@ def _make_unique_log_dir(*, base_path):
 
 # Track all loggers to support module resets
 class LaunchLogger(logging.getLoggerClass()):
-    all_loggers: List[logging.Logger] = []
+    all_loggers = []  # type: List[logging.Logger]
 
     def __new__(cls, *args, **kwargs):
         instance = super(LaunchLogger, cls).__new__(cls)

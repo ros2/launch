@@ -47,10 +47,10 @@ class LaunchDescriptionSource:
         :param location: the location from where this launch description was loaded if applicable
         :param method: the method by which the launch description was generated
         """
-        self.__launch_description: Optional[LaunchDescription] = launch_description
-        self.__expanded_location: Optional[Text] = None
-        self.__location: SomeSubstitutionsType = normalize_to_list_of_substitutions(location)
-        self.__method: str = method
+        self.__launch_description = launch_description  # type: Optional[LaunchDescription]
+        self.__expanded_location = None  # type: Optional[Text]
+        self.__location = normalize_to_list_of_substitutions(location)  # type: SomeSubstitutionsType
+        self.__method = method  # type: str
         self.__logger = launch.logging.get_logger(__name__)
 
     def try_get_launch_description_without_context(self) -> Optional[LaunchDescription]:

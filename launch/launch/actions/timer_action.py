@@ -71,10 +71,10 @@ class TimerAction(Action):
         else:
             self.__period = normalize_to_list_of_substitutions(period)
         self.__actions = actions
-        self.__context_locals = {}  # type: Dict[Text, Any]
-        self.__completed_future = None  # type: Optional[asyncio.Future]
+        self.__context_locals = {}   # type: Dict[Text, Any]
+        self.__completed_future = None   # type: Optional[asyncio.Future]
         self.__canceled = False
-        self.__canceled_future = None  # type: Optional[asyncio.Future]
+        self.__canceled_future = None   # type: Optional[asyncio.Future]
         self.__cancel_on_shutdown = cancel_on_shutdown
         self.__logger = launch.logging.get_logger(__name__)
 

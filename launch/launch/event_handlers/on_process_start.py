@@ -67,7 +67,7 @@ class OnProcessStart(BaseEventHandler):
             **kwargs,
         )
         self.__target_action = target_action
-        self.__actions_on_start = []  # type: List[LaunchDescriptionEntity]
+        self.__actions_on_start = []   # type: List[LaunchDescriptionEntity]
         # TODO(sloretz) check that callable matches correct signature
         if callable(on_start):
             # on_start is a function or lambda that returns actions
