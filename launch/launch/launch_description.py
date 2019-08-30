@@ -83,7 +83,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         default value and description from the first instance of the argument
         declaration is used.
         """
-        declared_launch_arguments = []   # type: List[DeclareLaunchArgument]
+        declared_launch_arguments = []  # type: List[DeclareLaunchArgument]
 
         def process_entities(entities, *, _conditional_inclusion):
             for entity in entities:

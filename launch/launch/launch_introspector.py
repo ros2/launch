@@ -84,7 +84,7 @@ def format_event_handler(event_handler: EventHandler) -> List[Text]:
     """Return a text representation of an event handler."""
     if hasattr(event_handler, 'describe'):
         # TODO(wjwwood): consider supporting mode complex descriptions of branching
-        description, entities = event_handler.describe()   # type: ignore
+        description, entities = event_handler.describe()  # type: ignore
         result = [description]
         result.extend(indent(format_entities(entities)))
         return result

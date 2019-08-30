@@ -67,7 +67,7 @@ class OnProcessExit(BaseEventHandler):
             **kwargs,
         )
         self.__target_action = target_action
-        self.__actions_on_exit = []   # type: List[LaunchDescriptionEntity]
+        self.__actions_on_exit = []  # type: List[LaunchDescriptionEntity]
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
         # the correct signature for a handler in this case
         if callable(on_exit):

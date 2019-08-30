@@ -41,20 +41,20 @@ class LaunchContext:
         """
         self.__argv = argv if argv is not None else []
 
-        self._event_queue = asyncio.Queue()   # type: asyncio.Queue
-        self._event_handlers = collections.deque()   # type: collections.deque
-        self._completion_futures = []   # type: List[asyncio.Future]
+        self._event_queue = asyncio.Queue()  # type: asyncio.Queue
+        self._event_handlers = collections.deque()  # type: collections.deque
+        self._completion_futures = []  # type: List[asyncio.Future]
 
-        self.__globals = {}   # type: Dict[Text, Any]
-        self.__locals_stack = []   # type: List[Dict[Text, Any]]
-        self.__locals = {}   # type: Dict[Text, Any]
-        self.__combined_locals_cache = None   # type: Optional[Dict[Text, Any]]
+        self.__globals = {}  # type: Dict[Text, Any]
+        self.__locals_stack = []  # type: List[Dict[Text, Any]]
+        self.__locals = {}  # type: Dict[Text, Any]
+        self.__combined_locals_cache = None  # type: Optional[Dict[Text, Any]]
 
-        self.__launch_configurations_stack = []   # type: List[Dict[Text, Text]]
-        self.__launch_configurations = {}   # type: Dict[Text, Text]
+        self.__launch_configurations_stack = []  # type: List[Dict[Text, Text]]
+        self.__launch_configurations = {}  # type: Dict[Text, Text]
 
         self.__is_shutdown = False
-        self.__asyncio_loop = None   # type: Optional[asyncio.AbstractEventLoop]
+        self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
 
         self.__logger = launch.logging.get_logger(__name__)
 

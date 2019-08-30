@@ -78,7 +78,7 @@ class OnExecutionComplete(EventHandler):
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
         # the correct signature for a handler in this case
         self.__on_completion = on_completion
-        self.__actions_on_completion = []   # type: List[LaunchDescriptionEntity]
+        self.__actions_on_completion = []  # type: List[LaunchDescriptionEntity]
         if callable(on_completion):
             # Then on_completion is a function or lambda, so we can just call it, but
             # we don't put anything in self.__actions_on_completion because we cannot

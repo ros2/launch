@@ -57,7 +57,7 @@ class GroupAction(Action):
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
-        actions = []   # type: List[Action]
+        actions = []  # type: List[Action]
         actions += [SetLaunchConfiguration(k, v) for k, v in self.__launch_configurations.items()]
         actions += list(self.__actions)
         if self.__scoped:

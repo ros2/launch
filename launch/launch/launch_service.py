@@ -47,7 +47,7 @@ from .utilities import on_sigquit
 from .utilities import on_sigterm
 from .utilities import visit_all_entities_and_collect_futures
 
-_g_loops_used = set()   # type: Set
+_g_loops_used = set()  # type: Set
 
 
 # This atexit handler ensures all the loops are closed at exit.
@@ -103,7 +103,7 @@ class LaunchService:
 
         # Setup storage for state.
         self._entity_future_pairs = \
-            []   # type: List[Tuple[LaunchDescriptionEntity, asyncio.Future]]
+            []  # type: List[Tuple[LaunchDescriptionEntity, asyncio.Future]]
 
         # Used to prevent run() being called from multiple threads.
         self.__running_lock = threading.Lock()
@@ -225,7 +225,7 @@ class LaunchService:
                     entity_futures = [pair[1] for pair in self._entity_future_pairs]
                     entity_futures.append(process_one_event_task)
                     entity_futures.extend(self.__context._completion_futures)
-                    done = set()   # type: Set[asyncio.Future]
+                    done = set()  # type: Set[asyncio.Future]
                     while not done:
                         done, pending = await asyncio.wait(
                             entity_futures,

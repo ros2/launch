@@ -46,8 +46,8 @@ class LaunchConfiguration(Substitution):
             self.__default = default
         else:
             # convert any items in default that are not a Substitution or str to a str
-            str_normalized_default = []   # type: List[Union[Text, Substitution]]
-            definitely_iterable_default = ((),)   # type: Iterable[Any]
+            str_normalized_default = []  # type: List[Union[Text, Substitution]]
+            definitely_iterable_default = ((),)  # type: Iterable[Any]
             if isinstance(default, collections.abc.Iterable):
                 definitely_iterable_default = default
             else:
@@ -60,7 +60,7 @@ class LaunchConfiguration(Substitution):
             # use normalize_to_list_of_substitutions to convert str to TextSubstitution's too
             self.__default = \
                 normalize_to_list_of_substitutions(
-                    str_normalized_default)   # type: List[Substitution]
+                    str_normalized_default)  # type: List[Substitution]
 
     @property
     def variable_name(self) -> List[Substitution]:

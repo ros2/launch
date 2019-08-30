@@ -190,7 +190,7 @@ class ExecuteProcess(Action):
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__name = name if name is None else normalize_to_list_of_substitutions(name)
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
-        self.__env = None   # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
+        self.__env = None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
         if env is not None:
             self.__env = []
             for key, value in env.items():
@@ -216,12 +216,12 @@ class ExecuteProcess(Action):
         self.__log_cmd = log_cmd
         self.__on_exit = on_exit
 
-        self.__process_event_args = None   # type: Optional[Dict[Text, Any]]
-        self._subprocess_protocol = None   # type: Optional[Any]
+        self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
+        self._subprocess_protocol = None  # type: Optional[Any]
         self._subprocess_transport = None
-        self.__completed_future = None   # type: Optional[asyncio.Future]
-        self.__sigterm_timer = None   # type: Optional[TimerAction]
-        self.__sigkill_timer = None   # type: Optional[TimerAction]
+        self.__completed_future = None  # type: Optional[asyncio.Future]
+        self.__sigterm_timer = None  # type: Optional[TimerAction]
+        self.__sigkill_timer = None  # type: Optional[TimerAction]
         self.__shutdown_received = False
         self.__stdout_buffer = io.StringIO()
         self.__stderr_buffer = io.StringIO()
