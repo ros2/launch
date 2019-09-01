@@ -37,6 +37,7 @@ def generate_test_description():
         launch_testing.actions.ReadyToTest()
     ])
 ```
+
 The `generate_test_description` function should return a `launch.LaunchDescription` object that launches the system to be tested.
 
 The launch description needs to include a ReadyToTest action to signal to the test framework that it's safe to start the active tests.
