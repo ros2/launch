@@ -42,7 +42,7 @@ The `generate_test_description` function should return a `launch.LaunchDescripti
 
 The launch description needs to include a `ReadyToTest` action to signal to the test framework that it's safe to start the active tests.
 
-In the above example, there is no need to delay the start of the tests so the ReadyToTest action is a peer to the process under test and will signal to the framework that it's safe to start around the same time the ExecuteProcess action is run.
+In the above example, there is no need to delay the start of the tests so the `ReadyToTest` action is a peer to the process under test and will signal to the framework that it's safe to start around the same time the `ExecuteProcess` action is run.
 
 In older style tests, a function called `ready_fn` is declared as an argument to `generate_test_description` and must be plumbed into the launch description with an `OpaqueFunction`.
 
