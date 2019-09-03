@@ -71,7 +71,7 @@ class GroupAction(Action):
 
     def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
         """Return subentities."""
-        return self.actions
+        return self.__actions
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
