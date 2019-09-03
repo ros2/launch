@@ -133,7 +133,7 @@ class ActiveIoHandler(IoHandler):
         *,
         strict_proc_matching=True,
         output_filter=None,
-        timeout=10,
+        timeout=10
     ):
         success = False
 
