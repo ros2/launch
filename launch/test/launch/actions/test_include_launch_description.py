@@ -110,7 +110,7 @@ def test_include_launch_description_launch_arguments():
     lc2 = LaunchContext()
     with pytest.raises(RuntimeError) as excinfo2:
         action2.visit(lc2)
-    assert 'Included launch description missing required argument' in str(excinfo2)
+    assert 'Included launch description missing required argument' in str(excinfo2.value)
 
     # test that a declared argument that is not provided raises an error, but with other args set
     ld2 = LaunchDescription([DeclareLaunchArgument('foo')])
@@ -121,8 +121,8 @@ def test_include_launch_description_launch_arguments():
     lc2 = LaunchContext()
     with pytest.raises(RuntimeError) as excinfo2:
         action2.visit(lc2)
-    assert 'Included launch description missing required argument' in str(excinfo2)
-    assert 'not_foo' in str(excinfo2)
+    assert 'Included launch description missing required argument' in str(excinfo2.value)
+    assert 'not_foo' in str(excinfo2.value)
 
     # test that a declared argument with a default value that is not provided does not raise
     ld2 = LaunchDescription([DeclareLaunchArgument('foo', default_value='FOO')])
