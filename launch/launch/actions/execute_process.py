@@ -197,7 +197,7 @@ class ExecuteProcess(Action):
                 self.__env.append((
                     normalize_to_list_of_substitutions(key),
                     normalize_to_list_of_substitutions(value)))
-        self.__additional_env: Optional[List[Tuple[List[Substitution], List[Substitution]]]] = None
+        self.__additional_env = None
         if additional_env is not None:
             self.__additional_env = []
             for key, value in additional_env.items():

@@ -22,7 +22,7 @@ import os
 import socket
 import sys
 
-from typing import List
+from typing import List  # noqa: F401
 
 from . import handlers
 
@@ -387,7 +387,7 @@ def _make_unique_log_dir(*, base_path):
 
 # Track all loggers to support module resets
 class LaunchLogger(logging.getLoggerClass()):
-    all_loggers: List[logging.Logger] = []
+    all_loggers = []  # type: List[logging.Logger]
 
     def __new__(cls, *args, **kwargs):
         instance = super(LaunchLogger, cls).__new__(cls)
