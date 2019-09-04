@@ -58,6 +58,7 @@ class GroupAction(Action):
             self.__launch_configurations = launch_configurations
         else:
             self.__launch_configurations = {}
+        self.__actions_to_return: Optional[List] = None
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
@@ -71,13 +72,20 @@ class GroupAction(Action):
 
     def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
         """Return subentities."""
-        return self.actions
+        if self.__actions_to_return is None:
+            self.__actions_to_return = []  # type: List[Action]
+            self.__actions_to_return += [
+                SetLaunchConfiguration(k, v) for k, v in self.__launch_configurations.items()
+            ]
+            self.__actions_to_return += list(self.__actions)
+            if self.__scoped:
+                self.__actions_to_return = [
+                    PushLaunchConfigurations(),
+                    *self.__actions_to_return,
+                    PopLaunchConfigurations()
+                ]
+        return self.__actions_to_return
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
-        actions = []  # type: List[Action]
-        actions += [SetLaunchConfiguration(k, v) for k, v in self.__launch_configurations.items()]
-        actions += list(self.__actions)
-        if self.__scoped:
-            return [PushLaunchConfigurations(), *actions, PopLaunchConfigurations()]
-        return actions
+        return self.get_sub_entities()
