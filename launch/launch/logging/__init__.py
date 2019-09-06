@@ -56,7 +56,7 @@ def launch_config(
     screen_style=None,
     log_format=None,
     log_style=None,
-    log_handler_factory=None,
+    log_handler_factory=None
 ):
     """
     Set up launch logging.
