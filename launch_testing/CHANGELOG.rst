@@ -2,6 +2,12 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.6 (2019-09-06)
+------------------
+* Address additional syntax issues with Python 3.5. (`#328 <https://github.com/ros2/launch/issues/328>`_)
+* Restore support for Python 3.5 (`#324 <https://github.com/ros2/launch/issues/324>`_)
+* Contributors: Steven! Ragnarök
+
 0.8.5 (2019-08-22)
 ------------------
 
