@@ -134,6 +134,34 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
         dut.validate()  # Make sure this passes initial validation (probably redundant with above)
         runs[0].normalized_test_description(ready_fn=lambda: None)
 
+    def test_launch_description_with_multiple_conditionals_and_deeper_nesting(self):
+
+        def generate_test_description():
+            return launch.LaunchDescription([
+                launch.actions.LogInfo(msg='Dummy Action'),
+                launch.actions.TimerAction(
+                    period=10.0,
+                    actions=[
+                        launch.actions.OpaqueFunction(function=lambda context: None),
+                        launch.actions.TimerAction(
+                            period=5.0,
+                            actions=[
+                                launch.actions.LogInfo(msg='Deeply Nested Action'),
+                                ReadyToTest()
+                            ]
+                        )
+                    ]
+                )
+            ])
+
+        runs = make_test_run_for_dut(generate_test_description)
+        dut = LaunchTestRunner(
+            runs
+        )
+
+        dut.validate()  # Make sure this passes initial validation (probably redundant with above)
+        runs[0].normalized_test_description(ready_fn=lambda: None)
+
     def test_parametrized_launch_description(self):
 
         @launch_testing.parametrize('my_param', [1, 2, 3])
