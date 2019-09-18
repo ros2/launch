@@ -2,6 +2,14 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.1 (2019-09-25)
+------------------
+
+0.9.0 (2019-09-18)
+------------------
+* Update launch_testing example name in launch_testing_ament_cmake (`#320 <https://github.com/ros2/launch/issues/320>`_)
+* Contributors: Michel Hidalgo
+
 0.8.3 (2019-05-29)
 ------------------
 

@@ -2,6 +2,53 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.1 (2019-09-25)
+------------------
+* Fix error in ExecuteProcess parse classmethod (`#339 <https://github.com/ros2/launch/issues/339>`_)
+* Add support to ignore fields when parsing ExecuteProcess. (`#336 <https://github.com/ros2/launch/issues/336>`_)
+* Make parse_substitution handle zero-width text. (`#335 <https://github.com/ros2/launch/issues/335>`_)
+* Fix InvalidLaunchFileError error message. (`#333 <https://github.com/ros2/launch/issues/333>`_)
+* Fix default Action describe_conditional_sub_entities() implementation. (`#334 <https://github.com/ros2/launch/issues/334>`_)
+* Contributors: Michel Hidalgo, ivanpauno
+
+0.9.0 (2019-09-18)
+------------------
+* Fix "'GroupAction' object has no attribute 'actions'" error (`#327 <https://github.com/ros2/launch/issues/327>`_)
+* install package marker and manifest (`#323 <https://github.com/ros2/launch/issues/323>`_)
+* Make IncludeLaunchDescription force launch_arguments (`#284 <https://github.com/ros2/launch/issues/284>`_)
+* fix expectation for test on Windows (`#319 <https://github.com/ros2/launch/issues/319>`_)
+* Improve error message when a failing to include launch file (`#315 <https://github.com/ros2/launch/issues/315>`_)
+* Fix launch argument listing/checking issues (`#310 <https://github.com/ros2/launch/issues/310>`_)
+* Support LaunchService injection into pre-shutdown tests. (`#308 <https://github.com/ros2/launch/issues/308>`_)
+* Fix test_expose_decorators failures (`#307 <https://github.com/ros2/launch/issues/307>`_)
+* Add assertWaitForStartup method to match assertWaitForShutdown (`#278 <https://github.com/ros2/launch/issues/278>`_)
+* Add support for conditions in IncludeLaunchDescription actions (`#304 <https://github.com/ros2/launch/issues/304>`_)
+* Convert list comprehension to generator (`#300 <https://github.com/ros2/launch/issues/300>`_)
+* Don't create a log directory every time the launch logger is imported. (`#299 <https://github.com/ros2/launch/issues/299>`_)
+* Avoid registering atexit on windows (`#297 <https://github.com/ros2/launch/issues/297>`_)
+* Correct launch service sigterm handling (`#294 <https://github.com/ros2/launch/issues/294>`_)
+* fix encoding handling when writing to stdout and log files (`#280 <https://github.com/ros2/launch/issues/280>`_)
+* More idiomatic typecheck-only imports (`#285 <https://github.com/ros2/launch/issues/285>`_)
+* Add deprecated argument to LaunchDescriptionn (`#291 <https://github.com/ros2/launch/issues/291>`_)
+* Add support for not optional environment variable substitution (`#288 <https://github.com/ros2/launch/issues/288>`_)
+* Add parsing method to PythonExpression substitution (`#281 <https://github.com/ros2/launch/issues/281>`_)
+* Revert "Revert "[execute_process] emulate_tty configurable and defaults to true"" (`#277 <https://github.com/ros2/launch/issues/277>`_)
+* Refactor `launch.frontend` file loading (`#271 <https://github.com/ros2/launch/issues/271>`_)
+* Revert "[execute_process] emulate_tty configurable and defaults to true (`#265 <https://github.com/ros2/launch/issues/265>`_)" (`#276 <https://github.com/ros2/launch/issues/276>`_)
+* fix linter warnings (`#274 <https://github.com/ros2/launch/issues/274>`_)
+* [execute_process] emulate_tty configurable and defaults to true (`#265 <https://github.com/ros2/launch/issues/265>`_)
+* Add parsing method for dirname substitution (`#273 <https://github.com/ros2/launch/issues/273>`_)
+* Add parsing methods for SetEnviromentVariable and UnsetEnviromentVariable (`#272 <https://github.com/ros2/launch/issues/272>`_)
+* Add parsing method for `DeclareLaunchArgument` (`#270 <https://github.com/ros2/launch/issues/270>`_)
+* Add frontend module in launch, launch_xml and launch_yaml packages (`#226 <https://github.com/ros2/launch/issues/226>`_)
+* Add PathJoinSubstitution (`#266 <https://github.com/ros2/launch/issues/266>`_)
+* Fix EventHandler type hints (`#264 <https://github.com/ros2/launch/issues/264>`_)
+* Fix build_cop `#214 <https://github.com/ros2/launch/issues/214>`_ (`#259 <https://github.com/ros2/launch/issues/259>`_)
+* Fix get_launch_arguments to not crash on conditional sub entities (`#257 <https://github.com/ros2/launch/issues/257>`_)
+* Use stderr logger instead of buffer (`#258 <https://github.com/ros2/launch/issues/258>`_)
+* Line buffering of logger output (`#255 <https://github.com/ros2/launch/issues/255>`_)
+* Contributors: Chris Lalancette, Dan Rose, Daniel Stonier, Dirk Thomas, Jacob Perron, Michel Hidalgo, Peter Baughman, Scott K Logan, William Woodall, ivanpauno
+
 0.8.3 (2019-05-29)
 ------------------
 * Changed IncludeLaunchDescription to not check declared arguments of subentities in order to work around an issue preventing nested arugments until a better fix can be done. (`#249 <https://github.com/ros2/launch/issues/249>`_)
