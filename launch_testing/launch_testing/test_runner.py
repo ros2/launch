@@ -266,7 +266,7 @@ class LaunchTestRunner(object):
             # Drill down into any parametrized test descriptions and make sure the argument names
             # are correct.  A simpler check can use getcallargs, but then you won't get a very
             # helpful message.
-            base_fn = inspect.unwrap(run.test_description_function)
+            base_fn = inspect.unwrap(run._test_description_function)
             base_args = inspect.getfullargspec(base_fn)
             base_args = base_args.args + base_args.kwonlyargs
 
@@ -290,4 +290,8 @@ class LaunchTestRunner(object):
                     )
 
             # This is a double-check
-            inspect.getcallargs(run.test_description_function, ready_fn=lambda: None)
+            try:
+                inspect.getcallargs(run._test_description_function, ready_fn=lambda: None)
+            except TypeError:
+                # We also support generate_test_description functions without a ready_fn
+                inspect.getcallargs(run._test_description_function)
