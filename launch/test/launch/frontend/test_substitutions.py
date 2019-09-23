@@ -23,6 +23,12 @@ from launch.substitutions import TextSubstitution
 from launch.substitutions import ThisLaunchFileDir
 
 
+def test_no_text():
+    subst = parse_substitution('')
+    assert len(subst) == 1
+    assert subst[0].perform(None) == ''
+
+
 def test_text_only():
     subst = parse_substitution("'yes'")
     assert len(subst) == 1

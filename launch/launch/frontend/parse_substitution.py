@@ -99,5 +99,8 @@ transformer = ExtractSubstitution()
 
 
 def parse_substitution(string_value):
+    if not string_value:
+        # Grammar cannot deal with zero-width expressions.
+        return [TextSubstitution(text=string_value)]
     tree = parser.parse(string_value)
     return transformer.transform(tree)
