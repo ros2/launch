@@ -241,61 +241,87 @@ class ExecuteProcess(Action):
         self.__stderr_buffer = io.StringIO()
 
     @classmethod
-    def parse(
+    def _parse_cmdline(
         cls,
-        entity: Entity,
-        parser: Parser,
-        cmd_arg_name: str = 'cmd'
+        cmd: Text,
+        parser: Parser
     ):
         """
-        Return the `ExecuteProcess` action and kwargs for constructing it.
+        Parse text apt for command line execution.
 
-        :param: cmd_arg_name Allow changing the name of `cmd` tag.
-            Intended for code reuse in derived classes (e.g.: launch_ros.actions.Node).
+        :param: cmd a space (' ') delimited command line arguments list.
+           All found `TextSubstitution` items are split and added to the
+           list again as a `TextSubstitution`.
+        :returns: a list of command line arguments.
         """
-        _, kwargs = super().parse(entity, parser)
-
-        cmd = entity.get_attr(cmd_arg_name)
-        # `cmd` is supposed to be a list separated with ' '.
-        # All the found `TextSubstitution` items are split and
-        # added to the list again as a `TextSubstitution`.
-        cmd = parser.parse_substitution(cmd)
-        cmd_list = []
-        for arg in cmd:
+        args = []
+        for arg in parser.parse_substitution(cmd):
             if isinstance(arg, TextSubstitution):
                 text = arg.text
                 text = shlex.split(text)
                 text = [TextSubstitution(text=item) for item in text]
-                cmd_list.extend(text)
+                args.extend(text)
             else:
-                cmd_list.append(arg)
-        kwargs[cmd_arg_name] = cmd_list
+                args.append(arg)
+        return args
 
-        cwd = entity.get_attr('cwd', optional=True)
-        if cwd is not None:
-            kwargs['cwd'] = parser.parse_substitution(cwd)
-        name = entity.get_attr('name', optional=True)
-        if name is not None:
-            kwargs['name'] = parser.parse_substitution(name)
-        prefix = entity.get_attr('launch-prefix', optional=True)
-        if prefix is not None:
-            kwargs['prefix'] = parser.parse_substitution(prefix)
-        output = entity.get_attr('output', optional=True)
-        if output is not None:
-            kwargs['output'] = parser.escape_characters(output)
-        shell = entity.get_attr('shell', data_type=bool, optional=True)
-        if shell is not None:
-            kwargs['shell'] = shell
-        # Conditions won't be allowed in the `env` tag.
-        # If that feature is needed, `set_enviroment_variable` and
-        # `unset_enviroment_variable` actions should be used.
-        env = entity.get_attr('env', data_type=List[Entity], optional=True)
-        if env is not None:
-            env = {
-                tuple(parser.parse_substitution(e.get_attr('name'))):
-                parser.parse_substitution(e.get_attr('value')) for e in env
-            }
-            kwargs['additional_env'] = env
+    @classmethod
+    def parse(
+        cls,
+        entity: Entity,
+        parser: Parser,
+        ignore: Optional[List[str]] = None
+    ):
+        """
+        Return the `ExecuteProcess` action and kwargs for constructing it.
+
+        :param: ignore A list of arguments that should be ignored while parsing.
+            Intended for code reuse in derived classes (e.g.: launch_ros.actions.Node).
+        """
+        _, kwargs = super().parse(entity, parser)
+
+        if ignore is None:
+            ignore = []
+
+        if 'cmd' not in ignore:
+            kwargs['cmd'] = cls._parse_cmdline(entity.get_attr('cmd'))
+
+        if 'cwd' not in ignore:
+            cwd = entity.get_attr('cwd', optional=True)
+            if cwd is not None:
+                kwargs['cwd'] = parser.parse_substitution(cwd)
+
+        if 'name' not in ignore:
+            name = entity.get_attr('name', optional=True)
+            if name is not None:
+                kwargs['name'] = parser.parse_substitution(name)
+
+        if 'prefix' not in ignore:
+            prefix = entity.get_attr('launch-prefix', optional=True)
+            if prefix is not None:
+                kwargs['prefix'] = parser.parse_substitution(prefix)
+
+        if 'output' not in ignore:
+            output = entity.get_attr('output', optional=True)
+            if output is not None:
+                kwargs['output'] = parser.escape_characters(output)
+
+        if 'shell' not in ignore:
+            shell = entity.get_attr('shell', data_type=bool, optional=True)
+            if shell is not None:
+                kwargs['shell'] = shell
+
+        if 'additional_env' not in ignore:
+            # Conditions won't be allowed in the `env` tag.
+            # If that feature is needed, `set_enviroment_variable` and
+            # `unset_enviroment_variable` actions should be used.
+            env = entity.get_attr('env', data_type=List[Entity], optional=True)
+            if env is not None:
+                env = {
+                    tuple(parser.parse_substitution(e.get_attr('name'))):
+                    parser.parse_substitution(e.get_attr('value')) for e in env
+                }
+                kwargs['additional_env'] = env
 
         return cls, kwargs
 
