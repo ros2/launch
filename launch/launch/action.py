@@ -98,11 +98,7 @@ class Action(LaunchDescriptionEntity):
     ]]:
         """Override describe_conditional_sub_entities from LaunchDescriptionEntity."""
         return [
-            (
-                'Conditionally included by {}'.format(self.describe()),
-                entity,
-            )
-            for entity in self.get_sub_entities()
+            ('Conditionally included by {}'.format(self.describe()), self.get_sub_entities())
         ] if self.condition is not None else []
 
     def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
