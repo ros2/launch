@@ -284,7 +284,7 @@ class ExecuteProcess(Action):
             ignore = []
 
         if 'cmd' not in ignore:
-            kwargs['cmd'] = cls._parse_cmdline(entity.get_attr('cmd'))
+            kwargs['cmd'] = cls._parse_cmdline(entity.get_attr('cmd'), parser)
 
         if 'cwd' not in ignore:
             cwd = entity.get_attr('cwd', optional=True)
