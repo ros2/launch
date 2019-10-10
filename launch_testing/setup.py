@@ -11,6 +11,7 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/launch_testing']),
         ('lib/launch_testing', glob.glob('example_processes/**')),
+        ('share/launch_testing', ['package.xml']),
         ('share/launch_testing/examples', glob.glob('examples/[!_]**')),
     ],
     entry_points={
