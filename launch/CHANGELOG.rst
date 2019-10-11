@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.7 (2019-10-11)
+------------------
+* install package marker and manifest (`#323 <https://github.com/ros2/launch/issues/323>`_) (`#343 <https://github.com/ros2/launch/issues/343>`_)
+  Signed-off-by: Dirk Thomas <dirk-thomas@users.noreply.github.com>
+  (cherry picked from commit 4eb26874260bab821863d28e52fbcecd25553f07)
+* Avoid registering atexit on windows (`#297 <https://github.com/ros2/launch/issues/297>`_) (`#329 <https://github.com/ros2/launch/issues/329>`_)
+  Signed-off-by: ivanpauno <ivanpauno@ekumenlabs.com>
+* Contributors: Dirk Thomas, ivanpauno
+
 0.8.6 (2019-09-06)
 ------------------
 * Address additional syntax issues with Python 3.5. (`#328 <https://github.com/ros2/launch/issues/328>`_)

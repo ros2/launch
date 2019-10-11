@@ -2,6 +2,13 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.7 (2019-10-11)
+------------------
+* install package manifest (`#330 <https://github.com/ros2/launch/issues/330>`_) (`#344 <https://github.com/ros2/launch/issues/344>`_)
+  Signed-off-by: Dirk Thomas <dirk-thomas@users.noreply.github.com>
+  (cherry picked from commit 81edb5f43a81ade32e5271caa19c38756f52dac2)
+* Contributors: Dirk Thomas
+
 0.8.6 (2019-09-06)
 ------------------
 * Address additional syntax issues with Python 3.5. (`#328 <https://github.com/ros2/launch/issues/328>`_)
