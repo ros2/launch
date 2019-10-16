@@ -17,7 +17,12 @@ import inspect
 import itertools
 import unittest
 
+import launch.logging
+
 from .actions import ReadyToTest
+
+
+_logger = launch.logging.get_logger(__name__)
 
 
 def _normalize_ld(launch_description_fn):
@@ -35,8 +40,15 @@ def _normalize_ld(launch_description_fn):
         fn_args = inspect.getfullargspec(launch_description_fn)
 
         if 'ready_fn' in fn_args.args + fn_args.kwonlyargs:
-            # This is an old-style launch_description function which epects ready_fn to be passed
+            # This is an old-style launch_description function which expects ready_fn to be passed
             # in to the function
+            # This type of launch description will be deprecated in the future.  Warn about it
+            # here
+            _logger.warning(
+                'Passing ready_fn as an argument to generate_test_description will '
+                'be deprecated in a future release.  Include a launch_testing.actions.ReadyToTest '
+                'action in the LaunchDescription instead.'
+            )
             return normalize(launch_description_fn(**kwargs))
         else:
             # This is a new-style launch_description which should contain a ReadyToTest action
@@ -240,6 +252,43 @@ def _partially_bind_matching_args(unbound_function, arg_candidates):
 
 
 def _give_attribute_to_tests(data, attr_name, test_suite):
+
+    # Accessing the proc_info, proc_output, etc. . . objects via self.proc_info
+    # will be removed in a future release.  Wrap these objects in a way that produces a warning
+    # when they are used
+    class _warn_wrapper:
+
+        def __init__(self, wrapped):
+            self.__warned = False
+            self.__wrapped = wrapped
+
+        def __getattr__(self, attr):
+            self._warn_once()
+            return getattr(self.__wrapped, attr)
+
+        def __getitem__(self, key):
+            self._warn_once()
+            return self.__wrapped[key]
+
+        def __iter__(self):
+            self._warn_once()
+            return self.__wrapped.__iter__()
+
+        def _warn_once(self):
+
+            if self.__warned:
+                return
+
+            _logger.warning(
+                'Automatically adding attributes like self.proc_info and self.proc_output '
+                'to the test class will be deprecated in a future release.  '
+                'Instead, add proc_info or proc_output to the test method argument list to '
+                'access the test object you need'
+            )
+            self.__warned = True
+
+    data = _warn_wrapper(data)
+
     # Test suites can contain other test suites which will eventually contain
     # the actual test classes to run.  This function will recursively drill down until
     # we find the actual tests and give the tests a reference to the process
