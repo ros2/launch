@@ -38,7 +38,5 @@ def retry_on_failure(*, times):
                 except AssertionError:
                     n -= 1
             return func(*args, **kwargs)
-        # Keep signature for argument binding
-        _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
     return _decorator

@@ -233,9 +233,9 @@ def _bind_test_args_to_tests(context, test_suite):
 
 
 def _partially_bind_matching_args(unbound_function, arg_candidates):
-    function_arg_names = inspect.getfullargspec(unbound_function).args
+    function_args = inspect.signature(unbound_function).parameters
     # We only want to bind the part of the context matches the test args
-    matching_args = {k: v for (k, v) in arg_candidates.items() if k in function_arg_names}
+    matching_args = {k: v for (k, v) in arg_candidates.items() if k in function_args}
     return functools.partial(unbound_function, **matching_args)
 
 
