@@ -96,8 +96,10 @@ def expect_output(
     """
     Match output text or lines with expected text or lines.
 
-    Either (expected) text or (expected) lines can be provided but
-    giving both results in a ValueError.
+    Either (expected) text or (expected) lines can be provided but giving both results
+    in a ValueError.
+    If lines are given but a text is expected, these lines are joined using '\n'.
+    Likewise, if text is given but lines are expected, text is split into lines.
 
     :param expected_text: output text expectation, as supported
         by `launch_testing.tools.text.build_text_match`
