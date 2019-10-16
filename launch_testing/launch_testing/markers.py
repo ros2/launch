@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import functools
-import inspect
 
 
 def keep_alive(test_description):

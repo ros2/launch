@@ -13,8 +13,6 @@
 # limitations under the License.
 
 import contextlib
-from typing import Callable
-from typing import Optional
 
 import launch
 import launch.actions

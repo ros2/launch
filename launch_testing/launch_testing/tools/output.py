@@ -93,7 +93,7 @@ def expect_output(
     strip_ansi_escape_sequences=True,
     strict=False
 ):
-    """
+    r"""
     Match output text or lines with expected text or lines.
 
     Either (expected) text or (expected) lines can be provided but giving both results

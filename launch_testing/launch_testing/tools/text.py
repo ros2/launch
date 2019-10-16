@@ -128,7 +128,7 @@ def build_text_match(expected_text, *, strict=False):
                 return None
             start = next_start
             for match in tail_matches:
-                next_start, next_end = match(actual_text, end) or (-1 , -1)
+                next_start, next_end = match(actual_text, end) or (-1, -1)
                 if next_start < end or (strict and next_start != end):
                     return None
                 end = next_end
