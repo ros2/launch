@@ -104,7 +104,7 @@ class TestRun:
 
     @property
     def markers(self):
-        return self.test_description_function.__markers__
+        return self._test_description_function.__markers__
 
     def bind(self, tests, injected_attributes={}, injected_args={}):
         """
