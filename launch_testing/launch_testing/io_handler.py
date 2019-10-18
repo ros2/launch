@@ -45,7 +45,8 @@ class IoHandler:
 
     def append(self, process_io):
         self._sequence_list.append(process_io)
-
+        if process_io.process_name not in self._process_name_dict:
+            self._process_name_dict[process_io.process_name] = []
         self._process_name_dict[process_io.process_name].append(process_io)
 
     def __iter__(self):
