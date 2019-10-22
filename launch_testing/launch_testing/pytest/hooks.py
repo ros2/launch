@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import TestCase
+
 import pytest
 
 from ..loader import LoadTestsFromPythonModule
@@ -64,7 +66,7 @@ class LaunchTestItem(pytest.Item):
                 )
                 for test_run, test_result in excinfo.value.results.items()
                 for test_case, _ in (test_result.errors + test_result.failures)
-                if not test_result.wasSuccessful()
+                if isinstance(test_case, TestCase) and not test_result.wasSuccessful()
             }) if excinfo.value.results else ''
         return super().repr_failure(excinfo)
 

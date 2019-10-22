@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .launchers import launch_process
 from .output import basic_output_filter
+from .output import expect_output
 from .output import expected_output_from_file
+from .process import launch_process
+from .process import ProcessProxy
 
 
 __all__ = [
     'basic_output_filter',
+    'expect_output',
     'expected_output_from_file',
     'launch_process',
+    'ProcessProxy'
 ]

@@ -23,6 +23,7 @@ import launch.actions
 
 import launch_testing
 import launch_testing.asserts
+import launch_testing.markers
 import launch_testing.tools
 
 import pytest
@@ -39,56 +40,63 @@ def get_test_process_action(*, args=[]):
         name='terminating_proc',
         # This is necessary to get unbuffered output from the process under test
         additional_env={'PYTHONUNBUFFERED': '1'},
+        output='screen'
     )
 
 
 @pytest.mark.launch_test
+@launch_testing.markers.keep_alive
 def generate_test_description(ready_fn):
     return launch.LaunchDescription([
-        launch_testing.util.KeepAliveProc(),
         launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
     ])
 
 
 class TestTerminatingProc(unittest.TestCase):
 
-    def test_no_args(self, launch_service, proc_output, proc_info):
+    def test_no_args(self, launch_service, proc_info, proc_output):
         """Test terminating_proc without command line arguments."""
         proc_action = get_test_process_action()
-        with launch_testing.tools.launch_process(launch_service, proc_action) as dut:
-            proc_info.assertWaitForStartup(process=dut, timeout=2)
-            proc_output.assertWaitFor('Starting Up', process=dut, timeout=2)
-            proc_output.assertWaitFor('Emulating Work', process=dut, timeout=2)
-            proc_output.assertWaitFor('Done', process=dut, timeout=2)
-            proc_output.assertWaitFor('Shutting Down', process=dut, timeout=2)
-            proc_info.assertWaitForShutdown(process=dut, timeout=2)
-        launch_testing.asserts.assertExitCodes(proc_info, process=dut)
+        with launch_testing.tools.launch_process(
+            launch_service, proc_action, proc_info, proc_output
+        ):
+            proc_info.assertWaitForStartup(process=proc_action, timeout=2)
+            proc_output.assertWaitFor('Starting Up', process=proc_action, timeout=2)
+            proc_output.assertWaitFor('Emulating Work', process=proc_action, timeout=2)
+            proc_output.assertWaitFor('Done', process=proc_action, timeout=2)
+            proc_output.assertWaitFor('Shutting Down', process=proc_action, timeout=2)
+            proc_info.assertWaitForShutdown(process=proc_action, timeout=4)
+        launch_testing.asserts.assertExitCodes(proc_info, process=proc_action)
 
-    def test_with_args(self, launch_service, proc_output, proc_info):
+    def test_with_args(self, launch_service, proc_info, proc_output):
         """Test terminating_proc with some command line arguments."""
         proc_action = get_test_process_action(args=['--foo', 'bar'])
-        with launch_testing.tools.launch_process(launch_service, proc_action) as dut:
-            proc_info.assertWaitForStartup(process=dut, timeout=2)
-            proc_output.assertWaitFor('Starting Up', process=dut, timeout=2)
+        with launch_testing.tools.launch_process(
+            launch_service, proc_action, proc_info, proc_output
+        ):
+            proc_info.assertWaitForStartup(process=proc_action, timeout=2)
+            proc_output.assertWaitFor('Starting Up', process=proc_action, timeout=2)
             proc_output.assertWaitFor(
-                "Called with arguments ['--foo', 'bar']", process=dut, timeout=2
+                "Called with arguments ['--foo', 'bar']", process=proc_action, timeout=2
             )
-            proc_output.assertWaitFor('Emulating Work', process=dut, timeout=2)
-            proc_output.assertWaitFor('Done', process=dut, timeout=2)
-            proc_output.assertWaitFor('Shutting Down', process=dut, timeout=2)
-            proc_info.assertWaitForShutdown(process=dut, timeout=2)
-        launch_testing.asserts.assertExitCodes(proc_info, process=dut)
+            proc_output.assertWaitFor('Emulating Work', process=proc_action, timeout=2)
+            proc_output.assertWaitFor('Done', process=proc_action, timeout=2)
+            proc_output.assertWaitFor('Shutting Down', process=proc_action, timeout=2)
+            proc_info.assertWaitForShutdown(process=proc_action, timeout=4)
+        launch_testing.asserts.assertExitCodes(proc_info, process=proc_action)
 
     def test_unhandled_exception(self, launch_service, proc_output, proc_info):
         """Test terminating_proc forcing an unhandled exception."""
         proc_action = get_test_process_action(args=['--exception'])
-        with launch_testing.tools.launch_process(launch_service, proc_action) as dut:
-            proc_info.assertWaitForStartup(process=dut, timeout=2)
-            proc_output.assertWaitFor('Starting Up', process=dut, timeout=2)
+        with launch_testing.tools.launch_process(
+            launch_service, proc_action, proc_info, proc_output
+        ):
+            proc_info.assertWaitForStartup(process=proc_action, timeout=2)
+            proc_output.assertWaitFor('Starting Up', process=proc_action, timeout=2)
             proc_output.assertWaitFor(
-                "Called with arguments ['--exception']", process=dut, timeout=2
+                "Called with arguments ['--exception']", process=proc_action, timeout=2
             )
-            proc_info.assertWaitForShutdown(process=dut, timeout=2)
+            proc_info.assertWaitForShutdown(process=proc_action, timeout=4)
         launch_testing.asserts.assertExitCodes(
-            proc_info, process=dut, allowable_exit_codes=[1]
+            proc_info, process=proc_action, allowable_exit_codes=[1]
         )

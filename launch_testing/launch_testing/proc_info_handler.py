@@ -70,7 +70,7 @@ class ProcInfoHandler:
             return self._proc_info[key]
 
 
-class ActiveProcInfoHandler(ProcInfoHandler):
+class ActiveProcInfoHandler:
     """Allows tests to wait on process termination before proceeding."""
 
     def __init__(self):
@@ -78,6 +78,10 @@ class ActiveProcInfoHandler(ProcInfoHandler):
         # Deliberately not calling the 'super' constructor here.  We're building this class
         # by composition so we can still give out the unsynchronized version
         self._proc_info_handler = ProcInfoHandler()
+
+    @property
+    def proc_event(self):
+        return self._sync_lock
 
     def append(self, process_info):
         with self._sync_lock:
@@ -126,7 +130,6 @@ class ActiveProcInfoHandler(ProcInfoHandler):
                     cmd_args=cmd_args,
                     strict_proc_matching=True
                 )[0]
-
                 process_event = self._proc_info_handler[resolved_process]
                 return isinstance(process_event, ProcessExited)
             except NoMatchingProcessException:
