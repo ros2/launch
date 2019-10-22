@@ -253,41 +253,17 @@ def _partially_bind_matching_args(unbound_function, arg_candidates):
 
 def _give_attribute_to_tests(data, attr_name, test_suite):
 
-    # Accessing the proc_info, proc_output, etc. . . objects via self.proc_info
-    # will be removed in a future release.  Wrap these objects in a way that produces a warning
-    # when they are used
-    class _warn_wrapper:
-
-        def __init__(self, wrapped):
-            self.__warned = False
-            self.__wrapped = wrapped
-
-        def __getattr__(self, attr):
-            self._warn_once()
-            return getattr(self.__wrapped, attr)
-
-        def __getitem__(self, key):
-            self._warn_once()
-            return self.__wrapped[key]
-
-        def __iter__(self):
-            self._warn_once()
-            return self.__wrapped.__iter__()
-
-        def _warn_once(self):
-
-            if self.__warned:
-                return
-
+    def _warn_getter(self):
+        if not hasattr(self, '__warned'):
             _logger.warning(
-                'Automatically adding attributes like self.proc_info and self.proc_output '
+                'Automatically adding attributes like self.{0} '
                 'to the test class will be deprecated in a future release.  '
-                'Instead, add proc_info or proc_output to the test method argument list to '
-                'access the test object you need'
+                'Instead, add {0} to the test method argument list to '
+                'access the test object you need'.format(attr_name)
             )
-            self.__warned = True
+            setattr(self, '__warned', True)
 
-    data = _warn_wrapper(data)
+        return data
 
     # Test suites can contain other test suites which will eventually contain
     # the actual test classes to run.  This function will recursively drill down until
@@ -296,7 +272,7 @@ def _give_attribute_to_tests(data, attr_name, test_suite):
     # The effect of this is that every test will have `self.attr_name` available to it so that
     # it can interact with ROS2 or the process exit coes, or IO or whatever data we want
     for test in _iterate_tests_in_test_suite(test_suite):
-        setattr(test, attr_name, data)
+        setattr(test.__class__, attr_name, property(fget=_warn_getter))
 
 
 def _iterate_test_classes_in_test_suite(test_suite):
