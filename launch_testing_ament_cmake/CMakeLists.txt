@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(launch_testing_ament_cmake NONE)
 
-find_package(ament_cmake_core REQUIRED)
+find_package(ament_cmake REQUIRED)
 
 ament_package(
   CONFIG_EXTRAS "${PROJECT_NAME}-extras.cmake"
@@ -14,8 +14,8 @@ install(
 )
 
 if(BUILD_TESTING)
-  find_package(ament_cmake_pytest REQUIRED)
-  ament_add_pytest_test(launch_testing_ament_cmake_pytests test)
+  find_package(ament_cmake_copyright REQUIRED)
+  ament_copyright()
 
   include(cmake/add_launch_test.cmake)
 
