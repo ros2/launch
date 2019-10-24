@@ -245,7 +245,7 @@ Usage to run the test:
 launch_test test/launch_testing/examples/args_launch_test.py dut_arg:=hey
 ```
 
-This example shows how to pass arguments into a launch test.  The arguments are made avilable
+This example shows how to pass arguments into a launch test.  The arguments are made available
 in the launch description via a launch.substitutions.LaunchConfiguration.  The arguments are made
 available to the test cases via a self.test_args dictionary
 
