@@ -2,6 +2,9 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.3 (2019-10-23)
+------------------
+
 0.9.2 (2019-10-23)
 ------------------
 * install resource marker file for packages (`#341 <https://github.com/ros2/launch/issues/341>`_)

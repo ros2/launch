@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.3 (2019-10-23)
+------------------
+* add missing test dependency (`#350 <https://github.com/ros2/launch/issues/350>`_)
+  Signed-off-by: Dirk Thomas <dirk-thomas@users.noreply.github.com>
+* Contributors: Dirk Thomas
+
 0.9.2 (2019-10-23)
 ------------------
 * Use ament_cmake_copyright (`#349 <https://github.com/ros2/launch/issues/349>`_)

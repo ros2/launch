@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.3 (2019-10-23)
+------------------
+
 0.9.2 (2019-10-23)
 ------------------
 * Support launch test reruns when using pytest (`#348 <https://github.com/ros2/launch/issues/348>`_)
