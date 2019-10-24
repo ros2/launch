@@ -2,6 +2,9 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.2 (2019-10-23)
+------------------
+
 0.9.1 (2019-09-25)
 ------------------
 * Fix error in ExecuteProcess parse classmethod (`#339 <https://github.com/ros2/launch/issues/339>`_)

@@ -2,6 +2,12 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.2 (2019-10-23)
+------------------
+* Support launch test reruns when using pytest (`#348 <https://github.com/ros2/launch/issues/348>`_)
+* Support CLI commands testing (`#279 <https://github.com/ros2/launch/issues/279>`_)
+* Contributors: Michel Hidalgo
+
 0.9.1 (2019-09-25)
 ------------------
 * Optionally remove ready fn arg from generate_test_description (`#322 <https://github.com/ros2/launch/issues/322>`_)

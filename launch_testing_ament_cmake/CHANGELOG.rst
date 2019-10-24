@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.2 (2019-10-23)
+------------------
+* Use ament_cmake_copyright (`#349 <https://github.com/ros2/launch/issues/349>`_)
+* Contributors: Dan Rose
+
 0.9.1 (2019-09-25)
 ------------------
 
