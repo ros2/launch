@@ -265,14 +265,10 @@ def _give_attribute_to_tests(data, attr_name, test_suite):
 
         return data
 
-    # Test suites can contain other test suites which will eventually contain
-    # the actual test classes to run.  This function will recursively drill down until
-    # we find the actual tests and give the tests a reference to the process
-
     # The effect of this is that every test will have `self.attr_name` available to it so that
     # it can interact with ROS2 or the process exit coes, or IO or whatever data we want
-    for test in _iterate_tests_in_test_suite(test_suite):
-        setattr(test.__class__, attr_name, property(fget=_warn_getter))
+    for cls in _iterate_test_classes_in_test_suite(test_suite):
+        setattr(cls, attr_name, property(fget=_warn_getter))
 
 
 def _iterate_test_classes_in_test_suite(test_suite):
