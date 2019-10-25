@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import functools
+import inspect
+import unittest
 
 
 def keep_alive(test_description):
@@ -28,14 +30,18 @@ def retry_on_failure(*, times):
     assert times > 0
 
     def _decorator(func):
+        assert 'self' == list(inspect.signature(func).parameters)[0]
         @functools.wraps(func)
-        def _wrapper(*args, **kwargs):
+        def _wrapper(self, *args, **kwargs):
             n = times
             while n > 1:
                 try:
-                    return func(*args, **kwargs)
+                    ret = func(self, *args, **kwargs)
+                    if isinstance(self, unittest.TestCase):
+                        assert self._outcome.success
+                    return ret
                 except AssertionError:
                     n -= 1
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
         return _wrapper
     return _decorator
