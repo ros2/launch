@@ -41,6 +41,8 @@ def retry_on_failure(*, times):
                         assert self._outcome.success
                     return ret
                 except AssertionError:
+                    self._outcome.errors.clear()
+                    self._outcome.success = True
                     n -= 1
             return func(self, *args, **kwargs)
         return _wrapper
