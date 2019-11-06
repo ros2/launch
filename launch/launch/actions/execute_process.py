@@ -335,6 +335,11 @@ class ExecuteProcess(Action):
         """Getter for the process details, e.g. name, pid, cmd, etc., or None if not started."""
         return self.__process_event_args
 
+    def get_sub_entities(self):
+        if isinstance(self.__on_exit, list):
+            return self.__on_exit
+        return []
+
     def _shutdown_process(self, context, *, send_sigint):
         if self.__shutdown_received:
             # Do not handle shutdown more than once.
