@@ -31,6 +31,7 @@ def retry_on_failure(*, times):
 
     def _decorator(func):
         assert 'self' == list(inspect.signature(func).parameters)[0]
+
         @functools.wraps(func)
         def _wrapper(self, *args, **kwargs):
             n = times
