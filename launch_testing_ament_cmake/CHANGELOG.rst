@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.4 (2019-11-08)
+------------------
+
 0.9.3 (2019-10-23)
 ------------------
 * add missing test dependency (`#350 <https://github.com/ros2/launch/issues/350>`_)

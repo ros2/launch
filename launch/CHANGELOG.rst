@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.4 (2019-11-08)
+------------------
+* Fix ExecuteProcess.get_sub_entities() implementation. (`#353 <https://github.com/ros2/launch/issues/353>`_)
+* Contributors: Michel Hidalgo
+
 0.9.3 (2019-10-23)
 ------------------
 

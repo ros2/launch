@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.4 (2019-11-08)
+------------------
+* Fix a small typo in the launch_testing README. (`#351 <https://github.com/ros2/launch/issues/351>`_)
+* Contributors: Chris Lalancette
+
 0.9.3 (2019-10-23)
 ------------------
 
