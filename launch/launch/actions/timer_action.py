@@ -15,7 +15,7 @@
 """Module for the TimerAction action."""
 
 import asyncio
-import collections
+import collections.abc
 from typing import Any  # noqa: F401
 from typing import cast
 from typing import Dict  # noqa: F401
