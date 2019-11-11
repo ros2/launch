@@ -203,7 +203,11 @@ class LaunchService:
                 self.__loop_from_run_thread = this_loop
 
             # Get current task.
-            this_task = asyncio.Task.current_task(this_loop)
+            try:
+                # Python 3.7+
+                this_task = asyncio.current_task(this_loop)
+            except AttributeError:
+                this_task = asyncio.Task.current_task(this_loop)
 
             # Setup custom signal handlers for SIGINT, SIGTERM and maybe SIGQUIT.
             sigint_received = False
