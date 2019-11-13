@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.5 (2019-11-13)
+------------------
+* fix PendingDeprecationWarning about asyncio.Task.current_task (`#355 <https://github.com/ros2/launch/issues/355>`_)
+* import collections.abc (`#354 <https://github.com/ros2/launch/issues/354>`_)
+* Contributors: Dirk Thomas
+
 0.9.4 (2019-11-08)
 ------------------
 * Fix ExecuteProcess.get_sub_entities() implementation. (`#353 <https://github.com/ros2/launch/issues/353>`_)
