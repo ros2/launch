@@ -264,7 +264,7 @@ class LaunchTestRunner(object):
                 # The most likely cause was ctrl+c, so we'll abort the test run
                 results[run] = FailResult(
                     test_run=run,
-                    message="Launch stopped before the active tests finished."
+                    message='Launch stopped before the active tests finished.'
                 )
                 break
 

@@ -124,7 +124,7 @@ class TestXmlFunctions(unittest.TestCase):
         xml_tree = unittestResultsToXml(
             name='fail_xml',
             test_results={
-                'active_tests': FailResult(test_run=test_runs[0])
+                'active_tests': FailResult(test_run=test_runs[0], message='Test Message')
             }
         )
 
