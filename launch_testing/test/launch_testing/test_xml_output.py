@@ -98,16 +98,43 @@ class TestXmlFunctions(unittest.TestCase):
             return runner.run(cases)
 
     def test_fail_results_serialize(self):
+
+        def generate_test_description(ready_fn):
+            raise Exception('This should never be invoked')  # pragma: no cover
+
+        def test_fail_always(self):
+            assert False  # pragma: no cover
+
+        def test_pass_always(self):
+            pass  # pragma: no cover
+
+        test_runs = self.source_test_loader(
+            generate_test_description,
+            pre_shutdown_tests=[
+                test_fail_always,
+            ],
+            post_shutdown_tests=[
+                test_fail_always,
+                test_pass_always
+            ]
+        )
+
+        self.assertEqual(1, len(test_runs))  # Not a parametrized launch, so only 1 run
+
         xml_tree = unittestResultsToXml(
             name='fail_xml',
             test_results={
-                'active_tests': FailResult()
+                'active_tests': FailResult(test_run=test_runs[0], message='Test Message')
             }
         )
 
         # Simple sanity check - see that there's a child element called active_tests
         child_names = [chld.attrib['name'] for chld in xml_tree.getroot()]
         self.assertEqual(set(child_names), {'active_tests'})
+
+        # Make sure failures is non-zero, otherwise colcon test-result won't recognize this
+        # as a failure
+        self.assertGreater(int(xml_tree.getroot().get('failures')), 0)
 
     def test_skip_results_serialize(self):
         # This checks the case where all unit tests are skipped because of a skip

@@ -20,14 +20,20 @@ import unittest
 class FailResult(unittest.TestResult):
     """For test runs that fail when the DUT dies unexpectedly."""
 
+    def __init__(self, test_run, message):
+        super().__init__()
+        for case in test_run.all_cases():
+            self.addFailure(case, (Exception, Exception(message), None))
+            self.testsRun += 1
+
     @property
     def testCases(self):
-        return []
+        return [failure[0] for failure in self.failures]
 
     @property
     def testTimes(self):
         """Get a dict of {test_case: elapsed_time}."""
-        return {}
+        return {failure[0]: 0 for failure in self.failures}
 
     def wasSuccessful(self):
         return False
