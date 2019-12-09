@@ -36,7 +36,7 @@ class FindExecutable(Substitution):
     """
 
     def __init__(self, *, name: SomeSubstitutionsType) -> None:
-        """Constructor."""
+        """Create a FindExecutable substitution."""
         super().__init__()
 
         from ..utilities import normalize_to_list_of_substitutions  # import here to avoid loop

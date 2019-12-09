@@ -78,7 +78,7 @@ class LaunchService:
         debug: bool = False
     ) -> None:
         """
-        Constructor.
+        Create a LaunchService.
 
         If called outside of the main-thread before the function
         :func:`launch.utilities.install_signal_handlers()` has been called,

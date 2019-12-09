@@ -28,7 +28,7 @@ class XMLLaunchDescriptionSource(FrontendLaunchDescriptionSource):
         launch_file_path: SomeSubstitutionsType,
     ) -> None:
         """
-        Constructor.
+        Create an XMLLaunchDescriptionSource.
 
         The given file path should be to a launch XML style file (`.launch.xml`).
         If a relative path is passed, it will be relative to the current working

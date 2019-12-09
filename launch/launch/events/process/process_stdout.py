@@ -24,7 +24,7 @@ class ProcessStdout(ProcessIO):
 
     def __init__(self, *, text: bytes, **kwargs) -> None:
         """
-        Constructor.
+        Create a ProcessStdout event.
 
         Unmatched keyword arguments are passed to ProcessEvent, see it for
         details on those arguments.

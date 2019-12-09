@@ -43,7 +43,7 @@ class SetLaunchConfiguration(Action):
         value: SomeSubstitutionsType,
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create a SetLaunchConfiguration action."""
         super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
         self.__value = normalize_to_list_of_substitutions(value)

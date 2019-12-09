@@ -39,7 +39,7 @@ class LaunchConfiguration(Substitution):
         *,
         default: Optional[Union[Any, Iterable[Any]]] = None
     ) -> None:
-        """Constructor."""
+        """Create a LaunchConfiguration substitution."""
         super().__init__()
 
         from ..utilities import normalize_to_list_of_substitutions

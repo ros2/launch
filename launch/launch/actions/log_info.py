@@ -41,7 +41,7 @@ class LogInfo(Action):
         ...
 
     def __init__(self, *, msg, **kwargs):  # noqa: F811
-        """Constructor."""
+        """Create a LogInfo action."""
         super().__init__(**kwargs)
 
         self.__msg = normalize_to_list_of_substitutions(msg)

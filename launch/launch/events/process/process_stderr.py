@@ -24,7 +24,7 @@ class ProcessStderr(ProcessIO):
 
     def __init__(self, *, text: bytes, **kwargs) -> None:
         """
-        Constructor.
+        Create a ProcessStderr event.
 
         Unmatched keyword arguments are passed to ProcessEvent, see it for
         details on those arguments.

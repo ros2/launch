@@ -29,7 +29,7 @@ class ThisLaunchFileDir(Substitution):
     """Substitution that returns the absolute path to the current launch file."""
 
     def __init__(self) -> None:
-        """Constructor."""
+        """Create a ThisLaunchFileDir substitution."""
         super().__init__()
 
     @classmethod

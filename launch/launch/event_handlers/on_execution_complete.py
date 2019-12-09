@@ -58,7 +58,7 @@ class OnExecutionComplete(EventHandler):
         ...
 
     def __init__(self, *, target_action=None, on_completion, **kwargs) -> None:  # noqa: F811
-        """Constructor."""
+        """Create an OnExecutionComplete event handler."""
         from ..action import Action  # noqa
         if not isinstance(target_action, (Action, type(None))):
             raise ValueError("OnExecutionComplete requires an 'Action' as the target")

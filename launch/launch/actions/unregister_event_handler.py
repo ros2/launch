@@ -23,7 +23,7 @@ class UnregisterEventHandler(Action):
     """Action that unregisters an event handler."""
 
     def __init__(self, event_handler: BaseEventHandler, **kwargs) -> None:
-        """Constructor."""
+        """Create an UnregisterEventHandler action."""
         super().__init__(**kwargs)
         self.__event_handler = event_handler
 

@@ -35,7 +35,7 @@ class LaunchContext:
 
     def __init__(self, *, argv: Optional[Iterable[Text]] = None) -> None:
         """
-        Constructor.
+        Create a LaunchContext.
 
         :param: argv stored in the context for access by the entities, None results in []
         """

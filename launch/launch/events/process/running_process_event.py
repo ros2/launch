@@ -42,7 +42,7 @@ class RunningProcessEvent(Event):
         pid: int
     ) -> None:
         """
-        Constructor.
+        Create a RunningProcessEvent.
 
         :param: action is the ExecuteProcess action associated with the event
         :param: name is the final name of the process instance, which is unique

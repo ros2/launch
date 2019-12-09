@@ -37,5 +37,5 @@ class ShutdownProcess(ProcessTargetedEvent):
     name = 'launch.events.process.ShutdownProcess'
 
     def __init__(self, *, process_matcher: Callable[['ExecuteProcess'], bool]) -> None:
-        """Constructor."""
+        """Create a ShutdownProcess event."""
         super().__init__(process_matcher=process_matcher)

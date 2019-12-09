@@ -24,7 +24,7 @@ class ProcessStarted(RunningProcessEvent):
 
     def __init__(self, **kwargs):
         """
-        Constructor.
+        Create a ProcessStarted event.
 
         Unmatched keyword arguments are passed to RunningProcessEvent, see it
         for details on those arguments.

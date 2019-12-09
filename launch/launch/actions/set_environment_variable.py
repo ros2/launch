@@ -38,7 +38,7 @@ class SetEnvironmentVariable(Action):
         value: SomeSubstitutionsType,
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create a SetEnvironmentVariable action."""
         super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
         self.__value = normalize_to_list_of_substitutions(value)

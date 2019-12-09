@@ -27,7 +27,7 @@ class PathJoinSubstitution(Substitution):
     """Substitution that join paths, in a platform independent way."""
 
     def __init__(self, substitutions: Iterable[SomeSubstitutionsType]) -> None:
-        """Constructor."""
+        """Create a PathJoinSubstitution."""
         from ..utilities import normalize_to_list_of_substitutions
         self.__substitutions = normalize_to_list_of_substitutions(substitutions)
 

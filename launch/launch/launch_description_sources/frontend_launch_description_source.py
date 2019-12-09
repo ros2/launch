@@ -37,7 +37,7 @@ class FrontendLaunchDescriptionSource(LaunchDescriptionSource):
         parser: Type[Parser] = Parser
     ) -> None:
         """
-        Constructor.
+        Create a FrontendLaunchDescriptionSource.
 
         The given file path should be to a launch frontend style file (like xml or yaml).
         If a relative path is passed, it will be relative to the current working

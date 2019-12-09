@@ -35,7 +35,7 @@ class Entity(BaseEntity):
         *,
         parent: 'Entity' = None
     ) -> Text:
-        """Constructor."""
+        """Create an Entity."""
         self.__type_name = type_name
         self.__element = element
         self.__parent = parent

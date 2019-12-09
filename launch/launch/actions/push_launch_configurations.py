@@ -27,7 +27,7 @@ class PushLaunchConfigurations(Action):
     """
 
     def __init__(self, **kwargs) -> None:
-        """Constructor."""
+        """Create a PushLaunchConfigurations action."""
         super().__init__(**kwargs)
 
     def execute(self, context: LaunchContext):
