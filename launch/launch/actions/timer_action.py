@@ -61,7 +61,7 @@ class TimerAction(Action):
         cancel_on_shutdown: bool = True,
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create a TimerAction."""
         super().__init__(**kwargs)
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
         ensure_argument_type(period, period_types, 'period', 'TimerAction')

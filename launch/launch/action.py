@@ -39,7 +39,7 @@ class Action(LaunchDescriptionEntity):
 
     def __init__(self, *, condition: Optional[Condition] = None) -> None:
         """
-        Constructor.
+        Create an Action.
 
         If the conditions argument is not None, the condition object will be
         evaluated while being visited and the action will only be executed if

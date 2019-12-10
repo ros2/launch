@@ -51,7 +51,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         *,
         deprecated_reason: Optional[Text] = None
     ) -> None:
-        """Constructor."""
+        """Create a LaunchDescription."""
         self.__entities = list(initial_entities) if initial_entities is not None else []
         self.__deprecated_reason = deprecated_reason
 

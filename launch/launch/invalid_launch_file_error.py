@@ -19,7 +19,7 @@ class InvalidLaunchFileError(Exception):
     """Exception raised when the given launch file is not valid."""
 
     def __init__(self, extension='', *, likely_errors=None):
-        """Constructor."""
+        """Create an InvalidLaunchFileError."""
         self._extension = extension
         self._likely_errors = likely_errors
         if self._extension == '' or not self._likely_errors:

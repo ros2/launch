@@ -26,7 +26,7 @@ class LocalSubstitution(Substitution):
     """Substitution that can access contextual local variables."""
 
     def __init__(self, expression: Text, description: Optional[Text] = None) -> None:
-        """Constructor."""
+        """Create a LocalSubstitution."""
         super().__init__()
 
         ensure_argument_type(expression, str, 'expression', 'LocalSubstitution')

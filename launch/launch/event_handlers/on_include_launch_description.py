@@ -25,7 +25,7 @@ class OnIncludeLaunchDescription(EventHandler):
     """Event handler used to handle asynchronous requests to include LaunchDescriptions."""
 
     def __init__(self, **kwargs):
-        """Constructor."""
+        """Create an OnIncludeLaunchDescription event handler."""
         from ..actions import OpaqueFunction
         super().__init__(
             matcher=lambda event: is_a_subclass(event, IncludeLaunchDescription),

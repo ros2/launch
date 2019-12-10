@@ -44,7 +44,7 @@ class OnProcessIO(BaseEventHandler):
         on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create an OnProcessIO event handler."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
             raise TypeError("OnProcessIO requires an 'ExecuteProcess' action as the target")

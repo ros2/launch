@@ -50,7 +50,7 @@ class OnShutdown(BaseEventHandler):
         ...
 
     def __init__(self, *, on_shutdown, **kwargs):  # noqa: F811
-        """Constructor."""
+        """Create an OnShutdown event handler."""
         super().__init__(
             matcher=lambda event: is_a_subclass(event, Shutdown),
             **kwargs,

@@ -24,7 +24,7 @@ class ProcessIO(RunningProcessEvent):
 
     def __init__(self, *, text: bytes, fd: int, **kwargs) -> None:
         """
-        Constructor.
+        Create a ProcessIO event.
 
         Unmatched keyword arguments are passed to RunningProcessEvent, see it
         for details on those arguments.

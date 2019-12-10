@@ -53,7 +53,7 @@ class OpaqueFunction(Action):
         kwargs: Optional[Dict[Text, Any]] = None,
         **left_over_kwargs
     ) -> None:
-        """Constructor."""
+        """Create an OpaqueFunction action."""
         super().__init__(**left_over_kwargs)
         if not callable(function):
             raise TypeError("OpaqueFunction expected a callable for 'function', got '{}'".format(

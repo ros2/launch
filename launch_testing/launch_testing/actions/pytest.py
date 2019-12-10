@@ -31,7 +31,7 @@ class PyTest(Test):
         **kwargs
     ) -> None:
         """
-        Constructor.
+        Create a PyTest test action.
 
         timeout argument is passed to :class:`launch_testing.Test`.
         The other arguments are passed to :class:`launch.ExecuteProcess`, so

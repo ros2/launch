@@ -50,7 +50,7 @@ class GroupAction(Action):
         launch_configurations: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         **left_over_kwargs
     ) -> None:
-        """Constructor."""
+        """Create a GroupAction."""
         super().__init__(**left_over_kwargs)
         self.__actions = actions
         self.__scoped = scoped

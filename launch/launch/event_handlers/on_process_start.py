@@ -50,7 +50,7 @@ class OnProcessStart(BaseEventHandler):
                         Callable[[ProcessStarted, LaunchContext], Optional[SomeActionsType]]],
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create an OnProcessStart event handler."""
         from ..actions import ExecuteProcess  # noqa
         if not isinstance(target_action, (ExecuteProcess, type(None))):
             raise TypeError("OnProcessStart requires an 'ExecuteProcess' action as the target")

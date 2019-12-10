@@ -27,7 +27,7 @@ class PythonLaunchDescriptionSource(LaunchDescriptionSource):
         launch_file_path: SomeSubstitutionsType,
     ) -> None:
         """
-        Constructor.
+        Create a PythonLaunchDescriptionSource.
 
         The given file path should be to a ``.launch.py`` style file.
         The path should probably be absolute, since the current working

@@ -38,7 +38,7 @@ class SignalProcess(ProcessTargetedEvent):
         process_matcher: Callable[['ExecuteProcess'], bool]
     ) -> None:
         """
-        Constructor.
+        Create a SignalProcess event.
 
         Takes an optional process matcher, which can be used to match the
         signal to a process.

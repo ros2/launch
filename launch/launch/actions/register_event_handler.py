@@ -33,7 +33,7 @@ class RegisterEventHandler(Action):
     """
 
     def __init__(self, event_handler: BaseEventHandler, **kwargs) -> None:
-        """Constructor."""
+        """Create a RegisterEventHandler action."""
         super().__init__(**kwargs)
         self.__event_handler = event_handler
 

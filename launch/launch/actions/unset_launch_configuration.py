@@ -39,7 +39,7 @@ class UnsetLaunchConfiguration(Action):
         name: SomeSubstitutionsType,
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create an UnsetLaunchConfiguration action."""
         super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
 

@@ -27,7 +27,7 @@ class PopLaunchConfigurations(Action):
     """
 
     def __init__(self, **kwargs) -> None:
-        """Constructor."""
+        """Create a PopLaunchConfigurations action."""
         super().__init__(**kwargs)
 
     def execute(self, context: LaunchContext):

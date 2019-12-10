@@ -37,7 +37,7 @@ import launch.substitutions
 
 
 def main(argv=sys.argv[1:]):
-    """Main."""
+    """Run Counter via launch."""
     # Configure rotating logs.
     launch.logging.launch_config.log_handler_factory = \
         lambda path, encoding=None: launch.logging.handlers.RotatingFileHandler(

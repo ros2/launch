@@ -28,7 +28,7 @@ class YAMLLaunchDescriptionSource(FrontendLaunchDescriptionSource):
         launch_file_path: SomeSubstitutionsType,
     ) -> None:
         """
-        Constructor.
+        Create a YAMLLaunchDescriptionSource.
 
         The given file path should be to a launch YAML style file (`.launch.yaml`).
         If a relative path is passed, it will be relative to the current working

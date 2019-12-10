@@ -82,7 +82,7 @@ class DeclareLaunchArgument(Action):
         description: Text = 'no description given',
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create a DeclareLaunchArgument action."""
         super().__init__(**kwargs)
         self.__name = name
         if default_value is None:
