@@ -22,7 +22,7 @@ from .test import Test
 
 
 class PyTest(Test):
-    """Action that runs a GTest."""
+    """Action that runs a Pytest test."""
 
     def __init__(
         self,
