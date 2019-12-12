@@ -11,12 +11,12 @@ This tool is a framework for launch integration testing. For example:
 
 ## Quick start example
 
-Start with the `launch_testing` example [`good_proc.test.py`](examples/good_proc.test.py).
+Start with the `launch_testing` example [`good_proc_launch_test.py`](test/launch_testing/examples/good_proc_launch_test.py).
 
 Run the example by doing:
 
 ```sh
-launch_test launch_testing/examples/good_proc.test.py
+launch_test test/launch_testing/examples/good_proc_launch_test.py
 ```
 
 `launch_test` will launch the nodes found in the `generate_test_description` function, run the tests from the `TestGoodProcess` class, shut down the launched nodes, and then run the tests from the `TestNodeOutput` class.
