@@ -172,11 +172,11 @@ These asserts are methods on the `proc_output` and `proc_info` objects.
 Arguments are declared in the launch description and can be accessed by the test via a `test_args` dictionary that's injected into the tests similar to `proc_info` and `proc_output`.
 
 ```sh
-launch_test --show-args examples/args.test.py
-launch_test examples/args.test.py dut_arg:=value
+launch_test --show-args test/launch_testing/examples/args_launch_test.py
+launch_test test/launch_testing/examples/args_launch_test.py dut_arg:=value
 ```
 
-See the [launch_testing example with arguments](examples/args.test.py) for further reference.
+See the [launch_testing example with arguments](test/launch_testing/examples/args_launch_test.py) for further reference.
 
 ## Using CMake
 
