@@ -245,9 +245,9 @@ Usage to run the test:
 launch_test test/launch_testing/examples/args_launch_test.py dut_arg:=hey
 ```
 
-This example shows how to pass arguments into a launch test.  The arguments are made available
-in the launch description via a launch.substitutions.LaunchConfiguration.  The arguments are made
-available to the test cases via a self.test_args dictionary
+This example shows how to pass arguments into a launch test.
+The arguments are made available in the launch description via a `launch.substitutions.LaunchConfiguration`.
+The arguments are made available to the test cases via a `self.test_args` dictionary
 
 This example will fail if no arguments are passed.
 
@@ -260,5 +260,5 @@ launch_test test/launch_testing/examples/context_launch_test.py
 ```
 
 This example shows how the `generate_test_description` function can return a tuple where the second
-item is a dictionary of objects that will be injected into the individual test cases.  Tests that
-wish to use elements of the test context can add arguments with names matching the keys of the dictionary.
+item is a dictionary of objects that will be injected into the individual test cases.
+Tests that wish to use elements of the test context can add arguments with names matching the keys of the dictionary.
