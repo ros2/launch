@@ -427,7 +427,13 @@ class ExecuteProcess(Action):
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
         to_write = event.text.decode(errors='replace')
-        try:
+        if self.__stdout_buffer.closed:
+            # __stdout_buffer was probably closed by __flush_buffers on shutdown.  Output without
+            # buffering.
+            self.__stdout_logger.info(
+                self.__output_format.format(line=to_write, this=self)
+            )
+        else:
             self.__stdout_buffer.write(to_write)
             self.__stdout_buffer.seek(0)
             last_line = None
@@ -443,19 +449,18 @@ class ExecuteProcess(Action):
             self.__stdout_buffer.truncate(0)
             if last_line is not None:
                 self.__stdout_buffer.write(last_line)
-        except ValueError:
-            # __stdout_buffer was probably closed by __flush_buffers on shutdown.  Output without
-            # buffering.
-            self.__stdout_logger.info(
-                self.__output_format.format(line=to_write, this=self)
-            )
-
 
     def __on_process_stderr(
         self, event: ProcessIO
     ) -> Optional[SomeActionsType]:
         to_write = event.text.decode(errors='replace')
-        try:
+        if self.__stderr_buffer.closed:
+            # __stderr buffer was probably closed by __flush_buffers on shutdown.  Output without
+            # buffering.
+            self.__stderr_logger.info(
+                self.__output_format.format(line=to_write, this=self)
+            )
+        else:
             self.__stderr_buffer.write(to_write)
             self.__stderr_buffer.seek(0)
             last_line = None
@@ -471,13 +476,6 @@ class ExecuteProcess(Action):
             self.__stderr_buffer.truncate(0)
             if last_line is not None:
                 self.__stderr_buffer.write(last_line)
-        except ValueError:
-            # __stderr buffer was probably closed by __flush_buffers on shutdown.  Output without
-            # buffering.
-            self.__stderr_logger.info(
-                self.__output_format.format(line=to_write, this=self)
-            )
-
 
     def __flush_buffers(self, event, context):
         with self.__stdout_buffer as buf:
