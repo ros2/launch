@@ -11,12 +11,12 @@ This tool is a framework for launch integration testing. For example:
 
 ## Quick start example
 
-Start with the `launch_testing` example [`good_proc.test.py`](examples/good_proc.test.py).
+Start with the `launch_testing` example [`good_proc_launch_test.py`](test/launch_testing/examples/good_proc_launch_test.py).
 
 Run the example by doing:
 
 ```sh
-launch_test launch_testing/examples/good_proc.test.py
+launch_test test/launch_testing/examples/good_proc_launch_test.py
 ```
 
 `launch_test` will launch the nodes found in the `generate_test_description` function, run the tests from the `TestGoodProcess` class, shut down the launched nodes, and then run the tests from the `TestNodeOutput` class.
@@ -172,11 +172,11 @@ These asserts are methods on the `proc_output` and `proc_info` objects.
 Arguments are declared in the launch description and can be accessed by the test via a `test_args` dictionary that's injected into the tests similar to `proc_info` and `proc_output`.
 
 ```sh
-launch_test --show-args examples/args.test.py
-launch_test examples/args.test.py dut_arg:=value
+launch_test --show-args test/launch_testing/examples/args_launch_test.py
+launch_test test/launch_testing/examples/args_launch_test.py dut_arg:=value
 ```
 
-See the [launch_testing example with arguments](examples/args.test.py) for further reference.
+See the [launch_testing example with arguments](test/launch_testing/examples/args_launch_test.py) for further reference.
 
 ## Using CMake
 
@@ -245,9 +245,9 @@ Usage to run the test:
 launch_test test/launch_testing/examples/args_launch_test.py dut_arg:=hey
 ```
 
-This example shows how to pass arguments into a launch test.  The arguments are made available
-in the launch description via a launch.substitutions.LaunchConfiguration.  The arguments are made
-available to the test cases via a self.test_args dictionary
+This example shows how to pass arguments into a launch test.
+The arguments are made available in the launch description via a `launch.substitutions.LaunchConfiguration`.
+The arguments are made available to the test cases via a `self.test_args` dictionary
 
 This example will fail if no arguments are passed.
 
@@ -260,5 +260,5 @@ launch_test test/launch_testing/examples/context_launch_test.py
 ```
 
 This example shows how the `generate_test_description` function can return a tuple where the second
-item is a dictionary of objects that will be injected into the individual test cases.  Tests that
-wish to use elements of the test context can add arguments with names matching the keys of the dictionary.
+item is a dictionary of objects that will be injected into the individual test cases.
+Tests that wish to use elements of the test context can add arguments with names matching the keys of the dictionary.
