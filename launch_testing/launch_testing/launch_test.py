@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import argparse
-from importlib.machinery import SourceFileLoader
+import importlib.util
 import logging
 import os
 import sys
@@ -28,9 +28,10 @@ _logger_ = logging.getLogger(__name__)
 
 def _load_python_file_as_module(test_module_name, python_file_path):
     """Load a given Python launch file (by path) as a Python module."""
-    # Taken from launch_testing to not introduce a weird dependency thing
-    loader = SourceFileLoader(test_module_name, python_file_path)
-    return loader.load_module()
+    spec = importlib.util.spec_from_file_location(test_module_name, python_file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def add_arguments(parser):
