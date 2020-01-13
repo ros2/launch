@@ -34,8 +34,8 @@ class Command(Substitution):
     """
     Substitution that gets the output of a command as a string.
 
-    If the command is not found, fails, or has `stderr` output,
-    a `SubstitutionFailure` error is raised.
+    If the command is not found or fails a `SubstitutionFailure` error is raised.
+    Behavior on stderr output is configurable, see constructor.
     """
 
     def __init__(
