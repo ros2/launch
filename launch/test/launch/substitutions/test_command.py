@@ -26,6 +26,7 @@ import pytest
 this_dir = pathlib.Path(__file__).parent
 
 commands = {
+    'normal': str(this_dir / 'test_command' / 'normal_command.bash'),
     'failing': str(this_dir / 'test_command' / 'failing_command.bash'),
     'with_stderr': str(this_dir / 'test_command' / 'command_with_stderr.bash')
 }
@@ -38,7 +39,7 @@ if os.name == 'nt':
 def test_command():
     """Test a simple command."""
     context = LaunchContext()
-    command = Command('echo asd bsd csd')
+    command = Command(commands['normal'])
     output = command.perform(context)
     assert output == 'asd bsd csd\n'
 
