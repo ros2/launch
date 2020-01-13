@@ -71,7 +71,7 @@ class Command(Substitution):
         kwargs = {'command': data[0]}
         if len(data) == 2:
             kwargs['on_stderr'] = data[1]
-        return cls, data
+        return cls, kwargs
 
     @property
     def command(self) -> List[Substitution]:
