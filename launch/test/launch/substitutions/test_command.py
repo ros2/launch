@@ -32,8 +32,8 @@ commands = {
 }
 
 if os.name == 'nt':
-    for command in commands.values():
-        command = command.replace('bash', 'bat')
+    for key, value in commands.items():
+        commands[key] = value.replace('bash', 'bat')
 
 
 def test_command():

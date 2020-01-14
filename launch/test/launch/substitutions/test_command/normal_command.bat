@@ -1,1 +1,1 @@
-echo 'asd bsd csd'
+@echo asd bsd csd

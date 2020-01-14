@@ -14,6 +14,7 @@
 
 """Module for the Command substitution."""
 
+import os
 import shlex
 import subprocess
 from typing import Iterable
@@ -91,8 +92,10 @@ class Command(Substitution):
         """Perform the substitution by running the command and capturing its output."""
         from ..utilities import perform_substitutions  # import here to avoid loop
         command_str = perform_substitutions(context, self.command)
-        command = shlex.split(command_str)
-
+        if os.name != 'nt':
+            command = shlex.split(command_str)
+        else:
+            command = command_str
         on_stderr = perform_substitutions(context, self.on_stderr)
         if on_stderr not in ('fail', 'ignore', 'warn', 'capture'):
             raise SubstitutionFailure(
