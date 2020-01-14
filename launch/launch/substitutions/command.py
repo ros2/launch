@@ -67,7 +67,7 @@ class Command(Substitution):
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `Command` substitution."""
-        if len(data) < 1 or len(data) > 3:
+        if len(data) < 1 or len(data) > 2:
             raise ValueError('command substitution expects 1 or 2 arguments')
         kwargs = {'command': data[0]}
         if len(data) == 2:
@@ -99,7 +99,7 @@ class Command(Substitution):
         on_stderr = perform_substitutions(context, self.on_stderr)
         if on_stderr not in ('fail', 'ignore', 'warn', 'capture'):
             raise SubstitutionFailure(
-                'on_stderr expected to be one of: fail, ignore, warn or capture')
+                "expected 'on_stderr' to be one of: 'fail', 'ignore', 'warn' or 'capture'")
         stderr = subprocess.PIPE
         if on_stderr == 'capture':
             stderr = subprocess.STDOUT
