@@ -33,7 +33,7 @@ commands = {
 
 if os.name == 'nt':
     for command in commands.values():
-        command.replace('bash', 'bat')
+        command = command.replace('bash', 'bat')
 
 
 def test_command():
