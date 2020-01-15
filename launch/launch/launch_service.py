@@ -127,6 +127,7 @@ class LaunchService:
 
         If the LaunchService is not running, the event is queued until it is.
         """
+        future = None
         with self.__loop_from_run_thread_lock:
             if self.__loop_from_run_thread is not None:
                 # loop is in use, asynchronously emit the event
@@ -134,10 +135,13 @@ class LaunchService:
                     self.__context.emit_event(event),
                     self.__loop_from_run_thread
                 )
-                future.result()
             else:
                 # loop is not in use, synchronously emit the event, and it will be processed later
                 self.__context.emit_event_sync(event)
+
+        if future is not None:
+            # Block until asynchronously emitted event is emitted by loop
+            future.result()
 
     def include_launch_description(self, launch_description: LaunchDescription) -> None:
         """
