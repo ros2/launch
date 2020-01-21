@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.6 (2020-01-21)
+------------------
+* Fix case where output buffer is closed during shutdown (`#365 <https://github.com/ros2/launch/issues/365>`_)
+* Release loop lock before waiting for it to do work (`#369 <https://github.com/ros2/launch/issues/369>`_)
+* Contributors: Peter Baughman, Shane Loretz
+
 0.9.5 (2019-11-13)
 ------------------
 * fix PendingDeprecationWarning about asyncio.Task.current_task (`#355 <https://github.com/ros2/launch/issues/355>`_)

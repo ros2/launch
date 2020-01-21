@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.6 (2020-01-21)
+------------------
+* Import test file without contaminating sys.modules (`#360 <https://github.com/ros2/launch/issues/360>`_)
+* Contributors: Peter Baughman
+
 0.9.5 (2019-11-13)
 ------------------
 * Make launch_testing.markers.retry_on_failure decorator more robust. (`#352 <https://github.com/ros2/launch/issues/352>`_)
