@@ -36,7 +36,7 @@ class DeclareLaunchArgument(Action):
     """
     Action that declares a new launch argument.
 
-    A launch arguments are stored in a "launch configuration" of the same name.
+    A launch argument is stored in a "launch configuration" of the same name.
     See :py:class:`launch.actions.SetLaunchConfiguration` and
     :py:class:`launch.substitutions.LaunchConfiguration`.
 
