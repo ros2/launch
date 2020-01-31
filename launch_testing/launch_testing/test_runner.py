@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import inspect
+import os
 import threading
 import unittest
 
@@ -41,6 +42,10 @@ class _RunnerWorker():
                  test_run_preamble,
                  launch_file_arguments=[],
                  debug=False):
+
+        if os.name == 'nt':
+            raise unittest.SkipTest('launch tests often hang on Windows')
+
         self._test_run = test_run
         self._test_run_preamble = test_run_preamble
         self._launch_service = LaunchService(debug=debug)
