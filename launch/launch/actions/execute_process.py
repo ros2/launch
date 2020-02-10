@@ -240,6 +240,8 @@ class ExecuteProcess(Action):
         self.__stdout_buffer = io.StringIO()
         self.__stderr_buffer = io.StringIO()
 
+        self.__executed = False
+
     @classmethod
     def _parse_cmdline(
         cls,
@@ -692,6 +694,12 @@ class ExecuteProcess(Action):
         - configures logging for the IO process event
         - create a task for the coroutine that monitors the process
         """
+        if self.__executed:
+            raise RuntimeError(
+                f"ExecuteProcess action '{self.name}': executed more than once: {self.describe()}"
+            )
+        self.__executed = True
+
         if self.__shutdown_received:
             # If shutdown starts before execution can start, don't start execution.
             return None
