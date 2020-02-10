@@ -23,7 +23,7 @@ further reference.
 
 import threading
 
-from .asserts.assert_output import assertInStdout
+from .asserts.assert_output import assertInStream
 from .util import NoMatchingProcessException
 from .util import resolveProcesses
 
@@ -154,13 +154,14 @@ class ActiveIoHandler:
         strict_proc_matching=True,
         output_filter=None,
         timeout=10,
-        strip_ansi_escape_sequences=True
+        strip_ansi_escape_sequences=True,
+        stream='stderr',
     ):
         success = False
 
         def msg_found():
             try:
-                assertInStdout(
+                assertInStream(
                     self._io_handler,  # Use unsynchronized, since this is called from a lock
                     expected_output=expected_output,
                     process=process,
@@ -168,6 +169,7 @@ class ActiveIoHandler:
                     output_filter=output_filter,
                     strict_proc_matching=strict_proc_matching,
                     strip_ansi_escape_sequences=strip_ansi_escape_sequences,
+                    stream=stream,
                 )
                 return True
             except NoMatchingProcessException:
