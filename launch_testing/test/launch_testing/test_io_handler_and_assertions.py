@@ -117,7 +117,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
 
     def test_assert_wait_for_returns_immediately(self):
         # If the output has already been seen, ensure that assertWaitsFor returns right away
-        self.proc_output.assertWaitFor('Starting Up', timeout=1)
+        self.proc_output.assertWaitFor('Starting Up', timeout=1, stream='stdout')
 
     def test_EXPECTED_TEXT_is_present(self):
         # Sanity check - makes sure the EXPECTED_TEXT is somewhere in the test run

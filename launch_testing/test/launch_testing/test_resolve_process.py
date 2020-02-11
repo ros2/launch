@@ -121,9 +121,9 @@ class TestStringProcessResolution(unittest.TestCase):
                                no_arg_proc,
                                one_arg_proc,
                                two_arg_proc):
-                proc_output.assertWaitFor('--one-arg')
-                proc_output.assertWaitFor('--two-arg')
-                proc_output.assertWaitFor('arg_two')
+                proc_output.assertWaitFor('--one-arg', stream='stdout')
+                proc_output.assertWaitFor('--two-arg', stream='stdout')
+                proc_output.assertWaitFor('arg_two', stream='stdout')
 
                 arr.append(proc_info)
 

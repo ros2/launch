@@ -59,4 +59,4 @@ class TestProcessOutput(unittest.TestCase):
     # Note that 'arg_param' is automatically given to the test case, even though it was not
     # part of the test context.
     def test_process_outputs_expectd_value(self, proc_output, arg_param):
-        proc_output.assertWaitFor('--' + arg_param, timeout=10)
+        proc_output.assertWaitFor('--' + arg_param, timeout=10, stream='stdout')

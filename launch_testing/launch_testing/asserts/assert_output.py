@@ -104,6 +104,7 @@ def assertInStream(proc_output,
             expected_output, names
         )
 
+
 def assertInStdout(proc_output,
                    expected_output,
                    process,
@@ -143,7 +144,10 @@ def assertInStdout(proc_output,
     expected output.
     :type strip_ansi_escape_sequences: bool
     """
-    assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter, strict_proc_matching=strict_proc_matching, strip_ansi_escape_sequences=strip_ansi_escape_sequences, stream='stdout')
+    assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter,
+                   strict_proc_matching=strict_proc_matching,
+                   strip_ansi_escape_sequences=strip_ansi_escape_sequences, stream='stdout')
+
 
 def assertInStderr(proc_output,
                    expected_output,
@@ -184,4 +188,6 @@ def assertInStderr(proc_output,
     expected output.
     :type strip_ansi_escape_sequences: bool
     """
-    assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter, strict_proc_matching=strict_proc_matching, strip_ansi_escape_sequences=strip_ansi_escape_sequences, stream='stderr')
+    assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter,
+                   strict_proc_matching=strict_proc_matching,
+                   strip_ansi_escape_sequences=strip_ansi_escape_sequences, stream='stderr')

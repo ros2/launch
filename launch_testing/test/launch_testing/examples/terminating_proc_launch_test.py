@@ -61,10 +61,16 @@ class TestTerminatingProc(unittest.TestCase):
             launch_service, proc_action, proc_info, proc_output
         ):
             proc_info.assertWaitForStartup(process=proc_action, timeout=2)
-            proc_output.assertWaitFor('Starting Up', process=proc_action, timeout=2)
-            proc_output.assertWaitFor('Emulating Work', process=proc_action, timeout=2)
-            proc_output.assertWaitFor('Done', process=proc_action, timeout=2)
-            proc_output.assertWaitFor('Shutting Down', process=proc_action, timeout=2)
+            proc_output.assertWaitFor(
+                'Starting Up', process=proc_action, timeout=2, stream='stdout'
+            )
+            proc_output.assertWaitFor(
+                'Emulating Work', process=proc_action, timeout=2, stream='stdout'
+            )
+            proc_output.assertWaitFor('Done', process=proc_action, timeout=2, stream='stdout')
+            proc_output.assertWaitFor(
+                'Shutting Down', process=proc_action, timeout=2, stream='stdout'
+            )
             proc_info.assertWaitForShutdown(process=proc_action, timeout=4)
         launch_testing.asserts.assertExitCodes(proc_info, process=proc_action)
 
@@ -75,13 +81,20 @@ class TestTerminatingProc(unittest.TestCase):
             launch_service, proc_action, proc_info, proc_output
         ):
             proc_info.assertWaitForStartup(process=proc_action, timeout=2)
-            proc_output.assertWaitFor('Starting Up', process=proc_action, timeout=2)
             proc_output.assertWaitFor(
-                "Called with arguments ['--foo', 'bar']", process=proc_action, timeout=2
+                'Starting Up', process=proc_action, timeout=2, stream='stdout'
             )
-            proc_output.assertWaitFor('Emulating Work', process=proc_action, timeout=2)
-            proc_output.assertWaitFor('Done', process=proc_action, timeout=2)
-            proc_output.assertWaitFor('Shutting Down', process=proc_action, timeout=2)
+            proc_output.assertWaitFor(
+                "Called with arguments ['--foo', 'bar']", process=proc_action, timeout=2,
+                stream='stdout'
+            )
+            proc_output.assertWaitFor(
+                'Emulating Work', process=proc_action, timeout=2, stream='stdout'
+            )
+            proc_output.assertWaitFor('Done', process=proc_action, timeout=2, stream='stdout')
+            proc_output.assertWaitFor(
+                'Shutting Down', process=proc_action, timeout=2, stream='stdout'
+            )
             proc_info.assertWaitForShutdown(process=proc_action, timeout=4)
         launch_testing.asserts.assertExitCodes(proc_info, process=proc_action)
 
@@ -92,9 +105,12 @@ class TestTerminatingProc(unittest.TestCase):
             launch_service, proc_action, proc_info, proc_output
         ):
             proc_info.assertWaitForStartup(process=proc_action, timeout=2)
-            proc_output.assertWaitFor('Starting Up', process=proc_action, timeout=2)
             proc_output.assertWaitFor(
-                "Called with arguments ['--exception']", process=proc_action, timeout=2
+                'Starting Up', process=proc_action, timeout=2, stream='stdout'
+            )
+            proc_output.assertWaitFor(
+                "Called with arguments ['--exception']", process=proc_action, timeout=2,
+                stream='stdout'
             )
             proc_info.assertWaitForShutdown(process=proc_action, timeout=4)
         launch_testing.asserts.assertExitCodes(

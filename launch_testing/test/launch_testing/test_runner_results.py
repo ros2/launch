@@ -166,7 +166,7 @@ def test_parametrized_run_with_one_failure(source_test_loader):
         ])
 
     def test_fail_on_two(self, proc_output, arg_val):
-        proc_output.assertWaitFor('Starting Up')
+        proc_output.assertWaitFor('Starting Up', stream='stdout')
         assert arg_val != 2
 
     def test_fail_on_three(self, arg_val):
