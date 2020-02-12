@@ -90,7 +90,7 @@ def assertInStream(proc_output,
                 output.text.decode() for output in proc_output[proc] if output.from_stderr
             )
         else:
-            raise ValueError("Invalid value for stream; must be 'stout' or 'stderr'")
+            raise ValueError("Invalid value for stream; must be 'stdout' or 'stderr'")
 
         if strip_ansi_escape_sequences:
             full_output = remove_ansi_escape_sequences(full_output)
@@ -116,33 +116,7 @@ def assertInStdout(proc_output,
     """
     Assert that 'output' was found in the standard output of a process.
 
-    :param proc_output: The process output captured by launch_test.  This is usually injected
-    into test cases as self._proc_output
-    :type proc_output: An launch_testing.IoHandler
-
-    :param expected_output: The output to search for
-    :type expected_output: string or regex pattern or a list of the aforementioned types
-
-    :param process: The process whose output will be searched
-    :type process: A string (search by process name) or a launch.actions.ExecuteProcess object
-
-    :param cmd_args: Optional.  If 'process' is a string, cmd_args will be used to disambiguate
-    processes with the same name.  Pass launch_testing.asserts.NO_CMD_ARGS to match a proc without
-    command arguments
-    :type cmd_args: string
-
-    :param output_filter: Optional. A function to filter output before attempting any assertion.
-    :type output_filter: callable
-
-    :param strict_proc_matching: Optional (default True), If proc is a string and the combination
-    of proc and cmd_args matches multiple processes, then strict_proc_matching=True will raise
-    an error.
-    :type strict_proc_matching: bool
-
-    :param strip_ansi_escape_sequences: If True (default), strip ansi escape
-    sequences from actual output before comparing with the output filter or
-    expected output.
-    :type strip_ansi_escape_sequences: bool
+    See the documentation for 'assertInStream' for full details.
     """
     assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter,
                    strict_proc_matching=strict_proc_matching,
@@ -160,33 +134,7 @@ def assertInStderr(proc_output,
     """
     Assert that 'output' was found in the standard error of a process.
 
-    :param proc_output: The process output captured by launch_test.  This is usually injected
-    into test cases as self._proc_output
-    :type proc_output: An launch_testing.IoHandler
-
-    :param expected_output: The output to search for
-    :type expected_output: string or regex pattern or a list of the aforementioned types
-
-    :param process: The process whose output will be searched
-    :type process: A string (search by process name) or a launch.actions.ExecuteProcess object
-
-    :param cmd_args: Optional.  If 'process' is a string, cmd_args will be used to disambiguate
-    processes with the same name.  Pass launch_testing.asserts.NO_CMD_ARGS to match a proc without
-    command arguments
-    :type cmd_args: string
-
-    :param output_filter: Optional. A function to filter output before attempting any assertion.
-    :type output_filter: callable
-
-    :param strict_proc_matching: Optional (default True), If proc is a string and the combination
-    of proc and cmd_args matches multiple processes, then strict_proc_matching=True will raise
-    an error.
-    :type strict_proc_matching: bool
-
-    :param strip_ansi_escape_sequences: If True (default), strip ansi escape
-    sequences from actual output before comparing with the output filter or
-    expected output.
-    :type strip_ansi_escape_sequences: bool
+    See the documentation for 'assertInStream' for full details.
     """
     assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter,
                    strict_proc_matching=strict_proc_matching,
