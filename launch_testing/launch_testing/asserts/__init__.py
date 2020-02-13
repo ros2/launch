@@ -18,6 +18,7 @@ from .assert_exit_codes import EXIT_SIGINT
 from .assert_exit_codes import EXIT_SIGKILL
 from .assert_exit_codes import EXIT_SIGQUIT
 from .assert_exit_codes import EXIT_SIGSEGV
+from .assert_output import assertDefaultStream
 from .assert_output import assertInStderr
 from .assert_output import assertInStdout
 from .assert_output import assertInStream
@@ -27,6 +28,7 @@ from .assert_sequential_output import SequentialTextChecker
 from ..util.proc_lookup import NO_CMD_ARGS
 
 __all__ = [
+    'assertDefaultStream',
     'assertExitCodes',
     'assertInStderr',
     'assertInStdout',

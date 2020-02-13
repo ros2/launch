@@ -139,3 +139,12 @@ def assertInStderr(proc_output,
     assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter,
                    strict_proc_matching=strict_proc_matching,
                    strip_ansi_escape_sequences=strip_ansi_escape_sequences, stream='stderr')
+
+
+def assertDefaultStream():
+    """
+    Return the stream that is used by default for 'assertInStream'.
+
+    This is useful for writing tests that are compatible with both Eloquent and newer releases.
+    """
+    return 'stderr'
