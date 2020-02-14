@@ -14,13 +14,19 @@
 
 """Test the default substitution interpolator."""
 
+from typing import List
+from typing import Text
+
 from launch import LaunchContext
+from launch import SomeSubstitutionsType
+from launch import Substitution
+from launch.actions import ExecuteProcess
 from launch.frontend.expose import expose_substitution
 from launch.frontend.parse_substitution import parse_substitution
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import PythonExpression
-from launch.substitutions import TextSubstitution
 from launch.substitutions import ThisLaunchFileDir
+from launch.substitutions import TextSubstitution
 
 
 def test_no_text():
@@ -47,13 +53,26 @@ def test_text_only():
     assert subst[0].perform(None) == '10e4'
 
 
+def perform_substitutions_without_context(subs: List[Substitution]):
+    return ''.join([sub.perform(None) for sub in subs])
+
+
+class CustomSubstitution(Substitution):
+
+    def __init__(self, text):
+        self.__text = text
+
+    def perform(self, context):
+        return self.__text
+
+
 @expose_substitution('test')
 def parse_test_substitution(data):
     if not data or len(data) > 1:
         raise RuntimeError()
     kwargs = {}
-    kwargs['text'] = ''.join([i.perform(None) for i in data[0]])
-    return TextSubstitution, kwargs
+    kwargs['text'] = perform_substitutions_without_context(data[0])
+    return CustomSubstitution, kwargs
 
 
 def test_text_with_embedded_substitutions():
@@ -150,19 +169,19 @@ def test_env_subst():
     assert len(subst) == 1
     env = subst[0]
     assert isinstance(env, EnvironmentVariable)
-    assert 'asd' == ''.join([x.perform(None) for x in env.name])
-    assert 'bsd' == ''.join([x.perform(None) for x in env.default_value])
+    assert 'asd' == perform_substitutions_without_context(env.name)
+    assert 'bsd' == perform_substitutions_without_context(env.default_value)
     subst = parse_substitution("$(env asd '')")
     assert len(subst) == 1
     env = subst[0]
     assert isinstance(env, EnvironmentVariable)
-    assert 'asd' == ''.join([x.perform(None) for x in env.name])
-    assert '' == ''.join([x.perform(None) for x in env.default_value])
+    assert 'asd' == perform_substitutions_without_context(env.name)
+    assert '' == perform_substitutions_without_context(env.default_value)
     subst = parse_substitution('$(env asd)')
     assert len(subst) == 1
     env = subst[0]
     assert isinstance(env, EnvironmentVariable)
-    assert 'asd' == ''.join([x.perform(None) for x in env.name])
+    assert 'asd' == perform_substitutions_without_context(env.name)
     assert env.default_value is None
 
 
@@ -172,3 +191,47 @@ def test_eval_subst():
     expr = subst[0]
     assert isinstance(expr, PythonExpression)
     assert 'asdbsd' == expr.perform(LaunchContext())
+
+
+def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):
+    return [perform_substitutions_without_context(x) for x in cmd_subs]
+
+
+class MockedParser:
+
+    def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
+        return parse_substitution(value)
+
+def test_execute_process_parse_cmd_line():
+    """Test ExecuteProcess._parse_cmd_line."""
+    parser = MockedParser()
+
+    cmd_text: Text = '$(test path)/a/b/c asd csd $(test asd)/bsd/csd'
+    cmd_subs: List[SomeSubstitutionsType] = ExecuteProcess._parse_cmdline(cmd_text, parser)
+    cmd_performed: List[Text] = expand_cmd_subs(cmd_subs)
+    assert cmd_performed == ['path/a/b/c', 'asd', 'csd', 'asd/bsd/csd']
+
+    cmd_text = '$(test exec) asd $(test bsd) csd'
+    cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
+    cmd_performed = expand_cmd_subs(cmd_subs)
+    assert cmd_performed == ['exec', 'asd', 'bsd', 'csd']
+
+    cmd_text = '$(test exec) prefix/$(test bsd)'
+    cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
+    cmd_performed = expand_cmd_subs(cmd_subs)
+    assert cmd_performed == ['exec', 'prefix/bsd']
+
+    cmd_text = '$(test exec) prefix/$(test bsd) '
+    cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
+    cmd_performed = expand_cmd_subs(cmd_subs)
+    assert cmd_performed == ['exec', 'prefix/bsd']
+
+    cmd_text = '$(test exec) asd prefix/$(test bsd) '
+    cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
+    cmd_performed = expand_cmd_subs(cmd_subs)
+    assert cmd_performed == ['exec', 'asd', 'prefix/bsd']
+
+    cmd_text = 'exec asd prefix/bsd '
+    cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
+    cmd_performed = expand_cmd_subs(cmd_subs)
+    assert cmd_performed == ['exec', 'asd', 'prefix/bsd']

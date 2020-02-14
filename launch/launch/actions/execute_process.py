@@ -247,7 +247,7 @@ class ExecuteProcess(Action):
         cls,
         cmd: Text,
         parser: Parser
-    ):
+    ) -> List[SomeSubstitutionsType]:
         """
         Parse text apt for command line execution.
 
@@ -257,14 +257,30 @@ class ExecuteProcess(Action):
         :returns: a list of command line arguments.
         """
         args = []
-        for arg in parser.parse_substitution(cmd):
-            if isinstance(arg, TextSubstitution):
-                text = arg.text
-                text = shlex.split(text)
-                text = [TextSubstitution(text=item) for item in text]
-                args.extend(text)
+        arg = []
+        for sub in parser.parse_substitution(cmd):
+            if isinstance(sub, TextSubstitution):
+                some_args = shlex.split(sub.text)
+                if not some_args:
+                    continue
+                if sub.text[0].isspace():
+                    if len(arg) != 0:
+                        args.append(arg)
+                        arg = []
+                arg.append(TextSubstitution(text=some_args[0]))
+                if len(some_args) > 1:
+                    args.append(arg)
+                    arg = []
+                    arg.append(TextSubstitution(text=some_args[-1]))
+                if len(some_args) > 2:
+                    args.extend([TextSubstitution(text=x)] for x in some_args[1:-1])
+                if sub.text[-1].isspace():
+                    args.append(arg)
+                    arg = []
             else:
-                args.append(arg)
+                arg.append(sub)
+        if arg:
+            args.append(arg)
         return args
 
     @classmethod
