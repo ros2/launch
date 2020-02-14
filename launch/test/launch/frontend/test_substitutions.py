@@ -26,7 +26,6 @@ from launch.frontend.parse_substitution import parse_substitution
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import PythonExpression
 from launch.substitutions import ThisLaunchFileDir
-from launch.substitutions import TextSubstitution
 
 
 def test_no_text():
@@ -201,6 +200,7 @@ class MockedParser:
 
     def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
         return parse_substitution(value)
+
 
 def test_execute_process_parse_cmd_line():
     """Test ExecuteProcess._parse_cmd_line."""
