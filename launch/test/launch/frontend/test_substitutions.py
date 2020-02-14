@@ -196,7 +196,7 @@ def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):
     return [perform_substitutions_without_context(x) for x in cmd_subs]
 
 
-class MockedParser:
+class MockParser:
 
     def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
         return parse_substitution(value)
@@ -204,7 +204,7 @@ class MockedParser:
 
 def test_execute_process_parse_cmd_line():
     """Test ExecuteProcess._parse_cmd_line."""
-    parser = MockedParser()
+    parser = MockParser()
 
     cmd_text: Text = '$(test path)/a/b/c asd csd $(test asd)/bsd/csd'
     cmd_subs: List[SomeSubstitutionsType] = ExecuteProcess._parse_cmdline(cmd_text, parser)
@@ -235,3 +235,13 @@ def test_execute_process_parse_cmd_line():
     cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
     cmd_performed = expand_cmd_subs(cmd_subs)
     assert cmd_performed == ['exec', 'asd', 'prefix/bsd']
+
+    cmd_text = '$(test foo)$(test bar)'
+    cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
+    cmd_performed = expand_cmd_subs(cmd_subs)
+    assert cmd_performed == ['foobar']
+
+    cmd_text = '$(test that) $(test this)'
+    cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
+    cmd_performed = expand_cmd_subs(cmd_subs)
+    assert cmd_performed == ['that', 'this']

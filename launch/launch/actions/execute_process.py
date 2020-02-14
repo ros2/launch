@@ -256,32 +256,52 @@ class ExecuteProcess(Action):
            list again as a `TextSubstitution`.
         :returns: a list of command line arguments.
         """
-        args = []
+        result_args = []
         arg = []
+
+        def _append_arg():
+            nonlocal arg
+            result_args.append(arg)
+            arg= []
         for sub in parser.parse_substitution(cmd):
             if isinstance(sub, TextSubstitution):
-                some_args = shlex.split(sub.text)
-                if not some_args:
+                tokens = shlex.split(sub.text)
+                if not tokens:
+                    # Sting with just spaces.
+                    # Appending args allow splitting two substitutions
+                    # separated by a space.
+                    # e.g.: `$(subst1 asd) $(subst2 bsd)` will be two separate arguments.
+                    _append_arg()
                     continue
                 if sub.text[0].isspace():
+                    # Needed for splitting from the previous argument
+                    # e.g.: `$(find-exec bsd) asd`
+                    # It splits `asd` from the path of `bsd` executable.
                     if len(arg) != 0:
-                        args.append(arg)
-                        arg = []
-                arg.append(TextSubstitution(text=some_args[0]))
-                if len(some_args) > 1:
-                    args.append(arg)
-                    arg = []
-                    arg.append(TextSubstitution(text=some_args[-1]))
-                if len(some_args) > 2:
-                    args.extend([TextSubstitution(text=x)] for x in some_args[1:-1])
+                        _append_arg()
+                arg.append(TextSubstitution(text=tokens[0]))
+                if len(tokens) > 1:
+                    # Needed to split the first argument when more than one token.
+                    # e.g. `$(find-pkg-prefix csd)/asd bsd`
+                    # will split `$(find-pkg-prefix csd)/asd` from `bsd`.
+                    _append_arg()
+                    arg.append(TextSubstitution(text=tokens[-1]))
+                if len(tokens) > 2:
+                    # If there are more than two tokens, just add all the middle tokens to
+                    # `result_args`.
+                    # e.g. `$(find-pkg-prefix csd)/asd bsd dsd xsd`
+                    # 'bsd' 'dsd' will be added.
+                    result_args.extend([TextSubstitution(text=x)] for x in tokens[1:-1])
                 if sub.text[-1].isspace():
-                    args.append(arg)
-                    arg = []
+                    # Allows splitting from next argument.
+                    # e.g. `exec $(find-some-file)`
+                    # Will split `exec` argument from the result of `find-some-file` substitution.
+                    _append_arg()
             else:
                 arg.append(sub)
         if arg:
-            args.append(arg)
-        return args
+            result_args.append(arg)
+        return result_args
 
     @classmethod
     def parse(
