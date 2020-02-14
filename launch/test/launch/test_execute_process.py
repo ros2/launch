@@ -19,10 +19,8 @@ import sys
 
 from launch import LaunchDescription
 from launch import LaunchService
-from launch import Substitution
 from launch.actions.execute_process import ExecuteProcess
 from launch.actions.opaque_function import OpaqueFunction
-from launch.substitutions import TextSubstitution
 
 import pytest
 
