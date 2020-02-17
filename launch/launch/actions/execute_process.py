@@ -262,7 +262,7 @@ class ExecuteProcess(Action):
         def _append_arg():
             nonlocal arg
             result_args.append(arg)
-            arg= []
+            arg = []
         for sub in parser.parse_substitution(cmd):
             if isinstance(sub, TextSubstitution):
                 tokens = shlex.split(sub.text)
