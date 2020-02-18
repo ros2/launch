@@ -34,7 +34,7 @@ class AnonName(Substitution):
     """
 
     def __init__(self, name: SomeSubstitutionsType) -> None:
-        """Create a PythonExpression substitution."""
+        """Create a AnonName substitution."""
         super().__init__()
 
         from ..utilities import normalize_to_list_of_substitutions
@@ -61,16 +61,15 @@ class AnonName(Substitution):
         from ..utilities import perform_substitutions
         name = perform_substitutions(context, self.name)
 
-        if('anon' not in context.launch_configurations):
+        if 'anon' not in context.launch_configurations:
             context.launch_configurations['anon'] = {}
         anon_context = context.launch_configurations['anon']
 
-        if(name in anon_context):
+        if name in anon_context:
             return anon_context[name]
 
-        value = self.anonymous_name(name)
-        context.launch_configurations['anon'][name] = value
-        return value
+        anon_context[name] = self.anonymous_name(name)
+        return anon_context[name]
 
     def anonymous_name(self, id_value: Text) -> Text:
         """Get anonymous name based on id value."""
