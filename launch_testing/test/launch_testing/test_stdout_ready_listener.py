@@ -113,3 +113,21 @@ class TestStdoutReadyListener(unittest.TestCase):
 
         # We should not get confused by output that doesn't match the ready_txt
         self.assertNotIn('ok', data)
+
+
+def test_description():
+    target_action = launch.actions.ExecuteProcess(cmd='dummy')
+    included_action = launch.Action()
+    not_included_action = launch.Action()
+
+    dut = StdoutReadyListener(
+        target_action=target_action,
+        ready_txt='test text',
+        actions=[
+            included_action
+        ]
+    )
+
+    description = dut.describe()
+    assert description[1] == [included_action]
+    assert not_included_action not in description[1]  # Sanity check
