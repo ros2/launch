@@ -19,26 +19,20 @@ import re
 from launch import LaunchContext
 from launch.substitutions import AnonName
 
-# import pytest
-
 
 def test_this_launch_file_path():
-    anon_regex = re.compile(r'.+_[0-9]+_[0-9]+')
-
     lc = LaunchContext()
     sub1 = AnonName('foo')
     result1 = sub1.perform(lc)
     assert result1
-    assert anon_regex.match(result1)
+    assert re.compile(r'foo_[0-9]+_[0-9]+').match(result1)
 
     sub2 = AnonName('foo')
     result2 = sub2.perform(lc)
     assert result2
     assert result1 == result2
-    assert anon_regex.match(result2)
 
     sub3 = AnonName('car')
     result3 = sub3.perform(lc)
     assert result3
-    assert anon_regex.match(result3)
-    assert result1 != result3
+    assert re.compile(r'car_[0-9]+_[0-9]+').match(result3)
