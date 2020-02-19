@@ -29,12 +29,12 @@ class AnonName(Substitution):
     """
     Generates an anonymous id based on name.
 
-    Name itself is a unique identifier: multiple uses of $(anon foo)
-    will create the same "anonymized" name
+    Name itself is a unique identifier: multiple uses of anon with
+    the same parameter name will create the same "anonymized" name
     """
 
     def __init__(self, name: SomeSubstitutionsType) -> None:
-        """Create a AnonName substitution."""
+        """Construct an `AnonName` substitution."""
         super().__init__()
 
         from ..utilities import normalize_to_list_of_substitutions
@@ -65,16 +65,18 @@ class AnonName(Substitution):
             context.launch_configurations['anon'] = {}
         anon_context = context.launch_configurations['anon']
 
-        if name in anon_context:
-            return anon_context[name]
+        if name not in anon_context:
+            anon_context[name] = self.anonymous_name(name)
 
-        anon_context[name] = self.anonymous_name(name)
         return anon_context[name]
 
     def anonymous_name(self, id_value: Text) -> Text:
         """Get anonymous name based on id value."""
         import os
         import random
+        import socket
         import sys
-        name = f'{id_value}_{os.getpid()}_{random.randint(0, sys.maxsize)}'
-        return name
+        name = f'{id_value}_{socket.gethostname()}_{os.getpid()}_{random.randint(0, sys.maxsize)}'
+        name = name.replace('.', '_')
+        name = name.replace('-', '_')
+        return name.replace(':', '_')

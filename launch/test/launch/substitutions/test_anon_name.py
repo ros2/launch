@@ -25,7 +25,7 @@ def test_this_launch_file_path():
     sub1 = AnonName('foo')
     result1 = sub1.perform(lc)
     assert result1
-    assert re.compile(r'foo_[0-9]+_[0-9]+').match(result1)
+    assert re.match(r'foo_[a-zA-Z0-9_]+_[0-9]+_[0-9]+', result1)
 
     sub2 = AnonName('foo')
     result2 = sub2.perform(lc)
@@ -35,4 +35,4 @@ def test_this_launch_file_path():
     sub3 = AnonName('car')
     result3 = sub3.perform(lc)
     assert result3
-    assert re.compile(r'car_[0-9]+_[0-9]+').match(result3)
+    assert re.match(r'car_[a-zA-Z0-9_]+_[0-9]+_[0-9]+', result3)
