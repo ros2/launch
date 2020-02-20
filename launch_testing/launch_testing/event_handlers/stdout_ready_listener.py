@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
 
 from launch.actions import ExecuteProcess
 from launch.event_handlers import OnProcessIO
@@ -47,3 +49,11 @@ class StdoutReadyListener(OnProcessIO):
     def __on_stdout(self, process_io):
         if self.__ready_txt in process_io.text.decode():
             return self.__actions
+
+    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+        """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
+        description = super().describe()[0]
+        return (
+            description,
+            self.__actions
+        )
