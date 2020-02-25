@@ -26,7 +26,7 @@ def keep_alive(test_description):
     return test_description
 
 
-def retry_on_failure(*, times, delay=0.1):
+def retry_on_failure(*, times, delay=0.0):
     """
     Mark a test case to be retried up to `times` on AssertionError.
 
