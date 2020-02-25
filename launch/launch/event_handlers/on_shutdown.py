@@ -17,9 +17,9 @@
 from typing import Callable
 from typing import cast
 from typing import Optional
-from typing import overload
 from typing import Text
 from typing import TYPE_CHECKING
+from typing import Union
 
 from ..event import Event
 from ..event_handler import BaseEventHandler
@@ -34,22 +34,13 @@ if TYPE_CHECKING:
 class OnShutdown(BaseEventHandler):
     """Convenience class for handling the launch shutdown event."""
 
-    @overload
-    def __init__(self, *, on_shutdown: SomeActionsType, **kwargs) -> None:
-        """Overload which takes just actions."""
-        ...
-
-    @overload  # noqa: F811
     def __init__(
         self,
         *,
-        on_shutdown: Callable[[Shutdown, 'LaunchContext'], Optional[SomeActionsType]],
+        on_shutdown: Union[SomeActionsType,
+                           Callable[[Shutdown, 'LaunchContext'], Optional[SomeActionsType]]],
         **kwargs
     ) -> None:
-        """Overload which takes a callable to handle the shutdown."""
-        ...
-
-    def __init__(self, *, on_shutdown, **kwargs):  # noqa: F811
         """Create an OnShutdown event handler."""
         super().__init__(
             matcher=lambda event: is_a_subclass(event, Shutdown),
