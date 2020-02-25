@@ -26,12 +26,13 @@ def keep_alive(test_description):
     return test_description
 
 
-def retry_on_failure(*, times, delay=0.0):
+def retry_on_failure(*, times, delay=None):
     """
     Mark a test case to be retried up to `times` on AssertionError.
 
     :param times: The number of times to rety the test.
     :param delay: The time to wait between retries, in seconds.
+      A value of None will result in zero delay.
     """
     assert times > 0
 
@@ -51,7 +52,8 @@ def retry_on_failure(*, times, delay=0.0):
                     self._outcome.errors.clear()
                     self._outcome.success = True
                     n -= 1
-                time.sleep(delay)
+                if delay is not None:
+                    time.sleep(delay)
             return func(self, *args, **kwargs)
         return _wrapper
     return _decorator
