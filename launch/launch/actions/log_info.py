@@ -15,14 +15,12 @@
 """Module for the LogInfo action."""
 
 from typing import List
-from typing import overload
-from typing import Text
-from typing import Union
 
 import launch.logging
 
 from ..action import Action
 from ..launch_context import LaunchContext
+from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 
@@ -30,17 +28,7 @@ from ..utilities import normalize_to_list_of_substitutions
 class LogInfo(Action):
     """Action that logs a message when executed."""
 
-    @overload
-    def __init__(self, *, msg: Text) -> None:
-        """Construct with just Text (unicode string)."""
-        ...
-
-    @overload  # noqa: F811
-    def __init__(self, *, msg: List[Union[Text, Substitution]]) -> None:
-        """Construct with list of Text and Substitutions."""
-        ...
-
-    def __init__(self, *, msg, **kwargs):  # noqa: F811
+    def __init__(self, *, msg: SomeSubstitutionsType, **kwargs):
         """Create a LogInfo action."""
         super().__init__(**kwargs)
 
