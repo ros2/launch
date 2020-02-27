@@ -14,6 +14,7 @@
 
 import functools
 import inspect
+import time
 import unittest
 
 
@@ -25,8 +26,14 @@ def keep_alive(test_description):
     return test_description
 
 
-def retry_on_failure(*, times):
-    """Mark a test case to be retried up to `times` on AssertionError."""
+def retry_on_failure(*, times, delay=None):
+    """
+    Mark a test case to be retried up to `times` on AssertionError.
+
+    :param times: The number of times to rety the test.
+    :param delay: The time to wait between retries, in seconds.
+      A value of None will result in zero delay.
+    """
     assert times > 0
 
     def _decorator(func):
@@ -45,6 +52,8 @@ def retry_on_failure(*, times):
                     self._outcome.errors.clear()
                     self._outcome.success = True
                     n -= 1
+                if delay is not None:
+                    time.sleep(delay)
             return func(self, *args, **kwargs)
         return _wrapper
     return _decorator
