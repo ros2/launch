@@ -26,16 +26,17 @@ from ..tools.text import build_text_match
 from ..util import resolveProcesses
 
 
-def assertInStdout(proc_output,
+def assertInStream(proc_output,
                    expected_output,
                    process,
                    cmd_args=None,
                    *,
                    output_filter=None,
                    strict_proc_matching=True,
-                   strip_ansi_escape_sequences=True):
+                   strip_ansi_escape_sequences=True,
+                   stream='stderr'):
     """
-    Assert that 'output' was found in the standard out of a process.
+    Assert that 'output' was found in a stream of a process.
 
     :param proc_output: The process output captured by launch_test.  This is usually injected
     into test cases as self._proc_output
@@ -64,6 +65,9 @@ def assertInStdout(proc_output,
     sequences from actual output before comparing with the output filter or
     expected output.
     :type strip_ansi_escape_sequences: bool
+
+    :param stream: Which stream to examine.  This must be one of 'stderr' or 'stdout'.
+    :type stream: string
     """
     resolved_procs = resolveProcesses(
         info_obj=proc_output,
@@ -77,9 +81,17 @@ def assertInStdout(proc_output,
     output_match = build_text_match(expected_output)
 
     for proc in resolved_procs:  # Nominally just one matching proc
-        full_output = ''.join(
-            output.text.decode() for output in proc_output[proc] if output.from_stdout
-        )
+        if stream == 'stdout':
+            full_output = ''.join(
+                output.text.decode() for output in proc_output[proc] if output.from_stdout
+            )
+        elif stream == 'stderr':
+            full_output = ''.join(
+                output.text.decode() for output in proc_output[proc] if output.from_stderr
+            )
+        else:
+            raise ValueError("Invalid value for stream; must be 'stdout' or 'stderr'")
+
         if strip_ansi_escape_sequences:
             full_output = remove_ansi_escape_sequences(full_output)
         if output_filter is not None:
@@ -91,3 +103,48 @@ def assertInStdout(proc_output,
         assert False, "Did not find '{}' in output for any of the matching processes: {}".format(
             expected_output, names
         )
+
+
+def assertInStdout(proc_output,
+                   expected_output,
+                   process,
+                   cmd_args=None,
+                   *,
+                   output_filter=None,
+                   strict_proc_matching=True,
+                   strip_ansi_escape_sequences=True):
+    """
+    Assert that 'output' was found in the standard output of a process.
+
+    See the documentation for 'assertInStream' for full details.
+    """
+    assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter,
+                   strict_proc_matching=strict_proc_matching,
+                   strip_ansi_escape_sequences=strip_ansi_escape_sequences, stream='stdout')
+
+
+def assertInStderr(proc_output,
+                   expected_output,
+                   process,
+                   cmd_args=None,
+                   *,
+                   output_filter=None,
+                   strict_proc_matching=True,
+                   strip_ansi_escape_sequences=True):
+    """
+    Assert that 'output' was found in the standard error of a process.
+
+    See the documentation for 'assertInStream' for full details.
+    """
+    assertInStream(proc_output, expected_output, process, cmd_args, output_filter=output_filter,
+                   strict_proc_matching=strict_proc_matching,
+                   strip_ansi_escape_sequences=strip_ansi_escape_sequences, stream='stderr')
+
+
+def assertDefaultStream():
+    """
+    Return the stream that is used by default for 'assertInStream'.
+
+    This is useful for writing tests that are compatible with both Eloquent and newer releases.
+    """
+    return 'stderr'

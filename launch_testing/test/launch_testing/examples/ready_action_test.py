@@ -60,10 +60,10 @@ class TestGoodProcess(unittest.TestCase):
     def test_count_to_four(self):
         # This will match stdout from any process.  In this example there is only one process
         # running
-        self.proc_output.assertWaitFor('Loop 1', timeout=10)
-        self.proc_output.assertWaitFor('Loop 2', timeout=10)
-        self.proc_output.assertWaitFor('Loop 3', timeout=10)
-        self.proc_output.assertWaitFor('Loop 4', timeout=10)
+        self.proc_output.assertWaitFor('Loop 1', timeout=10, stream='stdout')
+        self.proc_output.assertWaitFor('Loop 2', timeout=10, stream='stdout')
+        self.proc_output.assertWaitFor('Loop 3', timeout=10, stream='stdout')
+        self.proc_output.assertWaitFor('Loop 4', timeout=10, stream='stdout')
 
 
 @launch_testing.post_shutdown_test()

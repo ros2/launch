@@ -71,7 +71,7 @@ class TestProcOutput(unittest.TestCase):
         # We can use the 'dut' argument here because it's part of the test context
         # returned by `generate_test_description`  It's not necessary for every
         # test to use every piece of the context
-        self.proc_output.assertWaitFor('Loop 1', process=dut, timeout=10)
+        self.proc_output.assertWaitFor('Loop 1', process=dut, timeout=10, stream='stdout')
 
 
 @launch_testing.post_shutdown_test()
