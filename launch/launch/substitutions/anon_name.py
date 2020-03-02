@@ -66,11 +66,11 @@ class AnonName(Substitution):
         anon_context = context.launch_configurations['anon']
 
         if name not in anon_context:
-            anon_context[name] = self.anonymous_name(name)
+            anon_context[name] = self.compute_name(name)
 
         return anon_context[name]
 
-    def anonymous_name(self, id_value: Text) -> Text:
+    def compute_name(self, id_value: Text) -> Text:
         """Get anonymous name based on id value."""
         import os
         import random
