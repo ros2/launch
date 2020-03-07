@@ -99,7 +99,7 @@ class TestXmlFunctions(unittest.TestCase):
 
     def test_fail_results_serialize(self):
 
-        def generate_test_description(ready_fn):
+        def generate_test_description():
             raise Exception('This should never be invoked')  # pragma: no cover
 
         def test_fail_always(self):
@@ -140,7 +140,7 @@ class TestXmlFunctions(unittest.TestCase):
         # This checks the case where all unit tests are skipped because of a skip
         # decorator on the generate_test_description function
         @unittest.skip('skip reason string')
-        def generate_test_description(ready_fn):
+        def generate_test_description():
             raise Exception('This should never be invoked')  # pragma: no cover
 
         def test_fail_always(self):

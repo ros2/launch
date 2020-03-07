@@ -21,12 +21,13 @@ import launch
 import launch.actions
 import launch.events.process
 from launch_testing.test_runner import LaunchTestRunner
+import launch_testing.actions
 import launch_testing.util
 
 
 def test_wait_for_shutdown(source_test_loader):
 
-    def generate_test_description(ready_fn):
+    def generate_test_description():
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
@@ -52,7 +53,7 @@ def test_wait_for_shutdown(source_test_loader):
                     )
                 ]
             ),
-            launch.actions.OpaqueFunction(function=lambda context: ready_fn())
+            launch_testing.actions.ReadyToTest(),
         ]), {'good_process': good_process}
 
     # This is kind of a weird test-within-a-test, but it's the easiest way to get
@@ -82,7 +83,7 @@ def test_wait_for_shutdown(source_test_loader):
 
 def test_wait_for_startup(source_test_loader):
 
-    def generate_test_description(ready_fn):
+    def generate_test_description():
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
@@ -99,7 +100,7 @@ def test_wait_for_startup(source_test_loader):
                 period=10.0,
                 actions=[good_process]
             ),
-            launch.actions.OpaqueFunction(function=lambda context: ready_fn())
+            launch_testing.actions.ReadyToTest(),
         ]), {'good_process': good_process}
 
     # This is kind of a weird test-within-a-test, but it's the easiest way to get

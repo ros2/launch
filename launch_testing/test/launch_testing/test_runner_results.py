@@ -20,6 +20,7 @@ import ament_index_python
 import launch
 import launch.actions
 import launch_testing
+import launch_testing.actions
 from launch_testing.loader import TestRun as TR
 from launch_testing.test_runner import LaunchTestRunner
 import mock
@@ -29,7 +30,7 @@ import mock
 # indicate failure
 def test_dut_that_shuts_down(capsys):
 
-    def generate_test_description(ready_fn):
+    def generate_test_description():
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
@@ -41,7 +42,7 @@ def test_dut_that_shuts_down(capsys):
                 cmd=[sys.executable, TEST_PROC_PATH]
             ),
 
-            launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
+            launch_testing.actions.ReadyToTest(),
         ])
 
     with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
@@ -64,7 +65,7 @@ def test_dut_that_has_exception(capsys):
     # This is the same as above, but we also want to check we get extra output from processes
     # that had an exit code
 
-    def generate_test_description(ready_fn):
+    def generate_test_description():
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
@@ -88,7 +89,7 @@ def test_dut_that_has_exception(capsys):
                 cmd=[sys.executable, EXIT_PROC_PATH, '--silent']
             ),
 
-            launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
+            launch_testing.actions.ReadyToTest(),
         ])
 
     with mock.patch('launch_testing.test_runner._RunnerWorker._run_test'):
@@ -119,13 +120,13 @@ def test_nominally_good_dut(source_test_loader):
         'good_proc'
     )
 
-    def generate_test_description(ready_fn):
+    def generate_test_description():
         return launch.LaunchDescription([
             launch.actions.ExecuteProcess(
                 cmd=[sys.executable, TEST_PROC_PATH]
             ),
 
-            launch.actions.OpaqueFunction(function=lambda context: ready_fn()),
+            launch_testing.actions.ReadyToTest(),
         ])
 
     runner = LaunchTestRunner(
@@ -146,7 +147,7 @@ def test_parametrized_run_with_one_failure(source_test_loader):
 
     # Test Data
     @launch_testing.parametrize('arg_val', [1, 2, 3, 4, 5])
-    def generate_test_description(arg_val, ready_fn):
+    def generate_test_description(arg_val):
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
@@ -162,7 +163,7 @@ def test_parametrized_run_with_one_failure(source_test_loader):
                 cmd=[sys.executable, TEST_PROC_PATH],
                 env=proc_env,
             ),
-            launch.actions.OpaqueFunction(function=lambda context: ready_fn())
+            launch_testing.actions.ReadyToTest(),
         ])
 
     def test_fail_on_two(self, proc_output, arg_val):
@@ -192,7 +193,7 @@ def test_parametrized_run_with_one_failure(source_test_loader):
 def test_skipped_launch_description(source_test_loader):
 
     @unittest.skip('skip reason string')
-    def generate_test_description(ready_fn):
+    def generate_test_description():
         raise Exception('This should never be invoked')  # pragma: no cover
 
     def test_fail_always(self):
