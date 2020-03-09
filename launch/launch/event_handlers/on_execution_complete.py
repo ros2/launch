@@ -17,8 +17,8 @@ from typing import Callable
 from typing import cast
 from typing import List  # noqa
 from typing import Optional
-from typing import overload
 from typing import Text
+from typing import Union
 
 from ..event import Event
 from ..event_handler import EventHandler
@@ -36,28 +36,13 @@ class OnExecutionComplete(EventHandler):
     or to handle them all.
     """
 
-    @overload
-    def __init__(
-        self, *,
-        target_action: Optional['Action'] = None,
-        on_completion: SomeActionsType,
-        **kwargs
-    ) -> None:
-        """Overload which takes just actions."""
-        ...
-
-    @overload  # noqa: F811
     def __init__(
         self,
         *,
         target_action: Optional['Action'] = None,
-        on_completion: Callable[[int], Optional[SomeActionsType]],
+        on_completion: Union[SomeActionsType, Callable[[int], Optional[SomeActionsType]]],
         **kwargs
     ) -> None:
-        """Overload which takes a callable to handle completion."""
-        ...
-
-    def __init__(self, *, target_action=None, on_completion, **kwargs) -> None:  # noqa: F811
         """Create an OnExecutionComplete event handler."""
         from ..action import Action  # noqa
         if not isinstance(target_action, (Action, type(None))):
