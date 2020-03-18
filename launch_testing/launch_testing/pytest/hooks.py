@@ -110,8 +110,18 @@ def pytest_pycollect_makemodule(path, parent):
         if module is not None:
             return module
     if path.basename == '__init__.py':
-        return pytest.Package(path, parent)
-    return pytest.Module(path, parent)
+        try:
+            # since https://docs.pytest.org/en/latest/changelog.html#deprecations
+            # todo: remove fallback once all platforms use pytest >=5.4
+            return pytest.Package.from_parent(parent, fspath=path)
+        except AttributeError:
+            return pytest.Package(path, parent)
+    try:
+        # since https://docs.pytest.org/en/latest/changelog.html#deprecations
+        # todo: remove fallback once all platforms use pytest >=5.4
+        return pytest.Module.from_parent(parent, fspath=path)
+    except AttributeError:
+        return pytest.Module(path, parent)
 
 
 @pytest.hookimpl(trylast=True)
