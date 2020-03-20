@@ -20,8 +20,8 @@ import ament_index_python
 import launch
 import launch.actions
 import launch.events.process
-from launch_testing.test_runner import LaunchTestRunner
 import launch_testing.actions
+from launch_testing.test_runner import LaunchTestRunner
 import launch_testing.util
 
 

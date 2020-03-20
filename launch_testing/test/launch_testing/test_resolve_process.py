@@ -21,9 +21,9 @@ import ament_index_python
 import launch.actions
 import launch.substitutions
 import launch_testing
+import launch_testing.actions
 from launch_testing.loader import LoadTestsFromPythonModule
 from launch_testing.test_runner import LaunchTestRunner
-import launch_testing.actions
 import launch_testing.util
 
 
