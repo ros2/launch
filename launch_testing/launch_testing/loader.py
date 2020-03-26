@@ -15,14 +15,20 @@
 import functools
 import inspect
 import itertools
+import os
 import unittest
-
-import launch.logging
+import warnings
 
 from .actions import ReadyToTest
 
 
-_logger = launch.logging.get_logger(__name__)
+# Patch up the warnings module to streamline the warning messages.  See
+# https://docs.python.org/3/library/warnings.html#warnings.showwarning
+def slim_formatwarning(msg, *args, **kwargs):
+    return 'Warning: ' + str(msg) + os.linesep
+
+
+warnings.formatwarning = slim_formatwarning
 
 
 def _normalize_ld(launch_description_fn):
@@ -44,9 +50,9 @@ def _normalize_ld(launch_description_fn):
             # in to the function
             # This type of launch description will be deprecated in the future.  Warn about it
             # here
-            _logger.warning(
+            warnings.warn(
                 'Passing ready_fn as an argument to generate_test_description will '
-                'be deprecated in a future release.  Include a launch_testing.actions.ReadyToTest '
+                'be removed in a future release.  Include a launch_testing.actions.ReadyToTest '
                 'action in the LaunchDescription instead.'
             )
             return normalize(launch_description_fn(**kwargs))
@@ -255,7 +261,7 @@ def _give_attribute_to_tests(data, attr_name, test_suite):
 
     def _warn_getter(self):
         if not hasattr(self, '__warned'):
-            _logger.warning(
+            warnings.warn(
                 'Automatically adding attributes like self.{0} '
                 'to the test class will be deprecated in a future release.  '
                 'Instead, add {0} to the test method argument list to '
