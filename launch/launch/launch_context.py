@@ -121,7 +121,7 @@ class LaunchContext:
         return self._get_combined_locals()
 
     @property  # noqa: A003
-    def locals(self):
+    def locals(self):  # noqa: A003
         """Getter for the locals."""
         class AttributeDict:
 
