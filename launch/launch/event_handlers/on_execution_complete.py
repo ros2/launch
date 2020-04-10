@@ -18,6 +18,7 @@ from typing import cast
 from typing import List  # noqa
 from typing import Optional
 from typing import Text
+from typing import TYPE_CHECKING
 from typing import Union
 
 from ..event import Event
@@ -26,6 +27,9 @@ from ..events import ExecutionComplete
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
+
+if TYPE_CHECKING:
+    from .. import Action  # noqa
 
 
 class OnExecutionComplete(EventHandler):
