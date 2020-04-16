@@ -19,7 +19,6 @@ import atexit
 import collections.abc
 import contextlib
 import logging
-import os
 import signal
 import threading
 import traceback
