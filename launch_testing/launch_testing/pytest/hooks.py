@@ -34,10 +34,24 @@ class LaunchTestFailure(Exception):
 
 class LaunchTestItem(pytest.Item):
 
-    def __init__(self, name, parent, test_runs, runner_cls=LaunchTestRunner):
+    def __init__(self, parent, *, name):
         super().__init__(name, parent)
-        self.test_runs = test_runs
-        self.runner_cls = runner_cls
+        self.test_runs = None
+        self.runner_cls = None
+
+    @classmethod
+    def from_parent(
+        cls, parent, *, name, test_runs, runner_cls=LaunchTestRunner
+    ):
+        """Override from_parent for compatibility."""
+        # pytest.Item.from_parent didn't exist before pytest 5.4
+        if hasattr(super(), 'from_parent'):
+            instance = getattr(super(), 'from_parent')(parent, name=name)
+        else:
+            instance = cls(parent, name=name)
+        instance.test_runs = test_runs
+        instance.runner_cls = runner_cls
+        return instance
 
     def runtest(self):
         launch_args = sum((
@@ -81,7 +95,7 @@ class LaunchTestItem(pytest.Item):
 class LaunchTestModule(pytest.File):
 
     def makeitem(self, *args, **kwargs):
-        return LaunchTestItem(*args, **kwargs)
+        return LaunchTestItem.from_parent(*args, **kwargs)
 
     def collect(self):
         module = self.fspath.pyimport()
