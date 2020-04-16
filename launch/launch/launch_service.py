@@ -15,7 +15,6 @@
 """Module for the LaunchService class."""
 
 import asyncio
-import atexit
 import collections.abc
 import contextlib
 import logging
