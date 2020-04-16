@@ -15,11 +15,9 @@
 """Module for the LaunchService class."""
 
 import asyncio
-import atexit
 import collections.abc
 import contextlib
 import logging
-import os
 import signal
 import threading
 import traceback
@@ -49,23 +47,6 @@ from .utilities import on_sigint
 from .utilities import on_sigquit
 from .utilities import on_sigterm
 from .utilities import visit_all_entities_and_collect_futures
-
-_g_loops_used = set()  # type: Set
-
-
-# This atexit handler ensures all the loops are closed at exit.
-# This is only really required pre-3.6, see:
-#   https://github.com/ros2/launch/issues/84
-#   https://bugs.python.org/issue23548
-# Don't add this on Windows. It causes:
-#   https://github.com/ros2/demos/issues/354.
-if os.name != 'nt':
-    @atexit.register
-    def close_loop():
-        global _g_loops_used
-        for loop in _g_loops_used:
-            if not loop.is_closed():
-                loop.close()
 
 
 class LaunchService:
@@ -186,9 +167,6 @@ class LaunchService:
                         'LaunchService cannot be run multiple times concurrently.'
                     )
                 this_loop = asyncio.get_event_loop() if loop is None else loop
-
-                global _g_loops_used
-                _g_loops_used.add(this_loop)
 
                 if self.__debug:
                     this_loop.set_debug(True)
