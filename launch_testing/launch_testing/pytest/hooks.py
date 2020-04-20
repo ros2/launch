@@ -15,6 +15,8 @@
 import copy
 from unittest import TestCase
 
+from _pytest._code.code import ReprFileLocation
+
 import pytest
 
 from ..loader import LoadTestsFromPythonModule
@@ -30,6 +32,37 @@ class LaunchTestFailure(Exception):
 
     def __str__(self):
         return self.message
+
+
+class LaunchTestFailureRepr:
+    """A `_pytest._code.code.ExceptionReprChain`-like object."""
+
+    def __init__(self, failures):
+        max_length = max(
+            len(line)
+            for _, error_description in failures
+            for line in error_description.splitlines()
+        )
+        thick_sep_line = '=' * max_length
+        thin_sep_line = '-' * max_length
+        self._fulldescr = '\n' + '\n\n'.join([
+            '\n'.join([
+                thick_sep_line, f'FAIL: {test_name}',
+                thin_sep_line, error_description
+            ])
+            for test_name, error_description in failures
+        ])
+        self.reprcrash = ReprFileLocation(
+            path='', lineno=0, message='\n'.join([
+                f'{test_name} failed' for test_name, _ in failures
+            ])
+        )
+
+    def __str__(self):
+        return self._fulldescr
+
+    def toterminal(self, out):
+        out.write(self._fulldescr)
 
 
 class LaunchTestItem(pytest.Item):
@@ -76,16 +109,12 @@ class LaunchTestItem(pytest.Item):
 
     def repr_failure(self, excinfo):
         if isinstance(excinfo.value, LaunchTestFailure):
-            return excinfo.value.message + ':\n' + '\n'.join({
-                '{} failed at {}.{}'.format(
-                    str(test_run),
-                    type(test_case).__name__,
-                    test_case._testMethodName
-                )
+            return LaunchTestFailureRepr(failures=[
+                (f'{type(test_case).__name__}.{test_case._testMethodName}', formatted_error)
                 for test_run, test_result in excinfo.value.results.items()
-                for test_case, _ in (test_result.errors + test_result.failures)
+                for test_case, formatted_error in (test_result.errors + test_result.failures)
                 if isinstance(test_case, TestCase) and not test_result.wasSuccessful()
-            }) if excinfo.value.results else ''
+            ])
         return super().repr_failure(excinfo)
 
     def reportinfo(self):
