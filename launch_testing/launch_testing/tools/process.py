@@ -76,10 +76,30 @@ class ProcessProxy:
             raise TypeError(
                 "Expected 'condition' to be callable but got '{!r}'".format(condition)
             )
+
+        actual_output = None
+
+        def remember_output():
+            nonlocal actual_output
+            actual_output = self.output
+            return actual_output
+
+        class BoolWithText:
+            def __init__(self, result, output):
+                self._result = result
+                self._output = output
+
+            def __bool__(self):
+                return self._result
+
+            def __repr__(self):
+                return f'<BoolWithText({self._result}): {repr(self._output)}>'
+
         with self._proc_output.io_event:
-            return self._proc_output.io_event.wait_for(
-                lambda: self.running and condition(self.output), timeout=timeout
+            bool_result = self._proc_output.io_event.wait_for(
+                lambda: self.running and condition(remember_output()), timeout=timeout
             )
+            return BoolWithText(bool_result, actual_output)
 
     @property
     def target_process_action(self):
