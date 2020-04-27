@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import imp
+import importlib
 import unittest
 
 import launch
@@ -24,7 +24,7 @@ from launch_testing.test_runner import LaunchTestRunner
 
 
 def make_test_run_for_dut(generate_test_description_function):
-    module = imp.new_module('test_module')
+    module = importlib.util.module_from_spec('test_module')
     module.generate_test_description = generate_test_description_function
     return LoadTestsFromPythonModule(module)
 
