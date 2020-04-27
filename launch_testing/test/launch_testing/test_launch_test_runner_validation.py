@@ -24,7 +24,8 @@ from launch_testing.test_runner import LaunchTestRunner
 
 
 def make_test_run_for_dut(generate_test_description_function):
-    module = importlib.util.module_from_spec('test_module')
+    test_spec = importlib.util.spec_from_loader('test_module', loader=None)
+    module = importlib.util.module_from_spec(test_spec)
     module.generate_test_description = generate_test_description_function
     return LoadTestsFromPythonModule(module)
 
