@@ -85,6 +85,7 @@ class ProcessProxy:
             return actual_output
 
         class BoolWithText:
+
             def __init__(self, result, output):
                 self._result = result
                 self._output = output
