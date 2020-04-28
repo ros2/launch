@@ -174,7 +174,7 @@ class LaunchService:
                 # Set the asyncio loop for the context.
                 self.__context._set_asyncio_loop(this_loop)
                 # Recreate the event queue to ensure the same event loop is being used.
-                new_queue = asyncio.Queue(loop=this_loop)
+                new_queue = asyncio.Queue()
                 while True:
                     try:
                         new_queue.put_nowait(self.__context._event_queue.get_nowait())
@@ -351,7 +351,6 @@ class LaunchService:
                         while not done:
                             done, pending = await asyncio.wait(
                                 entity_futures,
-                                loop=this_loop,
                                 timeout=1.0,
                                 return_when=asyncio.FIRST_COMPLETED
                             )
