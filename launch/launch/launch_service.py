@@ -158,7 +158,7 @@ class LaunchService:
         return number_of_entity_future_pairs == 0 and self.__context._event_queue.empty()
 
     @contextlib.contextmanager
-    def _prepare_run_loop(self, loop):
+    def _prepare_run_loop(self):
         try:
             # Acquire the lock and initialize the loop.
             with self.__loop_from_run_thread_lock:
@@ -166,7 +166,7 @@ class LaunchService:
                     raise RuntimeError(
                         'LaunchService cannot be run multiple times concurrently.'
                     )
-                this_loop = asyncio.get_event_loop() if loop is None else loop
+                this_loop = asyncio.get_event_loop()
 
                 if self.__debug:
                     this_loop.set_debug(True)
@@ -299,7 +299,7 @@ class LaunchService:
                 #     'launch.LaunchService',
                 #     "processing event: '{}' x '{}'".format(event, event_handler))
 
-    async def run_async(self, *, shutdown_when_idle=True, loop=None) -> int:
+    async def run_async(self, *, shutdown_when_idle=True) -> int:
         """
         Visit all entities of all included LaunchDescription instances asynchronously.
 
@@ -318,7 +318,7 @@ class LaunchService:
             )
 
         return_code = 0
-        with self._prepare_run_loop(loop) as (this_loop, this_task):
+        with self._prepare_run_loop() as (this_loop, this_task):
             # Log logging configuration details.
             launch.logging.log_launch_config(logger=self.__logger)
 
@@ -388,7 +388,7 @@ class LaunchService:
         """
         loop = osrf_pycommon.process_utils.get_loop()
         run_async_task = loop.create_task(self.run_async(
-            shutdown_when_idle=shutdown_when_idle, loop=loop
+            shutdown_when_idle=shutdown_when_idle
         ))
         loop.run_until_complete(run_async_task)
         return run_async_task.result()
