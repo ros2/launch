@@ -155,7 +155,7 @@ class Parser:
             didopen = False
 
         try:
-            filename = get_attr(fileobj, 'name', '')
+            filename = getattr(fileobj, 'name', '')
             # file extension without leading '.'
             extension = os.path.splitext(filename)[1][1:]
 
