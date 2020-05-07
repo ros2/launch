@@ -35,6 +35,7 @@ from .parse_substitution import replace_escaped_characters
 from ..action import Action
 from ..invalid_launch_file_error import InvalidLaunchFileError
 from ..some_substitutions_type import SomeSubstitutionsType
+from ..utilities.file_path import FilePath
 
 interpolation_fuctions = {
     entry_point.name: entry_point.load()
@@ -134,7 +135,7 @@ class Parser:
     @classmethod
     def load(
         cls,
-        file: Union[Text, TextIO],
+        file: Union[FilePath, TextIO],
     ) -> (Entity, 'Parser'):
         """
         Parse an Entity from a markup language-based launch file.
