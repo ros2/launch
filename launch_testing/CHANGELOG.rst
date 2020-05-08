@@ -2,6 +2,12 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fixed depcrecation warning of imp to importlib (issue `#387 <https://github.com/ros2/launch/issues/387>`_) (`#407 <https://github.com/ros2/launch/issues/407>`_)
+* wait_for_ouput() repr includes actual text (`#408 <https://github.com/ros2/launch/issues/408>`_)
+* Contributors: Shane Loretz, Zahi Kakish
+
 0.10.0 (2020-04-24)
 -------------------
 * Improve jUnit output for launch tests when run with py.test (`#404 <https://github.com/ros2/launch/issues/404>`_)
