@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.10.1 (2020-05-08)
+-------------------
 * fixed depcrecation warning of imp to importlib (issue `#387 <https://github.com/ros2/launch/issues/387>`_) (`#407 <https://github.com/ros2/launch/issues/407>`_)
 * wait_for_ouput() repr includes actual text (`#408 <https://github.com/ros2/launch/issues/408>`_)
 * Contributors: Shane Loretz, Zahi Kakish

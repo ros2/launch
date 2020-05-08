@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.10.1 (2020-05-08)
+-------------------
 * removed deprecated loop parameter call (`#387 <https://github.com/ros2/launch/issues/387>`_) (`#410 <https://github.com/ros2/launch/issues/410>`_)
 * Contributors: Zahi Kakish
 
