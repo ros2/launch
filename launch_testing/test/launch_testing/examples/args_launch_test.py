@@ -23,6 +23,7 @@ import launch.actions
 import launch.substitutions
 
 import launch_testing
+import launch_testing.actions
 import launch_testing.util
 
 import pytest
@@ -44,7 +45,7 @@ dut_process = launch.actions.ExecuteProcess(
 
 
 @pytest.mark.launch_test
-def generate_test_description(ready_fn):
+def generate_test_description():
 
     return launch.LaunchDescription([
 
@@ -63,7 +64,7 @@ def generate_test_description(ready_fn):
         # provides a simple launch action that does this:
         launch_testing.util.KeepAliveProc(),
 
-        launch.actions.OpaqueFunction(function=lambda context: ready_fn())
+        launch_testing.actions.ReadyToTest()
     ])
 
 
