@@ -68,20 +68,20 @@ def generate_test_description():
 
 class TestProcOutput(unittest.TestCase):
 
-    def test_process_output(self, dut):
+    def test_process_output(self, launch_service, proc_info, proc_output, dut):
         # We can use the 'dut' argument here because it's part of the test context
         # returned by `generate_test_description`  It's not necessary for every
         # test to use every piece of the context
-        self.proc_output.assertWaitFor('Loop 1', process=dut, timeout=10, stream='stdout')
+        proc_output.assertWaitFor('Loop 1', process=dut, timeout=10, stream='stdout')
 
 
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
 
-    def test_full_output(self, dut):
+    def test_full_output(self, proc_output, dut):
         # Same as the test_process_output test. launch_testing binds the value of
         # 'dut' from the test_context to the test before it runs
-        with assertSequentialStdout(self.proc_output, process=dut) as cm:
+        with assertSequentialStdout(proc_output, process=dut) as cm:
             cm.assertInStdout('Starting Up')
             if os.name != 'nt':
                 # On Windows, process termination is always forced
