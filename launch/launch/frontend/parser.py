@@ -1,5 +1,5 @@
-# Copyright 2019 Open Source Robotics Foundation, Inc.
 # Copyright 2020 Rover Robotics, c/o Dan Rose
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,16 +35,15 @@ from .parse_substitution import replace_escaped_characters
 from ..action import Action
 from ..invalid_launch_file_error import InvalidLaunchFileError
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..utilities.file_path import FilePath
+from ..utilities.typing_file_path import FilePath
+
+if TYPE_CHECKING:
+    from ..launch_description import LaunchDescription
 
 interpolation_fuctions = {
     entry_point.name: entry_point.load()
     for entry_point in iter_entry_points('launch.frontend.interpolate_substitution_method')
 }
-
-
-if TYPE_CHECKING:
-    from ..launch_description import LaunchDescription
 
 
 class InvalidFrontendLaunchFileError(InvalidLaunchFileError):
@@ -160,12 +159,10 @@ class Parser:
             # file extension without leading '.'
             extension = os.path.splitext(filename)[1][1:]
 
-            implementations = []
-            for k, v in sorted(cls.frontend_parsers.items()):
-                if k == extension:
-                    implementations.insert(0, v)
-                else:
-                    implementations.append(v)
+            sorted_parsers = sorted(cls.frontend_parsers.items())
+            implementations = [v for k, v in sorted_parsers if k == extension] + [
+                v for k, v in sorted_parsers if k != extension
+            ]
 
             exceptions = []
             for implementation in implementations:
