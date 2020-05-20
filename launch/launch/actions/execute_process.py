@@ -48,6 +48,7 @@ from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
 from ..event_handlers import OnProcessIO
+from ..event_handlers import OnProcessStart
 from ..event_handlers import OnShutdown
 from ..events import matches_action
 from ..events import Shutdown
@@ -378,10 +379,19 @@ class ExecuteProcess(Action):
             return self.__on_exit
         return []
 
+    def __deferred_shutdown(self, event, context):
+        return self._shutdown_process(context, send_sigint=True)
+
     def _shutdown_process(self, context, *, send_sigint):
         if self.__shutdown_received:
             # Do not handle shutdown more than once.
             return None
+
+        if self.process_details is None or self._subprocess_transport is None:
+            # Skip shutting down if the process is not ready
+            context.register_event_handler(OnProcessStart(on_start=self.__deferred_shutdown ))
+            return None
+
         self.__shutdown_received = True
         if self.__completed_future is None:
             # Execution not started so nothing to do, but self.__shutdown_received should prevent
