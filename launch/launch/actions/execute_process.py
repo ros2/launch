@@ -389,7 +389,7 @@ class ExecuteProcess(Action):
 
         if self.process_details is None or self._subprocess_transport is None:
             # Skip shutting down if the process is not ready
-            context.register_event_handler(OnProcessStart(on_start=self.__deferred_shutdown ))
+            context.register_event_handler(OnProcessStart(on_start=self.__deferred_shutdown))
             return None
 
         self.__shutdown_received = True
