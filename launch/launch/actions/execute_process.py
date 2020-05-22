@@ -379,9 +379,6 @@ class ExecuteProcess(Action):
             return self.__on_exit
         return []
 
-    def __deferred_shutdown(self, event, context):
-        return self._shutdown_process(context, send_sigint=True)
-
     def _shutdown_process(self, context, *, send_sigint):
         if self.__shutdown_received:
             # Do not handle shutdown more than once.
@@ -389,7 +386,10 @@ class ExecuteProcess(Action):
 
         if self.process_details is None or self._subprocess_transport is None:
             # Skip shutting down if the process is not ready
-            context.register_event_handler(OnProcessStart(on_start=self.__deferred_shutdown))
+            context.register_event_handler(
+                OnProcessStart(
+                    on_start=lambda event, context:
+                    self._shutdown_process(context, send_sigint=send_sigint)))
             return None
 
         self.__shutdown_received = True
