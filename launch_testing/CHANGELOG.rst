@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.10.2 (2020-05-26)
+-------------------
 * Set junit_family to xunit2 in pytest.ini
 * Stop using implicit variables in example testing.
 * Switch to from_parent to remove deprecation warning.

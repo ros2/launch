@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.10.2 (2020-05-26)
+-------------------
 * Fix new flake8 errors. (`#420 <https://github.com/ros2/launch/issues/420>`_)
 * Contributors: Michel Hidalgo
 
