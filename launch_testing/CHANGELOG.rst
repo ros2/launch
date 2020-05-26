@@ -2,6 +2,15 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Set junit_family to xunit2 in pytest.ini
+* Stop using implicit variables in example testing.
+* Switch to from_parent to remove deprecation warning.
+* Fix new flake8 errors. (`#420 <https://github.com/ros2/launch/issues/420>`_)
+* Remove uses of deprecated ready_fn. (`#419 <https://github.com/ros2/launch/issues/419>`_)
+* Contributors: Chris Lalancette, Michel Hidalgo
+
 0.10.1 (2020-05-08)
 -------------------
 * fixed depcrecation warning of imp to importlib (issue `#387 <https://github.com/ros2/launch/issues/387>`_) (`#407 <https://github.com/ros2/launch/issues/407>`_)
