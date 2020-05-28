@@ -19,6 +19,7 @@ from typing import TextIO
 from typing import Union
 
 from launch import frontend
+from launch.launch.utilities.typing_file_path import FilePath
 
 import yaml
 
@@ -30,8 +31,8 @@ class Parser(frontend.Parser):
 
     @classmethod
     def load(
-        cls,
-        file: Union[str, TextIO],
+            cls,
+            file: Union[FilePath, TextIO],
     ) -> (Entity, 'Parser'):
         """Return entity loaded from YAML file."""
         try:
