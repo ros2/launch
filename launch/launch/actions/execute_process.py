@@ -199,7 +199,9 @@ class ExecuteProcess(Action):
             involved.
         :param: on_exit list of actions to execute upon process exit.
         """
-        super().__init__(**kwargs)
+        super().__init__()
+        self.__respawn = kwargs['respawn'] if 'respawn' in kwargs else None
+        self.__respawn_delay = kwargs['respawn_delay'] if 'respawn_delay' in kwargs else 0
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__name = name if name is None else normalize_to_list_of_substitutions(name)
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
@@ -234,6 +236,7 @@ class ExecuteProcess(Action):
         self._subprocess_protocol = None  # type: Optional[Any]
         self._subprocess_transport = None
         self.__completed_future = None  # type: Optional[asyncio.Future]
+        self.__shutdown_future = None  # type: Optional[asyncio.Future]
         self.__sigterm_timer = None  # type: Optional[TimerAction]
         self.__sigkill_timer = None  # type: Optional[TimerAction]
         self.__shutdown_received = False
@@ -344,6 +347,21 @@ class ExecuteProcess(Action):
             if output is not None:
                 kwargs['output'] = parser.escape_characters(output)
 
+        if 'respawn' not in ignore:
+            respawn = entity.get_attr('respawn', data_type=bool, optional=True)
+            if respawn is not None:
+                kwargs['respawn'] = respawn
+
+        if 'respawn_delay' not in ignore:
+            respawn_delay = entity.get_attr('respawn_delay', data_type=float, optional=True)
+            if respawn_delay is not None:
+                if respawn_delay < 0:
+                    raise ValueError(
+                        'Attribute respawn_delay of Entity node expected to be '
+                        'a non-negative value but got `{}`'.format(respawn_delay)
+                    )
+                kwargs['respawn_delay'] = respawn_delay
+
         if 'shell' not in ignore:
             shell = entity.get_attr('shell', data_type=bool, optional=True)
             if shell is not None:
@@ -383,6 +401,7 @@ class ExecuteProcess(Action):
             # Do not handle shutdown more than once.
             return None
         self.__shutdown_received = True
+        self.__shutdown_future.set_result(None)
         if self.__completed_future is None:
             # Execution not started so nothing to do, but self.__shutdown_received should prevent
             # execution from starting in the future.
@@ -716,6 +735,31 @@ class ExecuteProcess(Action):
             self.__logger.error("process has died [pid {}, exit code {}, cmd '{}'].".format(
                 pid, returncode, ' '.join(cmd)
             ))
+            # respawn the process that abnormally died
+            if not context.is_shutdown and self.__respawn:
+                respawn_flag = False
+                if self.__respawn_delay > 0:
+                    try:
+                        # wait for a timeout(`self.__respawn_delay`) to respawn the process
+                        # and handle shutdown event with future(`self.__shutdown_future`)
+                        # to make sure `ros2 launch` exit in time
+                        await asyncio.wait_for(
+                            self.__shutdown_future,
+                            timeout=self.__respawn_delay,
+                            loop=context.asyncio_loop
+                        )
+                    except asyncio.exceptions.TimeoutError:
+                        respawn_flag = True
+                        self.__shutdown_future = create_future(context.asyncio_loop)
+                    except Exception:
+                        self.__logger.error(
+                            'exception occurred while executing asyncio.wait_for:\n'
+                            '{}'.format(traceback.format_exc())
+                        )
+                if self.__respawn_delay == 0 or respawn_flag:
+                    context.asyncio_loop.create_task(self.__execute_process(context))
+                    return
+
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
         self.__cleanup()
 
@@ -772,6 +816,7 @@ class ExecuteProcess(Action):
 
         try:
             self.__completed_future = create_future(context.asyncio_loop)
+            self.__shutdown_future = create_future(context.asyncio_loop)
             self.__expand_substitutions(context)
             self.__logger = launch.logging.get_logger(self.__name)
             self.__stdout_logger, self.__stderr_logger = \
