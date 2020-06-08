@@ -48,6 +48,7 @@ from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
 from ..event_handlers import OnProcessIO
+from ..event_handlers import OnProcessStart
 from ..event_handlers import OnShutdown
 from ..events import matches_action
 from ..events import Shutdown
@@ -248,6 +249,7 @@ class ExecuteProcess(Action):
         self.__stderr_buffer = io.StringIO()
 
         self.__executed = False
+        self.__running = False
 
     @classmethod
     def _parse_cmdline(
@@ -404,7 +406,23 @@ class ExecuteProcess(Action):
         if self.__shutdown_future is None or self.__shutdown_future.done():
             # Execution not started or already done, nothing to do.
             return None
+
         self.__shutdown_future.set_result(None)
+
+        if self.__running and (self.process_details is None or self._subprocess_transport is None):
+            # Defer shut down if the process is not ready
+            context.register_event_handler(
+                OnProcessStart(
+                    on_start=lambda event, context:
+                    self._shutdown_process(context, send_sigint=send_sigint)))
+            return None
+
+        self.__shutdown_received = True
+
+        if not self.__running:
+            #"Not running, skip shutdown"
+            return None
+
         if self.__completed_future is None:
             # Execution not started so nothing to do, but self.__shutdown_future should prevent
             # execution from starting in the future.
@@ -717,6 +735,11 @@ class ExecuteProcess(Action):
                     context.launch_configurations['emulate_tty']
                 ),
             )
+
+        if self.__shutdown_received:
+            #"Shutdown received, do not run process"
+            return
+        self.__running = True
 
         try:
             transport, self._subprocess_protocol = await async_execute_process(
