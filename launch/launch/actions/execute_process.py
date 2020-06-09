@@ -106,6 +106,8 @@ class ExecuteProcess(Action):
             SomeActionsType,
             Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]
         ]] = None,
+        respawn: bool = False,
+        respawn_delay: float = 0.0,
         **kwargs
     ) -> None:
         """
@@ -198,10 +200,11 @@ class ExecuteProcess(Action):
             process, which is useful for debugging when substitutions are
             involved.
         :param: on_exit list of actions to execute upon process exit.
+        :param: respawn if 'True', relaunch the process that abnormally died.
+            Defaults to 'False'.
+        :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
         """
-        super().__init__()
-        self.__respawn = kwargs['respawn'] if 'respawn' in kwargs else None
-        self.__respawn_delay = kwargs['respawn_delay'] if 'respawn_delay' in kwargs else 0
+        super().__init__(**kwargs)
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__name = name if name is None else normalize_to_list_of_substitutions(name)
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
@@ -231,6 +234,8 @@ class ExecuteProcess(Action):
 
         self.__log_cmd = log_cmd
         self.__on_exit = on_exit
+        self.__respawn = respawn
+        self.__respawn_delay = respawn_delay
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
@@ -355,7 +360,7 @@ class ExecuteProcess(Action):
         if 'respawn_delay' not in ignore:
             respawn_delay = entity.get_attr('respawn_delay', data_type=float, optional=True)
             if respawn_delay is not None:
-                if respawn_delay < 0:
+                if respawn_delay < 0.0:
                     raise ValueError(
                         'Attribute respawn_delay of Entity node expected to be '
                         'a non-negative value but got `{}`'.format(respawn_delay)
@@ -535,18 +540,28 @@ class ExecuteProcess(Action):
                 self.__stderr_buffer.write(last_line)
 
     def __flush_buffers(self, event, context):
-        with self.__stdout_buffer as buf:
-            line = buf.getvalue()
-            if line != '':
-                self.__stdout_logger.info(
-                    self.__output_format.format(line=line, this=self)
-                )
-        with self.__stderr_buffer as buf:
-            line = buf.getvalue()
-            if line != '':
-                self.__stderr_logger.info(
-                    self.__output_format.format(line=line, this=self)
-                )
+        line = self.__stdout_buffer.getvalue()
+        if line != '':
+            self.__stdout_logger.info(
+                self.__output_format.format(line=line, this=self)
+            )
+
+        line = self.__stderr_buffer.getvalue()
+        if line != '':
+            self.__stderr_logger.info(
+                self.__output_format.format(line=line, this=self)
+            )
+
+        # the respawned process needs to reuse these StringIO resources,
+        # close them only after receiving the shutdown
+        if self.__shutdown_received:
+            self.__stdout_buffer.close()
+            self.__stderr_buffer.close()
+        else:
+            self.__stdout_buffer.seek(0)
+            self.__stdout_buffer.truncate(0)
+            self.__stderr_buffer.seek(0)
+            self.__stderr_buffer.truncate(0)
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         return self._shutdown_process(
@@ -736,27 +751,23 @@ class ExecuteProcess(Action):
                 pid, returncode, ' '.join(cmd)
             ))
             # respawn the process that abnormally died
-            if not context.is_shutdown and self.__respawn:
-                respawn_flag = False
-                if self.__respawn_delay > 0:
-                    try:
-                        # wait for a timeout(`self.__respawn_delay`) to respawn the process
-                        # and handle shutdown event with future(`self.__shutdown_future`)
-                        # to make sure `ros2 launch` exit in time
-                        await asyncio.wait_for(
-                            self.__shutdown_future,
-                            timeout=self.__respawn_delay,
-                            loop=context.asyncio_loop
-                        )
-                    except asyncio.exceptions.TimeoutError:
-                        respawn_flag = True
-                        self.__shutdown_future = create_future(context.asyncio_loop)
-                    except Exception:
-                        self.__logger.error(
-                            'exception occurred while executing asyncio.wait_for:\n'
-                            '{}'.format(traceback.format_exc())
-                        )
-                if self.__respawn_delay == 0 or respawn_flag:
+            if not self.__shutdown_received and not context.is_shutdown and self.__respawn:
+                respawn_flag = True
+                if self.__respawn_delay > 0.0:
+                    # wait for a timeout(`self.__respawn_delay`) to respawn the process
+                    # and handle shutdown event with future(`self.__shutdown_future`)
+                    # to make sure `ros2 launch` exit in time
+                    await asyncio.wait(
+                        [asyncio.sleep(self.__respawn_delay), self.__shutdown_future],
+                        loop=context.asyncio_loop,
+                        return_when=asyncio.FIRST_COMPLETED
+                    )
+                    if self.__shutdown_future.done():
+                        respawn_flag = False
+                if respawn_flag:
+                    await context.emit_event(
+                        ProcessExited(returncode=returncode, **process_event_args)
+                    )
                     context.asyncio_loop.create_task(self.__execute_process(context))
                     return
 
