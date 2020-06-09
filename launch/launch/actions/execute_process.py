@@ -719,6 +719,11 @@ class ExecuteProcess(Action):
         process_event_args = self.__process_event_args
         if process_event_args is None:
             raise RuntimeError('process_event_args unexpectedly None')
+        if self.__shutdown_received:
+            # Shutdown received, do not run process
+            self.__cleanup()
+            return
+        self.__running = True
         cmd = process_event_args['cmd']
         cwd = process_event_args['cwd']
         env = process_event_args['env']
@@ -735,11 +740,6 @@ class ExecuteProcess(Action):
                     context.launch_configurations['emulate_tty']
                 ),
             )
-
-        if self.__shutdown_received:
-            # Shutdown received, do not run process
-            return
-        self.__running = True
 
         try:
             transport, self._subprocess_protocol = await async_execute_process(
