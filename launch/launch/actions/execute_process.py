@@ -420,7 +420,7 @@ class ExecuteProcess(Action):
         self.__shutdown_received = True
 
         if not self.__running:
-            #"Not running, skip shutdown"
+            # Not running, skip shutdown
             return None
 
         if self.__completed_future is None:
@@ -737,7 +737,7 @@ class ExecuteProcess(Action):
             )
 
         if self.__shutdown_received:
-            #"Shutdown received, do not run process"
+            # Shutdown received, do not run process
             return
         self.__running = True
 
