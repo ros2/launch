@@ -249,7 +249,7 @@ class ExecuteProcess(Action):
         self.__stderr_buffer = io.StringIO()
 
         self.__executed = False
-        self.__running = False
+        # self.__running = False
 
     @classmethod
     def _parse_cmdline(
@@ -409,8 +409,9 @@ class ExecuteProcess(Action):
 
         self.__shutdown_future.set_result(None)
 
-        if self.__running and (self.process_details is None or self._subprocess_transport is None):
-            # Defer shut down if the process is not ready
+        if self.__completed_future is not None and \
+        (self.process_details is None or self._subprocess_transport is None):
+            # Defer shut down if the process is scheduled to be started
             context.register_event_handler(
                 OnProcessStart(
                     on_start=lambda event, context:
@@ -419,9 +420,9 @@ class ExecuteProcess(Action):
 
         self.__shutdown_received = True
 
-        if not self.__running:
-            # Not running, skip shutdown
-            return None
+        # if not self.__running:
+        #     # Not running, skip shutdown
+        #     return None
 
         if self.__completed_future is None:
             # Execution not started so nothing to do, but self.__shutdown_future should prevent
@@ -719,11 +720,13 @@ class ExecuteProcess(Action):
         process_event_args = self.__process_event_args
         if process_event_args is None:
             raise RuntimeError('process_event_args unexpectedly None')
-        if self.__shutdown_received:
-            # Shutdown received, do not run process
-            self.__cleanup()
-            return
-        self.__running = True
+
+        # if self.__shutdown_received:
+        #     # Shutdown received, do not run process
+        #     self.__cleanup()
+        #     return
+        # self.__running = True
+
         cmd = process_event_args['cmd']
         cwd = process_event_args['cwd']
         env = process_event_args['env']
