@@ -409,8 +409,8 @@ class ExecuteProcess(Action):
 
         self.__shutdown_future.set_result(None)
 
-        if self.__completed_future is not None and \
-        (self.process_details is None or self._subprocess_transport is None):
+        if (self.__completed_future is not None and
+            (self.process_details is None or self._subprocess_transport is None)):
             # Defer shut down if the process is scheduled to be started
             context.register_event_handler(
                 OnProcessStart(
