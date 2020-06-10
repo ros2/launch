@@ -406,7 +406,8 @@ class ExecuteProcess(Action):
             # Do not handle shutdown more than once.
             return None
         self.__shutdown_received = True
-        self.__shutdown_future.set_result(None)
+        if self.__shutdown_future:
+            self.__shutdown_future.set_result(None)
         if self.__completed_future is None:
             # Execution not started so nothing to do, but self.__shutdown_received should prevent
             # execution from starting in the future.
@@ -750,9 +751,10 @@ class ExecuteProcess(Action):
             self.__logger.error("process has died [pid {}, exit code {}, cmd '{}'].".format(
                 pid, returncode, ' '.join(cmd)
             ))
+        await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
+        if returncode != 0:
             # respawn the process that abnormally died
             if not self.__shutdown_received and not context.is_shutdown and self.__respawn:
-                respawn_flag = True
                 if self.__respawn_delay > 0.0:
                     # wait for a timeout(`self.__respawn_delay`) to respawn the process
                     # and handle shutdown event with future(`self.__shutdown_future`)
@@ -762,16 +764,9 @@ class ExecuteProcess(Action):
                         loop=context.asyncio_loop,
                         return_when=asyncio.FIRST_COMPLETED
                     )
-                    if self.__shutdown_future.done():
-                        respawn_flag = False
-                if respawn_flag:
-                    await context.emit_event(
-                        ProcessExited(returncode=returncode, **process_event_args)
-                    )
+                if not self.__shutdown_future.done():
                     context.asyncio_loop.create_task(self.__execute_process(context))
                     return
-
-        await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
         self.__cleanup()
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
