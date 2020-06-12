@@ -669,7 +669,6 @@ class ExecuteProcess(Action):
             )
             super().connection_made(transport)
             self.__process_event_args['pid'] = transport.get_pid()
-            self.__action._subprocess_transport = transport
 
         def on_stdout_received(self, data: bytes) -> None:
             self.__context.emit_event_sync(ProcessStdout(text=data, **self.__process_event_args))
@@ -754,7 +753,7 @@ class ExecuteProcess(Action):
             return
 
         pid = transport.get_pid()
-        # self.__action._subprocess_transport = transport
+        self._subprocess_transport = transport
 
         await context.emit_event(ProcessStarted(**process_event_args))
 
