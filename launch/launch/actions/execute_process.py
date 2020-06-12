@@ -754,6 +754,7 @@ class ExecuteProcess(Action):
             return
 
         pid = transport.get_pid()
+        # self.__action._subprocess_transport = transport
 
         await context.emit_event(ProcessStarted(**process_event_args))
 
