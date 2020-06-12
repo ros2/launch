@@ -420,10 +420,6 @@ class ExecuteProcess(Action):
 
         self.__shutdown_received = True
 
-        # if not self.__running:
-        #     # Not running, skip shutdown
-        #     return None
-
         if self.__completed_future is None:
             # Execution not started so nothing to do, but self.__shutdown_future should prevent
             # execution from starting in the future.
@@ -720,12 +716,6 @@ class ExecuteProcess(Action):
         process_event_args = self.__process_event_args
         if process_event_args is None:
             raise RuntimeError('process_event_args unexpectedly None')
-
-        # if self.__shutdown_received:
-        #     # Shutdown received, do not run process
-        #     self.__cleanup()
-        #     return
-        # self.__running = True
 
         cmd = process_event_args['cmd']
         cwd = process_event_args['cwd']
