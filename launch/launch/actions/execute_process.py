@@ -249,7 +249,6 @@ class ExecuteProcess(Action):
         self.__stderr_buffer = io.StringIO()
 
         self.__executed = False
-        # self.__running = False
 
     @classmethod
     def _parse_cmdline(
