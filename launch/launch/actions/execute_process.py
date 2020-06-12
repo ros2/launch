@@ -107,7 +107,7 @@ class ExecuteProcess(Action):
             Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]
         ]] = None,
         respawn: bool = False,
-        respawn_delay: float = 0.0,
+        respawn_delay: Optional[float] = None,
         **kwargs
     ) -> None:
         """
@@ -244,7 +244,6 @@ class ExecuteProcess(Action):
         self.__shutdown_future = None  # type: Optional[asyncio.Future]
         self.__sigterm_timer = None  # type: Optional[TimerAction]
         self.__sigkill_timer = None  # type: Optional[TimerAction]
-        self.__shutdown_received = False
         self.__stdout_buffer = io.StringIO()
         self.__stderr_buffer = io.StringIO()
 
@@ -402,14 +401,12 @@ class ExecuteProcess(Action):
         return []
 
     def _shutdown_process(self, context, *, send_sigint):
-        if self.__shutdown_received:
-            # Do not handle shutdown more than once.
+        if self.__shutdown_future is None or self.__shutdown_future.done():
+            # Execution not started or already done, nothing to do.
             return None
-        self.__shutdown_received = True
-        if self.__shutdown_future:
-            self.__shutdown_future.set_result(None)
+        self.__shutdown_future.set_result(None)
         if self.__completed_future is None:
-            # Execution not started so nothing to do, but self.__shutdown_received should prevent
+            # Execution not started so nothing to do, but self.__shutdown_future should prevent
             # execution from starting in the future.
             return None
         if self.__completed_future.done():
@@ -555,7 +552,7 @@ class ExecuteProcess(Action):
 
         # the respawned process needs to reuse these StringIO resources,
         # close them only after receiving the shutdown
-        if self.__shutdown_received:
+        if self.__shutdown_future is None or self.__shutdown_future.done():
             self.__stdout_buffer.close()
             self.__stderr_buffer.close()
         else:
@@ -752,21 +749,20 @@ class ExecuteProcess(Action):
                 pid, returncode, ' '.join(cmd)
             ))
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
-        if returncode != 0:
-            # respawn the process that abnormally died
-            if not self.__shutdown_received and not context.is_shutdown and self.__respawn:
-                if self.__respawn_delay > 0.0:
-                    # wait for a timeout(`self.__respawn_delay`) to respawn the process
-                    # and handle shutdown event with future(`self.__shutdown_future`)
-                    # to make sure `ros2 launch` exit in time
-                    await asyncio.wait(
-                        [asyncio.sleep(self.__respawn_delay), self.__shutdown_future],
-                        loop=context.asyncio_loop,
-                        return_when=asyncio.FIRST_COMPLETED
-                    )
-                if not self.__shutdown_future.done():
-                    context.asyncio_loop.create_task(self.__execute_process(context))
-                    return
+        # respawn the process if necessary
+        if not context.is_shutdown and not self.__shutdown_future.done() and self.__respawn:
+            if self.__respawn_delay is not None and self.__respawn_delay > 0.0:
+                # wait for a timeout(`self.__respawn_delay`) to respawn the process
+                # and handle shutdown event with future(`self.__shutdown_future`)
+                # to make sure `ros2 launch` exit in time
+                await asyncio.wait(
+                    [asyncio.sleep(self.__respawn_delay), self.__shutdown_future],
+                    loop=context.asyncio_loop,
+                    return_when=asyncio.FIRST_COMPLETED
+                )
+            if not self.__shutdown_future.done():
+                context.asyncio_loop.create_task(self.__execute_process(context))
+                return
         self.__cleanup()
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
@@ -786,7 +782,7 @@ class ExecuteProcess(Action):
             )
         self.__executed = True
 
-        if self.__shutdown_received:
+        if context.is_shutdown:
             # If shutdown starts before execution can start, don't start execution.
             return None
 
