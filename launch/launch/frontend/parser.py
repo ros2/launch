@@ -23,8 +23,8 @@ from typing import Text
 from typing import TextIO
 from typing import Tuple
 from typing import Type
-from typing import Union
 from typing import TYPE_CHECKING
+from typing import Union
 
 from pkg_resources import iter_entry_points
 
