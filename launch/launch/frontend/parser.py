@@ -1,4 +1,5 @@
 # Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2020 Open Avatar Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,14 +15,15 @@
 
 """Module for Parser class and parsing methods."""
 
-import io
-import os
+import os.path
 from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import TextIO
 from typing import Tuple
 from typing import Type
+from typing import TYPE_CHECKING
 from typing import Union
 
 from pkg_resources import iter_entry_points
@@ -33,21 +35,21 @@ from .parse_substitution import replace_escaped_characters
 from ..action import Action
 from ..invalid_launch_file_error import InvalidLaunchFileError
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..utilities import is_a
+from ..utilities.typing_file_path import FilePath
+
+if TYPE_CHECKING:
+    from ..launch_description import LaunchDescription
 
 interpolation_fuctions = {
     entry_point.name: entry_point.load()
     for entry_point in iter_entry_points('launch.frontend.interpolate_substitution_method')
 }
 
-if False:
-    from ..launch_description import LaunchDescription  # noqa: F401
-
 
 class InvalidFrontendLaunchFileError(InvalidLaunchFileError):
     """Exception raised when the given frontend launch file is not valid."""
 
-    ...
+    pass
 
 
 class Parser:
@@ -132,7 +134,7 @@ class Parser:
     @classmethod
     def load(
         cls,
-        file: Union[str, io.TextIOBase],
+        file: Union[FilePath, TextIO],
     ) -> (Entity, 'Parser'):
         """
         Parse an Entity from a markup language-based launch file.
@@ -145,28 +147,32 @@ class Parser:
         # Imported here, to avoid recursive import.
         cls.load_parser_implementations()
 
-        def get_key(extension):
-            def key(x):
-                return x[0] != extension
-            return key
-        exceptions = []
-        extension = ''
-        if is_a(file, str):
-            extension = file
-        elif hasattr(file, 'name'):
-            extension = file.name
-        extension = os.path.splitext(extension)[1]
-        if extension:
-            extension = extension[1:]
-        for (frontend_name, implementation) in sorted(
-            cls.frontend_parsers.items(), key=get_key(extension)
-        ):
-            try:
-                return implementation.load(file)
-            except Exception as ex:
-                if is_a(file, io.TextIOBase):
-                    file.seek(0)
-                else:
+        try:
+            fileobj = open(file, 'r')
+            didopen = True
+        except TypeError:
+            fileobj = file
+            didopen = False
+
+        try:
+            filename = getattr(fileobj, 'name', '')
+            # file extension without leading '.'
+            extension = os.path.splitext(filename)[1][1:]
+
+            sorted_parsers = sorted(cls.frontend_parsers.items())
+            implementations = [v for k, v in sorted_parsers if k == extension] + [
+                v for k, v in sorted_parsers if k != extension
+            ]
+
+            exceptions = []
+            for implementation in implementations:
+                try:
+                    return implementation.load(fileobj)
+                except Exception as ex:
                     exceptions.append(ex)
-        extension = '' if not cls.is_extension_valid(extension) else extension
-        raise InvalidFrontendLaunchFileError(extension, likely_errors=exceptions)
+                    fileobj.seek(0)
+            extension = '' if not cls.is_extension_valid(extension) else extension
+            raise InvalidFrontendLaunchFileError(extension, likely_errors=exceptions)
+        finally:
+            if didopen:
+                fileobj.close()
