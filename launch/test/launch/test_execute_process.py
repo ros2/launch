@@ -94,7 +94,7 @@ def test_execute_process_with_respawn():
         on_exit_callback.called_count = on_exit_callback.called_count + 1
     on_exit_callback.called_count = 0
 
-    respawn_delay = 2
+    respawn_delay = 2.0
     shutdown_time = 3.0   # to shutdown the launch service, so that the process only respawn once
     expected_called_count = 2   # normal exit and respawn exit
 
