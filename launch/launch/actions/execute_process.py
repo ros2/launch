@@ -406,25 +406,26 @@ class ExecuteProcess(Action):
             # Execution not started or already done, nothing to do.
             return None
 
-        self.__shutdown_future.set_result(None)
-        self.__shutdown_received = True
-
         if self.__completed_future is None:
             # Execution not started so nothing to do, but self.__shutdown_future should prevent
             # execution from starting in the future.
+            self.__shutdown_future.set_result(None)
             return None
         if self.__completed_future.done():
             # If already done, then nothing to do.
+            self.__shutdown_future.set_result(None)
             return None
 
         # Defer shut down if the process is scheduled to be started
         if (self.process_details is None or self._subprocess_transport is None):
-            self.__shutdown_received = False
+            # Do not set shutdown result, as event is postponed
             context.register_event_handler(
                 OnProcessStart(
                     on_start=lambda event, context:
                     self._shutdown_process(context, send_sigint=send_sigint)))
             return None
+
+        self.__shutdown_future.set_result(None)
 
         # Otherwise process is still running, start the shutdown procedures.
         context.extend_locals({'process_name': self.process_details['name']})
