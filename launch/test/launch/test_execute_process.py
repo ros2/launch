@@ -21,6 +21,8 @@ from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions.execute_process import ExecuteProcess
 from launch.actions.opaque_function import OpaqueFunction
+from launch.actions.shutdown_action import Shutdown
+from launch.actions.timer_action import TimerAction
 
 import pytest
 
@@ -84,3 +86,35 @@ def test_execute_process_with_on_exit_behavior():
     assert 0 == ls.run()
     assert on_exit_callback.called
     assert on_exit_function.called
+
+
+def test_execute_process_with_respawn():
+    """Test launching a process with a respawn and respawn_delay attribute."""
+    def on_exit_callback(event, context):
+        on_exit_callback.called_count = on_exit_callback.called_count + 1
+    on_exit_callback.called_count = 0
+
+    respawn_delay = 2.0
+    shutdown_time = 3.0   # to shutdown the launch service, so that the process only respawn once
+    expected_called_count = 2   # normal exit and respawn exit
+
+    def generate_launch_description():
+        return LaunchDescription([
+
+            ExecuteProcess(
+                cmd=[sys.executable, '-c', "print('action')"],
+                respawn=True, respawn_delay=respawn_delay, on_exit=on_exit_callback
+            ),
+
+            TimerAction(
+                period=shutdown_time,
+                actions=[
+                    Shutdown(reason='Timer expired')
+                ]
+            )
+        ])
+
+    ls = LaunchService()
+    ls.include_launch_description(generate_launch_description())
+    assert 0 == ls.run()
+    assert expected_called_count == on_exit_callback.called_count
