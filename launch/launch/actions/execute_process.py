@@ -658,7 +658,6 @@ class ExecuteProcess(Action):
         ) -> None:
             super().__init__(**kwargs)
             self.__context = context
-            self.__action = action
             self.__process_event_args = process_event_args
             self.__logger = launch.logging.get_logger(process_event_args['name'])
 
