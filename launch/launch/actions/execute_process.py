@@ -48,6 +48,7 @@ from ..event import Event
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
 from ..event_handlers import OnProcessIO
+from ..event_handlers import OnProcessStart
 from ..event_handlers import OnShutdown
 from ..events import matches_action
 from ..events import Shutdown
@@ -404,14 +405,28 @@ class ExecuteProcess(Action):
         if self.__shutdown_future is None or self.__shutdown_future.done():
             # Execution not started or already done, nothing to do.
             return None
-        self.__shutdown_future.set_result(None)
+
         if self.__completed_future is None:
             # Execution not started so nothing to do, but self.__shutdown_future should prevent
             # execution from starting in the future.
+            self.__shutdown_future.set_result(None)
             return None
         if self.__completed_future.done():
             # If already done, then nothing to do.
+            self.__shutdown_future.set_result(None)
             return None
+
+        # Defer shut down if the process is scheduled to be started
+        if (self.process_details is None or self._subprocess_transport is None):
+            # Do not set shutdown result, as event is postponed
+            context.register_event_handler(
+                OnProcessStart(
+                    on_start=lambda event, context:
+                    self._shutdown_process(context, send_sigint=send_sigint)))
+            return None
+
+        self.__shutdown_future.set_result(None)
+
         # Otherwise process is still running, start the shutdown procedures.
         context.extend_locals({'process_name': self.process_details['name']})
         actions_to_return = self.__get_shutdown_timer_actions()
@@ -644,7 +659,6 @@ class ExecuteProcess(Action):
         ) -> None:
             super().__init__(**kwargs)
             self.__context = context
-            self.__action = action
             self.__process_event_args = process_event_args
             self.__logger = launch.logging.get_logger(process_event_args['name'])
 
@@ -654,7 +668,6 @@ class ExecuteProcess(Action):
             )
             super().connection_made(transport)
             self.__process_event_args['pid'] = transport.get_pid()
-            self.__action._subprocess_transport = transport
 
         def on_stdout_received(self, data: bytes) -> None:
             self.__context.emit_event_sync(ProcessStdout(text=data, **self.__process_event_args))
@@ -701,6 +714,7 @@ class ExecuteProcess(Action):
         process_event_args = self.__process_event_args
         if process_event_args is None:
             raise RuntimeError('process_event_args unexpectedly None')
+
         cmd = process_event_args['cmd']
         cwd = process_event_args['cwd']
         env = process_event_args['env']
@@ -738,6 +752,7 @@ class ExecuteProcess(Action):
             return
 
         pid = transport.get_pid()
+        self._subprocess_transport = transport
 
         await context.emit_event(ProcessStarted(**process_event_args))
 
