@@ -772,7 +772,6 @@ class ExecuteProcess(Action):
                 # to make sure `ros2 launch` exit in time
                 await asyncio.wait(
                     [asyncio.sleep(self.__respawn_delay), self.__shutdown_future],
-                    loop=context.asyncio_loop,
                     return_when=asyncio.FIRST_COMPLETED
                 )
             if not self.__shutdown_future.done():
