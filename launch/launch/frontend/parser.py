@@ -26,7 +26,7 @@ from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
 
-from pkg_resources import iter_entry_points
+import importlib_metadata
 
 from .entity import Entity
 from .expose import instantiate_action
@@ -40,9 +40,10 @@ from ..utilities.typing_file_path import FilePath
 if TYPE_CHECKING:
     from ..launch_description import LaunchDescription
 
-interpolation_fuctions = {
+interpolation_functions = {
     entry_point.name: entry_point.load()
-    for entry_point in iter_entry_points('launch.frontend.interpolate_substitution_method')
+    for entry_point in importlib_metadata.entry_points().get(
+            'launch.frontend.interpolate_substitution_method', [])
 }
 
 
@@ -68,7 +69,8 @@ class Parser:
     def load_launch_extensions(cls):
         """Load launch extensions, in order to get all the exposed substitutions and actions."""
         if cls.extensions_loaded is False:
-            for entry_point in iter_entry_points('launch.frontend.launch_extension'):
+            for entry_point in importlib_metadata.entry_points().get(
+                    'launch.frontend.launch_extension', []):
                 entry_point.load()
             cls.extensions_loaded = True
 
@@ -78,7 +80,8 @@ class Parser:
         if cls.frontend_parsers is None:
             cls.frontend_parsers = {
                 entry_point.name: entry_point.load()
-                for entry_point in iter_entry_points('launch.frontend.parser')
+                for entry_point in importlib_metadata.entry_points().get(
+                        'launch.frontend.parser', [])
             }
 
     def parse_action(self, entity: Entity) -> (Action, Tuple[Any]):
