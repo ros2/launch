@@ -40,12 +40,6 @@ from ..utilities.typing_file_path import FilePath
 if TYPE_CHECKING:
     from ..launch_description import LaunchDescription
 
-interpolation_functions = {
-    entry_point.name: entry_point.load()
-    for entry_point in importlib_metadata.entry_points().get(
-            'launch.frontend.interpolate_substitution_method', [])
-}
-
 
 class InvalidFrontendLaunchFileError(InvalidLaunchFileError):
     """Exception raised when the given frontend launch file is not valid."""
