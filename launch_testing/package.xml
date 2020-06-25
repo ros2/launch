@@ -4,7 +4,7 @@
   <name>launch_testing</name>
   <version>0.10.2</version>
   <description>A package to create tests which involve launch files and multiple processes.</description>
-  <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
+  <maintainer email="william@osrfoundation.org">William Woodall</maintainer>
   <author email="pete.baughman@apex.ai">Pete Baughman</author>
   <author email="dthomas@osrfoundation.org">Dirk Thomas</author>
   <author>Esteve Fernandez</author>
