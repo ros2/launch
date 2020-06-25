@@ -107,7 +107,8 @@ def parse_substitution(string_value):
         # Grammar cannot deal with zero-width expressions.
         return [TextSubstitution(text=string_value)]
     if _parser is None:
-        _parser = Lark.open(get_grammar_path(), start='template')
+        with open(get_grammar_path(), 'r') as h:
+            _parser = Lark(h, start='template')
     tree = _parser.parse(string_value)
     transformer = ExtractSubstitution()
     return transformer.transform(tree)
