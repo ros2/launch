@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='launch_testing',
-    version='0.10.0',
+    version='0.10.2',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/launch_testing']),
