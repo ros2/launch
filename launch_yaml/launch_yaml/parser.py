@@ -31,8 +31,8 @@ class Parser(frontend.Parser):
 
     @classmethod
     def load(
-            cls,
-            file: Union[FilePath, TextIO],
+        cls,
+        file: Union[FilePath, TextIO],
     ) -> (Entity, 'Parser'):
         """Return entity loaded from YAML file."""
         try:
