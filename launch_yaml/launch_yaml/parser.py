@@ -1,4 +1,5 @@
 # Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2020 Open Avatar Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +15,11 @@
 
 """Module for YAML Parser class."""
 
-import io
+from typing import TextIO
 from typing import Union
 
 from launch import frontend
+from launch.utilities.typing_file_path import FilePath
 
 import yaml
 
@@ -30,13 +32,22 @@ class Parser(frontend.Parser):
     @classmethod
     def load(
         cls,
-        stream: Union[str, io.TextIOBase],
+        file: Union[FilePath, TextIO],
     ) -> (Entity, 'Parser'):
         """Return entity loaded from YAML file."""
-        if isinstance(stream, str):
-            stream = open(stream, 'r')
-        tree = yaml.safe_load(stream)
-        if len(tree) != 1:
-            raise RuntimeError('Expected only one root')
-        type_name = list(tree.keys())[0]
-        return (Entity(tree[type_name], type_name), cls())
+        try:
+            fileobj = open(file, 'r')
+            didopen = True
+        except TypeError:
+            fileobj = file
+            didopen = False
+
+        try:
+            tree = yaml.safe_load(fileobj)
+            if len(tree) != 1:
+                raise RuntimeError('Expected only one root')
+            type_name = list(tree.keys())[0]
+            return (Entity(tree[type_name], type_name), cls())
+        finally:
+            if didopen:
+                fileobj.close()
