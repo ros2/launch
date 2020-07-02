@@ -23,7 +23,7 @@ import xml.etree.ElementTree as ET
 
 from launch.frontend import Entity as BaseEntity
 from launch.frontend.type_utils import check_is_list_entity
-from launch.frontend.type_utils import get_typed_value
+from launch.utilities.type_utils import get_typed_value
 
 
 class Entity(BaseEntity):

@@ -22,7 +22,7 @@ from typing import Union
 
 from launch.frontend import Entity as BaseEntity
 from launch.frontend.type_utils import check_is_list_entity
-from launch.frontend.type_utils import check_type
+from launch.utilities.type_utils import check_type
 
 
 class Entity(BaseEntity):
