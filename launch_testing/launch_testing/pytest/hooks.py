@@ -110,7 +110,7 @@ class LaunchTestItem(pytest.Item):
     def repr_failure(self, excinfo):
         if isinstance(excinfo.value, LaunchTestFailure):
             return LaunchTestFailureRepr(failures=[
-                (f'{type(test_case).__name__}.{test_case._testMethodName}', formatted_error)
+                (test_case.id(), formatted_error)
                 for test_run, test_result in excinfo.value.results.items()
                 for test_case, formatted_error in (test_result.errors + test_result.failures)
                 if isinstance(test_case, TestCase) and not test_result.wasSuccessful()
