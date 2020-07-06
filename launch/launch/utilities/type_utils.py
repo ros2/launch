@@ -127,12 +127,17 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
     return (scalar_type, is_list)
 
 
-def check_is_instance_of_valid_type(value: Any) -> bool:
-    """Check if value is an instance of an allowed type."""
+def check_is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
+    """
+    Check if value is an instance of an allowed type.
+
+    :param value: variable to be checked.
+    :param can_be_str: when True, non-uniform lists mixed with strings are allowed.
+    """
     if isinstance(value, list):
         if not value:
             return True  # Accept empty lists.
-        member_type = type(value[0])
+        member_type = (type(value[0]), str) if can_be_str else type(value[0])
         return (
             all(isinstance(x, member_type) for x in value[1:]) and
             member_type in ScalarTypesTuple
@@ -140,19 +145,27 @@ def check_is_instance_of_valid_type(value: Any) -> bool:
     return isinstance(value, ScalarTypesTuple)
 
 
-def check_type(value: Any, data_type: Optional[AllowedTypesType]) -> bool:
+def check_type(
+    value: Any,
+    data_type: Optional[AllowedTypesType] = None,
+    can_be_str: bool = False,
+) -> bool:
     """
     Check if `value` is of `type`.
 
-    The allowed types are:
-        - a scalar type i.e. `str`, `int`, `float`, `bool`;
-        - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`;
+    :param value: variable to check.
+    :param data_type: value will be enforced to be an instance of data_type.
+    :param can_be_str: if `True`, strings will also be accepted.
+      launch.frontend makes use of this for string embedded substitutions.
+    :return: `True` if `value` is an instance of `data_type`, else `False`.
     """
     if data_type is None:
         return check_is_instance_of_valid_type(value)
     type_obj, is_list = extract_type(data_type)
     if not is_list:
         return isinstance(value, type_obj)
+    if can_be_str:
+        type_obj = (str, type_obj)
     if not isinstance(value, list):
         return False
     return all(isinstance(x, type_obj) for x in value)
@@ -160,28 +173,29 @@ def check_type(value: Any, data_type: Optional[AllowedTypesType]) -> bool:
 
 def coerce_to_type(
     value: Text,
-    data_type: Optional[AllowedTypesType] = None
+    data_type: Optional[AllowedTypesType] = None,
+    can_be_str: bool = False,
 ) -> AllowedValueType:
     """
-    Try to convert `value` to the type specified in `data_type`.
+    Coerce `value` to `type`.
 
-    If not raise `ValueError`.
-
-    The allowed types are:
-        - a scalar type i.e. `str`, `int`, `float`, `bool`;
-        - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`;
-        - `None`: try to use yaml convertion rules, and checks if the output is
-          a scalar or an uniform list.
-
-    The coercion order for scalars is always: `int`, `float`, `bool`, `str`.
+    :param value: string to be coerced.
+    :param data_type: value will be coerced to data_type.
+    :param can_be_str: if `True`, the result will be kept as an string if it cannot be coerced.
+      In the case of lists, it will also accept strings as items.
+      launch.frontend makes use of this for string embedded substitutions.
+    :raises: `ValueError` if the coercion failed.
+    :return: `value` coerced to `data_type`.
     """
     def convert_as_yaml(value, error_msg):
         try:
             output = yaml.safe_load(value)
         except Exception as err:
+            if can_be_str:
+                return value
             raise ValueError(f'{error_msg}: yaml.safe_load() failed\n{err}')
 
-        if not check_is_instance_of_valid_type(output):
+        if not check_is_instance_of_valid_type(output, can_be_str):
             raise ValueError(
                 f'{error_msg}: output type is not allowed, got {type(output)}'
             )
@@ -192,54 +206,77 @@ def coerce_to_type(
         return convert_as_yaml(value, f"Failed to convert '{value}' using yaml rules")
 
     type_obj, is_list = extract_type(data_type)
+    valid_types = (str, type_obj) if can_be_str else type_obj
 
     if is_list:
         output = convert_as_yaml(
-            value, f"Cannot convert value '{value}' to a list of '{type_obj}'")
+            value, f"Cannot convert value '{value}' to a list of '{valid_types}'")
         if not isinstance(output, list):
-            raise ValueError(f"Cannot convert value '{value}' to a list of '{type_obj}'")
-        if not all(isinstance(x, type_obj) for x in output):
+            raise ValueError(f"Cannot convert value '{value}' to a list of '{valid_types}'")
+        if not all(isinstance(x, valid_types) for x in output):
             raise ValueError(
-                f"Cannot convert value '{value}' to a list of '{type_obj}', got {output}")
+                f"Cannot convert value '{value}' to a list of '{valid_types}', got {output}")
         return output
 
     if type_obj is str:
         return value
     if type_obj in (int, float):
-        return type_obj(value)
+        try:
+            return type_obj(value)
+        except ValueError:
+            if can_be_str:
+                return value
+            else:
+                raise
 
-    assert bool == type_obj, 'This error should not happen, please open an issue'
+    if bool != type_obj:
+        raise ValueError(
+            'data_type is invalid. Expected one of: '
+            'int, float, str, bool, List[int], List[float], List[str], List[bool]'
+            f'. Got {data_type}')
     output = convert_as_yaml(value, f"Failed to convert '{value}' to '{type_obj}'")
-    if isinstance(output, type_obj):
+    if isinstance(output, valid_types):
         return output
     raise ValueError(f"Cannot convert value '{value}' to '{type_obj}'")
 
 
-def coerce_list(value: List[str], data_type: Optional[ScalarTypesType] = None) -> ListValueType:
-    """Coerce each member of the list using `coerce_scalar` function."""
-    output = [coerce_to_type(i, data_type) for i in value]
-    if not check_is_instance_of_valid_type(output):
+def coerce_list(
+    value: List[str],
+    data_type: Optional[ScalarTypesType] = None,
+    can_be_str: bool = False,
+) -> ListValueType:
+    """
+    Coerce a list of strings to a list of scalars.
+
+    :param value: list of strings to be coerced.
+    :param data_type: value will be coerced to data_type.
+    :param can_be_str: if `True`, strings will be kept in case coercion fails.
+      launch.frontend makes use of this for string embedded substitutions.
+    :raises: `ValueError` if the coercion failed.
+    :return: `value` coerced to `data_type`.
+    """
+    output = [coerce_to_type(i, data_type, can_be_str) for i in value]
+    if not check_is_instance_of_valid_type(output, can_be_str):
         raise ValueError(f"cannot convert value to {data_type}. Got value='{value}'")
     return cast(ListValueType, output)
 
 
 def get_typed_value(
     value: Union[Text, List[Text]],
-    data_type: Optional[AllowedTypesType]
+    data_type: Optional[AllowedTypesType],
+    can_be_str: bool = False,
 ) -> AllowedValueType:
     """
     Try to convert `value` to the type specified in `data_type`.
 
-    If not raise `AttributeError`.
-
-    The allowed types are:
-        - a scalar type i.e. `str`, `int`, `float`, `bool`;
-        - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`, List;
-
-    `types = None` works in the same way as:
-        `Union[int, float, bool, list, str]`
-
-    The coercion order for scalars is always: `int`, `float`, `bool`, `str`.
+    :param value: string or list of strings to be coerced.
+    :param data_type: value will be coerced to data_type.
+    :param can_be_str: if `True`, strings will be kept in case coercion fails.
+      In the case of lists, it will also accepts strings as items.
+      launch.frontend makes use of this for string embedded substitutions.
+    :raises: `ValueError` if the coercion failed.
+    :raises: `TypeError` if `value` is a `list` and `data_type` is not a `typing.List[x]` object.
+    :return: `value` coerced to `data_type`.
     """
     if isinstance(value, list):
         if data_type is not None:
@@ -249,9 +286,9 @@ def get_typed_value(
                     f"Cannot convert input '{value}' of type '{type(value)}' to"
                     f" '{data_type}'"
                 )
-        output: AllowedValueType = coerce_list(value, data_type)
+        output: AllowedValueType = coerce_list(value, data_type, can_be_str)
     else:
-        output = coerce_to_type(value, data_type)
+        output = coerce_to_type(value, data_type, can_be_str)
     return output
 
 
