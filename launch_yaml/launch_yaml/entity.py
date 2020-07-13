@@ -76,7 +76,8 @@ class Entity(BaseEntity):
         name: Text,
         *,
         data_type: Any = str,
-        optional: bool = False
+        optional: bool = False,
+        can_be_str: bool = True,
     ) -> Optional[Union[
         List[Union[int, str, float, bool]],
         Union[int, str, float, bool],
@@ -99,7 +100,7 @@ class Entity(BaseEntity):
                     name, self.type_name
                 )
             )
-        if not check_type(data, data_type):
+        if not check_type(data, data_type, can_be_str):
             raise TypeError(
                 'Attribute {} of Entity {} expected to be of type {}, got {}'.format(
                     name, self.type_name, data_type, type(data)

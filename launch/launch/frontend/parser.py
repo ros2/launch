@@ -34,7 +34,9 @@ from .parse_substitution import parse_substitution
 from .parse_substitution import replace_escaped_characters
 from ..action import Action
 from ..invalid_launch_file_error import InvalidLaunchFileError
-from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitution import Substitution
+from ..utilities.type_utils import NormalizedValueType
+from ..utilities.type_utils import StrSomeValueType
 from ..utilities.typing_file_path import FilePath
 
 if TYPE_CHECKING:
@@ -83,11 +85,44 @@ class Parser:
         self.load_launch_extensions()
         return instantiate_action(entity, self)
 
-    def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
+    def parse_substitution(self, value: Text) -> List[Substitution]:
         """Parse a substitution."""
         return parse_substitution(value)
 
-    def escape_characters(self, value: Text) -> SomeSubstitutionsType:
+    def parse_if_substitutions(
+        self, value: StrSomeValueType
+    ) -> NormalizedValueType:
+        """
+        Parse substitutions in `value` if there are some.
+
+        If `value` is a scalar, it will parse the substitution when it is a `str`,
+        else return it as-is.
+        If `value` is a list, it will parse the items as substitions when they are a `str`,
+        else it won't modify that item.
+        The function will double check that the substution were not trivial (no TextSubstitution),
+        and raise `ValueError` if the result is a non-uniform list.
+        """
+        from ..substitutions import TextSubstitution
+        data_types = set()
+
+        def _parse_if(value):
+            if isinstance(value, str):
+                output = parse_substitution(value)
+                if len(output) == 1 and isinstance(output[0], TextSubstitution):
+                    data_types.add(str)
+                    return output[0].text
+                return output
+            data_types.add(type(value))
+            return value
+        if isinstance(value, list):
+            output = [_parse_if(x) for x in value]
+        else:
+            output = _parse_if(value)
+        if len(data_types) > 1:
+            raise ValueError('The result is a non-uniform list')
+        return output
+
+    def escape_characters(self, value: Text) -> Text:
         """Escape characters in strings."""
         return replace_escaped_characters(value)
 

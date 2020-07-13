@@ -44,7 +44,8 @@ class Entity:
         name: Text,
         *,
         data_type: Any = str,
-        optional: bool = False
+        optional: bool = False,
+        can_be_str: bool = True,
     ) -> Optional[Union[
         List[Union[int, str, float, bool]],
         Union[int, str, float, bool],

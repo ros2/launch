@@ -59,7 +59,8 @@ class Entity(BaseEntity):
         name: Text,
         *,
         data_type: Any = str,
-        optional: bool = False
+        optional: bool = False,
+        can_be_str: bool = True,
     ) -> Optional[Union[
         List[Union[int, str, float, bool]],
         Union[int, str, float, bool],
@@ -93,7 +94,7 @@ class Entity(BaseEntity):
             else:
                 return None
         try:
-            value = get_typed_value(value, data_type)
+            value = get_typed_value(value, data_type, can_be_str)
         except ValueError:
             raise TypeError(
                 'Attribute {} of Entity {} expected to be of type {}.'

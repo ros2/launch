@@ -64,7 +64,7 @@ AllowedValueType = Union[ScalarValueType, SequenceValueType]
 
 """Substitution to a scalar type or a scalar type."""
 SomeScalarType = Union[SomeSubstitutionsType, ScalarValueType]
-"""Substitution that can be performed to a uniform list or a uniform list."""
+"""Substitution that can be performed to a uniform list."""
 SomeSequenceType = Union[(
     Sequence[Union[int, SomeSubstitutionsType]],
     Sequence[Union[float, SomeSubstitutionsType]],
@@ -74,14 +74,29 @@ SomeSequenceType = Union[(
 """Union of SomeScalarType and SomeSequenceType."""
 SomeValueType = Union[SomeScalarType, SomeSequenceType]
 
+"""Normalized version of SomeScalarType."""
 NormalizedScalarType = Union[List[Substitution], ScalarValueType]
+"""Normalized version of SomeSequenceType."""
 NormalizedSequenceType = Union[
     List[Union[int, List[Substitution]]],
     List[Union[float, List[Substitution]]],
     List[Union[bool, List[Substitution]]],
     List[Union[str, List[Substitution]]],
 ]
+"""Normalized version of SomeValueType."""
 NormalizedValueType = Union[NormalizedScalarType, NormalizedSequenceType]
+
+"""String embedded substitution version of SomeScalarType"""
+StrSomeScalarType = SomeScalarType
+"""String embedded substitution version of SomeSequenceType"""
+StrSomeSequenceType = Union[(
+    Sequence[Union[int, str]],
+    Sequence[Union[float, str]],
+    Sequence[Union[bool, str]],
+    Sequence[Union[str]],
+)]
+"""String embedded substitution version of SomeValueType"""
+StrSomeValueType = Union[StrSomeScalarType, StrSomeSequenceType]
 
 
 def check_is_typing_list(data_type: Any) -> bool:
@@ -137,9 +152,10 @@ def check_is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> boo
     if isinstance(value, list):
         if not value:
             return True  # Accept empty lists.
-        member_type = (type(value[0]), str) if can_be_str else type(value[0])
+        member_type = type(value[0])
+        valid_types = (member_type, str) if can_be_str else member_type
         return (
-            all(isinstance(x, member_type) for x in value[1:]) and
+            all(isinstance(x, valid_types) for x in value[1:]) and
             member_type in ScalarTypesTuple
         )
     return isinstance(value, ScalarTypesTuple)
@@ -175,7 +191,7 @@ def coerce_to_type(
     value: Text,
     data_type: Optional[AllowedTypesType] = None,
     can_be_str: bool = False,
-) -> AllowedValueType:
+) -> StrSomeValueType:
     """
     Coerce `value` to `type`.
 
@@ -244,7 +260,7 @@ def coerce_list(
     value: List[str],
     data_type: Optional[ScalarTypesType] = None,
     can_be_str: bool = False,
-) -> ListValueType:
+) -> StrSomeSequenceType:
     """
     Coerce a list of strings to a list of scalars.
 
@@ -257,7 +273,7 @@ def coerce_list(
     """
     output = [coerce_to_type(i, data_type, can_be_str) for i in value]
     if not check_is_instance_of_valid_type(output, can_be_str):
-        raise ValueError(f"cannot convert value to {data_type}. Got value='{value}'")
+        raise ValueError(f'cannot convert value to {data_type}. Got value=`{value}`')
     return cast(ListValueType, output)
 
 
@@ -265,7 +281,7 @@ def get_typed_value(
     value: Union[Text, List[Text]],
     data_type: Optional[AllowedTypesType],
     can_be_str: bool = False,
-) -> AllowedValueType:
+) -> StrSomeValueType:
     """
     Try to convert `value` to the type specified in `data_type`.
 
@@ -321,7 +337,7 @@ def normalize_typed_substitution(
         raise TypeError(
             'value should be either a scalar, a substitutions,'
             ' or a mixed list of scalars and substitutions. '
-            f"Got 'value={value}' of type '{type(value)}'. "
+            f'Got `value={value}` of type `{type(value)}`. '
         )
     # Collect the types of the items of the list
     types_in_list: Set[Optional[Type[Union[str, int, float, bool, Substitution]]]] = set()
@@ -358,6 +374,7 @@ def normalize_typed_substitution(
         if data_type not in (None, str):
             raise TypeError(err_msg.format(str))
         return cast(List[Union[List[Substitution], str]], [
+            x if isinstance(x, str) else  # Don't convert strings to TextSubstitution
             normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, x)) for x in value
         ])
     if types_in_list.issubset({bool, Substitution}):
