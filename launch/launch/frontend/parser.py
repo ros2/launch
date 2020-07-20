@@ -93,7 +93,7 @@ class Parser:
         self, value: StrSomeValueType
     ) -> NormalizedValueType:
         """
-        Parse substitutions in `value` if there are some.
+        Parse substitutions in `value` if there are any.
 
         If `value` is a scalar, it will parse the substitution when it is a `str`,
         else return it as-is.
