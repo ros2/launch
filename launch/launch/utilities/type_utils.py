@@ -167,7 +167,7 @@ def check_type(
     can_be_str: bool = False,
 ) -> bool:
     """
-    Check if `value` is of `type`.
+    Check if `value` is of `data_type`.
 
     :param value: variable to check.
     :param data_type: value will be enforced to be an instance of data_type.
