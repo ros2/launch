@@ -97,7 +97,7 @@ class Parser:
 
         If `value` is a scalar, it will parse the substitution when it is a `str`,
         else return it as-is.
-        If `value` is a list, it will parse the items as substitions when they are a `str`,
+        If `value` is a list, it will parse the items as substitutions when they are a `str`,
         else it won't modify that item.
         The function will double check that the substution were not trivial (no TextSubstitution),
         and raise `ValueError` if the result is a non-uniform list.
