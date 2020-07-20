@@ -170,7 +170,8 @@ def check_type(
     Check if `value` is of `data_type`.
 
     :param value: variable to check.
-    :param data_type: value will be enforced to be an instance of data_type.
+    :param data_type: class that `value` should be instance of.
+        `None` means that `value` should be an instance of any of the valid classes.
     :param can_be_str: if `True`, strings will also be accepted.
       launch.frontend makes use of this for string embedded substitutions.
     :return: `True` if `value` is an instance of `data_type`, else `False`.
@@ -193,7 +194,7 @@ def coerce_to_type(
     can_be_str: bool = False,
 ) -> StrSomeValueType:
     """
-    Coerce `value` to `type`.
+    Coerce `value` type to `data_type`.
 
     :param value: string to be coerced.
     :param data_type: value will be coerced to data_type.
@@ -245,7 +246,7 @@ def coerce_to_type(
             else:
                 raise
 
-    if bool != type_obj:
+    if type_obj is not bool:
         raise ValueError(
             'data_type is invalid. Expected one of: '
             'int, float, str, bool, List[int], List[float], List[str], List[bool]'
@@ -347,12 +348,10 @@ def normalize_typed_substitution(
         elif is_substitution(x):
             types_in_list.add(Substitution)
         else:
-            types_in_list.add(None)
-    if None in types_in_list:
-        raise TypeError(
-            'value is a list, and one of the items is not a scalar, a Substitution '
-            f"or a list of substitutions. Got value='{value}'"
-        )
+            raise TypeError(
+                'value is a list, and one of the items is not a scalar, a Substitution '
+                f"or a list of substitutions. Got value='{value}'"
+            )
     # Extract expected type information
     is_list = True
     if data_type is not None:
@@ -396,7 +395,7 @@ def normalize_typed_substitution(
     if types_in_list.issubset({int, float, Substitution}):
         # list of floats and substitutions
         if data_type not in (None, float):
-            raise TypeError(err_msg.format(int))
+            raise TypeError(err_msg.format(float))
         return cast(List[Union[List[Substitution], float]], [
             normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, x))
             if is_substitution(x) else float(cast(Union[int, float], x)) for x in value
