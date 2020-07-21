@@ -34,10 +34,12 @@ from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
+"""Tuple of valid scalar types."""
 ScalarTypesTuple = (
     int, float, bool, str
 )
 
+"""Tuple of valid list types."""
 ListTypesTuple = (
     List[int], List[float], List[bool], List[str]
 )
@@ -100,7 +102,18 @@ StrSomeValueType = Union[StrSomeScalarType, StrSomeSequenceType]
 
 
 def is_typing_list(data_type: Any) -> bool:
-    """Check if `data_type` is based on a `typing.List`."""
+    """
+    Return `True` if data_type is `typing.List` or a subscription of it.
+
+    Examples
+    --------
+    ```python3
+    assert is_typing_list(typing.List)
+    assert is_typing_list(typing.List[int])
+    assert not is_typing_list(int)
+    ```
+
+    """
     return data_type is List or (
         hasattr(data_type, '__origin__') and
         hasattr(data_type, '__args__') and
@@ -112,7 +125,11 @@ def is_typing_list(data_type: Any) -> bool:
 
 
 def is_valid_scalar_type(data_type: AllowedTypesType) -> bool:
-    """Check if `data_type` is a valid scalar type."""
+    """
+    Return `True` if `data_type` is an instance of a valid scalar type.
+
+    See `ScalarTypesTuple` for further reference.
+    """
     return data_type in ScalarTypesTuple
 
 
