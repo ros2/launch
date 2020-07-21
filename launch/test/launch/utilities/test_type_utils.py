@@ -18,6 +18,7 @@ from typing import List
 from typing import Union
 
 from launch.utilities.type_utils import coerce_to_type
+from launch.utilities.type_utils import extract_type
 from launch.utilities.type_utils import is_instance_of
 from launch.utilities.type_utils import is_instance_of_valid_type
 from launch.utilities.type_utils import is_typing_list
@@ -47,6 +48,23 @@ def test_is_valid_scalar_type():
     assert not is_valid_scalar_type(List[float])
     assert not is_valid_scalar_type(list)
     assert not is_typing_list(int)
+
+
+def test_extract_type():
+    assert extract_type(int) == (int, False)
+    assert extract_type(float) == (float, False)
+    assert extract_type(bool) == (bool, False)
+    assert extract_type(str) == (str, False)
+
+    assert extract_type(List[int]) == (int, True)
+    assert extract_type(List[float]) == (float, True)
+    assert extract_type(List[bool]) == (bool, True)
+    assert extract_type(List[str]) == (str, True)
+
+    with pytest.raises(ValueError):
+        extract_type(List)
+    with pytest.raises(ValueError):
+        extract_type(bytes)
 
 
 def test_coercions_using_yaml_rules():
