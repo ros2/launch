@@ -22,7 +22,7 @@ from typing import Union
 
 from launch.frontend import Entity as BaseEntity
 from launch.frontend.type_utils import check_is_list_entity
-from launch.utilities.type_utils import check_type
+from launch.utilities.type_utils import is_instance_of
 
 
 class Entity(BaseEntity):
@@ -100,7 +100,7 @@ class Entity(BaseEntity):
                     name, self.type_name
                 )
             )
-        if not check_type(data, data_type, can_be_str):
+        if not is_instance_of(data, data_type, can_be_str):
             raise TypeError(
                 'Attribute {} of Entity {} expected to be of type {}, got {}'.format(
                     name, self.type_name, data_type, type(data)

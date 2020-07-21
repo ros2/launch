@@ -99,7 +99,7 @@ StrSomeSequenceType = Union[(
 StrSomeValueType = Union[StrSomeScalarType, StrSomeSequenceType]
 
 
-def check_is_typing_list(data_type: Any) -> bool:
+def is_typing_list(data_type: Any) -> bool:
     """Check if `data_type` is based on a `typing.List`."""
     return data_type is List or (
         hasattr(data_type, '__origin__') and
@@ -111,7 +111,7 @@ def check_is_typing_list(data_type: Any) -> bool:
     )
 
 
-def check_valid_scalar_type(data_type: AllowedTypesType) -> bool:
+def is_valid_scalar_type(data_type: AllowedTypesType) -> bool:
     """Check if `data_type` is a valid scalar type."""
     return data_type in ScalarTypesTuple
 
@@ -134,15 +134,15 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
     """
     is_list = False
     scalar_type: ScalarTypesType = cast(ScalarTypesType, data_type)
-    if check_is_typing_list(data_type):
+    if is_typing_list(data_type):
         is_list = True
         scalar_type = data_type.__args__[0]  # type: ignore
-    if check_valid_scalar_type(scalar_type) is False:
+    if is_valid_scalar_type(scalar_type) is False:
         raise ValueError(f'Unrecognized data type: {data_type}')
     return (scalar_type, is_list)
 
 
-def check_is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
+def is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
     """
     Check if value is an instance of an allowed type.
 
@@ -161,7 +161,7 @@ def check_is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> boo
     return isinstance(value, ScalarTypesTuple)
 
 
-def check_type(
+def is_instance_of(
     value: Any,
     data_type: Optional[AllowedTypesType] = None,
     can_be_str: bool = False,
@@ -177,7 +177,7 @@ def check_type(
     :return: `True` if `value` is an instance of `data_type`, else `False`.
     """
     if data_type is None:
-        return check_is_instance_of_valid_type(value)
+        return is_instance_of_valid_type(value)
     type_obj, is_list = extract_type(data_type)
     if not is_list:
         return isinstance(value, type_obj)
@@ -212,7 +212,7 @@ def coerce_to_type(
                 return value
             raise ValueError(f'{error_msg}: yaml.safe_load() failed\n{err}')
 
-        if not check_is_instance_of_valid_type(output, can_be_str):
+        if not is_instance_of_valid_type(output, can_be_str):
             raise ValueError(
                 f'{error_msg}: output type is not allowed, got {type(output)}'
             )
@@ -273,7 +273,7 @@ def coerce_list(
     :return: `value` coerced to `data_type`.
     """
     output = [coerce_to_type(i, data_type, can_be_str) for i in value]
-    if not check_is_instance_of_valid_type(output, can_be_str):
+    if not is_instance_of_valid_type(output, can_be_str):
         raise ValueError(f'cannot convert value to {data_type}. Got value=`{value}`')
     return cast(ListValueType, output)
 
@@ -327,7 +327,7 @@ def normalize_typed_substitution(
 ) -> NormalizedValueType:
     # Resolve scalar types immediately
     if isinstance(value, ScalarTypesTuple):
-        if not check_type(value, data_type):
+        if not is_instance_of(value, data_type):
             raise TypeError(f"value='{value}' is not an instance of {data_type}")
         return value
     # Resolve substitutions and list of substitutions immediately
@@ -441,7 +441,7 @@ def perform_typed_substitution(
                 perform_substitutions(context, cast(List[Substitution], x)), scalar_type)
             if is_normalized_substitution(x) else x for x in value
         ]
-        check_type(output, data_type)
+        is_instance_of(output, data_type)
         return cast(ListValueType, output)
     # Invalid input
     raise TypeError(

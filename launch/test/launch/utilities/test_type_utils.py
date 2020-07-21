@@ -17,9 +17,9 @@
 from typing import List
 from typing import Union
 
-from launch.utilities.type_utils import check_is_instance_of_valid_type
-from launch.utilities.type_utils import check_type
 from launch.utilities.type_utils import coerce_to_type
+from launch.utilities.type_utils import is_instance_of
+from launch.utilities.type_utils import is_instance_of_valid_type
 
 import pytest
 
@@ -103,47 +103,47 @@ def test_coercion_fails():
         coerce_to_type('[asd, 2.0]', data_type=List[float])
 
 
-def test_check_type():
-    assert check_type(1, int)
-    assert check_type(1., float)
-    assert check_type('asd', str)
-    assert check_type(True, bool)
+def test_is_instance_of():
+    assert is_instance_of(1, int)
+    assert is_instance_of(1., float)
+    assert is_instance_of('asd', str)
+    assert is_instance_of(True, bool)
 
-    assert check_type([1, 2], List[int])
-    assert check_type([1., 2.], List[float])
-    assert check_type(['asd', 'bsd'], List[str])
-    assert check_type([True, False], List[bool])
+    assert is_instance_of([1, 2], List[int])
+    assert is_instance_of([1., 2.], List[float])
+    assert is_instance_of(['asd', 'bsd'], List[str])
+    assert is_instance_of([True, False], List[bool])
 
-    assert not check_type(1., int)
-    assert not check_type(1, float)
-    assert not check_type(True, str)
-    assert not check_type('asd', bool)
+    assert not is_instance_of(1., int)
+    assert not is_instance_of(1, float)
+    assert not is_instance_of(True, str)
+    assert not is_instance_of('asd', bool)
 
-    assert not check_type([1, 2.], List[int])
-    assert not check_type([1, 2.], List[float])
-    assert not check_type([True, False], List[str])
-    assert not check_type(['True', 'False'], List[bool])
+    assert not is_instance_of([1, 2.], List[int])
+    assert not is_instance_of([1, 2.], List[float])
+    assert not is_instance_of([True, False], List[str])
+    assert not is_instance_of(['True', 'False'], List[bool])
 
 
-def test_check_type_fails():
+def test_is_instance_of_fails():
     with pytest.raises(ValueError):
-        check_type([True, False], list)
+        is_instance_of([True, False], list)
     with pytest.raises(ValueError):
-        check_type([True, False], Union[int, str])
+        is_instance_of([True, False], Union[int, str])
 
 
-def test_check_is_instance_of_valid_type():
-    assert check_is_instance_of_valid_type(1)
-    assert check_is_instance_of_valid_type(1.)
-    assert check_is_instance_of_valid_type('asd')
-    assert check_is_instance_of_valid_type(True)
+def test_is_instance_of_valid_type():
+    assert is_instance_of_valid_type(1)
+    assert is_instance_of_valid_type(1.)
+    assert is_instance_of_valid_type('asd')
+    assert is_instance_of_valid_type(True)
 
-    assert check_is_instance_of_valid_type([1, 2])
-    assert check_is_instance_of_valid_type([1., 2.])
-    assert check_is_instance_of_valid_type(['asd', 'bsd'])
-    assert check_is_instance_of_valid_type([True, False])
+    assert is_instance_of_valid_type([1, 2])
+    assert is_instance_of_valid_type([1., 2.])
+    assert is_instance_of_valid_type(['asd', 'bsd'])
+    assert is_instance_of_valid_type([True, False])
 
-    assert not check_is_instance_of_valid_type([1, '2'])
-    assert not check_is_instance_of_valid_type(object)
-    assert not check_is_instance_of_valid_type(test_check_is_instance_of_valid_type)
-    assert not check_is_instance_of_valid_type({'key': 'value'})
+    assert not is_instance_of_valid_type([1, '2'])
+    assert not is_instance_of_valid_type(object)
+    assert not is_instance_of_valid_type(test_is_instance_of_valid_type)
+    assert not is_instance_of_valid_type({'key': 'value'})

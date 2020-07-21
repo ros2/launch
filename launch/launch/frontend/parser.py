@@ -99,7 +99,8 @@ class Parser:
         else return it as-is.
         If `value` is a list, it will parse the items as substitutions when they are a `str`,
         else it won't modify that item.
-        The function will double check that the substitution were not trivial (no `TextSubstitution`),
+        The function will double check that the substitution were not trivial
+        (no `TextSubstitution`),
         and raise `ValueError` if the result is a non-uniform list.
         """
         from ..substitutions import TextSubstitution
