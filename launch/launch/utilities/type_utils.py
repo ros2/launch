@@ -161,7 +161,9 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
 
 def is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
     """
-    Check if value is an instance of an allowed type.
+    Return `True` if value is an instance of an allowed type.
+
+    See `AllowedTypesTuple` definition for further reference.
 
     :param value: variable to be checked.
     :param can_be_str: when True, non-uniform lists mixed with strings are allowed.
