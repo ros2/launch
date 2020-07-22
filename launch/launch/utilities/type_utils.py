@@ -28,6 +28,7 @@ from typing import Union
 
 import yaml
 
+from .ensure_argument_type_impl import ensure_argument_type
 from .normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
 from .perform_substitutions_impl import perform_substitutions
 from ..launch_context import LaunchContext
@@ -167,12 +168,26 @@ def is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
 
     :param value: variable to be checked.
     :param can_be_str: when True, non-uniform lists mixed with strings are allowed.
+    :return: `True` when value is an instance of a valid type, `False` if not.
     """
     if isinstance(value, list):
         if not value:
             return True  # Accept empty lists.
-        member_type = type(value[0])
-        valid_types = (member_type, str) if can_be_str else member_type
+        member_types = {type(x) for x in value}
+        if len(member_types) == 2:
+            if can_be_str is False or str not in member_types:
+                return False
+        elif len(member_types) > 2:
+            return False
+        else:
+            assert len(member_types) == 1
+        assert len(member_types) in (1, 2)
+        valid_types = tuple(member_types)
+        member_types.discard(str)
+        try:
+            member_type = member_types.pop()
+        except KeyError:
+            member_type = str
         return (
             all(isinstance(x, valid_types) for x in value[1:]) and
             member_type in ScalarTypesTuple
@@ -193,15 +208,16 @@ def is_instance_of(
         When `None` the function behaves like :py:func:`is_instance_of_valid_type`.
     :param can_be_str: if `True`, strings will also be accepted.
       :py:mod:`launch.frontend` makes use of this for string embedded substitutions.
+    :raises: `ValueError` if `data_type` is invalid.
     :return: `True` if `value` is an instance of `data_type`, else `False`.
     """
     if data_type is None:
         return is_instance_of_valid_type(value, can_be_str)
     type_obj, is_list = extract_type(data_type)
-    if not is_list:
-        return isinstance(value, type_obj)
     if can_be_str:
         type_obj = (str, type_obj)
+    if not is_list:
+        return isinstance(value, type_obj)
     if not isinstance(value, list):
         return False
     return all(isinstance(x, type_obj) for x in value)
@@ -219,8 +235,9 @@ def coerce_to_type(
     :param data_type: value will be coerced to data_type.
     :param can_be_str: if `True`, the result will be kept as an string if it cannot be coerced.
       In the case of lists, it will also accept strings as items.
-      launch.frontend makes use of this for string embedded substitutions.
-    :raises: `ValueError` if the coercion failed.
+      :ref:mod:`launch.frontend` makes use of this for string embedded substitutions.
+    :raises: `ValueError` if the coercion failed or `data_type` is invalid.
+    :raises: `TypeError` if `value` is not a `str`.
     :return: `value` coerced to `data_type`.
     """
     def convert_as_yaml(value, error_msg):
@@ -237,6 +254,7 @@ def coerce_to_type(
             )
         return output
 
+    ensure_argument_type(value, str, 'value', 'coerce_to_type')
     if data_type is None:
         # No type specified, return best conversion.
         return convert_as_yaml(value, f"Failed to convert '{value}' using yaml rules")
@@ -277,7 +295,7 @@ def coerce_to_type(
 
 
 def coerce_list(
-    value: List[str],
+    value: List[Text],
     data_type: Optional[ScalarTypesType] = None,
     can_be_str: bool = False,
 ) -> StrSomeSequenceType:
@@ -289,8 +307,10 @@ def coerce_list(
     :param can_be_str: if `True`, strings will be kept in case coercion fails.
       launch.frontend makes use of this for string embedded substitutions.
     :raises: `ValueError` if the coercion failed.
+    :raises: `TypeError` if `value` is not a list of `str`.
     :return: `value` coerced to `data_type`.
     """
+    ensure_argument_type(value, list, 'value', 'coerce_list')
     output = [coerce_to_type(i, data_type, can_be_str) for i in value]
     if not is_instance_of_valid_type(output, can_be_str):
         raise ValueError(f'cannot convert value to {data_type}. Got value=`{value}`')
