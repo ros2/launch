@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module which implements get_typed_value function."""
+"""Module that implements type coercion and checking utilities."""
 
 import collections.abc
 from typing import Any
@@ -208,7 +208,7 @@ def is_instance_of(
         When `None` the function behaves like :py:func:`is_instance_of_valid_type`.
     :param can_be_str: if `True`, strings will also be accepted.
       :py:mod:`launch.frontend` makes use of this for string embedded substitutions.
-    :raises: `ValueError` if `data_type` is invalid.
+    :raise: `ValueError` if `data_type` is invalid.
     :return: `True` if `value` is an instance of `data_type`, else `False`.
     """
     if data_type is None:
@@ -235,9 +235,9 @@ def coerce_to_type(
     :param data_type: value will be coerced to data_type.
     :param can_be_str: if `True`, the result will be kept as an string if it cannot be coerced.
       In the case of lists, it will also accept strings as items.
-      :ref:mod:`launch.frontend` makes use of this for string embedded substitutions.
-    :raises: `ValueError` if the coercion failed or `data_type` is invalid.
-    :raises: `TypeError` if `value` is not a `str`.
+      :py:mod:`launch.frontend` makes use of this for string embedded substitutions.
+    :raise: `ValueError` if the coercion failed or `data_type` is invalid.
+    :raise: `TypeError` if `value` is not a `str`.
     :return: `value` coerced to `data_type`.
     """
     def convert_as_yaml(value, error_msg):
@@ -306,8 +306,8 @@ def coerce_list(
     :param data_type: value will be coerced to data_type.
     :param can_be_str: if `True`, strings will be kept in case coercion fails.
       launch.frontend makes use of this for string embedded substitutions.
-    :raises: `ValueError` if the coercion failed.
-    :raises: `TypeError` if `value` is not a list of `str`.
+    :raise: `ValueError` if the coercion failed.
+    :raise: `TypeError` if `value` is not a list of `str`.
     :return: `value` coerced to `data_type`.
     """
     ensure_argument_type(value, list, 'value', 'coerce_list')
@@ -330,9 +330,9 @@ def get_typed_value(
     :param can_be_str: if `True`, strings will be kept in case coercion fails.
       In the case of lists, it will also accepts strings as items.
       launch.frontend makes use of this for string embedded substitutions.
-    :raises: `ValueError` if the coercion failed.
-    :raises: `TypeError` if `value` is a `list` and `data_type` is not a `typing.List[x]` object.
-    :raises: `TypeError` if `value` is neither a `str` of a list of `str`.
+    :raise: `ValueError` if the coercion failed.
+    :raise: `TypeError` if `value` is a `list` and `data_type` is not a `typing.List[x]` object.
+    :raise: `TypeError` if `value` is neither a `str` of a list of `str`.
     :return: `value` coerced to `data_type`.
     """
     if isinstance(value, list):
@@ -400,9 +400,9 @@ def normalize_typed_substitution(
         type.
         See :py:func:`is_substitution`.
     :return: the normalized `value`.
-    :raises: `TypeError` if the normalized `value` cannot later be resolved to an instance
+    :raise: `TypeError` if the normalized `value` cannot later be resolved to an instance
         of `data_type`, or to a valid type when `data_type is `None`.
-    :raises: `ValueError` if `data_type` is not valid.
+    :raise: `ValueError` if `data_type` is not valid.
         See :py:obj:`AllowedTypesTuple`.
 
     """
@@ -497,7 +497,7 @@ def is_normalized_substitution(x):
     """
     Return `True` if `x` is a normalized substitution.
 
-    A normalized substitution is a list with :ref:class:`launch.Substitution` instances as items.
+    A normalized substitution is a list with :py:class:`launch.Substitution` instances as items.
     """
     return (
         isinstance(x, list) and
@@ -527,9 +527,9 @@ def perform_typed_substitution(
         `ValueError` is raised.
         See :py:func:`is_instance_of`.
     :return: the result of performing all the substitutions in value and coercing the result.
-    :raises: `TypeError` if the normalized `value` cannot later be resolved to an instance
+    :raise: `TypeError` if the normalized `value` cannot later be resolved to an instance
         of `data_type`, or to a valid type when `data_type is `None`.
-    :raises: `ValueError` if `data_type` is not valid.
+    :raise: `ValueError` if `data_type` is not valid.
         See :py:obj:`AllowedTypesTuple`.
     """
     if isinstance(value, ScalarTypesTuple):

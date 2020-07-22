@@ -26,6 +26,8 @@ from lark import Transformer
 
 from .expose import instantiate_substitution
 from ..substitutions import TextSubstitution
+from ..utilities.type_utils import NormalizedValueType
+from ..utilities.type_utils import StrSomeValueType
 
 
 def replace_escaped_characters(data: Text) -> Text:
@@ -112,3 +114,37 @@ def parse_substitution(string_value):
     tree = _parser.parse(string_value)
     transformer = ExtractSubstitution()
     return transformer.transform(tree)
+
+
+def parse_if_substitutions(
+    value: StrSomeValueType
+) -> NormalizedValueType:
+    """
+    Parse substitutions in `value`, if there are any, and return a normalized value type.
+
+    If `value` is a `str`, substitutions will be interpolated in it.
+    If `value` is a another type of scalar, it will be returned as-is.
+    If `value` is a list, the two rules above are applied to each item.
+    When interpolating substitutions in a string, `TextSubstitution` instances are resolved
+    and the original `str` is left.
+
+    :raise: `ValueError` if the result cannot be performed to a valid type.
+    """
+    data_types = set()
+
+    def _parse_if(value):
+        if isinstance(value, str):
+            output = parse_substitution(value)
+            if len(output) == 1 and isinstance(output[0], TextSubstitution):
+                data_types.add(str)
+                return output[0].text
+            return output
+        data_types.add(type(value))
+        return value
+    if isinstance(value, list):
+        output = [_parse_if(x) for x in value]
+    else:
+        output = _parse_if(value)
+    if len(data_types) > 1:
+        raise ValueError('The result is a non-uniform list')
+    return output

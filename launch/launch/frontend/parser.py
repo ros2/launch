@@ -30,6 +30,7 @@ import importlib_metadata
 
 from .entity import Entity
 from .expose import instantiate_action
+from .parse_substitution import parse_if_substitutions
 from .parse_substitution import parse_substitution
 from .parse_substitution import replace_escaped_characters
 from ..action import Action
@@ -92,36 +93,8 @@ class Parser:
     def parse_if_substitutions(
         self, value: StrSomeValueType
     ) -> NormalizedValueType:
-        """
-        Parse substitutions in `value` if there are any.
-
-        If `value` is a scalar, it will parse the substitution when it is a `str`,
-        else return it as-is.
-        If `value` is a list, it will parse the items as substitutions when they are a `str`,
-        else it won't modify that item.
-        The function will double check that the substitution were not trivial
-        (no `TextSubstitution`),
-        and raise `ValueError` if the result is a non-uniform list.
-        """
-        from ..substitutions import TextSubstitution
-        data_types = set()
-
-        def _parse_if(value):
-            if isinstance(value, str):
-                output = parse_substitution(value)
-                if len(output) == 1 and isinstance(output[0], TextSubstitution):
-                    data_types.add(str)
-                    return output[0].text
-                return output
-            data_types.add(type(value))
-            return value
-        if isinstance(value, list):
-            output = [_parse_if(x) for x in value]
-        else:
-            output = _parse_if(value)
-        if len(data_types) > 1:
-            raise ValueError('The result is a non-uniform list')
-        return output
+        """See :py:func:`launch.frontend.parser.parse_if_substitutions`."""
+        return parse_if_substitutions(value)
 
     def escape_characters(self, value: Text) -> Text:
         """Escape characters in strings."""
