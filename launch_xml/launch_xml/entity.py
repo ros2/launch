@@ -14,7 +14,6 @@
 
 """Module for Entity class."""
 
-from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
@@ -23,6 +22,8 @@ import xml.etree.ElementTree as ET
 
 from launch.frontend import Entity as BaseEntity
 from launch.frontend.type_utils import check_is_list_entity
+from launch.utilities.type_utils import AllowedTypesType
+from launch.utilities.type_utils import AllowedValueType
 from launch.utilities.type_utils import get_typed_value
 
 
@@ -58,15 +59,20 @@ class Entity(BaseEntity):
         self,
         name: Text,
         *,
-        data_type: Any = str,
+        data_type: AllowedTypesType = str,
         optional: bool = False,
         can_be_str: bool = True,
     ) -> Optional[Union[
-        List[Union[int, str, float, bool]],
-        Union[int, str, float, bool],
-        List['Entity']
+        AllowedValueType,
+        List['Entity'],
     ]]:
-        """Access an attribute of the entity."""
+        """
+        Access an attribute of the entity.
+
+        See :ref:meth:`launch.frontend.Entity.get_attr`.
+        `launch_xml` uses type coercion.
+        If coercion fails, `ValueError` will be raised.
+        """
         attr_error = AttributeError(
             'Attribute {} of type {} not found in Entity {}'.format(
                 name, data_type, self.type_name

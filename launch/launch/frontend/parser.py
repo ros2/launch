@@ -16,12 +16,10 @@
 """Module for Parser class and parsing methods."""
 
 import os.path
-from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
 from typing import TextIO
-from typing import Tuple
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
@@ -81,7 +79,7 @@ class Parser:
                         'launch.frontend.parser', [])
             }
 
-    def parse_action(self, entity: Entity) -> (Action, Tuple[Any]):
+    def parse_action(self, entity: Entity) -> Action:
         """Parse an action, using its registered parsing method."""
         self.load_launch_extensions()
         return instantiate_action(entity, self)
