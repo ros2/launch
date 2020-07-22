@@ -146,6 +146,50 @@ def test_coercion_fails():
         coerce_to_type('[asd, 2.0]', data_type=List[float])
 
 
+@pytest.mark.parametrize(
+    'is_instance_of_valid_type_impl',
+    (
+        is_instance_of_valid_type,
+        lambda x, y=False: is_instance_of(x, None, y),
+    ),
+    ids=[
+        'testing is_instance_of_valid_type implementation',
+        'testing is_instance_of implementation',
+    ]
+)
+def test_is_instance_of_valid_type(is_instance_of_valid_type_impl):
+    assert is_instance_of_valid_type_impl(1)
+    assert is_instance_of_valid_type_impl(1.)
+    assert is_instance_of_valid_type_impl('asd')
+    assert is_instance_of_valid_type_impl(True)
+
+    assert is_instance_of_valid_type_impl([1, 2])
+    assert is_instance_of_valid_type_impl([1., 2.])
+    assert is_instance_of_valid_type_impl(['asd', 'bsd'])
+    assert is_instance_of_valid_type_impl([True, False])
+
+    assert not is_instance_of_valid_type_impl([1, '2'])
+    assert not is_instance_of_valid_type_impl(object)
+    assert not is_instance_of_valid_type_impl(test_is_instance_of_valid_type)
+    assert not is_instance_of_valid_type_impl({'key': 'value'})
+
+    assert is_instance_of_valid_type_impl(1, True)
+    assert is_instance_of_valid_type_impl(1., True)
+    assert is_instance_of_valid_type_impl('asd', True)
+    assert is_instance_of_valid_type_impl(True, True)
+
+    assert is_instance_of_valid_type_impl([1, 2], True)
+    assert is_instance_of_valid_type_impl([1, '2'], True)
+    assert is_instance_of_valid_type_impl([1., '2.'], True)
+    assert is_instance_of_valid_type_impl(['asd', 'bsd'], True)
+    assert is_instance_of_valid_type_impl([True, 'False'], True)
+
+    assert not is_instance_of_valid_type_impl([1, '2', 1.], True)
+    assert not is_instance_of_valid_type_impl(object, True)
+    assert not is_instance_of_valid_type_impl(test_is_instance_of_valid_type, True)
+    assert not is_instance_of_valid_type_impl({'key': 'value'}, True)
+
+
 def test_is_instance_of():
     assert is_instance_of(1, int)
     assert is_instance_of(1., float)
@@ -167,26 +211,22 @@ def test_is_instance_of():
     assert not is_instance_of([True, False], List[str])
     assert not is_instance_of(['True', 'False'], List[bool])
 
+    assert not is_instance_of(1, List[int])
+    assert not is_instance_of(['1', 2], List[str])
+    assert not is_instance_of(['1', '2'], str)
 
-def test_is_instance_of_fails():
+    assert is_instance_of([1, 2], List[int], True)
+    assert is_instance_of(['1', 2], List[int], True)
+    assert not is_instance_of(['1', 2.], List[int], True)
+    assert not is_instance_of([1, 2.], List[int], True)
+    assert not is_instance_of([1, 2], int, True)
+    assert not is_instance_of([1, '2'], List[str], True)
+
+    with pytest.raises(ValueError):
+        is_instance_of(1, bytes)
+    with pytest.raises(ValueError):
+        is_instance_of([1], List)
     with pytest.raises(ValueError):
         is_instance_of([True, False], list)
     with pytest.raises(ValueError):
         is_instance_of([True, False], Union[int, str])
-
-
-def test_is_instance_of_valid_type():
-    assert is_instance_of_valid_type(1)
-    assert is_instance_of_valid_type(1.)
-    assert is_instance_of_valid_type('asd')
-    assert is_instance_of_valid_type(True)
-
-    assert is_instance_of_valid_type([1, 2])
-    assert is_instance_of_valid_type([1., 2.])
-    assert is_instance_of_valid_type(['asd', 'bsd'])
-    assert is_instance_of_valid_type([True, False])
-
-    assert not is_instance_of_valid_type([1, '2'])
-    assert not is_instance_of_valid_type(object)
-    assert not is_instance_of_valid_type(test_is_instance_of_valid_type)
-    assert not is_instance_of_valid_type({'key': 'value'})

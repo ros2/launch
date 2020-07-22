@@ -128,7 +128,7 @@ def is_valid_scalar_type(data_type: AllowedTypesType) -> bool:
     """
     Return `True` if `data_type` is an instance of a valid scalar type.
 
-    See `ScalarTypesTuple` for further reference.
+    See :py:data:`ScalarTypesTuple` for further reference.
     """
     return data_type in ScalarTypesTuple
 
@@ -142,9 +142,9 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
         - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`;
 
     :returns: a tuple (type_obj, is_list).
-        is_list is `True` for the supported list types, if not is `False`.
-        type_obj is the object representing that type in python. In the case of list
-        is the type of the items.
+        `is_list` is `True` for the supported list types, if not is `False`.
+        `type_obj` is the object representing that type in Python. In the case of a list,
+        it's the type of the items.
         e.g.:
             `data_type = List[int]` -> `(int, True)`
             `data_type = bool` -> `(bool, False)`
@@ -163,7 +163,7 @@ def is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
     """
     Return `True` if value is an instance of an allowed type.
 
-    See `AllowedTypesTuple` definition for further reference.
+    See :py:data:`AllowedTypesTuple` definition for further reference.
 
     :param value: variable to be checked.
     :param can_be_str: when True, non-uniform lists mixed with strings are allowed.
@@ -186,17 +186,17 @@ def is_instance_of(
     can_be_str: bool = False,
 ) -> bool:
     """
-    Check if `value` is of `data_type`.
+    Check if `value` is instance of `data_type`.
 
     :param value: variable to check.
     :param data_type: class that `value` should be instance of.
-        `None` means that `value` should be an instance of any of the valid classes.
+        When `None` the function behaves like :py:func:`is_instance_of_valid_type`.
     :param can_be_str: if `True`, strings will also be accepted.
-      launch.frontend makes use of this for string embedded substitutions.
+      :py:mod:`launch.frontend` makes use of this for string embedded substitutions.
     :return: `True` if `value` is an instance of `data_type`, else `False`.
     """
     if data_type is None:
-        return is_instance_of_valid_type(value)
+        return is_instance_of_valid_type(value, can_be_str)
     type_obj, is_list = extract_type(data_type)
     if not is_list:
         return isinstance(value, type_obj)
