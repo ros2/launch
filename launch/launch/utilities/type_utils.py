@@ -391,8 +391,8 @@ def normalize_typed_substitution(
             ...
     ```
 
-    :value: value to be normalized.
-    :data_type: `value` can be either an instance of `data_type` or a substitution.
+    :param value: value to be normalized.
+    :param data_type: `value` can be either an instance of `data_type` or a substitution.
         In the case of lists, `value` can be either a substitution or a list.
         In the later case, its item should match the type specified by `data_type` or be a
         substitution.
@@ -506,7 +506,31 @@ def perform_typed_substitution(
     value: NormalizedValueType,
     data_type: Optional[AllowedTypesType]
 ) -> AllowedValueType:
+    """
+    Perform a normalized typed substitution.
+
+    This function becomes handy when you need a substitution which result will be coerced to a
+    specific type.
+
+    See :py:obj:`normalize_typed_substitution` for an example.
+
+    :param context: A :py:class:`launch.LaunchContext` instance.
+        It will be used to perform the substitutions in `value`, if there are any.
+    :param value: normalized typed substitution to be performed.
+    :param data_type: The return value will satisfy `is_instance_of(output) == True`.
+        If after trying to coerce the performed substitution that isn't achieved,
+        `ValueError` is raised.
+        See :py:func:`is_instance_of`.
+    :return: the result of performing all the substitutions in value and coercing the result.
+    :raises: `TypeError` if the normalized `value` cannot later be resolved to an instance
+        of `data_type`, or to a valid type when `data_type is `None`.
+    :raises: `ValueError` if `data_type` is not valid.
+        See :py:obj:`AllowedTypesTuple`.
+    """
     if isinstance(value, ScalarTypesTuple):
+        if data_type is not None and not is_instance_of(value, data_type):
+            raise TypeError(
+                f'value=`{value}` is a scalar and not an instance of `{data_type}`')
         return value
     elif is_normalized_substitution(value):
         return coerce_to_type(

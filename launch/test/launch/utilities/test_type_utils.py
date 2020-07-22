@@ -28,6 +28,7 @@ from launch.utilities.type_utils import is_substitution
 from launch.utilities.type_utils import is_typing_list
 from launch.utilities.type_utils import is_valid_scalar_type
 from launch.utilities.type_utils import normalize_typed_substitution
+from launch.utilities.type_utils import perform_typed_substitution
 
 import pytest
 
@@ -435,6 +436,13 @@ def test_normalize_typed_substitution():
     assert len(nts[0]) == 1
     assert isinstance(nts[0][0], TextSubstitution)
     assert nts[1] == 2
+
+    nts = normalize_typed_substitution([[TextSubstitution(text='asd')], 'bsd'], List[str])
+    assert len(nts) == 2
+    assert len(nts[0]) == 1
+    assert isinstance(nts[0][0], TextSubstitution)
+    assert nts[1] == 'bsd'
+
     nts = normalize_typed_substitution(
         [
             [TextSubstitution(text='asd')],
@@ -482,3 +490,74 @@ def test_normalize_typed_substitution():
         normalize_typed_substitution(1, List[int])
     with pytest.raises(TypeError):
         normalize_typed_substitution(['asd', 2], List[int])
+
+
+class MockContext:
+
+    def __init__(self):
+        self.launch_configurations = {}
+
+    def perform_substitution(self, sub):
+        return sub.perform(None)
+
+
+def test_perform_typed_substitution():
+    lc = MockContext()
+
+    assert perform_typed_substitution(lc, 1, int) == 1
+    assert perform_typed_substitution(lc, [TextSubstitution(text='1')], int) == 1
+    assert perform_typed_substitution(
+        lc, [TextSubstitution(text='[1, 2, 3]')], List[int]) == [1, 2, 3]
+    assert perform_typed_substitution(
+        lc, [TextSubstitution(text='[1, 2, 3]')], None) == [1, 2, 3]
+
+    assert perform_typed_substitution(
+        lc,
+        [
+            TextSubstitution(text='100'),
+            TextSubstitution(text='.'),
+            TextSubstitution(text='5'),
+        ],
+        float,
+    ) == 100.5
+
+    assert perform_typed_substitution(
+        lc,
+        [
+            [TextSubstitution(text='100')],
+            [TextSubstitution(text='1')],
+            [TextSubstitution(text='5')],
+        ],
+        List[int],
+    ) == [100, 1, 5]
+
+    assert perform_typed_substitution(
+        lc,
+        [
+            'asd',
+            [TextSubstitution(text='bsd')],
+            [TextSubstitution(text='csd')],
+        ],
+        List[str],
+    ) == ['asd', 'bsd', 'csd']
+
+    assert perform_typed_substitution(
+        lc,
+        [
+            'asd',
+            [TextSubstitution(text='bsd')],
+            [TextSubstitution(text='csd')],
+        ],
+        None,
+    ) == ['asd', 'bsd', 'csd']
+
+    with pytest.raises(TypeError):
+        perform_typed_substitution(lc, object, int)
+    with pytest.raises(TypeError):
+        perform_typed_substitution(lc, 1., int)
+    with pytest.raises(ValueError):
+        perform_typed_substitution(lc, 'asd', bytes)
+    with pytest.raises(ValueError):
+        perform_typed_substitution(lc, [TextSubstitution(text='1.')], int)
+    with pytest.raises(ValueError):
+        perform_typed_substitution(lc, [TextSubstitution(text='1')], List[int])
