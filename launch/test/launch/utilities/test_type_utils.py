@@ -17,12 +17,14 @@
 from typing import List
 from typing import Union
 
+from launch.substitutions import TextSubstitution
 from launch.utilities.type_utils import coerce_list
 from launch.utilities.type_utils import coerce_to_type
 from launch.utilities.type_utils import extract_type
 from launch.utilities.type_utils import get_typed_value
 from launch.utilities.type_utils import is_instance_of
 from launch.utilities.type_utils import is_instance_of_valid_type
+from launch.utilities.type_utils import is_substitution
 from launch.utilities.type_utils import is_typing_list
 from launch.utilities.type_utils import is_valid_scalar_type
 
@@ -361,3 +363,24 @@ def test_get_typed_value_raises_type_error():
         get_typed_value(['1', '2'], int)
     with pytest.raises(TypeError):
         get_typed_value([1, 2])
+
+
+def test_is_substitution():
+    assert is_substitution(TextSubstitution(text='asd'))
+    assert is_substitution([
+        TextSubstitution(text='asd'),
+        'bsd'
+    ])
+    assert is_substitution([
+        'asd',
+        TextSubstitution(text='bsd'),
+    ])
+    assert is_substitution([
+        TextSubstitution(text='asd'),
+        TextSubstitution(text='bsd'),
+    ])
+    assert not is_substitution([])
+    assert not is_substitution('asd')
+    assert not is_substitution(['asd', 'bsd'])
+    assert not is_substitution(['asd', 'bsd'])
+    assert not is_substitution(1)

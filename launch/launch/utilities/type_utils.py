@@ -350,7 +350,14 @@ def get_typed_value(
 
 
 def is_substitution(x):
-    # is some substitution
+    """
+    Return `True` if `x` is some substitution.
+
+    This can be:
+    - A :py:class:`launch.Substitution` instance.
+    - A list of mixed `launch.Substitution` and `str` instances,
+        with at least one instance of the former.
+    """
     return (
         isinstance(x, Substitution) or
         (
