@@ -253,6 +253,8 @@ def test_coercing_list_using_yaml_rules():
     assert coerce_list(['asd', 'off', 'True'], None, True) == ['asd', False, True]
 
     with pytest.raises(ValueError):
+        coerce_list(['1000.', '1000'])
+    with pytest.raises(ValueError):
         coerce_list(['asd', '1000'])
     with pytest.raises(ValueError):
         coerce_list(['asd', '1000.'])
@@ -261,7 +263,24 @@ def test_coercing_list_using_yaml_rules():
 
 
 def test_coercing_list_given_specific_type():
-    pass
+    assert coerce_list(['asd', 'bsd'], str) == ['asd', 'bsd']
+    assert coerce_list(['1', '1000'], int) == [1, 1000]
+    assert coerce_list(['1.', '1000.'], float) == [1., 1000.]
+    assert coerce_list(['on', 'off', 'True'], bool) == [True, False, True]
+    assert coerce_list(['1000.', '1000'], float) == [1000., 1000.]
+
+    assert coerce_list(['asd', '1000'], int, True) == ['asd', 1000]
+    assert coerce_list(['asd', '1000.'], float, True) == ['asd', 1000.]
+    assert coerce_list(['asd', 'off', 'True'], bool, True) == ['asd', False, True]
+
+    with pytest.raises(ValueError):
+        coerce_list(['1', '2'], bool)
+    with pytest.raises(ValueError):
+        coerce_list(['asd', '1000'], int)
+    with pytest.raises(ValueError):
+        coerce_list(['asd', '1000.'], float)
+    with pytest.raises(ValueError):
+        coerce_list(['asd', 'True'], bool)
 
 
 def test_coercing_list_fails():
