@@ -27,6 +27,7 @@ from launch.utilities.type_utils import is_instance_of_valid_type
 from launch.utilities.type_utils import is_substitution
 from launch.utilities.type_utils import is_typing_list
 from launch.utilities.type_utils import is_valid_scalar_type
+from launch.utilities.type_utils import normalize_typed_substitution
 
 import pytest
 
@@ -384,3 +385,100 @@ def test_is_substitution():
     assert not is_substitution(['asd', 'bsd'])
     assert not is_substitution(['asd', 'bsd'])
     assert not is_substitution(1)
+
+
+def test_normalize_typed_substitution():
+    assert normalize_typed_substitution(1, int) == 1
+
+    nts = normalize_typed_substitution(TextSubstitution(text='bsd'), int)
+    assert isinstance(nts, list)
+    assert len(nts) == 1
+    assert isinstance(nts[0], TextSubstitution)
+
+    nts = normalize_typed_substitution(
+        [
+            TextSubstitution(text='asd'),
+            TextSubstitution(text='bsd'),
+        ],
+        int
+    )
+    assert len(nts) == 2
+    assert isinstance(nts[0], TextSubstitution)
+    assert isinstance(nts[1], TextSubstitution)
+
+    nts = normalize_typed_substitution(TextSubstitution(text='bsd'), int)
+    assert isinstance(nts, list)
+    assert len(nts) == 1
+    assert isinstance(nts[0], TextSubstitution)
+
+    nts = normalize_typed_substitution(
+        [
+            TextSubstitution(text='asd'),
+            TextSubstitution(text='bsd'),
+        ],
+        List[int]
+    )
+    assert len(nts) == 2
+    assert isinstance(nts[0], TextSubstitution)
+    assert isinstance(nts[1], TextSubstitution)
+
+    assert normalize_typed_substitution([1, 2], List[int]) == [1, 2]
+    nts = normalize_typed_substitution([TextSubstitution(text='bsd'), 2], List[int])
+    assert len(nts) == 2
+    assert isinstance(nts[0], list)
+    assert len(nts[0]) == 1
+    assert isinstance(nts[0][0], TextSubstitution)
+    assert nts[1] == 2
+
+    nts = normalize_typed_substitution([[TextSubstitution(text='bsd')], 2], List[int])
+    assert len(nts) == 2
+    assert len(nts[0]) == 1
+    assert isinstance(nts[0][0], TextSubstitution)
+    assert nts[1] == 2
+    nts = normalize_typed_substitution(
+        [
+            [TextSubstitution(text='asd')],
+            [TextSubstitution(text='bsd'), 'bsd'],
+        ],
+        List[int]
+    )
+    assert len(nts) == 2
+    assert isinstance(nts[0], list)
+    assert len(nts[0]) == 1
+    assert isinstance(nts[0][0], TextSubstitution)
+    assert isinstance(nts[1], list)
+    assert len(nts[1]) == 2
+    assert isinstance(nts[1][0], TextSubstitution)
+    assert isinstance(nts[1][1], TextSubstitution)  # should have been normalized
+
+    assert normalize_typed_substitution(1, None) == 1
+
+    nts = normalize_typed_substitution(TextSubstitution(text='bsd'), None)
+    assert isinstance(nts, list)
+    assert len(nts) == 1
+    assert isinstance(nts[0], TextSubstitution)
+
+    nts = normalize_typed_substitution(
+        [
+            TextSubstitution(text='asd'),
+            TextSubstitution(text='bsd'),
+        ],
+        None
+    )
+    assert len(nts) == 2
+    assert isinstance(nts[0], TextSubstitution)
+    assert isinstance(nts[1], TextSubstitution)
+
+    nts = normalize_typed_substitution([TextSubstitution(text='bsd'), 2], None)
+    assert len(nts) == 2
+    assert isinstance(nts[0], list)
+    assert len(nts[0]) == 1
+    assert isinstance(nts[0][0], TextSubstitution)
+    assert nts[1] == 2
+
+    with pytest.raises(ValueError):
+        normalize_typed_substitution(1, bytes)
+    with pytest.raises(TypeError):
+        normalize_typed_substitution(1, List[int])
+    with pytest.raises(TypeError):
+        normalize_typed_substitution(['asd', 2], List[int])

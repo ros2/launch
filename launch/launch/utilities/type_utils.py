@@ -372,6 +372,40 @@ def is_substitution(x):
 def normalize_typed_substitution(
     value: SomeValueType, data_type: Optional[AllowedTypesType]
 ) -> NormalizedValueType:
+    """
+    Normalize a mix of substitution and values.
+
+    This function becomes handy when you need a substitution which result will be coerced to a
+    specific type.
+
+    Example:
+    -------
+    ```python3
+    class MyAction(Action):
+        def __init__(self, my_int: Union[int, SomeSubstitutionsType]):
+            self.__my_int_normalized = normalize_typed_substitution(some_int, int)
+            ...
+
+        def execute(self, context):
+            my_int = perform_typed_substitution(context, self.__my_int_normalized, int)
+            ...
+    ```
+
+    :value: value to be normalized.
+    :data_type: `value` can be either an instance of `data_type` or a substitution.
+        In the case of lists, `value` can be either a substitution or a list.
+        In the later case, its item should match the type specified by `data_type` or be a
+        substitution.
+        If `None`, it should be possible to perform the resulting normalized `value` to a valid
+        type.
+        See :py:func:`is_substitution`.
+    :return: the normalized `value`.
+    :raises: `TypeError` if the normalized `value` cannot later be resolved to an instance
+        of `data_type`, or to a valid type when `data_type is `None`.
+    :raises: `ValueError` if `data_type` is not valid.
+        See :py:obj:`AllowedTypesTuple`.
+
+    """
     # Resolve scalar types immediately
     if isinstance(value, ScalarTypesTuple):
         if not is_instance_of(value, data_type):
@@ -415,6 +449,11 @@ def normalize_typed_substitution(
         "Got a list of '{}'"
         f", expected a list of '{data_type}'. value='{value}'"
     )
+    if types_in_list == {Substitution}:
+        # list of substitutions, can be coerced later to anything
+        return cast(List[Union[List[Substitution], str]], [
+            normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, x)) for x in value
+        ])
     if types_in_list.issubset({str, Substitution}):
         # list of mixed strings and substitutions
         if data_type not in (None, str):
