@@ -24,6 +24,7 @@ from launch.utilities.type_utils import extract_type
 from launch.utilities.type_utils import get_typed_value
 from launch.utilities.type_utils import is_instance_of
 from launch.utilities.type_utils import is_instance_of_valid_type
+from launch.utilities.type_utils import is_normalized_substitution
 from launch.utilities.type_utils import is_substitution
 from launch.utilities.type_utils import is_typing_list
 from launch.utilities.type_utils import is_valid_scalar_type
@@ -490,6 +491,17 @@ def test_normalize_typed_substitution():
         normalize_typed_substitution(1, List[int])
     with pytest.raises(TypeError):
         normalize_typed_substitution(['asd', 2], List[int])
+
+
+def test_is_normalized_substitution():
+    assert is_normalized_substitution([TextSubstitution(text='asd')])
+    assert is_normalized_substitution(
+        [TextSubstitution(text='asd'), TextSubstitution(text='bsd')])
+
+    assert not is_normalized_substitution(TextSubstitution(text='asd'))
+    assert not is_normalized_substitution([TextSubstitution(text='asd'), 'bsd'])
+    assert not is_normalized_substitution(['bsd'])
+    assert not is_normalized_substitution('bsd')
 
 
 class MockContext:

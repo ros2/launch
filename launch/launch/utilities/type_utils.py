@@ -494,6 +494,11 @@ def normalize_typed_substitution(
 
 
 def is_normalized_substitution(x):
+    """
+    Return `True` if `x` is a normalized substitution.
+
+    A normalized substitution is a list with :ref:class:`launch.Substitution` instances as items.
+    """
     return (
         isinstance(x, list) and
         len(x) > 0 and
