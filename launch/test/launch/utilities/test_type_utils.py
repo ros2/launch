@@ -20,6 +20,7 @@ from typing import Union
 from launch.utilities.type_utils import coerce_list
 from launch.utilities.type_utils import coerce_to_type
 from launch.utilities.type_utils import extract_type
+from launch.utilities.type_utils import get_typed_value
 from launch.utilities.type_utils import is_instance_of
 from launch.utilities.type_utils import is_instance_of_valid_type
 from launch.utilities.type_utils import is_typing_list
@@ -156,132 +157,207 @@ def test_is_instance_of():
         is_instance_of([True, False], Union[int, str])
 
 
-def test_coercions_using_yaml_rules():
-    assert coerce_to_type('asd') == 'asd'
-    assert coerce_to_type('tRuE') == 'tRuE'
-    assert coerce_to_type("'1'") == '1'
-    assert coerce_to_type("'off'") == 'off'
+@pytest.mark.parametrize(
+    'coerce_to_type_impl',
+    (
+        coerce_to_type,
+        lambda value, data_type=None, can_be_str=False: get_typed_value(
+            value, data_type, can_be_str),
+    ),
+    ids=[
+        'testing coerce_to_type implementation',
+        'testing get_typed_value implementation',
+    ]
+)
+def test_coercions_using_yaml_rules(coerce_to_type_impl):
+    assert coerce_to_type_impl('asd') == 'asd'
+    assert coerce_to_type_impl('tRuE') == 'tRuE'
+    assert coerce_to_type_impl("'1'") == '1'
+    assert coerce_to_type_impl("'off'") == 'off'
 
-    assert coerce_to_type('1') == 1
-    assert coerce_to_type('1000') == 1000
+    assert coerce_to_type_impl('1') == 1
+    assert coerce_to_type_impl('1000') == 1000
 
-    assert coerce_to_type('1.') == 1.0
-    assert coerce_to_type('1000.0') == 1000.
-    assert coerce_to_type('0.2') == .2
-    assert coerce_to_type('.3') == 0.3
+    assert coerce_to_type_impl('1.') == 1.0
+    assert coerce_to_type_impl('1000.0') == 1000.
+    assert coerce_to_type_impl('0.2') == .2
+    assert coerce_to_type_impl('.3') == 0.3
 
-    assert coerce_to_type('on') is True
-    assert coerce_to_type('off') is False
-    assert coerce_to_type('True') is True
+    assert coerce_to_type_impl('on') is True
+    assert coerce_to_type_impl('off') is False
+    assert coerce_to_type_impl('True') is True
 
-    assert coerce_to_type('[2, 1, 1]') == [2, 1, 1]
-    assert coerce_to_type('[.2, .1, .1]') == [.2, .1, .1]
-    assert coerce_to_type('[asd, bsd, csd]') == ['asd', 'bsd', 'csd']
-    assert coerce_to_type('[on, false, no]') == [True, False, False]
+    assert coerce_to_type_impl('[2, 1, 1]') == [2, 1, 1]
+    assert coerce_to_type_impl('[.2, .1, .1]') == [.2, .1, .1]
+    assert coerce_to_type_impl('[asd, bsd, csd]') == ['asd', 'bsd', 'csd']
+    assert coerce_to_type_impl('[on, false, no]') == [True, False, False]
 
-    assert coerce_to_type('[asd, 2.0]', can_be_str=True) == ['asd', 2.0]
-
-
-def test_coercions_given_specific_type():
-    assert coerce_to_type('asd', data_type=str) == 'asd'
-    assert coerce_to_type('tRuE', data_type=str) == 'tRuE'
-    assert coerce_to_type("'1'", data_type=str) == "'1'"
-    assert coerce_to_type("'off'", data_type=str) == "'off'"
-    assert coerce_to_type("''1''", data_type=str) == "''1''"
-    assert coerce_to_type('{1}', data_type=str) == '{1}'
-
-    assert coerce_to_type('1', data_type=int) == 1
-    assert coerce_to_type('1000', data_type=int) == 1000
-
-    assert coerce_to_type('1', data_type=float) == 1.0
-    assert coerce_to_type('1.', data_type=float) == 1.0
-    assert coerce_to_type('1000.0', data_type=float) == 1000.
-    assert coerce_to_type('0.2', data_type=float) == .2
-    assert coerce_to_type('.3', data_type=float) == 0.3
-
-    assert coerce_to_type('on', data_type=bool) is True
-    assert coerce_to_type('off', data_type=bool) is False
-    assert coerce_to_type('True', data_type=bool) is True
-
-    assert coerce_to_type('[.2, .1, .1]', data_type=List[float]) == [.2, .1, .1]
-    assert coerce_to_type('[asd, bsd, csd]', data_type=List[str]) == ['asd', 'bsd', 'csd']
-    assert coerce_to_type('[on, false, no]', data_type=List[bool]) == [True, False, False]
-
-    assert coerce_to_type('[asd, 2.0]', data_type=List[float], can_be_str=True) == ['asd', 2.0]
+    assert coerce_to_type_impl('[asd, 2.0]', can_be_str=True) == ['asd', 2.0]
 
 
-def test_coercion_fails():
+@pytest.mark.parametrize(
+    'coerce_to_type_impl',
+    (
+        coerce_to_type,
+        lambda value, data_type=None, can_be_str=False: get_typed_value(
+            value, data_type, can_be_str),
+    ),
+    ids=[
+        'testing coerce_to_type implementation',
+        'testing get_typed_value implementation',
+    ]
+)
+def test_coercions_given_specific_type(coerce_to_type_impl):
+    assert coerce_to_type_impl('asd', data_type=str) == 'asd'
+    assert coerce_to_type_impl('tRuE', data_type=str) == 'tRuE'
+    assert coerce_to_type_impl("'1'", data_type=str) == "'1'"
+    assert coerce_to_type_impl("'off'", data_type=str) == "'off'"
+    assert coerce_to_type_impl("''1''", data_type=str) == "''1''"
+    assert coerce_to_type_impl('{1}', data_type=str) == '{1}'
+
+    assert coerce_to_type_impl('1', data_type=int) == 1
+    assert coerce_to_type_impl('1000', data_type=int) == 1000
+
+    assert coerce_to_type_impl('1', data_type=float) == 1.0
+    assert coerce_to_type_impl('1.', data_type=float) == 1.0
+    assert coerce_to_type_impl('1000.0', data_type=float) == 1000.
+    assert coerce_to_type_impl('0.2', data_type=float) == .2
+    assert coerce_to_type_impl('.3', data_type=float) == 0.3
+
+    assert coerce_to_type_impl('on', data_type=bool) is True
+    assert coerce_to_type_impl('off', data_type=bool) is False
+    assert coerce_to_type_impl('True', data_type=bool) is True
+
+    assert coerce_to_type_impl('[.2, .1, .1]', data_type=List[float]) == [.2, .1, .1]
+    assert coerce_to_type_impl('[asd, bsd, csd]', data_type=List[str]) == ['asd', 'bsd', 'csd']
+    assert coerce_to_type_impl('[on, false, no]', data_type=List[bool]) == [True, False, False]
+
+    assert coerce_to_type_impl(
+        '[asd, 2.0]', data_type=List[float], can_be_str=True) == ['asd', 2.0]
+
+
+@pytest.mark.parametrize(
+    'coerce_to_type_impl',
+    (
+        coerce_to_type,
+        lambda value, data_type=None, can_be_str=False: get_typed_value(
+            value, data_type, can_be_str),
+    ),
+    ids=[
+        'testing coerce_to_type implementation',
+        'testing get_typed_value implementation',
+    ]
+)
+def test_coercion_raises_value_error(coerce_to_type_impl):
+    with pytest.raises(ValueError):
+        coerce_to_type_impl("''1''")
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('{1}')
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('[1, 2.0]')
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('[asd, 2.0]')
+
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('1000.5', data_type=int)
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('Bsd', data_type=int)
+
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('Bsd', data_type=float)
+
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('Bsd', data_type=bool)
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('1', data_type=bool)
+
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('[1, 2.0]', data_type=List[float])
+    with pytest.raises(ValueError):
+        coerce_to_type_impl('[asd, 2.0]', data_type=List[float])
+
+
+def coerce_to_type_raises_type_error():
     with pytest.raises(TypeError):
         coerce_to_type(['a', 'b'])
 
-    with pytest.raises(ValueError):
-        coerce_to_type("''1''")
-    with pytest.raises(ValueError):
-        coerce_to_type('{1}')
-    with pytest.raises(ValueError):
-        coerce_to_type('[1, 2.0]')
-    with pytest.raises(ValueError):
-        coerce_to_type('[asd, 2.0]')
+
+@pytest.mark.parametrize(
+    'coerce_list_impl',
+    (
+        coerce_list,
+        lambda value, data_type=None, can_be_str=False: get_typed_value(
+            value, data_type, can_be_str),
+    ),
+    ids=[
+        'testing coerce_list implementation',
+        'testing get_typed_value implementation',
+    ]
+)
+def test_coercing_list_using_yaml_rules(coerce_list_impl):
+    assert coerce_list_impl(['asd', 'bsd']) == ['asd', 'bsd']
+    assert coerce_list_impl(['1', '1000']) == [1, 1000]
+    assert coerce_list_impl(['1.', '1000.']) == [1., 1000.]
+    assert coerce_list_impl(['on', 'off', 'True']) == [True, False, True]
+
+    assert coerce_list_impl(['asd', '1000'], None, True) == ['asd', 1000]
+    assert coerce_list_impl(['asd', '1000.'], None, True) == ['asd', 1000.]
+    assert coerce_list_impl(['asd', 'off', 'True'], None, True) == ['asd', False, True]
 
     with pytest.raises(ValueError):
-        coerce_to_type('1000.5', data_type=int)
+        coerce_list_impl(['1000.', '1000'])
     with pytest.raises(ValueError):
-        coerce_to_type('Bsd', data_type=int)
-
+        coerce_list_impl(['asd', '1000'])
     with pytest.raises(ValueError):
-        coerce_to_type('Bsd', data_type=float)
-
+        coerce_list_impl(['asd', '1000.'])
     with pytest.raises(ValueError):
-        coerce_to_type('Bsd', data_type=bool)
-    with pytest.raises(ValueError):
-        coerce_to_type('1', data_type=bool)
-
-    with pytest.raises(ValueError):
-        coerce_to_type('[1, 2.0]', data_type=List[float])
-    with pytest.raises(ValueError):
-        coerce_to_type('[asd, 2.0]', data_type=List[float])
+        coerce_list_impl(['asd', 'True'])
 
 
-def test_coercing_list_using_yaml_rules():
-    assert coerce_list(['asd', 'bsd']) == ['asd', 'bsd']
-    assert coerce_list(['1', '1000']) == [1, 1000]
-    assert coerce_list(['1.', '1000.']) == [1., 1000.]
-    assert coerce_list(['on', 'off', 'True']) == [True, False, True]
+@pytest.mark.parametrize(
+    'coerce_list_impl',
+    (
+        coerce_list,
+        lambda value, data_type=None, can_be_str=False: get_typed_value(
+            value, List[data_type], can_be_str),
+    ),
+    ids=[
+        'testing coerce_list implementation',
+        'testing get_typed_value implementation',
+    ]
+)
+def test_coercing_list_given_specific_type(coerce_list_impl):
+    assert coerce_list_impl(['asd', 'bsd'], str) == ['asd', 'bsd']
+    assert coerce_list_impl(['1', '1000'], int) == [1, 1000]
+    assert coerce_list_impl(['1.', '1000.'], float) == [1., 1000.]
+    assert coerce_list_impl(['on', 'off', 'True'], bool) == [True, False, True]
+    assert coerce_list_impl(['1000.', '1000'], float) == [1000., 1000.]
 
-    assert coerce_list(['asd', '1000'], None, True) == ['asd', 1000]
-    assert coerce_list(['asd', '1000.'], None, True) == ['asd', 1000.]
-    assert coerce_list(['asd', 'off', 'True'], None, True) == ['asd', False, True]
-
-    with pytest.raises(ValueError):
-        coerce_list(['1000.', '1000'])
-    with pytest.raises(ValueError):
-        coerce_list(['asd', '1000'])
-    with pytest.raises(ValueError):
-        coerce_list(['asd', '1000.'])
-    with pytest.raises(ValueError):
-        coerce_list(['asd', 'True'])
-
-
-def test_coercing_list_given_specific_type():
-    assert coerce_list(['asd', 'bsd'], str) == ['asd', 'bsd']
-    assert coerce_list(['1', '1000'], int) == [1, 1000]
-    assert coerce_list(['1.', '1000.'], float) == [1., 1000.]
-    assert coerce_list(['on', 'off', 'True'], bool) == [True, False, True]
-    assert coerce_list(['1000.', '1000'], float) == [1000., 1000.]
-
-    assert coerce_list(['asd', '1000'], int, True) == ['asd', 1000]
-    assert coerce_list(['asd', '1000.'], float, True) == ['asd', 1000.]
-    assert coerce_list(['asd', 'off', 'True'], bool, True) == ['asd', False, True]
+    assert coerce_list_impl(['asd', '1000'], int, True) == ['asd', 1000]
+    assert coerce_list_impl(['asd', '1000.'], float, True) == ['asd', 1000.]
+    assert coerce_list_impl(['asd', 'off', 'True'], bool, True) == ['asd', False, True]
 
     with pytest.raises(ValueError):
-        coerce_list(['1', '2'], bool)
+        coerce_list_impl(['1', '2'], bool)
     with pytest.raises(ValueError):
-        coerce_list(['asd', '1000'], int)
+        coerce_list_impl(['asd', '1000'], int)
     with pytest.raises(ValueError):
-        coerce_list(['asd', '1000.'], float)
+        coerce_list_impl(['asd', '1000.'], float)
     with pytest.raises(ValueError):
-        coerce_list(['asd', 'True'], bool)
+        coerce_list_impl(['asd', 'True'], bool)
 
 
-def test_coercing_list_fails():
-    pass
+def test_coerce_list_raises_type_error():
+    with pytest.raises(TypeError):
+        coerce_list('a')
+    with pytest.raises(TypeError):
+        coerce_list([1, 2])
+
+
+def test_get_typed_value_raises_type_error():
+    with pytest.raises(TypeError):
+        get_typed_value({'a'})
+    with pytest.raises(TypeError):
+        get_typed_value(['1', '2'], int)
+    with pytest.raises(TypeError):
+        get_typed_value([1, 2])

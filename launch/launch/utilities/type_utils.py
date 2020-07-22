@@ -332,6 +332,7 @@ def get_typed_value(
       launch.frontend makes use of this for string embedded substitutions.
     :raises: `ValueError` if the coercion failed.
     :raises: `TypeError` if `value` is a `list` and `data_type` is not a `typing.List[x]` object.
+    :raises: `TypeError` if `value` is neither a `str` of a list of `str`.
     :return: `value` coerced to `data_type`.
     """
     if isinstance(value, list):
