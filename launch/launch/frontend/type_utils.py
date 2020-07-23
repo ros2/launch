@@ -36,10 +36,10 @@ def get_data_type_from_identifier(type_identifier: Text):
         'bool': bool,
         'float': float,
         'int': int,
-        'strs_list': List[str],
-        'bools_list': List[bool],
-        'floats_list': List[float],
-        'ints_list': List[int],
+        'list_of_str': List[str],
+        'list_of_bool': List[bool],
+        'list_of_float': List[float],
+        'list_of_int': List[int],
         'yaml': None,
     }
     if type_identifier not in mapping:
