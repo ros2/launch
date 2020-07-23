@@ -179,8 +179,6 @@ def is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
                 return False
         elif len(member_types) > 2:
             return False
-        else:
-            assert len(member_types) == 1
         assert len(member_types) in (1, 2)
         valid_types = tuple(member_types)
         member_types.discard(str)
