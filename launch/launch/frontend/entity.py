@@ -61,7 +61,7 @@ class Entity:
 
         See :py:obj:`launch.utilities.AllowedTypesTuple` to see what types are allowed.
 
-        `data_type = None` will convert the readed value using yaml rules.
+        `data_type = None` will result in yaml parsing of the attribute value as a string.
 
         `List[Entity]` allows accessing a list of subentities with an specific name.
 
