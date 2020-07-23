@@ -59,7 +59,7 @@ class Entity:
         `data_type` is the expected type of the attribute. Type coercion or type checking is
         applied depending on the particular frontend.
 
-        See :py:obj:`launch.utilities.AllowedTypesTuple` to see what literals `data_type` can be.
+        See :py:obj:`launch.utilities.AllowedTypesTuple` to see what types are allowed.
 
         `data_type = None` will convert the readed value using yaml rules.
 
