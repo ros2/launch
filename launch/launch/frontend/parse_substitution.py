@@ -128,7 +128,7 @@ def parse_if_substitutions(
     When interpolating substitutions in a string, `TextSubstitution` instances are resolved
     and the original `str` is left.
 
-    :raise: `ValueError` if the result cannot be performed to a valid type.
+    :raise: `ValueError` if the result cannot be parsed into a valid type.
     """
     data_types = set()
 
