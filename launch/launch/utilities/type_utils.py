@@ -204,7 +204,7 @@ def is_instance_of(
     Check if `value` is instance of `data_type`.
 
     :param value: variable to check.
-    :param data_type: class that `value` should be instance of.
+    :param data_type: type that `value` should be an instance of.
         When `None` the function behaves like :py:func:`is_instance_of_valid_type`.
     :param can_be_str: if `True`, strings will also be accepted.
       :py:mod:`launch.frontend` makes use of this for string embedded substitutions.
