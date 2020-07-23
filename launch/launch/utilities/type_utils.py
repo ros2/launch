@@ -392,7 +392,7 @@ def normalize_typed_substitution(
     :param value: value to be normalized.
     :param data_type: `value` can be either an instance of `data_type` or a substitution.
         In the case of lists, `value` can be either a substitution or a list.
-        In the later case, its item should match the type specified by `data_type` or be a
+        In the later case, its items should match the type specified by `data_type` or be a
         substitution.
         If `None`, it should be possible to perform the resulting normalized `value` to a valid
         type.
@@ -529,6 +529,8 @@ def perform_typed_substitution(
         of `data_type`, or to a valid type when `data_type is `None`.
     :raise: `ValueError` if `data_type` is not valid.
         See :py:obj:`AllowedTypesTuple`.
+    :raise: `ValueError` if after coercing the substitutions the end result is not of the
+        expected type.
     """
     if isinstance(value, ScalarTypesTuple):
         if data_type is not None and not is_instance_of(value, data_type):
@@ -554,7 +556,13 @@ def perform_typed_substitution(
                 perform_substitutions(context, cast(List[Substitution], x)), scalar_type)
             if is_normalized_substitution(x) else x for x in value
         ]
-        is_instance_of(output, data_type)
+        if not is_instance_of(output, data_type):
+            raise ValueError(
+                    'The output list does not match the expected type '
+                    f"Got value='{value}', expected type {scalar_type}."
+                    if scalar_type is not None else
+                    'The output list is not uniform'
+                )
         return cast(ListValueType, output)
     # Invalid input
     raise TypeError(

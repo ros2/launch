@@ -573,3 +573,6 @@ def test_perform_typed_substitution():
         perform_typed_substitution(lc, [TextSubstitution(text='1.')], int)
     with pytest.raises(ValueError):
         perform_typed_substitution(lc, [TextSubstitution(text='1')], List[int])
+    with pytest.raises(ValueError):
+        perform_typed_substitution(
+            lc, [[TextSubstitution(text='1.')], [TextSubstitution(text='1')]], data_type=None)
