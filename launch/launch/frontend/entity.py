@@ -56,7 +56,7 @@ class Entity:
         Access an attribute of the entity.
 
         By default, it will try to return it as an string.
-        `data_type` is the expected types of the attribute. Type coercion or type checking is
+        `data_type` is the expected type of the attribute. Type coercion or type checking is
         applied depending on the particular frontend.
 
         See :py:obj:`launch.utilities.AllowedTypesTuple` to see what literals `data_type` can be.
