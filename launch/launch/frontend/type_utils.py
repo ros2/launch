@@ -39,7 +39,8 @@ def get_data_type_from_identifier(type_identifier: Text):
         'strs_list': List[str],
         'bools_list': List[bool],
         'floats_list': List[float],
-        'ints_list': List[int]
+        'ints_list': List[int],
+        'yaml': None,
     }
     if type_identifier not in mapping:
         raise ValueError(f"Got invalid type identifier '{type_identifier}'")
