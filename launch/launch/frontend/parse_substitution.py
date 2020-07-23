@@ -124,7 +124,7 @@ def parse_if_substitutions(
 
     If `value` is a `str`, substitutions will be interpolated in it.
     If `value` is any other scalar type, it will be returned as-is.
-    If `value` is a list, the two rules above are applied to each item.
+    If `value` is a list, the two rules above will be applied to each item.
     When interpolating substitutions in a string, `TextSubstitution` instances are resolved
     and the original `str` is left.
 
