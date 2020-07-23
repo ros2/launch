@@ -514,7 +514,7 @@ def perform_typed_substitution(
     """
     Perform a normalized typed substitution.
 
-    This function becomes handy when you need a substitution which result will be coerced to a
+    This function becomes handy when you need a substitution whose result will be coerced to a
     specific type.
 
     See :py:obj:`normalize_typed_substitution` for an example.
