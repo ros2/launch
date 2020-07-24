@@ -377,6 +377,14 @@ def normalize_typed_substitution(
             ...
     ```
 
+    List of substitutions coerced a list to strings can be confused with a single substitution
+    that is coerced to a list of strings.
+    e.g.: `['asd', TextSubstitution(text='bsd')]`
+    To avoid confusions, the passed value will always be interpreted as a single substitution
+    if possible, like in the above example (which will resolved to `'asdbsd'`).
+    To make it a list of substitutions:
+    `['asd', [TextSubstitution(text='bsd')]]`
+
     :param value: value to be normalized.
     :param data_type: `value` can be either an instance of `data_type` or a substitution.
         In the case of lists, `value` can be either a substitution or a list.
