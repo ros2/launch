@@ -173,23 +173,11 @@ def is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
     if isinstance(value, list):
         if not value:
             return True  # Accept empty lists.
-        member_types = {type(x) for x in value}
-        if len(member_types) == 2:
-            if can_be_str is False or str not in member_types:
-                return False
-        elif len(member_types) > 2:
+        member_type = next((type(x) for x in value if type(x) is not str), str)
+        if member_type not in ScalarTypesTuple:
             return False
-        assert len(member_types) in (1, 2)
-        valid_types = tuple(member_types)
-        member_types.discard(str)
-        try:
-            member_type = member_types.pop()
-        except KeyError:
-            member_type = str
-        return (
-            all(isinstance(x, valid_types) for x in value[1:]) and
-            member_type in ScalarTypesTuple
-        )
+        valid_types = (member_type, str) if can_be_str else member_type
+        return all(isinstance(x, valid_types) for x in value)
     return isinstance(value, ScalarTypesTuple)
 
 
