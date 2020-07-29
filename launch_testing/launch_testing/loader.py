@@ -298,7 +298,8 @@ def _iterate_test_suites(test_suite):
     except TypeError:
         pass
     else:
-        yield test_suite
+        if isinstance(test_suite, unittest.TestSuite):
+            yield test_suite
         for test in test_suite:
             yield from _iterate_test_suites(test)
 
