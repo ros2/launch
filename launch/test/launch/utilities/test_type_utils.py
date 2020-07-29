@@ -78,7 +78,7 @@ def test_extract_type():
     'is_instance_of_valid_type_impl',
     (
         is_instance_of_valid_type,
-        lambda x, can_be_str=False: is_instance_of(x, None, can_be_str),
+        lambda x, can_be_str=False: is_instance_of(x, None, can_be_str=can_be_str),
     ),
     ids=[
         'testing is_instance_of_valid_type implementation',
@@ -167,7 +167,7 @@ def test_is_instance_of():
     (
         coerce_to_type,
         lambda value, data_type=None, can_be_str=False: get_typed_value(
-            value, data_type, can_be_str),
+            value, data_type, can_be_str=can_be_str),
     ),
     ids=[
         'testing coerce_to_type implementation',
@@ -205,7 +205,7 @@ def test_coercions_using_yaml_rules(coerce_to_type_impl):
     (
         coerce_to_type,
         lambda value, data_type=None, can_be_str=False: get_typed_value(
-            value, data_type, can_be_str),
+            value, data_type, can_be_str=can_be_str),
     ),
     ids=[
         'testing coerce_to_type implementation',
@@ -248,7 +248,7 @@ def test_coercions_given_specific_type(coerce_to_type_impl):
     (
         coerce_to_type,
         lambda value, data_type=None, can_be_str=False: get_typed_value(
-            value, data_type, can_be_str),
+            value, data_type, can_be_str=can_be_str),
     ),
     ids=[
         'testing coerce_to_type implementation',
@@ -294,7 +294,7 @@ def coerce_to_type_raises_type_error():
     (
         coerce_list,
         lambda value, data_type=None, can_be_str=False: get_typed_value(
-            value, data_type, can_be_str),
+            value, data_type, can_be_str=can_be_str),
     ),
     ids=[
         'testing coerce_list implementation',
@@ -327,7 +327,7 @@ def test_coercing_list_using_yaml_rules(coerce_list_impl):
     (
         coerce_list,
         lambda value, data_type=None, can_be_str=False: get_typed_value(
-            value, List[data_type], can_be_str),
+            value, List[data_type], can_be_str=can_be_str),
     ),
     ids=[
         'testing coerce_list implementation',

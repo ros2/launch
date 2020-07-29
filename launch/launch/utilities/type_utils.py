@@ -160,7 +160,7 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
     return (scalar_type, is_list)
 
 
-def is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
+def is_instance_of_valid_type(value: Any, *, can_be_str: bool = False) -> bool:
     """
     Return `True` if value is an instance of an allowed type.
 
@@ -184,6 +184,7 @@ def is_instance_of_valid_type(value: Any, can_be_str: bool = False) -> bool:
 def is_instance_of(
     value: Any,
     data_type: Optional[AllowedTypesType] = None,
+    *,
     can_be_str: bool = False,
 ) -> bool:
     """
@@ -198,7 +199,7 @@ def is_instance_of(
     :return: `True` if `value` is an instance of `data_type`, else `False`.
     """
     if data_type is None:
-        return is_instance_of_valid_type(value, can_be_str)
+        return is_instance_of_valid_type(value, can_be_str=can_be_str)
     type_obj, is_list = extract_type(data_type)
     if can_be_str:
         type_obj = (str, type_obj)
@@ -212,6 +213,7 @@ def is_instance_of(
 def coerce_to_type(
     value: Text,
     data_type: Optional[AllowedTypesType] = None,
+    *,
     can_be_str: bool = False,
 ) -> StrSomeValueType:
     """
@@ -234,7 +236,7 @@ def coerce_to_type(
                 return value
             raise ValueError(f'{error_msg}: yaml.safe_load() failed\n{err}')
 
-        if not is_instance_of_valid_type(output, can_be_str):
+        if not is_instance_of_valid_type(output, can_be_str=can_be_str):
             raise ValueError(
                 f'{error_msg}: output type is not allowed, got {type(output)}'
             )
@@ -283,6 +285,7 @@ def coerce_to_type(
 def coerce_list(
     value: List[Text],
     data_type: Optional[ScalarTypesType] = None,
+    *,
     can_be_str: bool = False,
 ) -> StrSomeSequenceType:
     """
@@ -297,8 +300,8 @@ def coerce_list(
     :return: `value` coerced to `data_type`.
     """
     ensure_argument_type(value, list, 'value', 'coerce_list')
-    output = [coerce_to_type(i, data_type, can_be_str) for i in value]
-    if not is_instance_of_valid_type(output, can_be_str):
+    output = [coerce_to_type(i, data_type, can_be_str=can_be_str) for i in value]
+    if not is_instance_of_valid_type(output, can_be_str=can_be_str):
         raise ValueError(f'cannot convert value to {data_type}. Got value=`{value}`')
     return cast(ListValueType, output)
 
@@ -306,6 +309,7 @@ def coerce_list(
 def get_typed_value(
     value: Union[Text, List[Text]],
     data_type: Optional[AllowedTypesType],
+    *,
     can_be_str: bool = False,
 ) -> StrSomeValueType:
     """
@@ -329,9 +333,9 @@ def get_typed_value(
                     f"Cannot convert input '{value}' of type '{type(value)}' to"
                     f" '{data_type}'"
                 )
-        output: AllowedValueType = coerce_list(value, data_type, can_be_str)
+        output: AllowedValueType = coerce_list(value, data_type, can_be_str=can_be_str)
     else:
-        output = coerce_to_type(value, data_type, can_be_str)
+        output = coerce_to_type(value, data_type, can_be_str=can_be_str)
     return output
 
 
