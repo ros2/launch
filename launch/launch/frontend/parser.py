@@ -16,12 +16,10 @@
 """Module for Parser class and parsing methods."""
 
 import os.path
-from typing import Any
 from typing import List
 from typing import Optional
 from typing import Text
 from typing import TextIO
-from typing import Tuple
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
@@ -30,11 +28,14 @@ from pkg_resources import iter_entry_points
 
 from .entity import Entity
 from .expose import instantiate_action
+from .parse_substitution import parse_if_substitutions
 from .parse_substitution import parse_substitution
 from .parse_substitution import replace_escaped_characters
 from ..action import Action
 from ..invalid_launch_file_error import InvalidLaunchFileError
-from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitution import Substitution
+from ..utilities.type_utils import NormalizedValueType
+from ..utilities.type_utils import StrSomeValueType
 from ..utilities.typing_file_path import FilePath
 
 if TYPE_CHECKING:
@@ -76,16 +77,22 @@ class Parser:
                 for entry_point in iter_entry_points('launch.frontend.parser')
             }
 
-    def parse_action(self, entity: Entity) -> (Action, Tuple[Any]):
+    def parse_action(self, entity: Entity) -> Action:
         """Parse an action, using its registered parsing method."""
         self.load_launch_extensions()
         return instantiate_action(entity, self)
 
-    def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
+    def parse_substitution(self, value: Text) -> List[Substitution]:
         """Parse a substitution."""
         return parse_substitution(value)
 
-    def escape_characters(self, value: Text) -> SomeSubstitutionsType:
+    def parse_if_substitutions(
+        self, value: StrSomeValueType
+    ) -> NormalizedValueType:
+        """See :py:func:`launch.frontend.parser.parse_if_substitutions`."""
+        return parse_if_substitutions(value)
+
+    def escape_characters(self, value: Text) -> Text:
         """Escape characters in strings."""
         return replace_escaped_characters(value)
 

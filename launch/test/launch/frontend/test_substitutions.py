@@ -22,10 +22,14 @@ from launch import SomeSubstitutionsType
 from launch import Substitution
 from launch.actions import ExecuteProcess
 from launch.frontend.expose import expose_substitution
+from launch.frontend.parse_substitution import parse_if_substitutions
 from launch.frontend.parse_substitution import parse_substitution
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import PythonExpression
+from launch.substitutions import TextSubstitution
 from launch.substitutions import ThisLaunchFileDir
+
+import pytest
 
 
 def test_no_text():
@@ -203,6 +207,45 @@ def test_eval_subst():
 
 def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):
     return [perform_substitutions_without_context(x) for x in cmd_subs]
+
+
+def test_parse_if_substitutions():
+    assert parse_if_substitutions(1) == 1
+    assert parse_if_substitutions('asd') == 'asd'
+
+    subst = parse_if_substitutions('$(test asd)')
+    assert len(subst) == 1
+    assert isinstance(subst[0], CustomSubstitution)
+
+    subst = parse_if_substitutions('[$(test asd), $(test bsd)]')
+    assert len(subst) == 5
+    assert isinstance(subst[0], TextSubstitution)
+    assert isinstance(subst[1], CustomSubstitution)
+    assert isinstance(subst[2], TextSubstitution)
+    assert isinstance(subst[3], CustomSubstitution)
+    assert isinstance(subst[4], TextSubstitution)
+
+    subst = parse_if_substitutions(['$(test asd)', '$(test bsd)'])
+    assert len(subst) == 2
+    assert len(subst[0]) == 1
+    assert isinstance(subst[0][0], CustomSubstitution)
+    assert len(subst[1]) == 1
+    assert isinstance(subst[1][0], CustomSubstitution)
+
+    subst = parse_if_substitutions(['$(test asd)', 'bsd'])
+    assert len(subst) == 2
+    assert len(subst[0]) == 1
+    assert isinstance(subst[0][0], CustomSubstitution)
+    assert subst[1] == 'bsd'
+
+    subst = parse_if_substitutions(['$(test asd)', 1])
+    assert len(subst) == 2
+    assert len(subst[0]) == 1
+    assert isinstance(subst[0][0], CustomSubstitution)
+    assert subst[1] == 1
+
+    with pytest.raises(ValueError):
+        parse_if_substitutions(['$(test asd)', 1, 1.0])
 
 
 class MockParser:

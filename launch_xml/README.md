@@ -23,17 +23,11 @@ By default, the value of the attribute is returned as a string.
 
 Allowed types are:
     - scalar types: `str, int, float, bool`
-    - lists: Can be uniform like `List[int]`, or non-uniform like `List[Union[str, int]]`, `List` (same as `list`).
-        In any case, the members should be of one of the scalar types.
-    - An union of both any of the above. e.g.: `Union[List[int], int]`.
+    - An uniform list, e.g.: `List[int]`.
     - The list of entities type: `List[Entity]` (see below).
 
 `List` is the usual object from the `typing` package.
-`data_type` can also be set to `None`, which works in the same way as passing:
-
-```python
-Union[int, float, bool, list, str]
-```
+`data_type` can also be set to `None`, in which case yaml rules will be used.
 
 For handling lists, the `*-sep` attribute is used. e.g.:
 
@@ -49,6 +43,13 @@ tag2.get_attr('value', data_type=List[float]) == [2.0, 3.0, 4.0]
 tag3.get_attr('value', data_type=List[str]) == ['2', '3', '4']
 ```
 
+In the case a value can be either an instance of a type or a substitution, the `can_be_str` argument of `get_attr` must be used, followed by a call to `parser.parse_if_substitutions`:
+
+```python
+value = e.get_attr('value2', data_type=int, can_be_str=True)
+normalized_value = parser.parse_if_substitutions(value)
+```
+
 For checking if an attribute exists, use an optional argument:
 
 ```python
@@ -57,7 +58,7 @@ if value is not None:
     do_something(value)
 ```
 
-With `optional=False` (default), `AttributeError` is raised if it is not found.
+With `optional=False` (default), `AttributeError` is raised if the specified attribute is not found.
 
 ### Accessing XML children as attributes:
 

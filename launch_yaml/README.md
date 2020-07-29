@@ -32,16 +32,21 @@ e.get_attr('value3')
 
 Allowed types are:
     - scalar types: `str, int, float, bool`
-    - lists: Can be uniform like `List[int]`, or non-uniform like `List[Union[str, int]]`, `List` (same as `list`).
-        In any case, the members should be of one of the scalar types.
-    - An union of both any of the above. e.g.: `Union[List[int], int]`.
+    - An uniform list, e.g.: `List[int]`.
     - The list of entities type: `List[Entity]` (see below).
 
 `List` is the usual object from the `typing` package.
-`data_type` can also be set to `None`, which works in the same way as passing:
+`data_type` can also be set to `None`, in which case any of the following scalar types or uniform lists of them are allowed:
 
 ```python
-Union[int, float, bool, list, str]
+int, float, bool, str
+```
+
+In the case a value can be either an instance of a type or a substitution, the `can_be_str` argument of `get_attr` must be used, followed by a call to `parser.parse_if_substitutions`:
+
+```python
+value = e.get_attr('value2', data_type=int, can_be_str=True)
+normalized_value = parser.parse_if_substitutions(value)
 ```
 
 For checking if an attribute exists, use optional argument:
