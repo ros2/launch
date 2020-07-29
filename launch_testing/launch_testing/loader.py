@@ -120,6 +120,13 @@ class TestRun:
                 setattr(tc, '_testMethodName', new_name)
                 setattr(tc, new_name, test_method)
 
+        # Disable cleanup of test cases once they are run
+        for tc in itertools.chain(
+            _iterate_test_suites(pre_shutdown_tests),
+            _iterate_test_suites(post_shutdown_tests)
+        ):
+            tc._removeTestAtIndex = lambda *args, **kwargs: None
+
     @property
     def markers(self):
         return self._test_description_function.__markers__
@@ -283,6 +290,18 @@ def _iterate_test_classes_in_test_suite(test_suite):
         if t.__class__ not in classes:
             classes.append(t.__class__)
             yield t.__class__
+
+
+def _iterate_test_suites(test_suite):
+    try:
+        iter(test_suite)
+    except TypeError:
+        pass
+    else:
+        if isinstance(test_suite, unittest.TestSuite):
+            yield test_suite
+        for test in test_suite:
+            yield from _iterate_test_suites(test)
 
 
 def _iterate_tests_in_test_suite(test_suite):
