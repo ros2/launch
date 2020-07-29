@@ -100,7 +100,7 @@ class Entity(BaseEntity):
             else:
                 return None
         try:
-            value = get_typed_value(value, data_type, can_be_str)
+            value = get_typed_value(value, data_type, can_be_str=can_be_str)
         except ValueError:
             raise TypeError(
                 'Attribute {} of Entity {} expected to be of type {}.'

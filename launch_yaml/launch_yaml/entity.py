@@ -106,7 +106,7 @@ class Entity(BaseEntity):
                     name, self.type_name
                 )
             )
-        if not is_instance_of(data, data_type, can_be_str):
+        if not is_instance_of(data, data_type, can_be_str=can_be_str):
             raise TypeError(
                 'Attribute {} of Entity {} expected to be of type {}, got {}'.format(
                     name, self.type_name, data_type, type(data)
