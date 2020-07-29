@@ -78,7 +78,7 @@ def test_extract_type():
     'is_instance_of_valid_type_impl',
     (
         is_instance_of_valid_type,
-        lambda x, y=False: is_instance_of(x, None, y),
+        lambda x, can_be_str=False: is_instance_of(x, None, can_be_str),
     ),
     ids=[
         'testing is_instance_of_valid_type implementation',
@@ -101,21 +101,21 @@ def test_is_instance_of_valid_type(is_instance_of_valid_type_impl):
     assert not is_instance_of_valid_type_impl(test_is_instance_of_valid_type)
     assert not is_instance_of_valid_type_impl({'key': 'value'})
 
-    assert is_instance_of_valid_type_impl(1, True)
-    assert is_instance_of_valid_type_impl(1., True)
-    assert is_instance_of_valid_type_impl('asd', True)
-    assert is_instance_of_valid_type_impl(True, True)
+    assert is_instance_of_valid_type_impl(1, can_be_str=True)
+    assert is_instance_of_valid_type_impl(1., can_be_str=True)
+    assert is_instance_of_valid_type_impl('asd', can_be_str=True)
+    assert is_instance_of_valid_type_impl(True, can_be_str=True)
 
-    assert is_instance_of_valid_type_impl([1, 2], True)
-    assert is_instance_of_valid_type_impl([1, '2'], True)
-    assert is_instance_of_valid_type_impl([1., '2.'], True)
-    assert is_instance_of_valid_type_impl(['asd', 'bsd'], True)
-    assert is_instance_of_valid_type_impl([True, 'False'], True)
+    assert is_instance_of_valid_type_impl([1, 2], can_be_str=True)
+    assert is_instance_of_valid_type_impl([1, '2'], can_be_str=True)
+    assert is_instance_of_valid_type_impl([1., '2.'], can_be_str=True)
+    assert is_instance_of_valid_type_impl(['asd', 'bsd'], can_be_str=True)
+    assert is_instance_of_valid_type_impl([True, 'False'], can_be_str=True)
 
-    assert not is_instance_of_valid_type_impl([1, '2', 1.], True)
-    assert not is_instance_of_valid_type_impl(object, True)
-    assert not is_instance_of_valid_type_impl(test_is_instance_of_valid_type, True)
-    assert not is_instance_of_valid_type_impl({'key': 'value'}, True)
+    assert not is_instance_of_valid_type_impl([1, '2', 1.], can_be_str=True)
+    assert not is_instance_of_valid_type_impl(object, can_be_str=True)
+    assert not is_instance_of_valid_type_impl(test_is_instance_of_valid_type, can_be_str=True)
+    assert not is_instance_of_valid_type_impl({'key': 'value'}, can_be_str=True)
 
 
 def test_is_instance_of():
@@ -143,14 +143,14 @@ def test_is_instance_of():
     assert not is_instance_of(['1', 2], List[str])
     assert not is_instance_of(['1', '2'], str)
 
-    assert is_instance_of(1, int, True)
-    assert is_instance_of('1', int, True)
-    assert is_instance_of([1, 2], List[int], True)
-    assert is_instance_of(['1', 2], List[int], True)
-    assert not is_instance_of(['1', 2.], List[int], True)
-    assert not is_instance_of([1, 2.], List[int], True)
-    assert not is_instance_of([1, 2], int, True)
-    assert not is_instance_of([1, '2'], List[str], True)
+    assert is_instance_of(1, int, can_be_str=True)
+    assert is_instance_of('1', int, can_be_str=True)
+    assert is_instance_of([1, 2], List[int], can_be_str=True)
+    assert is_instance_of(['1', 2], List[int], can_be_str=True)
+    assert not is_instance_of(['1', 2.], List[int], can_be_str=True)
+    assert not is_instance_of([1, 2.], List[int], can_be_str=True)
+    assert not is_instance_of([1, 2], int, can_be_str=True)
+    assert not is_instance_of([1, '2'], List[str], can_be_str=True)
 
     with pytest.raises(ValueError):
         is_instance_of(1, bytes)
@@ -238,6 +238,8 @@ def test_coercions_given_specific_type(coerce_to_type_impl):
     assert coerce_to_type_impl('[on, false, no]', data_type=List[bool]) == [True, False, False]
 
     assert coerce_to_type_impl(
+        'asd', data_type=float, can_be_str=True) == 'asd'
+    assert coerce_to_type_impl(
         '[asd, 2.0]', data_type=List[float], can_be_str=True) == ['asd', 2.0]
 
 
@@ -305,9 +307,10 @@ def test_coercing_list_using_yaml_rules(coerce_list_impl):
     assert coerce_list_impl(['1.', '1000.']) == [1., 1000.]
     assert coerce_list_impl(['on', 'off', 'True']) == [True, False, True]
 
-    assert coerce_list_impl(['asd', '1000'], None, True) == ['asd', 1000]
-    assert coerce_list_impl(['asd', '1000.'], None, True) == ['asd', 1000.]
-    assert coerce_list_impl(['asd', 'off', 'True'], None, True) == ['asd', False, True]
+    assert coerce_list_impl(['asd', '1000'], data_type=None, can_be_str=True) == ['asd', 1000]
+    assert coerce_list_impl(['asd', '1000.'], data_type=None, can_be_str=True) == ['asd', 1000.]
+    assert coerce_list_impl(
+        ['asd', 'off', 'True'], data_type=None, can_be_str=True) == ['asd', False, True]
 
     with pytest.raises(ValueError):
         coerce_list_impl(['1000.', '1000'])
@@ -338,9 +341,9 @@ def test_coercing_list_given_specific_type(coerce_list_impl):
     assert coerce_list_impl(['on', 'off', 'True'], bool) == [True, False, True]
     assert coerce_list_impl(['1000.', '1000'], float) == [1000., 1000.]
 
-    assert coerce_list_impl(['asd', '1000'], int, True) == ['asd', 1000]
-    assert coerce_list_impl(['asd', '1000.'], float, True) == ['asd', 1000.]
-    assert coerce_list_impl(['asd', 'off', 'True'], bool, True) == ['asd', False, True]
+    assert coerce_list_impl(['asd', '1000'], int, can_be_str=True) == ['asd', 1000]
+    assert coerce_list_impl(['asd', '1000.'], float, can_be_str=True) == ['asd', 1000.]
+    assert coerce_list_impl(['asd', 'off', 'True'], bool, can_be_str=True) == ['asd', False, True]
 
     with pytest.raises(ValueError):
         coerce_list_impl(['1', '2'], bool)
@@ -460,9 +463,9 @@ def test_normalize_typed_substitution():
     assert isinstance(nts[1][0], TextSubstitution)
     assert isinstance(nts[1][1], TextSubstitution)  # should have been normalized
 
-    assert normalize_typed_substitution(1, None) == 1
+    assert normalize_typed_substitution(1, data_type=None) == 1
 
-    nts = normalize_typed_substitution(TextSubstitution(text='bsd'), None)
+    nts = normalize_typed_substitution(TextSubstitution(text='bsd'), data_type=None)
     assert isinstance(nts, list)
     assert len(nts) == 1
     assert isinstance(nts[0], TextSubstitution)
@@ -472,13 +475,13 @@ def test_normalize_typed_substitution():
             TextSubstitution(text='asd'),
             TextSubstitution(text='bsd'),
         ],
-        None
+        data_type=None
     )
     assert len(nts) == 2
     assert isinstance(nts[0], TextSubstitution)
     assert isinstance(nts[1], TextSubstitution)
 
-    nts = normalize_typed_substitution([TextSubstitution(text='bsd'), 2], None)
+    nts = normalize_typed_substitution([TextSubstitution(text='bsd'), 2], data_type=None)
     assert len(nts) == 2
     assert isinstance(nts[0], list)
     assert len(nts[0]) == 1
@@ -560,7 +563,7 @@ def test_perform_typed_substitution():
             [TextSubstitution(text='bsd')],
             [TextSubstitution(text='csd')],
         ],
-        None,
+        data_type=None,
     ) == ['asd', 'bsd', 'csd']
 
     with pytest.raises(TypeError):
