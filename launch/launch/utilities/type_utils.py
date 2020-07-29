@@ -119,7 +119,9 @@ def is_typing_list(data_type: Any) -> bool:
         hasattr(data_type, '__origin__') and
         hasattr(data_type, '__args__') and
         data_type.__origin__ in  # type: ignore
-        (list, List) and  # On Linux/Mac is List, on Windows is list.
+        # This has changed in newer Python implementations to `List`,
+        # `list` is checked for compatibility.
+        (list, List) and
         len(data_type.__args__) > 0 and
         data_type is List[data_type.__args__[0]]  # type: ignore
     )
