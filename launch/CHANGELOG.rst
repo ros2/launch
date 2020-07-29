@@ -2,6 +2,35 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.2 (2020-05-26)
+-------------------
+* Fix new flake8 errors. (`#420 <https://github.com/ros2/launch/issues/420>`_)
+* Contributors: Michel Hidalgo
+
+0.10.1 (2020-05-08)
+-------------------
+* removed deprecated loop parameter call (`#387 <https://github.com/ros2/launch/issues/387>`_) (`#410 <https://github.com/ros2/launch/issues/410>`_)
+* Contributors: Zahi Kakish
+
+0.10.0 (2020-04-24)
+-------------------
+* remove Python 3.5 specific logic (`#401 <https://github.com/ros2/launch/issues/401>`_)
+* use typing.TYPE_CHECKING to avoid flake8 failure (`#398 <https://github.com/ros2/launch/issues/398>`_)
+* Suppress flake8 A003 warning (`#395 <https://github.com/ros2/launch/issues/395>`_)
+* more verbose test_flake8 error messages (same as `ros2/launch_ros#135 <https://github.com/ros2/launch_ros/issues/135>`_)
+* Remove unnecessary overloads (`#389 <https://github.com/ros2/launch/issues/389>`_)
+* Simplify type annotation (`#388 <https://github.com/ros2/launch/issues/388>`_)
+* Add support for anon substitution (`#384 <https://github.com/ros2/launch/issues/384>`_)
+* Make RegisterEventHandler describe its sub-entities (`#386 <https://github.com/ros2/launch/issues/386>`_)
+* Fix parsing of cmd line arguments in XML and yaml file (`#379 <https://github.com/ros2/launch/issues/379>`_)
+* Only allow ExecuteProcess actions to execute once (`#375 <https://github.com/ros2/launch/issues/375>`_)
+* Fix grammar in docstring (`#373 <https://github.com/ros2/launch/issues/373>`_)
+* Release loop lock before waiting for it to do work (`#369 <https://github.com/ros2/launch/issues/369>`_)
+* Adds `Command` substitution (`#367 <https://github.com/ros2/launch/issues/367>`_)
+* Handle case where output buffer is closed during shutdown (`#365 <https://github.com/ros2/launch/issues/365>`_)
+* Use imperative mood in docstrings. (`#362 <https://github.com/ros2/launch/issues/362>`_)
+* Contributors: Dirk Thomas, Ivan Santiago Paunovic, Jacob Perron, Jorge Perez, Peter Baughman, Shane Loretz, Steven! Ragnarök, William Woodall
+
 0.9.5 (2019-11-13)
 ------------------
 * fix PendingDeprecationWarning about asyncio.Task.current_task (`#355 <https://github.com/ros2/launch/issues/355>`_)

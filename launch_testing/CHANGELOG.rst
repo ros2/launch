@@ -2,6 +2,38 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.2 (2020-05-26)
+-------------------
+* Set junit_family to xunit2 in pytest.ini
+* Stop using implicit variables in example testing.
+* Switch to from_parent to remove deprecation warning.
+* Fix new flake8 errors. (`#420 <https://github.com/ros2/launch/issues/420>`_)
+* Remove uses of deprecated ready_fn. (`#419 <https://github.com/ros2/launch/issues/419>`_)
+* Contributors: Chris Lalancette, Michel Hidalgo
+
+0.10.1 (2020-05-08)
+-------------------
+* fixed depcrecation warning of imp to importlib (issue `#387 <https://github.com/ros2/launch/issues/387>`_) (`#407 <https://github.com/ros2/launch/issues/407>`_)
+* wait_for_ouput() repr includes actual text (`#408 <https://github.com/ros2/launch/issues/408>`_)
+* Contributors: Shane Loretz, Zahi Kakish
+
+0.10.0 (2020-04-24)
+-------------------
+* Improve jUnit output for launch tests when run with py.test (`#404 <https://github.com/ros2/launch/issues/404>`_)
+* avoid deprecation warning, use from_parent (`#402 <https://github.com/ros2/launch/issues/402>`_)
+* Warn that old-style ready_fn and test attributes will be deprecated (`#346 <https://github.com/ros2/launch/issues/346>`_)
+* more verbose test_flake8 error messages (same as `ros2/launch_ros#135 <https://github.com/ros2/launch_ros/issues/135>`_)
+* stop using constructors deprecated in pytest 5.4 (`#391 <https://github.com/ros2/launch/issues/391>`_)
+* Add the ability to assert in stdout or stderr. (`#378 <https://github.com/ros2/launch/issues/378>`_)
+* Add delay parameter to retry_on_failure decorator (`#390 <https://github.com/ros2/launch/issues/390>`_)
+* Make RegisterEventHandler describe its sub-entities (`#386 <https://github.com/ros2/launch/issues/386>`_)
+* Import test file without contaminating sys.modules (`#360 <https://github.com/ros2/launch/issues/360>`_)
+* Update reference to example launch test file (`#363 <https://github.com/ros2/launch/issues/363>`_)
+* Use imperative mood in docstrings. (`#362 <https://github.com/ros2/launch/issues/362>`_)
+* Fix a documentation typo. (`#361 <https://github.com/ros2/launch/issues/361>`_)
+* Fix junit XML when launch dies early (`#358 <https://github.com/ros2/launch/issues/358>`_)
+* Contributors: Chris Lalancette, Dan Rose, Dirk Thomas, Jacob Perron, Michel Hidalgo, Peter Baughman, Steven! Ragnarök
+
 0.9.5 (2019-11-13)
 ------------------
 * Make launch_testing.markers.retry_on_failure decorator more robust. (`#352 <https://github.com/ros2/launch/issues/352>`_)

@@ -81,7 +81,6 @@ class TimerAction(Action):
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(
             [self.__canceled_future],
-            loop=context.asyncio_loop,
             timeout=float(perform_substitutions(context, self.__period)),
         )
         if not self.__canceled_future.done():

@@ -93,14 +93,22 @@ class ExtractSubstitution(Transformer):
     double_quoted_template = template
 
 
-grammar_file = os.path.join(get_package_share_directory('launch'), 'frontend', 'grammar.lark')
-parser = Lark.open(grammar_file, start='template')
-transformer = ExtractSubstitution()
+def get_grammar_path():
+    return os.path.join(
+        get_package_share_directory('launch'), 'frontend', 'grammar.lark')
+
+
+_parser = None
 
 
 def parse_substitution(string_value):
+    global _parser
     if not string_value:
         # Grammar cannot deal with zero-width expressions.
         return [TextSubstitution(text=string_value)]
-    tree = parser.parse(string_value)
+    if _parser is None:
+        with open(get_grammar_path(), 'r') as h:
+            _parser = Lark(h, start='template')
+    tree = _parser.parse(string_value)
+    transformer = ExtractSubstitution()
     return transformer.transform(tree)

@@ -110,7 +110,7 @@ class LaunchTestItem(pytest.Item):
     def repr_failure(self, excinfo):
         if isinstance(excinfo.value, LaunchTestFailure):
             return LaunchTestFailureRepr(failures=[
-                (f'{type(test_case).__name__}.{test_case._testMethodName}', formatted_error)
+                (test_case.id(), formatted_error)
                 for test_run, test_result in excinfo.value.results.items()
                 for test_case, formatted_error in (test_result.errors + test_result.failures)
                 if isinstance(test_case, TestCase) and not test_result.wasSuccessful()
@@ -122,6 +122,19 @@ class LaunchTestItem(pytest.Item):
 
 
 class LaunchTestModule(pytest.File):
+
+    def __init__(self, parent, *, fspath):
+        super().__init__(parent=parent, fspath=fspath)
+
+    @classmethod
+    def from_parent(cls, parent, *, fspath):
+        """Override from_parent for compatibility."""
+        # pytest.File.from_parent didn't exist before pytest 5.4
+        if hasattr(super(), 'from_parent'):
+            instance = getattr(super(), 'from_parent')(parent=parent, fspath=fspath)
+        else:
+            instance = cls(parent=parent, fspath=fspath)
+        return instance
 
     def makeitem(self, *args, **kwargs):
         return LaunchTestItem.from_parent(*args, **kwargs)
@@ -171,7 +184,7 @@ def pytest_pycollect_makemodule(path, parent):
 def pytest_launch_collect_makemodule(path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
     if marks and any(m.name == 'launch_test' for m in marks):
-        return LaunchTestModule(path, parent)
+        return LaunchTestModule.from_parent(parent, fspath=path)
 
 
 def pytest_addhooks(pluginmanager):
