@@ -231,6 +231,10 @@ def coerce_to_type(
     :return: `value` coerced to `data_type`.
     """
     def convert_as_yaml(value, error_msg):
+        # Forward empty strings
+        if not value:
+            return value
+
         try:
             output = yaml.safe_load(value)
         except Exception as err:
