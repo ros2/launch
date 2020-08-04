@@ -2,6 +2,20 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Handle empty strings in type coercion. (`#443 <https://github.com/ros2/launch/issues/443>`_)
+* Consolidate type_utils in a way that can be reused in substitution results that need to be coerced to a specific type (`#438 <https://github.com/ros2/launch/issues/438>`_)
+* Delete unnecessary loading of 'launch.frontend.interpolate_substitution_method' entry point that was never used (`#434 <https://github.com/ros2/launch/issues/434>`_)
+* Avoid side effect, defer until needed (`#432 <https://github.com/ros2/launch/issues/432>`_)
+* Remove pkg_resources, replace it with the use of the more modern importlib* libraries. (`#430 <https://github.com/ros2/launch/issues/430>`_)
+* Remove the asyncio.wait loop parameter. (`#429 <https://github.com/ros2/launch/issues/429>`_)
+* Add pytest.ini so local tests don't display warning (`#428 <https://github.com/ros2/launch/issues/428>`_)
+* Defer shutdown if already running (`#427 <https://github.com/ros2/launch/issues/427>`_)
+* Add respawn and respawn_delay support (`#426 <https://github.com/ros2/launch/issues/426>`_)
+* Fix up parser.py (`#414 <https://github.com/ros2/launch/issues/414>`_)
+* Contributors: CHEN, Chris Lalancette, Dan Rose, Dirk Thomas, Ivan Santiago Paunovic, Jorge Perez, Michel Hidalgo
+
 0.10.2 (2020-05-26)
 -------------------
 * Fix new flake8 errors. (`#420 <https://github.com/ros2/launch/issues/420>`_)

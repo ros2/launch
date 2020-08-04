@@ -2,6 +2,15 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Disable cleanup of test cases once they have been run (`#406 <https://github.com/ros2/launch/issues/406>`_)
+* Fix max() with empty sequence (`#440 <https://github.com/ros2/launch/issues/440>`_)
+* Use unittest.TestCase.id() for pytest failure reprs. (`#436 <https://github.com/ros2/launch/issues/436>`_)
+* Use unittest.TestCase.id() to put together jUnit XML output. (`#435 <https://github.com/ros2/launch/issues/435>`_)
+* Claim ownership (`#433 <https://github.com/ros2/launch/issues/433>`_)
+* Contributors: Dirk Thomas, Michel Hidalgo, Scott K Logan, William Woodall
+
 0.10.2 (2020-05-26)
 -------------------
 * Set junit_family to xunit2 in pytest.ini
