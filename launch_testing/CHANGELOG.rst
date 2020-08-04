@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-08-04)
+-------------------
 * Disable cleanup of test cases once they have been run (`#406 <https://github.com/ros2/launch/issues/406>`_)
 * Fix max() with empty sequence (`#440 <https://github.com/ros2/launch/issues/440>`_)
 * Use unittest.TestCase.id() for pytest failure reprs. (`#436 <https://github.com/ros2/launch/issues/436>`_)

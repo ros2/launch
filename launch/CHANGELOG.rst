@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-08-04)
+-------------------
 * Handle empty strings in type coercion. (`#443 <https://github.com/ros2/launch/issues/443>`_)
 * Consolidate type_utils in a way that can be reused in substitution results that need to be coerced to a specific type (`#438 <https://github.com/ros2/launch/issues/438>`_)
 * Delete unnecessary loading of 'launch.frontend.interpolate_substitution_method' entry point that was never used (`#434 <https://github.com/ros2/launch/issues/434>`_)

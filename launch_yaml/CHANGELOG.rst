@@ -2,8 +2,8 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-08-04)
+-------------------
 * Use new type_utils functions (`#438 <https://github.com/ros2/launch/issues/438>`_)
 * Close YAML file when we're done. (`#415 <https://github.com/ros2/launch/issues/415>`_)
 * Add pytest.ini so local tests don't display warning (`#428 <https://github.com/ros2/launch/issues/428>`_)

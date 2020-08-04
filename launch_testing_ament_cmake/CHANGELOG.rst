@@ -2,8 +2,8 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-08-04)
+-------------------
 * Find Python debug interpreter on Windows (`#437 <https://github.com/ros2/launch/issues/437>`_)
 * Contributors: Dirk Thomas
 

@@ -2,8 +2,8 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-08-04)
+-------------------
 * Add pytest.ini to test_launch_testing so tests succeed locally. (`#431 <https://github.com/ros2/launch/issues/431>`_)
 * Contributors: Chris Lalancette
 
