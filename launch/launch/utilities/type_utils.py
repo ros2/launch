@@ -121,9 +121,7 @@ def is_typing_list(data_type: Any) -> bool:
         data_type.__origin__ in  # type: ignore
         # This has changed in newer Python implementations to `List`,
         # `list` is checked for compatibility.
-        (list, List) and
-        len(data_type.__args__) > 0 and
-        data_type is List[data_type.__args__[0]]  # type: ignore
+        (list, List)
     )
 
 
@@ -154,7 +152,7 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
     """
     is_list = False
     scalar_type: ScalarTypesType = cast(ScalarTypesType, data_type)
-    if is_typing_list(data_type):
+    if is_typing_list(data_type) and data_type.__args__:
         is_list = True
         scalar_type = data_type.__args__[0]  # type: ignore
     if is_valid_scalar_type(scalar_type) is False:
