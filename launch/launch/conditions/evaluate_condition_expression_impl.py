@@ -28,7 +28,7 @@ VALID_FALSE_EXPRESSIONS = ['false', '0']
 
 def evaluate_condition_expression(context: LaunchContext, expression: List[Substitution]) -> bool:
     """
-    Expand an expression and then evaluate it as a condition, returing true or false.
+    Expand an expression and then evaluate it as a condition, returning true or false.
 
     The expanded expression is stripped and has ``lower()`` called on it before
     being logically evaluated as either true or false.
