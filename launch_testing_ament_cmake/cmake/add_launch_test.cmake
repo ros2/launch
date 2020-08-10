@@ -125,7 +125,7 @@ function(add_launch_test filename)
   ament_add_test(
     "${_launch_test_TARGET}"
     COMMAND ${cmd}
-    OUTPUT_FILE "${CMAKE_BINARY_DIR}/launch_test/CHANGEME.txt"
+    OUTPUT_FILE "${CMAKE_BINARY_DIR}/launch_test/${_launch_test_TARGET}.txt"
     RESULT_FILE "${_launch_test_RESULT_FILE}"
     TIMEOUT "${_launch_test_TIMEOUT}"
     ${_launch_test_UNPARSED_ARGUMENTS}
