@@ -16,6 +16,7 @@
 
 import asyncio
 import collections
+from threading import Lock
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -42,6 +43,7 @@ class LaunchContext:
         self.__argv = argv if argv is not None else []
 
         self._event_queue = asyncio.Queue()  # type: asyncio.Queue
+        self._event_queue_lock = Lock()
         self._event_handlers = collections.deque()  # type: collections.deque
         self._completion_futures = []  # type: List[asyncio.Future]
 
@@ -73,6 +75,15 @@ class LaunchContext:
 
     def _set_asyncio_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         self.__asyncio_loop = loop
+
+    def _set_event_queue(self, new_queue: asyncio.Queue) -> None:
+        with self._event_queue_lock:
+            while True:
+                try:
+                    new_queue.put_nowait(self._event_queue.get_nowait())
+                except asyncio.QueueEmpty:
+                    break
+            self._event_queue = new_queue
 
     @property
     def asyncio_loop(self):
@@ -171,13 +182,24 @@ class LaunchContext:
 
     def emit_event_sync(self, event: Event) -> None:
         """Emit an event synchronously."""
-        self.__logger.debug("emitting event synchronously: '{}'".format(event.name))
-        self._event_queue.put_nowait(event)
+        with self._event_queue_lock:
+            self._event_queue.put_nowait(event)
 
     async def emit_event(self, event: Event) -> None:
         """Emit an event."""
-        self.__logger.debug("emitting event: '{}'".format(event.name))
-        await self._event_queue.put(event)
+        with self._event_queue_lock:
+            self.__logger.debug("emitting event: '{}'".format(event.name))
+            await self._event_queue.put(event)
+
+    def is_event_queue_empty(self) -> bool:
+        with self._event_queue_lock:
+            return self._event_queue.empty()
+
+    async def get_next_event(self):
+        with self._event_queue_lock:
+            if self._event_queue.empty():
+                return None
+            return await self._event_queue.get()
 
     def perform_substitution(self, substitution: Substitution) -> Text:
         """Perform substitution on given Substitution."""
