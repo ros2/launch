@@ -155,7 +155,7 @@ class LaunchService:
     def _is_idle(self):
         number_of_entity_future_pairs = self._prune_and_count_entity_future_pairs()
         number_of_entity_future_pairs += self._prune_and_count_context_completion_futures()
-        return number_of_entity_future_pairs == 0 and self.__context.is_event_queue_empty()
+        return number_of_entity_future_pairs == 0 and self.__context._event_queue.empty()
 
     @contextlib.contextmanager
     def _prepare_run_loop(self):
@@ -174,7 +174,13 @@ class LaunchService:
                 # Set the asyncio loop for the context.
                 self.__context._set_asyncio_loop(this_loop)
                 # Recreate the event queue to ensure the same event loop is being used.
-                self.__context._set_event_queue(asyncio.Queue())
+                new_queue = asyncio.Queue()
+                while True:
+                    try:
+                        new_queue.put_nowait(self.__context._event_queue.get_nowait())
+                    except asyncio.QueueEmpty:
+                        break
+                self.__context._event_queue = new_queue
 
                 self.__loop_from_run_thread = this_loop
 
@@ -263,9 +269,8 @@ class LaunchService:
                 self.__shutting_down = False
 
     async def _process_one_event(self) -> None:
-        next_event = await self.__context.get_next_event()
-        if next_event is not None:
-            await self.__process_event(next_event)
+        next_event = await self.__context._event_queue.get()
+        await self.__process_event(next_event)
 
     async def __process_event(self, event: Event) -> None:
         self.__logger.debug("processing event: '{}'".format(event))
