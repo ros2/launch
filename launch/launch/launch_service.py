@@ -338,28 +338,28 @@ class LaunchService:
                         ret = await self._shutdown(reason='idle', due_to_sigint=False)
                         assert ret is None, ret
                         continue
-                    process_one_event_task = this_loop.create_task(self._process_one_event())
-                    if self.__shutting_down:
-                        # If shutting down and idle then we're done.
-                        if is_idle:
-                            process_one_event_task.cancel()
-                            break
-                        entity_futures = [pair[1] for pair in self._entity_future_pairs]
+
+                    # Stop running if we're shutting down and there's no more work
+                    if self.__shutting_down and is_idle:
+                        break
+
+                    # Collect futures to wait on
+                    entity_futures = [pair[1] for pair in self._entity_future_pairs]
+                    entity_futures.extend(self.__context._completion_futures)
+
+                    # If there is an event in the queue, create a task to process it
+                    # and add it to the list of awaitables
+                    if not self.__context._event_queue.empty():
+                        process_one_event_task = this_loop.create_task(self._process_one_event())
                         entity_futures.append(process_one_event_task)
-                        entity_futures.extend(self.__context._completion_futures)
-                        done = set()  # type: Set[asyncio.Future]
-                        while not done:
-                            done, pending = await asyncio.wait(
-                                entity_futures,
-                                timeout=1.0,
-                                return_when=asyncio.FIRST_COMPLETED
-                            )
-                            if not done:
-                                self.__logger.debug(
-                                    'still waiting on futures: {}'.format(entity_futures)
-                                )
-                    else:
-                        await process_one_event_task
+
+                    if len(entity_futures) > 0:
+                        done, pending = await asyncio.wait(
+                            entity_futures,
+                            timeout=1.0,
+                            return_when=asyncio.FIRST_COMPLETED
+                        )
+
                 except KeyboardInterrupt:
                     continue
                 except asyncio.CancelledError:
