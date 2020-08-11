@@ -182,6 +182,7 @@ class LaunchContext:
 
     def emit_event_sync(self, event: Event) -> None:
         """Emit an event synchronously."""
+        self.__logger.debug("emitting event synchronously: '{}'".format(event.name))
         with self._event_queue_lock:
             self._event_queue.put_nowait(event)
 
