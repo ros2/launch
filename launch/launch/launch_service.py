@@ -342,6 +342,11 @@ class LaunchService:
 
                     # Stop running if we're shutting down and there's no more work
                     if self.__shutting_down and is_idle:
+                        if (
+                            process_one_event_task is not None and
+                            not process_one_event_task.done()
+                        ):
+                            process_one_event_task.cancel()
                         break
 
                     # Collect futures to wait on
