@@ -363,9 +363,7 @@ class LaunchService:
                             timeout=1.0,
                             return_when=asyncio.FIRST_COMPLETED
                         )
-                        if process_one_event_task in done:
-                            break
-                        elif len(done) == 0:
+                        if (process_one_event_task in done) or len(done) == 0:
                             break
                         entity_futures = set(entity_futures).difference(done)
 
