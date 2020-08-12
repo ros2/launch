@@ -347,25 +347,24 @@ class LaunchService:
                     entity_futures = [pair[1] for pair in self._entity_future_pairs]
                     entity_futures.extend(self.__context._completion_futures)
 
-                    # If there is an event in the queue, create a task to process it
+                    # Create a task to process any events in the queue
                     # and add it to the list of awaitables
-                    process_one_event_task = None
-                    if not self.__context._event_queue.empty():
-                        process_one_event_task = this_loop.create_task(self._process_one_event())
-                        entity_futures.append(process_one_event_task)
+                    process_one_event_task = this_loop.create_task(self._process_one_event())
+                    entity_futures.append(process_one_event_task)
 
-                    if len(entity_futures) > 0:
-                        while True:
-                            done, pending = await asyncio.wait(
-                                entity_futures,
-                                timeout=1.0,
-                                return_when=asyncio.FIRST_COMPLETED
-                            )
-                            if process_one_event_task is not None:
-                                if process_one_event_task in done:
-                                    break
-                            elif done:
-                                break
+                    # Wait on events and futures until an event is processed or a timeout occurs
+                    while True:
+                        done, pending = await asyncio.wait(
+                            entity_futures,
+                            timeout=1.0,
+                            return_when=asyncio.FIRST_COMPLETED
+                        )
+                        if process_one_event_task in done:
+                            break
+                        elif len(done) == 0:
+                            process_one_event_task.cancel()
+                            break
+                        entity_futures = set(entity_futures).difference(done)
 
                 except KeyboardInterrupt:
                     continue
