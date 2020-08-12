@@ -349,16 +349,23 @@ class LaunchService:
 
                     # If there is an event in the queue, create a task to process it
                     # and add it to the list of awaitables
+                    process_one_event_task = None
                     if not self.__context._event_queue.empty():
                         process_one_event_task = this_loop.create_task(self._process_one_event())
                         entity_futures.append(process_one_event_task)
 
                     if len(entity_futures) > 0:
-                        done, pending = await asyncio.wait(
-                            entity_futures,
-                            timeout=1.0,
-                            return_when=asyncio.FIRST_COMPLETED
-                        )
+                        while True:
+                            done, pending = await asyncio.wait(
+                                entity_futures,
+                                timeout=1.0,
+                                return_when=asyncio.FIRST_COMPLETED
+                            )
+                            if process_one_event_task is not None:
+                                if process_one_event_task in done:
+                                    break
+                            elif done:
+                                break
 
                 except KeyboardInterrupt:
                     continue
