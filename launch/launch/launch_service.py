@@ -361,16 +361,11 @@ class LaunchService:
                     # Add the process event task to the list of awaitables
                     entity_futures.append(process_one_event_task)
 
-                    # Wait on events and futures until an event is processed or a timeout occurs
-                    while True:
-                        done, pending = await asyncio.wait(
-                            entity_futures,
-                            timeout=1.0,
-                            return_when=asyncio.FIRST_COMPLETED
-                        )
-                        if (process_one_event_task in done) or len(done) == 0:
-                            break
-                        entity_futures = set(entity_futures).difference(done)
+                    # Wait on events and futures
+                    await asyncio.wait(
+                        entity_futures,
+                        return_when=asyncio.FIRST_COMPLETED
+                    )
 
                 except KeyboardInterrupt:
                     continue
