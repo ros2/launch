@@ -329,6 +329,7 @@ class LaunchService:
                 return loop.default_exception_handler(context)
             this_loop.set_exception_handler(_on_exception)
 
+            process_one_event_task = None
             while True:
                 try:
                     # Check if we're idle, i.e. no on-going entities (actions) or events in
@@ -347,9 +348,12 @@ class LaunchService:
                     entity_futures = [pair[1] for pair in self._entity_future_pairs]
                     entity_futures.extend(self.__context._completion_futures)
 
-                    # Create a task to process any events in the queue
-                    # and add it to the list of awaitables
-                    process_one_event_task = this_loop.create_task(self._process_one_event())
+                    # If the current task is done, create a new task to process any events
+                    # in the queue
+                    if process_one_event_task is None or process_one_event_task.done():
+                        process_one_event_task = this_loop.create_task(self._process_one_event())
+
+                    # Add the process event task to the list of awaitables
                     entity_futures.append(process_one_event_task)
 
                     # Wait on events and futures until an event is processed or a timeout occurs
@@ -362,7 +366,6 @@ class LaunchService:
                         if process_one_event_task in done:
                             break
                         elif len(done) == 0:
-                            process_one_event_task.cancel()
                             break
                         entity_futures = set(entity_futures).difference(done)
 
