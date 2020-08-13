@@ -350,8 +350,11 @@ class LaunchService:
                         break
 
                     # Collect futures to wait on
-                    entity_futures = [pair[1] for pair in self._entity_future_pairs]
-                    entity_futures.extend(self.__context._completion_futures)
+                    # We only need to wait on futures if there are no events to wait on
+                    entity_futures = []
+                    if self.__context._event_queue.empty():
+                        entity_futures = [pair[1] for pair in self._entity_future_pairs]
+                        entity_futures.extend(self.__context._completion_futures)
 
                     # If the current task is done, create a new task to process any events
                     # in the queue
