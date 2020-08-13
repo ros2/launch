@@ -329,6 +329,7 @@ class LaunchService:
                 return loop.default_exception_handler(context)
             this_loop.set_exception_handler(_on_exception)
 
+            process_one_event_task = None
             while True:
                 try:
                     # Check if we're idle, i.e. no on-going entities (actions) or events in
@@ -338,28 +339,37 @@ class LaunchService:
                         ret = await self._shutdown(reason='idle', due_to_sigint=False)
                         assert ret is None, ret
                         continue
-                    process_one_event_task = this_loop.create_task(self._process_one_event())
-                    if self.__shutting_down:
-                        # If shutting down and idle then we're done.
-                        if is_idle:
+
+                    # Stop running if we're shutting down and there's no more work
+                    if self.__shutting_down and is_idle:
+                        if (
+                            process_one_event_task is not None and
+                            not process_one_event_task.done()
+                        ):
                             process_one_event_task.cancel()
-                            break
+                        break
+
+                    # Collect futures to wait on
+                    # We only need to wait on futures if there are no events to wait on
+                    entity_futures = []
+                    if self.__context._event_queue.empty():
                         entity_futures = [pair[1] for pair in self._entity_future_pairs]
-                        entity_futures.append(process_one_event_task)
                         entity_futures.extend(self.__context._completion_futures)
-                        done = set()  # type: Set[asyncio.Future]
-                        while not done:
-                            done, pending = await asyncio.wait(
-                                entity_futures,
-                                timeout=1.0,
-                                return_when=asyncio.FIRST_COMPLETED
-                            )
-                            if not done:
-                                self.__logger.debug(
-                                    'still waiting on futures: {}'.format(entity_futures)
-                                )
-                    else:
-                        await process_one_event_task
+
+                    # If the current task is done, create a new task to process any events
+                    # in the queue
+                    if process_one_event_task is None or process_one_event_task.done():
+                        process_one_event_task = this_loop.create_task(self._process_one_event())
+
+                    # Add the process event task to the list of awaitables
+                    entity_futures.append(process_one_event_task)
+
+                    # Wait on events and futures
+                    await asyncio.wait(
+                        entity_futures,
+                        return_when=asyncio.FIRST_COMPLETED
+                    )
+
                 except KeyboardInterrupt:
                     continue
                 except asyncio.CancelledError:
