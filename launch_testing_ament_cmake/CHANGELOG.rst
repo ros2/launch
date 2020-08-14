@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.1 (2020-08-14)
+-------------------
+* Use launch_test CMake target as output file basename (`#448 <https://github.com/ros2/launch/issues/448>`_)
+* Contributors: Michel Hidalgo
+
 0.11.0 (2020-08-04)
 -------------------
 * Find Python debug interpreter on Windows (`#437 <https://github.com/ros2/launch/issues/437>`_)

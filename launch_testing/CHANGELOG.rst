@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.1 (2020-08-14)
+-------------------
+
 0.11.0 (2020-08-04)
 -------------------
 * Disable cleanup of test cases once they have been run (`#406 <https://github.com/ros2/launch/issues/406>`_)

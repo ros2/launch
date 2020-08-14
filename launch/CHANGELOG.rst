@@ -2,6 +2,13 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.1 (2020-08-14)
+-------------------
+* Refactor launch service run_async loop to wait on futures and queued events (`#449 <https://github.com/ros2/launch/issues/449>`_)
+* Fix documentation typo (`#446 <https://github.com/ros2/launch/issues/446>`_)
+* Fix type_utils.extract_type() function. (`#445 <https://github.com/ros2/launch/issues/445>`_)
+* Contributors: Jacob Perron, Michel Hidalgo
+
 0.11.0 (2020-08-04)
 -------------------
 * Handle empty strings in type coercion. (`#443 <https://github.com/ros2/launch/issues/443>`_)
