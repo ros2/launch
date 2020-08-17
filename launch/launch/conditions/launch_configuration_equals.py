@@ -29,7 +29,7 @@ class LaunchConfigurationEquals(Condition):
     Condition on the value of a launch configuration.
 
     This condition takes an optional string expression that is compared with the value of
-    a launch configuraiton.
+    a launch configuration.
     If the value is equal to the launch configuration value, then this ``Condition``
     evaluates to ``True``.
     The expression may consist of :py:class:`launch.Substitution` instances.
