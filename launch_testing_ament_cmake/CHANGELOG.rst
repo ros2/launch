@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.12.0 (2020-08-18)
+-------------------
+
 0.11.1 (2020-08-14)
 -------------------
 * Use launch_test CMake target as output file basename (`#448 <https://github.com/ros2/launch/issues/448>`_)

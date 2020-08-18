@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.12.0 (2020-08-18)
+-------------------
+* Add new conditions for checking launch configuration values (`#453 <https://github.com/ros2/launch/issues/453>`_)
+* Contributors: Jacob Perron
+
 0.11.1 (2020-08-14)
 -------------------
 * Refactor launch service run_async loop to wait on futures and queued events (`#449 <https://github.com/ros2/launch/issues/449>`_)
