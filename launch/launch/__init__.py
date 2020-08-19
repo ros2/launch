@@ -16,6 +16,7 @@
 
 from . import actions
 from . import conditions
+from . import descriptions
 from . import events
 from . import frontend
 from . import logging
@@ -40,6 +41,7 @@ from .substitution import Substitution
 __all__ = [
     'actions',
     'conditions',
+    'descriptions',
     'events',
     'frontend',
     'logging',
