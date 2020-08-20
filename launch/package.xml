@@ -6,6 +6,9 @@
   <description>The ROS launch tool.</description>
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
   <license>Apache License 2.0</license>
+  <!-- Some of the files in this package were based on files from roslaunch from ROS 1, -->
+  <!-- which is why this is also licensed under BSD. -->
+  <license>BSD</license>
 
   <depend>osrf_pycommon</depend>
 
