@@ -2,6 +2,13 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.3 (2020-08-27)
+-------------------
+* Add new conditions for checking launch configuration values (`#453 <https://github.com/ros2/launch/issues/453>`_) (`#457 <https://github.com/ros2/launch/issues/457>`_)
+* Refactor launch service run_async loop to wait on futures and queued events (`#449 <https://github.com/ros2/launch/issues/449>`_) (`#455 <https://github.com/ros2/launch/issues/455>`_)
+* Add pytest.ini so local tests don't display warning (`#428 <https://github.com/ros2/launch/issues/428>`_)
+* Contributors: Chris Lalancette, Jacob Perron
+
 0.10.2 (2020-05-26)
 -------------------
 * Fix new flake8 errors. (`#420 <https://github.com/ros2/launch/issues/420>`_)

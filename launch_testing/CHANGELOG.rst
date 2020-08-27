@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.3 (2020-08-27)
+-------------------
+
 0.10.2 (2020-05-26)
 -------------------
 * Set junit_family to xunit2 in pytest.ini

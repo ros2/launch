@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.3 (2020-08-27)
+-------------------
+* Add pytest.ini so local tests don't display warning (`#428 <https://github.com/ros2/launch/issues/428>`_)
+* Contributors: Chris Lalancette
+
 0.10.2 (2020-05-26)
 -------------------
 
