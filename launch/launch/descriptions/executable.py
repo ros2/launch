@@ -7,23 +7,27 @@ from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Text
 from typing import Tuple
+from typing import Union
 
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
+from launch.substitutions.text_substitution import TextSubstitution
 from launch.launch_context import LaunchContext
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
-_global_process_counter_lock = threading.Lock()
-_global_process_counter = 0  # in Python3, this number is unbounded (no rollover)
+_executable_process_counter_lock = threading.Lock()
+_executable_process_counter = 0  # in Python3, this number is unbounded (no rollover)
+
 
 class Executable:
-    """Describes an executable (typically a single process) which may be run by the launch system."""
+    """Describes an executable (usually a single process) which may be run by the launch system."""
 
     def __init__(
         self, *,
-        cmd: Iterable[SomeSubstitutionsType],
+        cmd: Union[SomeSubstitutionsType, Iterable[SomeSubstitutionsType]],
         name: Optional[SomeSubstitutionsType] = None,
         cwd: Optional[SomeSubstitutionsType] = None,
         env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
@@ -44,7 +48,12 @@ class Executable:
             None, they are added to the current environment. If not, env is updated with
             additional_env.
         """
-        self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
+        if (isinstance(cmd, Text)):
+            self.__cmd = [[TextSubstitution(text=cmd)]]
+        elif (isinstance(cmd, Substitution)):
+            self.__cmd = [[cmd]]
+        else:
+            self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__name = name if name is None else normalize_to_list_of_substitutions(name)
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
         self.__env = None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
@@ -88,9 +97,24 @@ class Executable:
         return self.__additional_env
 
     @property
-    def process_details(self):
-        """Getter for the substituted executable details, e.g. cmd, cwd, env, or None if substitutions have not been performed."""
-        return self.__process_event_args
+    def final_name(self):
+        """Getter for final_name."""
+        return self.__final_name
+
+    @property
+    def final_cmd(self):
+        """Getter for final_cmd."""
+        return self.__final_cmd
+
+    @property
+    def final_cwd(self):
+        """Getter for cwd."""
+        return self.__final_cwd
+
+    @property
+    def final_env(self):
+        """Getter for final_env."""
+        return self.__final_env
 
     def apply_context(self, context: LaunchContext):
         """
@@ -100,22 +124,22 @@ class Executable:
         - performs substitutions on various properties
         """
         self.__expand_substitutions(context)
-        process_event_args = self.__process_event_args
-        if process_event_args is None:
-            raise RuntimeError('process_event_args unexpectedly None')
 
     def __expand_substitutions(self, context):
         # expand substitutions in arguments to async_execute_process()
-        cmd = [perform_substitutions(context, x) for x in self.__cmd]
+        cmd = ' '.join([perform_substitutions(context, x) for x in self.__cmd])
+        cmd = shlex.split(cmd)
+        self.__final_cmd = cmd
         name = os.path.basename(cmd[0]) if self.__name is None \
             else perform_substitutions(context, self.__name)
-        with _global_process_counter_lock:
-            global _global_process_counter
-            _global_process_counter += 1
-            self.__name = '{}-{}'.format(name, _global_process_counter)
+        with _executable_process_counter_lock:
+            global _executable_process_counter
+            _executable_process_counter += 1
+            self.__final_name = f":{name}-{_executable_process_counter}"
         cwd = None
         if self.__cwd is not None:
             cwd = ''.join([context.perform_substitution(x) for x in self.__cwd])
+        self.__final_cwd = cwd
         env = None
         if self.__env is not None:
             env = {}
@@ -128,14 +152,4 @@ class Executable:
             for key, value in self.__additional_env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])
-        # store packed kwargs for all ProcessEvent based events
-        self.__process_event_args = {
-            'description': self,
-            'name': self.__name,
-            'cmd': cmd,
-            'cwd': cwd,
-            'env': env,
-            # pid is added to the dictionary in the connection_made() method of the protocol.
-        }
-
-
+        self.__final_env = env
