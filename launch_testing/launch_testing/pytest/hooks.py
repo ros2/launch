@@ -34,10 +34,24 @@ class LaunchTestFailure(Exception):
 
 class LaunchTestItem(pytest.Item):
 
-    def __init__(self, name, parent, test_runs, runner_cls=LaunchTestRunner):
+    def __init__(self, parent, *, name):
         super().__init__(name, parent)
-        self.test_runs = test_runs
-        self.runner_cls = runner_cls
+        self.test_runs = None
+        self.runner_cls = None
+
+    @classmethod
+    def from_parent(
+        cls, parent, *, name, test_runs, runner_cls=LaunchTestRunner
+    ):
+        """Override from_parent for compatibility."""
+        # pytest.Item.from_parent didn't exist before pytest 5.4
+        if hasattr(super(), 'from_parent'):
+            instance = getattr(super(), 'from_parent')(parent, name=name)
+        else:
+            instance = cls(parent, name=name)
+        instance.test_runs = test_runs
+        instance.runner_cls = runner_cls
+        return instance
 
     def runtest(self):
         launch_args = sum((
@@ -80,8 +94,21 @@ class LaunchTestItem(pytest.Item):
 
 class LaunchTestModule(pytest.File):
 
+    def __init__(self, parent, *, fspath):
+        super().__init__(parent=parent, fspath=fspath)
+
+    @classmethod
+    def from_parent(cls, parent, *, fspath):
+        """Override from_parent for compatibility."""
+        # pytest.File.from_parent didn't exist before pytest 5.4
+        if hasattr(super(), 'from_parent'):
+            instance = getattr(super(), 'from_parent')(parent=parent, fspath=fspath)
+        else:
+            instance = cls(parent=parent, fspath=fspath)
+        return instance
+
     def makeitem(self, *args, **kwargs):
-        return LaunchTestItem(*args, **kwargs)
+        return LaunchTestItem.from_parent(*args, **kwargs)
 
     def collect(self):
         module = self.fspath.pyimport()
@@ -110,15 +137,25 @@ def pytest_pycollect_makemodule(path, parent):
         if module is not None:
             return module
     if path.basename == '__init__.py':
-        return pytest.Package(path, parent)
-    return pytest.Module(path, parent)
+        try:
+            # since https://docs.pytest.org/en/latest/changelog.html#deprecations
+            # todo: remove fallback once all platforms use pytest >=5.4
+            return pytest.Package.from_parent(parent, fspath=path)
+        except AttributeError:
+            return pytest.Package(path, parent)
+    try:
+        # since https://docs.pytest.org/en/latest/changelog.html#deprecations
+        # todo: remove fallback once all platforms use pytest >=5.4
+        return pytest.Module.from_parent(parent, fspath=path)
+    except AttributeError:
+        return pytest.Module(path, parent)
 
 
 @pytest.hookimpl(trylast=True)
 def pytest_launch_collect_makemodule(path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
     if marks and any(m.name == 'launch_test' for m in marks):
-        return LaunchTestModule(path, parent)
+        return LaunchTestModule.from_parent(parent, fspath=path)
 
 
 def pytest_addhooks(pluginmanager):
