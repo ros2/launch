@@ -17,6 +17,7 @@
 from .declare_launch_argument import DeclareLaunchArgument
 from .append_environment_variable import AppendEnvironmentVariable  # noqa: I100
 from .emit_event import EmitEvent
+from .execute_local import ExecuteLocal
 from .execute_process import ExecuteProcess
 from .group_action import GroupAction
 from .include_launch_description import IncludeLaunchDescription
@@ -39,6 +40,7 @@ __all__ = [
     'AppendEnvironmentVariable',
     'DeclareLaunchArgument',
     'EmitEvent',
+    'ExecuteLocal',
     'ExecuteProcess',
     'GroupAction',
     'IncludeLaunchDescription',
