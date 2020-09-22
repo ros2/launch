@@ -37,6 +37,28 @@ __all__ = [
 ]
 
 
+def _get_logging_directory():
+    """
+    Get logging directory path.
+
+    Uses various environment variables to construct a logging directory path.
+
+    Use $ROS2_LOG_DIR if ROS2_LOG_DIR is set and not empty.
+    Otherwise, use $ROS2_HOME/log, using ~/.ros for ROS2_HOME if not set or if empty.
+
+    It also expands '~' to the current user's home directory.
+
+    :return: the path to the logging directory
+    """
+    log_dir = os.environ.get('ROS2_LOG_DIR')
+    if not log_dir:
+        log_dir = os.environ.get('ROS2_HOME')
+        if not log_dir:
+            log_dir = os.path.join('~', '.ros')
+        log_dir = os.path.join(log_dir, 'log')
+    return os.path.expanduser(log_dir)
+
+
 def _make_unique_log_dir(*, base_path):
     """
     Make a unique directory for logging.
@@ -93,7 +115,7 @@ class LaunchConfig:
         """Get the current log directory, generating it if necessary."""
         if self._log_dir is None:
             self._log_dir = _make_unique_log_dir(
-                base_path=os.path.join(os.path.expanduser('~'), '.ros/log')
+                base_path=_get_logging_directory()
             )
 
         return self._log_dir
