@@ -34,6 +34,9 @@ from ..action import Action
 from ..event_handler import EventHandler
 from ..events import Shutdown
 from ..events import TimerEvent
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
@@ -42,10 +45,10 @@ from ..some_substitutions_type import SomeSubstitutionsType_types_tuple
 from ..utilities import create_future
 from ..utilities import ensure_argument_type
 from ..utilities import is_a_subclass
-from ..utilities import normalize_to_list_of_substitutions
-from ..utilities import perform_substitutions
+from ..utilities import type_utils
 
 
+@expose_action('timer')
 class TimerAction(Action):
     """
     Action that defers other entities until a period of time has passed, unless canceled.
@@ -58,7 +61,7 @@ class TimerAction(Action):
         *,
         period: Union[float, SomeSubstitutionsType],
         actions: Iterable[LaunchDescriptionEntity],
-        cancel_on_shutdown: bool = True,
+        cancel_on_shutdown: [bool, SomeSubstitutionsType] = True,
         **kwargs
     ) -> None:
         """Create a TimerAction."""
@@ -66,26 +69,40 @@ class TimerAction(Action):
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
         ensure_argument_type(period, period_types, 'period', 'TimerAction')
         ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'TimerAction')
-        if isinstance(period, float):
-            self.__period = normalize_to_list_of_substitutions([str(period)])
-        else:
-            self.__period = normalize_to_list_of_substitutions(period)
+        self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals = {}  # type: Dict[Text, Any]
         self.__completed_future = None  # type: Optional[asyncio.Future]
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
-        self.__cancel_on_shutdown = cancel_on_shutdown
+        self.__cancel_on_shutdown = type_utils.normalize_typed_substitution(
+            cancel_on_shutdown, bool)
         self.__logger = launch.logging.get_logger(__name__)
 
     async def __wait_to_fire_event(self, context):
         done, pending = await asyncio.wait(
             [self.__canceled_future],
-            timeout=float(perform_substitutions(context, self.__period)),
+            timeout=type_utils.perform_typed_substitution(context, self.__period, float),
         )
         if not self.__canceled_future.done():
             await context.emit_event(TimerEvent(timer_action=self))
         self.__completed_future.set_result(None)
+
+    @classmethod
+    def parse(
+        cls,
+        entity: Entity,
+        parser: Parser,
+    ):
+        """Return the `Timer` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+        kwargs['period'] = entity.get_attr('period', data_type=float, can_be_str=True)
+        kwargs['actions'] = [parser.parse_action(child) for child in entity.children]
+        cancel_on_shutdown = entity.get_attr(
+            'cancel_on_shutdown', optional=True, data_type=bool, can_be_str=True)
+        if cancel_on_shutdown is not None:
+            kwargs['cancel_on_shutdown'] = parser.parse_if_substitutions(cancel_on_shutdown)
+        return cls, kwargs
 
     def describe(self) -> Text:
         """Return a description of this TimerAction."""
@@ -156,7 +173,7 @@ class TimerAction(Action):
 
         # By default, the 'shutdown' event will cause timers to cancel so they don't hold up the
         # launch process
-        if self.__cancel_on_shutdown:
+        if type_utils.perform_typed_substitution(context, self.__cancel_on_shutdown, bool):
             context.register_event_handler(
                 EventHandler(
                     matcher=lambda event: is_a_subclass(event, Shutdown),

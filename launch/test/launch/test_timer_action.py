@@ -34,7 +34,7 @@ def test_multiple_launch_with_timers():
             ),
 
             launch.actions.TimerAction(
-                period='1',
+                period=1.,
                 actions=[
                     launch.actions.Shutdown(reason='Timer expired')
                 ]
@@ -72,7 +72,7 @@ def test_timer_action_sanity_check():
         ),
 
         launch.actions.TimerAction(
-            period='1',
+            period=1.,
             actions=[
                 launch.actions.Shutdown(reason='One second timeout')
             ]
@@ -97,14 +97,14 @@ def test_shutdown_preempts_timers():
         ),
 
         launch.actions.TimerAction(
-            period='1',
+            period=1.,
             actions=[
                 launch.actions.Shutdown(reason='fast shutdown')
             ]
         ),
 
         launch.actions.TimerAction(
-            period='2',
+            period=2.,
             actions=[
                 launch.actions.Shutdown(reason='slow shutdown')
             ]
@@ -130,14 +130,14 @@ def test_timer_can_block_preemption():
         ),
 
         launch.actions.TimerAction(
-            period='1',
+            period=1.,
             actions=[
                 launch.actions.Shutdown(reason='fast shutdown')
             ]
         ),
 
         launch.actions.TimerAction(
-            period='2',
+            period=2.,
             actions=[
                 launch.actions.Shutdown(reason='slow shutdown')
             ],
