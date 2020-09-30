@@ -43,16 +43,16 @@ def _get_logging_directory():
 
     Uses various environment variables to construct a logging directory path.
 
-    Use $ROS2_LOG_DIR if ROS2_LOG_DIR is set and not empty.
-    Otherwise, use $ROS2_HOME/log, using ~/.ros for ROS2_HOME if not set or if empty.
+    Use $ROS_LOG_DIR if ROS_LOG_DIR is set and not empty.
+    Otherwise, use $ROS_HOME/log, using ~/.ros for ROS_HOME if not set or if empty.
 
     It also expands '~' to the current user's home directory.
 
     :return: the path to the logging directory
     """
-    log_dir = os.environ.get('ROS2_LOG_DIR')
+    log_dir = os.environ.get('ROS_LOG_DIR')
     if not log_dir:
-        log_dir = os.environ.get('ROS2_HOME')
+        log_dir = os.environ.get('ROS_HOME')
         if not log_dir:
             log_dir = os.path.join('~', '.ros')
         log_dir = os.path.join(log_dir, 'log')

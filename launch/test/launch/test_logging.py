@@ -260,46 +260,46 @@ def fake_make_unique_log_dir(*, base_path):
 @mock.patch('launch.logging._make_unique_log_dir', mock.MagicMock(wraps=fake_make_unique_log_dir))
 def test_get_logging_directory():
     launch.logging.launch_config.reset()
-    os.environ.pop('ROS2_LOG_DIR', None)
-    os.environ.pop('ROS2_HOME', None)
+    os.environ.pop('ROS_LOG_DIR', None)
+    os.environ.pop('ROS_HOME', None)
     home = os.environ.get('HOME', None)
     assert home
 
-    # Default case without ROS2_LOG_DIR or ROS2_HOME being set (but with HOME)
+    # Default case without ROS_LOG_DIR or ROS_HOME being set (but with HOME)
     default_dir = os.path.join(home, '.ros/log')
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == default_dir
 
-    # Use $ROS2_LOG_DIR if it is set
-    my_log_dir = '/my/ros2_log_dir'
-    os.environ['ROS2_LOG_DIR'] = my_log_dir
+    # Use $ROS_LOG_DIR if it is set
+    my_log_dir = '/my/ros_log_dir'
+    os.environ['ROS_LOG_DIR'] = my_log_dir
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == my_log_dir
     # Empty is considered unset
-    os.environ['ROS2_LOG_DIR'] = ''
+    os.environ['ROS_LOG_DIR'] = ''
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == default_dir
     # Make sure '~' is expanded to the home directory
-    os.environ['ROS2_LOG_DIR'] = '~/logdir'
+    os.environ['ROS_LOG_DIR'] = '~/logdir'
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == os.path.join(home, 'logdir')
 
-    os.environ.pop('ROS2_LOG_DIR', None)
+    os.environ.pop('ROS_LOG_DIR', None)
 
-    # Without ROS2_LOG_DIR, use $ROS2_HOME/log
+    # Without ROS_LOG_DIR, use $ROS_HOME/log
     fake_ros_home = os.path.join(home, '.fakeroshome')
     fake_ros_home_log_dir = os.path.join(fake_ros_home, 'log')
-    os.environ['ROS2_HOME'] = fake_ros_home
+    os.environ['ROS_HOME'] = fake_ros_home
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == fake_ros_home_log_dir
     # Empty is considered unset
-    os.environ['ROS2_HOME'] = ''
+    os.environ['ROS_HOME'] = ''
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == default_dir
     # Make sure '~' is expanded to the home directory
-    os.environ['ROS2_HOME'] = '~/.fakeroshome'
+    os.environ['ROS_HOME'] = '~/.fakeroshome'
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == fake_ros_home_log_dir
 
-    os.environ.pop('ROS2_HOME', None)
+    os.environ.pop('ROS_HOME', None)
     launch.logging.launch_config.reset()
