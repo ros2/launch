@@ -267,7 +267,7 @@ def test_get_logging_directory():
     assert str(home)
 
     # Default case without ROS_LOG_DIR or ROS_HOME being set (but with HOME)
-    default_dir = str(home.joinpath('.ros/log'))
+    default_dir = str(home / '.ros/log')
     # This ensures that the launch config will check the environment again
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == default_dir
@@ -289,13 +289,13 @@ def test_get_logging_directory():
     # Make sure '~' is expanded to the home directory
     os.environ['ROS_LOG_DIR'] = '~/logdir'
     launch.logging.launch_config.log_dir = None
-    assert launch.logging.launch_config.log_dir == str(home.joinpath('logdir'))
+    assert launch.logging.launch_config.log_dir == str(home / 'logdir')
 
     os.environ.pop('ROS_LOG_DIR', None)
 
     # Without ROS_LOG_DIR, use $ROS_HOME/log
-    fake_ros_home = home.joinpath('.fakeroshome')
-    fake_ros_home_log_dir = str(fake_ros_home.joinpath('log'))
+    fake_ros_home = home / '.fakeroshome'
+    fake_ros_home_log_dir = str(fake_ros_home / 'log')
     os.environ['ROS_HOME'] = str(fake_ros_home)
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == fake_ros_home_log_dir
