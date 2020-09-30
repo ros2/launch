@@ -18,10 +18,10 @@ import logging
 import os
 import pathlib
 import re
+from unittest import mock
 
 import launch.logging
 
-import mock
 import pytest
 
 
