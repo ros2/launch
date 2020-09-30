@@ -267,6 +267,7 @@ def test_get_logging_directory():
 
     # Default case without ROS_LOG_DIR or ROS_HOME being set (but with HOME)
     default_dir = os.path.join(home, '.ros/log')
+    # This ensures that the launch config will check the environment again
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == default_dir
 
