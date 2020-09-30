@@ -25,6 +25,7 @@ from typing import Optional
 from typing import Text
 from typing import Tuple
 from typing import Union
+import warnings
 
 import launch.logging
 
@@ -69,6 +70,12 @@ class TimerAction(Action):
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
         ensure_argument_type(period, period_types, 'period', 'TimerAction')
         ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'TimerAction')
+        if isinstance(period, str):
+            period = float(period)
+            warnings.warn(
+                "The parameter 'period' must be a float or substitution,"
+                'passing a string literal was deprecated',
+                stacklevel=2)
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals = {}  # type: Dict[Text, Any]
