@@ -86,6 +86,15 @@ def test_text_with_embedded_substitutions():
     assert subst[2].perform(None) == '_asdasd_'
     assert subst[3].perform(None) == 'bsd'
 
+
+def test_dollar_symbol_not_followed_by_bracket():
+    subst = parse_substitution('$0 $1')
+    assert len(subst) == 1
+    assert subst[0].perform(None) == '$0 $1'
+    subst = parse_substitution("$(test '$0 $1')")
+    assert len(subst) == 1
+    assert subst[0].perform(None) == '$0 $1'
+
 # TODO(ivanpauno): Don't deppend on substitution parsing methods for testing the interpolator.
 # Write some dummy substitutions and parsing methods instead.
 
