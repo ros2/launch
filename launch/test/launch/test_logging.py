@@ -16,6 +16,7 @@
 
 import logging
 import os
+import pathlib
 import re
 
 import launch.logging
@@ -262,7 +263,7 @@ def test_get_logging_directory():
     launch.logging.launch_config.reset()
     os.environ.pop('ROS_LOG_DIR', None)
     os.environ.pop('ROS_HOME', None)
-    home = os.environ.get('HOME', None)
+    home = str(pathlib.Path.home())
     assert home
 
     # Default case without ROS_LOG_DIR or ROS_HOME being set (but with HOME)
