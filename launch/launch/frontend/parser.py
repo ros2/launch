@@ -35,11 +35,6 @@ from ..invalid_launch_file_error import InvalidLaunchFileError
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import is_a
 
-interpolation_fuctions = {
-    entry_point.name: entry_point.load()
-    for entry_point in iter_entry_points('launch.frontend.interpolate_substitution_method')
-}
-
 if False:
     from ..launch_description import LaunchDescription  # noqa: F401
 
