@@ -4,8 +4,11 @@
   <name>launch_xml</name>
   <version>0.12.0</version>
   <description>XML frontend for the launch package.</description>
-  <maintainer email="ivanpauno@ekumenlabs.com">Ivan Paunovic</maintainer>
+  <maintainer email="william@osrfoundation.org">William Woodall</maintainer>
+  <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
   <license>Apache License 2.0</license>
+
+  <author email="ivanpauno@ekumenlabs.com">Ivan Paunovic</author>
 
   <depend>launch</depend>
 
