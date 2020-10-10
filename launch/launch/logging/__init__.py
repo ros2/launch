@@ -46,7 +46,8 @@ def _get_logging_directory():
     Use $ROS_LOG_DIR if ROS_LOG_DIR is set and not empty.
     Otherwise, use $ROS_HOME/log, using ~/.ros for ROS_HOME if not set or if empty.
 
-    It also expands '~' to the current user's home directory.
+    It also expands '~' to the current user's home directory,
+    and normalizes the path, converting the path separator if necessary.
 
     :return: the path to the logging directory
     """
@@ -56,7 +57,7 @@ def _get_logging_directory():
         if not log_dir:
             log_dir = os.path.join('~', '.ros')
         log_dir = os.path.join(log_dir, 'log')
-    return os.path.expanduser(log_dir)
+    return os.path.normpath(os.path.expanduser(log_dir))
 
 
 def _make_unique_log_dir(*, base_path):

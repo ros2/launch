@@ -273,8 +273,13 @@ def test_get_logging_directory():
     assert launch.logging.launch_config.log_dir == default_dir
 
     # Use $ROS_LOG_DIR if it is set
-    my_log_dir = '/my/ros_log_dir'
+    my_log_dir_raw = '/my/ros_log_dir'
+    my_log_dir = str(pathlib.Path(my_log_dir_raw))
     os.environ['ROS_LOG_DIR'] = my_log_dir
+    launch.logging.launch_config.log_dir = None
+    assert launch.logging.launch_config.log_dir == my_log_dir
+    # Make sure it converts path separators when necessary
+    os.environ['ROS_LOG_DIR'] = my_log_dir_raw
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == my_log_dir
     # Setting ROS_HOME won't change anything since ROS_LOG_DIR is used first
