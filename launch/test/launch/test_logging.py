@@ -304,6 +304,12 @@ def test_get_logging_directory():
     os.environ['ROS_HOME'] = str(fake_ros_home)
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == fake_ros_home_log_dir
+    # Make sure it converts path separators when necessary
+    my_ros_home_raw = '/my/ros/home'
+    my_ros_home_log_dir = str(pathlib.Path(my_ros_home_raw) / 'log')
+    os.environ['ROS_HOME'] = my_ros_home_raw
+    launch.logging.launch_config.log_dir = None
+    assert launch.logging.launch_config.log_dir == my_ros_home_log_dir
     # Empty is considered unset
     os.environ['ROS_HOME'] = ''
     launch.logging.launch_config.log_dir = None
