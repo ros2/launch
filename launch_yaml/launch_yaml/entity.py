@@ -14,6 +14,7 @@
 
 """Module for YAML Entity class."""
 
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
@@ -54,23 +55,62 @@ class Entity(BaseEntity):
     @property
     def children(self) -> List['Entity']:
         """Get the Entity's children."""
-        if not type(self.__element) in (dict, list):
-            raise TypeError('Expected a dict or list, got {}'.format(type(self.element)))
+        if not isinstance(self.__element, (dict, list)):
+            raise TypeError(
+                f'Expected a dict or list, got {type(self.element)}:'
+                f'\n---\n{self.__element}\n---'
+            )
         if isinstance(self.__element, dict):
             if 'children' not in self.__element:
-                raise KeyError('Missing `children` key in Entity {}'.format(self.__type_name))
+                raise ValueError(
+                    f'Expected entity {self.__type_name} to have children entities.'
+                    f'That can be a list of subentities or a dictionary with a `children` '
+                    'list element')
             children = self.__element['children']
         else:
             children = self.__element
-        if not isinstance(children, list):
-            raise TypeError('children should be a list')
         entities = []
         for child in children:
             if len(child) != 1:
-                raise RuntimeError('Expected one root per child')
+                raise RuntimeError(
+                    'Subentities must be a dictionary with only one key'
+                    ', which is the entity type')
             type_name = list(child.keys())[0]
             entities.append(Entity(child[type_name], type_name))
         return entities
+
+    def assert_no_children(self):
+        if not isinstance(self.__element, dict):
+            raise TypeError(
+                f'`{self.__type_name}` should be a dict, got type `{type(self.element)}`:'
+                f'\n---\n{self.__element}\n---'
+            )
+        if 'children' in self.__element:
+            raise ValueError(
+                f'Entity `{self.__type_name}` should not have any nested entity, '
+                'but the following were found: '
+                f"{tuple(key for key in self.__element['children'])}")
+
+    def assert_subentity_types(self, types: Iterable[str]):
+        subentities = [
+            key for key, value in self.__element.items() if isinstance(value, list)
+        ]
+        for entity_type in subentities:
+            if entity_type not in types:
+                raise ValueError(
+                    f'Found subentity of type `{entity_type}` in a `{self.__type_name}`, '
+                    f'which expects only the following subentities: {types}'
+                )
+
+    def assert_attribute_names(self, names: Iterable[str]):
+        attributes = [
+            key for key, value in self.__element.items() if not isinstance(value, list)
+        ]
+        for attr in attributes:
+            if attr not in names:
+                raise ValueError(
+                    f'Found attribute named `{attr}` in `{self.__type_name}`, '
+                    f'expected one of {names}')
 
     def get_attr(
         self,

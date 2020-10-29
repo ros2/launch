@@ -324,6 +324,12 @@ class ExecuteProcess(Action):
         :param: ignore A list of arguments that should be ignored while parsing.
             Intended for code reuse in derived classes (e.g.: launch_ros.actions.Node).
         """
+        if ignore is None:
+            entity.assert_attribute_names((
+                'cmd', 'cwd', 'name', 'launch-prefix', 'output', 'respawn', 'respawn_delay', 'shell',
+                'additional_env', 'if', 'unless'
+            ))
+            entity.assert_subentity_types(('env', ))
         _, kwargs = super().parse(entity, parser)
 
         if ignore is None:

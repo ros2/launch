@@ -14,6 +14,7 @@
 
 """Module for Entity class."""
 
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
@@ -54,6 +55,28 @@ class Entity(BaseEntity):
     def children(self) -> List['Entity']:
         """Get the Entity's children."""
         return [Entity(item) for item in self.__xml_element]
+
+    def assert_no_children(self):
+        if len(self.__xml_element):
+            raise ValueError(
+                f'Entity `{self.type_name}`` should not have any nested entity,'
+                f'but the following were found: {tuple(item.tag for item in self.__xml_element)}'
+            )
+
+    def assert_subentity_types(self, types: Iterable[str]):
+        for item in self.__xml_element:
+            if item.tag not in types:
+                raise ValueError(
+                    f'Found subentity of type `{item.tag}` in a `{self.__xml_element.tag}`, '
+                    f'which expects only the following subentities: {types}'
+                )
+
+    def assert_attribute_names(self, names: Iterable[str]):
+        for attr in self.__xml_element.attrib:
+            if attr not in names:
+                raise ValueError(
+                    f'Found attribute named `{attr}` in `{self.__xml_element.tag}``, '
+                    f'expected one of {names}')
 
     def get_attr(
         self,

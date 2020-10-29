@@ -106,6 +106,8 @@ class DeclareLaunchArgument(Action):
         parser: 'Parser'
     ):
         """Parse `arg` tag."""
+        entity.assert_attribute_names(('name', 'default', 'description', 'if', 'unless'))
+        entity.assert_no_children()
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.escape_characters(entity.get_attr('name'))
         default_value = entity.get_attr('default', optional=True)
