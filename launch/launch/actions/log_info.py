@@ -19,12 +19,16 @@ from typing import List
 import launch.logging
 
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser  # noqa: F401
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 
 
+@expose_action('log')
 class LogInfo(Action):
     """Action that logs a message when executed."""
 
@@ -34,6 +38,17 @@ class LogInfo(Action):
 
         self.__msg = normalize_to_list_of_substitutions(msg)
         self.__logger = launch.logging.get_logger('launch.user')
+
+    @classmethod
+    def parse(
+        cls,
+        entity: Entity,
+        parser: 'Parser'
+    ):
+        """Parse `log` tag."""
+        _, kwargs = super().parse(entity, parser)
+        kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
+        return cls, kwargs
 
     @property
     def msg(self) -> List[Substitution]:
