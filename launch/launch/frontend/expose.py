@@ -99,7 +99,7 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
                 )
             )
         if exposed_type == 'action':
-            # For actions, validate that the user didn't provide unkown attributes or children
+            # For actions, validate that the user didn't provide unknown attributes or children
             def wrapper(entity, parser):
                 ret = found_parse_method(entity, parser)
                 entity.assert_entity_complely_parsed()
