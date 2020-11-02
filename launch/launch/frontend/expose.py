@@ -70,7 +70,6 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
         method in the dictionary.
     :param parse_methods_map: a dict where the parsing method will be stored.
     :param exposed_type: A string specifing the parsing function type.
-        Only used for having clearer error log messages.
     """
     # TODO(ivanpauno): Check signature of the registered method/parsing function.
     # TODO(ivanpauno): Infer a parsing function from the constructor annotations.
