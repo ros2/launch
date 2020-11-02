@@ -82,7 +82,7 @@ class Entity(BaseEntity):
             entities.append(Entity(child[type_name], type_name))
         return entities
 
-    def assert_entity_complely_parsed(self):
+    def assert_entity_completely_parsed(self):
         if isinstance(self.__element, list):
             if not self.__children_called:
                 raise ValueError(

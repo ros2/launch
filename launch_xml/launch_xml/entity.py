@@ -58,7 +58,7 @@ class Entity(BaseEntity):
         self.__read_children = {item.tag for item in self.__xml_element}
         return [Entity(item) for item in self.__xml_element]
 
-    def assert_entity_complely_parsed(self):
+    def assert_entity_completely_parsed(self):
         unparsed_nested_tags = {item.tag for item in self.__xml_element} - self.__read_children
         if unparsed_nested_tags:
             raise ValueError(
