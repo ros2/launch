@@ -62,14 +62,14 @@ class Entity(BaseEntity):
         unparsed_nested_tags = {item.tag for item in self.__xml_element} - self.__read_children
         if unparsed_nested_tags:
             raise ValueError(
-                f'Found the following nested tags of `{self.__xml_element.tag}` that were not '
-                f'parsed: {unparsed_nested_tags}'
+                f'Unexpected nested tag(s) found in `{self.__xml_element.tag}`: '
+                f'{unparsed_nested_tags}'
             )
         unparsed_attributes = set(self.__xml_element.attrib.keys()) - self.__read_attributes
         if unparsed_attributes:
             raise ValueError(
-                f'Found the following attributes of `{self.__xml_element.tag}` that were not '
-                f'parsed: {unparsed_attributes}'
+                f'Unexpected attribute(s) found in `{self.__xml_element.tag}`: '
+                f'{unparsed_attributes}'
             )
 
     def get_attr(

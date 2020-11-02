@@ -65,7 +65,7 @@ class Entity(BaseEntity):
         if isinstance(self.__element, dict):
             if 'children' not in self.__element:
                 raise ValueError(
-                    f'Expected entity {self.__type_name} to have children entities.'
+                    f'Expected entity `{self.__type_name}` to have children entities.'
                     f'That can be a list of subentities or a dictionary with a `children` '
                     'list element')
             self.__read_keys.add('children')
@@ -86,14 +86,13 @@ class Entity(BaseEntity):
         if isinstance(self.__element, list):
             if not self.__children_called:
                 raise ValueError(
-                    f'Entity `{self.__type_name}` has nested entities that were not '
-                    f'parsed: {self.__element}')
+                    f'Unexpected nested entity(ies) found in `{self.__type_name}`: '
+                    f'{self.__element}')
             return
         unparsed_keys = set(self.__element.keys()) - self.__read_keys
         if unparsed_keys:
             raise ValueError(
-                f'Found the following keys of `{self.__type_name}` that were not '
-                f'parsed: {unparsed_keys}'
+                f'Unexpected key(s) found in `{self.__type_name}`: {unparsed_keys}'
             )
 
     def get_attr(
