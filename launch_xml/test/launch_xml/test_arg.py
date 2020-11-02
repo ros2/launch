@@ -50,4 +50,4 @@ def test_arg_wrong_attribute():
     with pytest.raises(ValueError) as excinfo:
         parser.parse_description(root_entity)
     assert '`arg`' in str(excinfo.value)
-    assert '`whats_this`' in str(excinfo.value)
+    assert 'whats_this' in str(excinfo.value)

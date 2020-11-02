@@ -14,7 +14,6 @@
 
 """Module for Entity class."""
 
-from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
@@ -84,28 +83,11 @@ class Entity:
         """
         raise NotImplementedError()
 
-    def assert_no_children(self):
+    def assert_entity_complely_parsed(self):
         """
-        Assert that this entity doesn't have any nested entity.
+        Assert that all attributes and children of the entity were parsed.
 
-        Either this method or `assert_subentity_types` should be used, but not both.
-        :raises `ValueError`: if a nested entity is found.
-        """
-        raise NotImplementedError()
-
-    def assert_subentity_types(self, types: Iterable[str]):
-        """
-        Assert that all subentities are of one of the types specified in `types`.
-
-        Either this method or `assert_subentity_types` should be used, but not both.
-        :raises `ValueError`: if a nested entity of a different type is found.
-        """
-        raise NotImplementedError()
-
-    def assert_attribute_names(self, names: Iterable[str]):
-        """
-        Assert that there are no other attributes than the provided `names`.
-
-        :raises `ValueError`: if an attribute named differently is found.
+        This function is automatically called after the `parse(entity, parser)`
+        function completed.
         """
         raise NotImplementedError()

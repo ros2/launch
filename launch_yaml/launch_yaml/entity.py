@@ -14,7 +14,6 @@
 
 """Module for YAML Entity class."""
 
-from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
@@ -41,6 +40,8 @@ class Entity(BaseEntity):
         self.__type_name = type_name
         self.__element = element
         self.__parent = parent
+        self.__read_keys = set()
+        self.__children_called = False
 
     @property
     def type_name(self) -> Text:
@@ -55,6 +56,7 @@ class Entity(BaseEntity):
     @property
     def children(self) -> List['Entity']:
         """Get the Entity's children."""
+        self.__children_called = True
         if not isinstance(self.__element, (dict, list)):
             raise TypeError(
                 f'Expected a dict or list, got {type(self.element)}:'
@@ -66,6 +68,7 @@ class Entity(BaseEntity):
                     f'Expected entity {self.__type_name} to have children entities.'
                     f'That can be a list of subentities or a dictionary with a `children` '
                     'list element')
+            self.__read_keys.add('children')
             children = self.__element['children']
         else:
             children = self.__element
@@ -79,38 +82,19 @@ class Entity(BaseEntity):
             entities.append(Entity(child[type_name], type_name))
         return entities
 
-    def assert_no_children(self):
-        if not isinstance(self.__element, dict):
-            raise TypeError(
-                f'`{self.__type_name}` should be a dict, got type `{type(self.element)}`:'
-                f'\n---\n{self.__element}\n---'
-            )
-        if 'children' in self.__element:
+    def assert_entity_complely_parsed(self):
+        if isinstance(self.__element, list):
+            if not self.__children_called:
+                raise ValueError(
+                    f'Entity `{self.__type_name}` has nested entities that were not '
+                    f'parsed: {self.__element}')
+            return
+        unparsed_keys = set(self.__element.keys()) - self.__read_keys
+        if unparsed_keys:
             raise ValueError(
-                f'Entity `{self.__type_name}` should not have any nested entity, '
-                'but the following were found: '
-                f"{tuple(key for key in self.__element['children'])}")
-
-    def assert_subentity_types(self, types: Iterable[str]):
-        subentities = [
-            key for key, value in self.__element.items() if isinstance(value, list)
-        ]
-        for entity_type in subentities:
-            if entity_type not in types:
-                raise ValueError(
-                    f'Found subentity of type `{entity_type}` in a `{self.__type_name}`, '
-                    f'which expects only the following subentities: {types}'
-                )
-
-    def assert_attribute_names(self, names: Iterable[str]):
-        attributes = [
-            key for key, value in self.__element.items() if not isinstance(value, list)
-        ]
-        for attr in attributes:
-            if attr not in names:
-                raise ValueError(
-                    f'Found attribute named `{attr}` in `{self.__type_name}`, '
-                    f'expected one of {names}')
+                f'Found the following keys of `{self.__type_name}` that were not '
+                f'parsed: {unparsed_keys}'
+            )
 
     def get_attr(
         self,
@@ -137,6 +121,7 @@ class Entity(BaseEntity):
                         name, self.type_name))
             else:
                 return None
+        self.__read_keys.add(name)
         data = self.__element[name]
         if check_is_list_entity(data_type):
             if isinstance(data, list) and isinstance(data[0], dict):
