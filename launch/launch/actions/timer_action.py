@@ -103,13 +103,22 @@ class TimerAction(Action):
     ):
         """Return the `Timer` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        kwargs['period'] = entity.get_attr('period', data_type=float, can_be_str=True)
+        kwargs['period'] = parser.parse_if_substitutions(
+            entity.get_attr('period', data_type=float, can_be_str=True))
         kwargs['actions'] = [parser.parse_action(child) for child in entity.children]
         cancel_on_shutdown = entity.get_attr(
             'cancel_on_shutdown', optional=True, data_type=bool, can_be_str=True)
         if cancel_on_shutdown is not None:
             kwargs['cancel_on_shutdown'] = parser.parse_if_substitutions(cancel_on_shutdown)
         return cls, kwargs
+
+    @property
+    def period(self):
+        return self.__period
+
+    @property
+    def actions(self):
+        return self.__actions
 
     def describe(self) -> Text:
         """Return a description of this TimerAction."""
