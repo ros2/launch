@@ -14,6 +14,7 @@
 
 """Module which adds methods for exposing parsing methods."""
 
+import functools
 import inspect
 from typing import Iterable
 from typing import Optional
@@ -99,6 +100,7 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
             )
         if exposed_type == 'action':
             # For actions, validate that the user didn't provide unknown attributes or children
+            @functools.wraps(found_parse_method)
             def wrapper(entity, parser):
                 ret = found_parse_method(entity, parser)
                 entity.assert_entity_completely_parsed()
