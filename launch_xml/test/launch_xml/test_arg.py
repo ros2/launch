@@ -51,3 +51,20 @@ def test_arg_wrong_attribute():
         parser.parse_description(root_entity)
     assert '`arg`' in str(excinfo.value)
     assert 'whats_this' in str(excinfo.value)
+
+
+def test_arg_with_subtag():
+    xml_file = \
+        """\
+        <launch>
+            <arg name="my_arg" default="asd" description="something">
+                <whats_this/>
+            </arg>
+        </launch>
+        """
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    with pytest.raises(ValueError) as excinfo:
+        parser.parse_description(root_entity)
+    assert '`arg`' in str(excinfo.value)
+    assert 'whats_this' in str(excinfo.value)
