@@ -14,12 +14,8 @@
 
 """Tests for the LogInfo action class."""
 
-import io
-import textwrap
-
 from launch import LaunchContext
 from launch.actions import LogInfo
-from launch.frontend import Parser
 from launch.utilities import perform_substitutions
 
 
@@ -49,19 +45,3 @@ def test_log_info_execute():
     log_info = LogInfo(msg='foo')
     launch_context = LaunchContext()
     assert log_info.visit(launch_context) is None
-
-
-def test_frontend():
-    launch_context = LaunchContext()
-    xml_file = \
-        """\
-        <launch>
-            <log message="Hello world!" />
-        </launch>
-        """
-    xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
-    launch_description = parser.parse_description(root_entity)
-    log_info = launch_description.entities[0]
-    assert isinstance(log_info, LogInfo)
-    assert perform_substitutions(launch_context, log_info.msg) == 'Hello world!'
