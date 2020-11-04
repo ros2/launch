@@ -14,10 +14,14 @@
 
 """Test parsing an executable action."""
 
+import io
 from pathlib import Path
+import textwrap
 
 from launch import LaunchService
 from launch.frontend import Parser
+
+import pytest
 
 
 def test_executable():
@@ -40,6 +44,24 @@ def test_executable():
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+
+
+def test_executable_wrong_subtag():
+    xml_file = \
+        """\
+        <launch>
+            <executable cmd="ls -l -a -s" cwd="/" name="my_ls" shell="true" output="log" launch-prefix="$(env LAUNCH_PREFIX '')">
+                <env name="var" value="1"/>
+                <whats_this/>
+            </executable>
+        </launch>
+        """  # noqa, line too long
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    with pytest.raises(ValueError) as excinfo:
+        parser.parse_description(root_entity)
+    assert '`executable`' in str(excinfo.value)
+    assert 'whats_this' in str(excinfo.value)
 
 
 if __name__ == '__main__':

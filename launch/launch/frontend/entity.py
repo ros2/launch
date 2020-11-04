@@ -82,3 +82,12 @@ class Entity:
             Only happens in frontend implementations that do type coercion.
         """
         raise NotImplementedError()
+
+    def assert_entity_completely_parsed(self):
+        """
+        Assert that all attributes and children of the entity were parsed.
+
+        This function is automatically called after the `parse(entity, parser)`
+        function completed.
+        """
+        raise NotImplementedError()

@@ -39,6 +39,8 @@ class Entity(BaseEntity):
         """Construnctor."""
         self.__xml_element = xml_element
         self.__parent = parent
+        self.__read_attributes = set()
+        self.__read_children = set()
 
     @property
     def type_name(self) -> Text:
@@ -53,7 +55,22 @@ class Entity(BaseEntity):
     @property
     def children(self) -> List['Entity']:
         """Get the Entity's children."""
+        self.__read_children = {item.tag for item in self.__xml_element}
         return [Entity(item) for item in self.__xml_element]
+
+    def assert_entity_completely_parsed(self):
+        unparsed_nested_tags = {item.tag for item in self.__xml_element} - self.__read_children
+        if unparsed_nested_tags:
+            raise ValueError(
+                f'Unexpected nested tag(s) found in `{self.__xml_element.tag}`: '
+                f'{unparsed_nested_tags}'
+            )
+        unparsed_attributes = set(self.__xml_element.attrib.keys()) - self.__read_attributes
+        if unparsed_attributes:
+            raise ValueError(
+                f'Unexpected attribute(s) found in `{self.__xml_element.tag}`: '
+                f'{unparsed_attributes}'
+            )
 
     def get_attr(
         self,
@@ -79,12 +96,13 @@ class Entity(BaseEntity):
             )
         )
         if check_is_list_entity(data_type):
-            return_list = filter(lambda x: x.tag == name, self.__xml_element)
+            return_list = [x for x in self.__xml_element if x.tag == name]
             if not return_list:
                 if optional:
                     return None
                 else:
                     raise attr_error
+            self.__read_children.add(return_list[0].tag)
             return [Entity(item) for item in return_list]
         value = None
         if name in self.__xml_element.attrib:
@@ -92,8 +110,10 @@ class Entity(BaseEntity):
             if name_sep not in self.__xml_element.attrib:
                 value = self.__xml_element.attrib[name]
             else:
+                self.__read_attributes.add(name_sep)
                 sep = self.__xml_element.attrib[name_sep]
                 value = self.__xml_element.attrib[name].split(sep)
+            self.__read_attributes.add(name)
         if value is None:
             if not optional:
                 raise attr_error
