@@ -14,6 +14,7 @@
 
 """Module which adds methods for exposing parsing methods."""
 
+import functools
 import inspect
 from typing import Iterable
 from typing import Optional
@@ -70,7 +71,6 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
         method in the dictionary.
     :param parse_methods_map: a dict where the parsing method will be stored.
     :param exposed_type: A string specifing the parsing function type.
-        Only used for having clearer error log messages.
     """
     # TODO(ivanpauno): Check signature of the registered method/parsing function.
     # TODO(ivanpauno): Infer a parsing function from the constructor annotations.
@@ -98,7 +98,16 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
                     name
                 )
             )
-        parse_methods_map[name] = found_parse_method
+        if exposed_type == 'action':
+            # For actions, validate that the user didn't provide unknown attributes or children
+            @functools.wraps(found_parse_method)
+            def wrapper(entity, parser):
+                ret = found_parse_method(entity, parser)
+                entity.assert_entity_completely_parsed()
+                return ret
+            parse_methods_map[name] = wrapper
+        else:
+            parse_methods_map[name] = found_parse_method
         return exposed
     return expose_impl_decorator
 
