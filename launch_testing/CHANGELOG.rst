@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.13.0 (2020-11-04)
+-------------------
 * Update package maintainers (`#465 <https://github.com/ros2/launch/issues/465>`_)
 * Contributors: Michel Hidalgo
 

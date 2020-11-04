@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.13.0 (2020-11-04)
+-------------------
 * Validate unparsed attributes and subentities in launch_xml and launch_yaml (`#468 <https://github.com/ros2/launch/issues/468>`_)
 * Fix bug in launch.actions.TimerAction.parse() (`#470 <https://github.com/ros2/launch/issues/470>`_)
 * Allow configuring logging directory through environment variables (`#460 <https://github.com/ros2/launch/issues/460>`_)
