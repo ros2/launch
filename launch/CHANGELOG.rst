@@ -2,6 +2,16 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Validate unparsed attributes and subentities in launch_xml and launch_yaml (`#468 <https://github.com/ros2/launch/issues/468>`_)
+* Fix bug in launch.actions.TimerAction.parse() (`#470 <https://github.com/ros2/launch/issues/470>`_)
+* Allow configuring logging directory through environment variables (`#460 <https://github.com/ros2/launch/issues/460>`_)
+* Update package maintainers (`#465 <https://github.com/ros2/launch/issues/465>`_)
+* Expose Timer action in launch xml (`#462 <https://github.com/ros2/launch/issues/462>`_)
+* Fix dollar symbols in substitution grammar (`#461 <https://github.com/ros2/launch/issues/461>`_)
+* Contributors: Christophe Bedard, Ivan Santiago Paunovic, Michel Hidalgo
+
 0.12.0 (2020-08-18)
 -------------------
 * Add new conditions for checking launch configuration values (`#453 <https://github.com/ros2/launch/issues/453>`_)

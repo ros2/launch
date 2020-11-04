@@ -2,6 +2,13 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Validate unparsed attributes and subentities in launch_xml and launch_yaml (`#468 <https://github.com/ros2/launch/issues/468>`_)
+* Add test for launch.actions.TimerAction (`#470 <https://github.com/ros2/launch/issues/470>`_)
+* Update package maintainers (`#465 <https://github.com/ros2/launch/issues/465>`_)
+* Contributors: Ivan Santiago Paunovic, Michel Hidalgo
+
 0.12.0 (2020-08-18)
 -------------------
 
