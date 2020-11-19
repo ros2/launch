@@ -102,7 +102,7 @@ def test_process_proxy():
     proxy = ProcessProxy(process_action, proc_info, proc_output)
 
     context = launch.launch_context.LaunchContext()
-    process_action._ExecuteProcess__expand_substitutions(context)
+    process_action.prepare(context)
 
     assert not proxy.running
     assert not proxy.terminated

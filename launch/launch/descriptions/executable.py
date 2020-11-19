@@ -1,3 +1,25 @@
+# Copyright 2020 Southwest Research Institute, All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# DISTRIBUTION A. Approved for public release; distribution unlimited.
+# OPSEC #4584.
+#
+# Delivered to the U.S. Government with Unlimited Rights, as defined in DFARS
+# Part 252.227-7013 or 7014 (Feb 2014).
+#
+# This notice must appear in all copies of this file and its derivatives.
+
 """Module for a description of an Executable."""
 
 import os
@@ -7,13 +29,11 @@ from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
-from typing import Text
 from typing import Tuple
-from typing import Union
 
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
-from launch.substitutions.text_substitution import TextSubstitution
+from launch.substitutions import LaunchConfiguration
 from launch.launch_context import LaunchContext
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
@@ -26,12 +46,13 @@ class Executable:
     """Describes an executable (usually a single process) which may be run by the launch system."""
 
     def __init__(
-        self, *,
-        cmd: Union[SomeSubstitutionsType, Iterable[SomeSubstitutionsType]],
-        name: Optional[SomeSubstitutionsType] = None,
-        cwd: Optional[SomeSubstitutionsType] = None,
-        env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+            self, *,
+            cmd: Iterable[SomeSubstitutionsType],
+            prefix: Optional[SomeSubstitutionsType] = None,
+            name: Optional[SomeSubstitutionsType] = None,
+            cwd: Optional[SomeSubstitutionsType] = None,
+            env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+            additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
     ) -> None:
         """
         Initialize an Executable description.
@@ -39,6 +60,9 @@ class Executable:
         :param cmd: A list where the first item is the executable and the rest are
             arguments to the executable, each item may be a string or a list of strings
             and Substitutions to be resolved at runtime
+        :param: prefix a set of commands/arguments to preceed the cmd, used for
+            things like gdb/valgrind and defaults to the LaunchConfiguration
+            called 'launch-prefix'
         :param name: The label used to represent the process, as a string or a Substitution
             to be resolved at runtime, defaults to the basename of the executable
         :param cwd: The directory in which to run the executable
@@ -48,12 +72,10 @@ class Executable:
             None, they are added to the current environment. If not, env is updated with
             additional_env.
         """
-        if (isinstance(cmd, Text)):
-            self.__cmd = [[TextSubstitution(text=cmd)]]
-        elif (isinstance(cmd, Substitution)):
-            self.__cmd = [[cmd]]
-        else:
-            self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
+        self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
+        self.__prefix = normalize_to_list_of_substitutions(
+            LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
+        )
         self.__name = name if name is None else normalize_to_list_of_substitutions(name)
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
         self.__env = None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
@@ -75,6 +97,11 @@ class Executable:
     def name(self):
         """Getter for name."""
         return self.__name
+
+    @property
+    def prefix(self):
+        """Getter for prefix."""
+        return self.__prefix
 
     @property
     def cmd(self):
@@ -118,7 +145,7 @@ class Executable:
 
     def apply_context(self, context: LaunchContext):
         """
-        Prepares an executable description for execution in a given environment.
+        Prepare an executable description for execution in a given environment.
 
         This does the following:
         - performs substitutions on various properties
@@ -127,8 +154,8 @@ class Executable:
 
     def __expand_substitutions(self, context):
         # expand substitutions in arguments to async_execute_process()
-        cmd = ' '.join([perform_substitutions(context, x) for x in self.__cmd])
-        cmd = shlex.split(cmd)
+        cmd = [perform_substitutions(context, x) for x in self.__cmd]
+        cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
         self.__final_cmd = cmd
         name = os.path.basename(cmd[0]) if self.__name is None \
             else perform_substitutions(context, self.__name)

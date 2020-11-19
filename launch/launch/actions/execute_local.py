@@ -1,10 +1,23 @@
+# Copyright 2018 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Module for the ExecuteLocal action."""
 
 import asyncio
 import io
 import os
 import platform
-import shlex
 import signal
 import threading
 import traceback
@@ -12,7 +25,6 @@ from typing import Any  # noqa: F401
 from typing import Callable
 from typing import cast
 from typing import Dict
-from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
@@ -47,9 +59,6 @@ from ..events.process import ProcessStdin
 from ..events.process import ProcessStdout
 from ..events.process import ShutdownProcess
 from ..events.process import SignalProcess
-from ..frontend import Entity
-from ..frontend import expose_action
-from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
 from ..launch_description_entity import LaunchDescriptionEntity
@@ -58,7 +67,6 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution  # noqa: F401
 from ..substitutions import LaunchConfiguration
 from ..substitutions import PythonExpression
-from ..substitutions import TextSubstitution
 from ..utilities import create_future
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
@@ -69,7 +77,7 @@ _global_process_counter = 0  # in Python3, this number is unbounded (no rollover
 
 
 class ExecuteLocal(Action):
-    """Action that begins executing a process on the local system and sets up event handlers for the process."""
+    """Action that begins executing a process on the local system and sets up event handlers."""
 
     def __init__(
         self,
@@ -81,7 +89,6 @@ class ExecuteLocal(Action):
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
-        prefix: Optional[SomeSubstitutionsType] = None,
         output: Text = 'log',
         output_format: Text = '[{this.name}] {line}',
         log_cmd: bool = False,
@@ -157,9 +164,6 @@ class ExecuteLocal(Action):
             :py:func:`evaluate_condition_expression`.
             Throws :py:exception:`InvalidConditionExpressionError` if the
             'emulate_tty' configuration does not represent a boolean.
-        :param: prefix a set of commands/arguments to preceed the cmd, used for
-            things like gdb/valgrind and defaults to the LaunchConfiguration
-            called 'launch-prefix'
         :param: output configuration for process output logging. Defaults to 'log'
             i.e. log both stdout and stderr to launch main log file and stderr to
             the screen.
@@ -183,9 +187,6 @@ class ExecuteLocal(Action):
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
         self.__emulate_tty = emulate_tty
-        self.__prefix = normalize_to_list_of_substitutions(
-            LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
-        )
         self.__output = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
         self.__output_format = output_format
 
@@ -215,11 +216,6 @@ class ExecuteLocal(Action):
     def shell(self):
         """Getter for shell."""
         return self.__shell
-
-    @property
-    def prefix(self):
-        """Getter for prefix."""
-        return self.__prefix
 
     @property
     def output(self):
@@ -412,9 +408,10 @@ class ExecuteLocal(Action):
             self.__stderr_buffer.truncate(0)
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+        due_to_sigint = cast(Shutdown, event).due_to_sigint
         return self._shutdown_process(
             context,
-            send_sigint=(not cast(Shutdown, event).due_to_sigint),
+            send_sigint=not due_to_sigint or context.noninteractive,
         )
 
     def __get_shutdown_timer_actions(self) -> List[Action]:
@@ -591,10 +588,9 @@ class ExecuteLocal(Action):
         self.__cleanup()
 
     def prepare(self, context: LaunchContext):
-        """
-        Prepares the action for execution.
-        """
+        """Prepare the action for execution."""
         self.__process_description.apply_context(context)
+        self.__expand_substitutions(context)
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
@@ -607,7 +603,7 @@ class ExecuteLocal(Action):
         - configures logging for the IO process event
         - create a task for the coroutine that monitors the process
         """
-        self.prepare(context)        
+        self.prepare(context)
         name = self.__process_description.final_name
 
         if self.__executed:
@@ -653,7 +649,6 @@ class ExecuteLocal(Action):
         try:
             self.__completed_future = create_future(context.asyncio_loop)
             self.__shutdown_future = create_future(context.asyncio_loop)
-            self.__expand_substitutions(context)
             self.__logger = launch.logging.get_logger(name)
             self.__stdout_logger, self.__stderr_logger = \
                 launch.logging.get_output_loggers(name, self.__output)
