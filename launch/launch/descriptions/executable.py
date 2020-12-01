@@ -92,6 +92,10 @@ class Executable:
                 self.__additional_env.append((
                     normalize_to_list_of_substitutions(key),
                     normalize_to_list_of_substitutions(value)))
+        self.__final_cmd = None
+        self.__final_cwd = None
+        self.__final_env = None
+        self.__final_name = None
 
     @property
     def name(self):
@@ -162,7 +166,7 @@ class Executable:
         with _executable_process_counter_lock:
             global _executable_process_counter
             _executable_process_counter += 1
-            self.__final_name = f":{name}-{_executable_process_counter}"
+            self.__final_name = f"{name}-{_executable_process_counter}"
         cwd = None
         if self.__cwd is not None:
             cwd = ''.join([context.perform_substitution(x) for x in self.__cwd])

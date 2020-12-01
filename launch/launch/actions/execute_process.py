@@ -129,6 +129,7 @@ class ExecuteProcess(ExecuteLocal):
             self,
             *,
             cmd: Iterable[SomeSubstitutionsType],
+            prefix: Optional[SomeSubstitutionsType] = None,
             name: Optional[SomeSubstitutionsType] = None,
             cwd: Optional[SomeSubstitutionsType] = None,
             env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
@@ -232,7 +233,7 @@ class ExecuteProcess(ExecuteLocal):
             Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
         """
-        self.__executable = Executable(cmd=cmd, name=name, cwd=cwd, env=env,
+        self.__executable = Executable(cmd=cmd, prefix=prefix, name=name, cwd=cwd, env=env,
                                        additional_env=additional_env)
         super().__init__(process_description=self.__executable, **kwargs)
 
@@ -375,21 +376,29 @@ class ExecuteProcess(ExecuteLocal):
     @property
     def name(self):
         """Getter for name."""
+        if self.__executable.final_name is not None:
+            return self.__executable.final_name
         return self.__executable.name
 
     @property
     def cmd(self):
         """Getter for cmd."""
+        if self.__executable.final_cmd is not None:
+            return self.__executable.final_cmd
         return self.__executable.cmd
 
     @property
     def cwd(self):
         """Getter for cwd."""
+        if self.__executable.final_cwd is not None:
+            return self.__executable.final_cwd
         return self.__executable.cwd
 
     @property
     def env(self):
         """Getter for env."""
+        if self.__executable.final_env is not None:
+            return self.__executable.final_env
         return self.__executable.env
 
     @property
