@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.7 (2020-12-04)
+------------------
+* Delete unnecessary loading of 'launch.frontend.interpolate_substitution_method' entry point that was never used (`#434 <https://github.com/ros2/launch/issues/434>`_) (`#464 <https://github.com/ros2/launch/issues/464>`_)
+* Fix parsing of cmd line arguments in XML and yaml file (`#379 <https://github.com/ros2/launch/issues/379>`_) (`#403 <https://github.com/ros2/launch/issues/403>`_)
+* Contributors: Ivan Santiago Paunovic, Jacob Perron
+
 0.9.6 (2020-01-21)
 ------------------
 * Fix case where output buffer is closed during shutdown (`#365 <https://github.com/ros2/launch/issues/365>`_)

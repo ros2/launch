@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.7 (2020-12-04)
+------------------
+* [Eloquent backport] stop using constructors deprecated in pytest 5.4 (`#391 <https://github.com/ros2/launch/issues/391>`_) Switch to from_parent (partial `#421 <https://github.com/ros2/launch/issues/421>`_) avoid deprecation warning, use from_parent (`#402 <https://github.com/ros2/launch/issues/402>`_) (`#459 <https://github.com/ros2/launch/issues/459>`_)
+* Contributors: Shane Loretz
+
 0.9.6 (2020-01-21)
 ------------------
 * Import test file without contaminating sys.modules (`#360 <https://github.com/ros2/launch/issues/360>`_)
