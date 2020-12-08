@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add frontend support for LogInfo action (`#467 <https://github.com/ros2/launch/issues/467>`_)
+* Contributors: Jacob Perron
+
 0.13.0 (2020-11-04)
 -------------------
 * Validate unparsed attributes and subentities in launch_xml and launch_yaml (`#468 <https://github.com/ros2/launch/issues/468>`_)

@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.13.0 (2020-11-04)
 -------------------
 * Update package maintainers (`#465 <https://github.com/ros2/launch/issues/465>`_)

@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* print stderr message when command failed (`#474 <https://github.com/ros2/launch/issues/474>`_)
+* Add frontend support for LogInfo action (`#467 <https://github.com/ros2/launch/issues/467>`_)
+* Contributors: Jacob Perron, Takamasa Horibe
+
 0.13.0 (2020-11-04)
 -------------------
 * Validate unparsed attributes and subentities in launch_xml and launch_yaml (`#468 <https://github.com/ros2/launch/issues/468>`_)
