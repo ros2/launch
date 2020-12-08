@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.14.0 (2020-12-08)
+-------------------
 * print stderr message when command failed (`#474 <https://github.com/ros2/launch/issues/474>`_)
 * Add frontend support for LogInfo action (`#467 <https://github.com/ros2/launch/issues/467>`_)
 * Contributors: Jacob Perron, Takamasa Horibe
