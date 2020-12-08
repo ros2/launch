@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.4 (2020-12-08)
+-------------------
+* Fix dollar symbols in substitution grammar (`#461 <https://github.com/ros2/launch/issues/461>`_) (`#472 <https://github.com/ros2/launch/issues/472>`_)
+* Delete unnecessary loading of 'launch.frontend.interpolate_substitution_method' entry point that was never used (`#434 <https://github.com/ros2/launch/issues/434>`_) (`#463 <https://github.com/ros2/launch/issues/463>`_)
+* Contributors: Ivan Santiago Paunovic, Jacob Perron
+
 0.10.3 (2020-08-27)
 -------------------
 * Add new conditions for checking launch configuration values (`#453 <https://github.com/ros2/launch/issues/453>`_) (`#457 <https://github.com/ros2/launch/issues/457>`_)
