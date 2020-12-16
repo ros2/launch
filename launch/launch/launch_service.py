@@ -42,10 +42,7 @@ from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
 from .some_actions_type import SomeActionsType
-from .utilities import install_signal_handlers
-from .utilities import on_sigint
-from .utilities import on_sigquit
-from .utilities import on_sigterm
+from .utilities import AsyncSafeSignalManager
 from .utilities import visit_all_entities_and_collect_futures
 
 
@@ -76,10 +73,6 @@ class LaunchService:
 
         # Setup logging
         self.__logger = launch.logging.get_logger('launch')
-
-        # Install signal handlers if not already installed, will raise if not
-        # in main-thread, call manually in main-thread to avoid this.
-        install_signal_handlers()
 
         # Setup context and register a built-in event handler for bootstrapping.
         self.__context = LaunchContext(argv=self.__argv)
@@ -194,12 +187,7 @@ class LaunchService:
             # Setup custom signal handlers for SIGINT, SIGTERM and maybe SIGQUIT.
             sigint_received = False
 
-            def _on_sigint(signum, frame, prev_handler):
-                # Ignore additional signals until we finish processing this one.
-                current_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
-                if current_handler is signal.SIG_IGN:
-                    # This function has been called re-entrantly.
-                    return
+            def _on_sigint(signum):
                 nonlocal sigint_received
                 base_msg = 'user interrupted with ctrl-c (SIGINT)'
                 if not sigint_received:
@@ -211,57 +199,24 @@ class LaunchService:
                     sigint_received = True
                 else:
                     self.__logger.warning('{} again, ignoring...'.format(base_msg))
-                if callable(prev_handler):
-                    try:
-                        # Run pre-existing signal handler.
-                        prev_handler(signum, frame)
-                    except KeyboardInterrupt:
-                        # Ignore exception.
-                        pass
-                # Restore current signal handler (not necessarily this one).
-                signal.signal(signal.SIGINT, current_handler)
 
-            on_sigint(_on_sigint)
-
-            def _on_sigterm(signum, frame, prev_handler):
-                # Ignore additional signals until we finish processing this one.
-                current_handler = signal.signal(signal.SIGTERM, signal.SIG_IGN)
-                if current_handler is signal.SIG_IGN:
-                    # This function has been called re-entrantly.
-                    return
+            def _on_sigterm(signum):
+                signame = signal.Signals(signum).name
+                self.__logger.error(
+                    'user interrupted with ctrl-\\ ({}), terminating...'.format(signame))
                 # TODO(wjwwood): try to terminate running subprocesses before exiting.
-                self.__logger.error('using SIGTERM or SIGQUIT can result in orphaned processes')
+                self.__logger.error('using {} can result in orphaned processes'.format(signame))
                 self.__logger.error('make sure no processes launched are still running')
                 this_loop.call_soon(this_task.cancel)
-                if callable(prev_handler):
-                    # Run pre-existing signal handler.
-                    prev_handler(signum, frame)
-                # Restore current signal handler (not necessarily this one).
-                signal.signal(signal.SIGTERM, current_handler)
 
-            on_sigterm(_on_sigterm)
-
-            def _on_sigquit(signum, frame, prev_handler):
-                # Ignore additional signals until we finish processing this one.
-                current_handler = signal.signal(signal.SIGQUIT, signal.SIG_IGN)
-                if current_handler is signal.SIG_IGN:
-                    # This function has been called re-entrantly.
-                    return
-                self.__logger.error('user interrupted with ctrl-\\ (SIGQUIT), terminating...')
-                _on_sigterm(signum, frame, prev_handler)
-                # Restore current signal handler (not necessarily this one).
-                signal.signal(signal.SIGQUIT, current_handler)
-
-            on_sigquit(_on_sigquit)
-
-            # Yield asyncio loop and current task.
-            yield self.__loop_from_run_thread, this_task
+            with AsyncSafeSignalManager(this_loop) as manager:
+                # Setup signal handlers
+                manager.handle(signal.SIGINT, _on_sigint)
+                manager.handle(signal.SIGTERM, _on_sigterm)
+                manager.handle(signal.SIGQUIT, _on_sigterm)
+                # Yield asyncio loop and current task.
+                yield this_loop, this_task
         finally:
-            # Unset the signal handlers while not running.
-            on_sigint(None)
-            on_sigterm(None)
-            on_sigquit(None)
-
             # No matter what happens, unset the loop.
             with self.__loop_from_run_thread_lock:
                 self.__context._set_asyncio_loop(None)
@@ -400,8 +355,11 @@ class LaunchService:
         run_async_task = loop.create_task(self.run_async(
             shutdown_when_idle=shutdown_when_idle
         ))
-        loop.run_until_complete(run_async_task)
-        return run_async_task.result()
+        while True:
+            try:
+                return loop.run_until_complete(run_async_task)
+            except KeyboardInterrupt:
+                continue
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         self.__shutting_down = True

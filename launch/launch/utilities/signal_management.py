@@ -14,131 +14,52 @@
 
 """Module for the signal management functionality."""
 
-import platform
+import os
+import socket
 import signal
-import threading
-
-import launch.logging
-
-__signal_handlers_installed_lock = threading.Lock()
-__signal_handlers_installed = False
-__custom_sigint_handler = None
-__custom_sigquit_handler = None
-__custom_sigterm_handler = None
 
 
-def on_sigint(handler):
-    """
-    Set the signal handler to be called on SIGINT.
+class AsyncSafeSignalManager:
 
-    Pass None for no custom handler.
+    def __init__(self, loop):
+        self.__loop = loop
+        self.__handlers = {}
+        self.__prev_wsock_fd = -1
+        self.__wsock, self.__rsock = socket.socketpair()
+        self.__wsock.setblocking(False)
+        self.__rsock.setblocking(False)
 
-    install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
-    """
-    global __custom_sigint_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigint_handler = handler
+    def __enter__(self):
+        self.__loop.add_reader(self.__rsock.fileno(), self.__handle_signal)
+        self.__prev_wsock_fd = signal.set_wakeup_fd(self.__wsock.fileno())
+        return self
 
+    def __exit__(self, type_, value, traceback):
+        assert self.__wsock.fileno() == signal.set_wakeup_fd(self.__prev_wsock_fd)
+        self.__loop.remove_reader(self.__rsock.fileno())
 
-def on_sigquit(handler):
-    """
-    Set the signal handler to be called on SIGQUIT.
+    def __handle_signal(self):
+        while True:
+            try:
+                data = self.__rsock.recv(4096)
+                if not data:
+                    break
+                for signum in data:
+                    if signum not in self.__handlers:
+                        continue
+                    self.__handlers[signum](signum)
+                if self.__prev_wsock_fd != -1:
+                    os.write(self.__prev_wsock_fd, data)
+            except InterruptedError:
+                continue
+            except BlockingIOError:
+                break
 
-    Note Windows does not have SIGQUIT, so it can be set with this function,
-    but the handler will not be called.
-
-    Pass None for no custom handler.
-
-    install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
-    """
-    global __custom_sigquit_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigquit_handler = handler
-
-
-def on_sigterm(handler):
-    """
-    Set the signal handler to be called on SIGTERM.
-
-    Pass None for no custom handler.
-
-    install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
-    """
-    global __custom_sigterm_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigterm_handler = handler
-
-
-def install_signal_handlers():
-    """
-    Install custom signal handlers so that hooks can be setup from other threads.
-
-    Calling this multiple times does not fail, but the signals are only
-    installed once.
-
-    If called outside of the main-thread, a ValueError is raised, see:
-    https://docs.python.org/3.6/library/signal.html#signal.signal
-
-    Also, if you register your own signal handlers after calling this function,
-    then you should store and forward to the existing signal handlers, because
-    otherwise the signal handlers registered by on_sigint(), on_sigquit, etc.
-    will not be run.
-    And the signal handlers registered with those functions are used to
-    gracefully exit the LaunchService when signaled (at least), and without
-    them it may not behave correctly.
-
-    If you register signal handlers before calling this function, then your
-    signal handler will automatically be called by the signal handlers in this
-    thread.
-    """
-    global __signal_handlers_installed_lock, __signal_handlers_installed
-    with __signal_handlers_installed_lock:
-        if __signal_handlers_installed:
-            return
-        __signal_handlers_installed = True
-
-    global __custom_sigint_handler, __custom_sigquit_handler, __custom_sigterm_handler
-
-    __original_sigint_handler = signal.getsignal(signal.SIGINT)
-    __original_sigterm_handler = signal.getsignal(signal.SIGTERM)
-
-    def __on_sigint(signum, frame):
-        if callable(__custom_sigint_handler):
-            __custom_sigint_handler(signum, frame, __original_sigint_handler)
-        elif callable(__original_sigint_handler):
-            __original_sigint_handler(signum, frame)
-
-    if platform.system() != 'Windows':
-        # Windows does not support SIGQUIT
-        __original_sigquit_handler = signal.getsignal(signal.SIGQUIT)
-
-        def __on_sigquit(signum, frame):
-            if callable(__custom_sigquit_handler):
-                __custom_sigquit_handler(signum, frame, __original_sigquit_handler)
-            elif callable(__original_sigquit_handler):
-                __original_sigquit_handler(signum, frame)
-
-    def __on_sigterm(signum, frame):
-        if callable(__custom_sigterm_handler):
-            __custom_sigterm_handler(signum, frame, __original_sigterm_handler)
-        elif callable(__original_sigterm_handler):
-            __original_sigterm_handler(signum, frame)
-
-    # signals must be registered in the main thread, but print a nicer message if we're not there
-    try:
-        signal.signal(signal.SIGINT, __on_sigint)
-        signal.signal(signal.SIGTERM, __on_sigterm)
-        if platform.system() != 'Windows':
-            # Windows does not support SIGQUIT
-            signal.signal(signal.SIGQUIT, __on_sigquit)
-    except ValueError:
-        logger = launch.logging.get_logger(__name__)
-        logger.error("failed to set signal handlers in '{}'".format(__name__))
-        logger.error('this function must be called in the main thread')
-        raise
+    def handle(self, signum, handler):
+        if signum not in signal.Signals.__members__.values():
+            raise ValueError('{} is not a signal number'.format(signum))
+        if not callable(handler):
+            raise ValueError('signal handler must be callable')
+        old_handler = self.__handlers.get(signum, None)
+        self.__handlers[signum] = handler
+        return old_handler
