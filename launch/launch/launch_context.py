@@ -33,13 +33,20 @@ from .substitution import Substitution
 class LaunchContext:
     """Runtime context used by various launch entities when being visited or executed."""
 
-    def __init__(self, *, argv: Optional[Iterable[Text]] = None) -> None:
+    def __init__(
+        self, *,
+        argv: Optional[Iterable[Text]] = None,
+        noninteractive: bool = False
+    ) -> None:
         """
         Create a LaunchContext.
 
         :param: argv stored in the context for access by the entities, None results in []
+        :param: noninteractive if True (not default), this service will assume it has
+            no terminal associated e.g. it is being executed from a non interactive script
         """
         self.__argv = argv if argv is not None else []
+        self.__noninteractive = noninteractive
 
         self._event_queue = asyncio.Queue()  # type: asyncio.Queue
         self._event_handlers = collections.deque()  # type: collections.deque
@@ -62,6 +69,11 @@ class LaunchContext:
     def argv(self):
         """Getter for argv."""
         return self.__argv
+
+    @property
+    def noninteractive(self):
+        """Getter for noninteractive."""
+        return self.__noninteractive
 
     def _set_is_shutdown(self, state: bool) -> None:
         self.__is_shutdown = state
