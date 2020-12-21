@@ -38,6 +38,15 @@ def test_launch_context_get_argv():
     assert lc.argv == []
 
 
+def test_launch_context_get_noninteractive():
+    """Test the getting of noninteractive flag in the LaunchContext class."""
+    lc = LaunchContext(noninteractive=True)
+    assert lc.noninteractive
+
+    lc = LaunchContext()
+    assert not lc.noninteractive
+
+
 def test_launch_context_get_set_asyncio_loop():
     """Test the getting and settings for asyncio_loop in the LaunchContext class."""
     lc = LaunchContext()

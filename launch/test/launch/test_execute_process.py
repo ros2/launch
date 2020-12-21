@@ -15,14 +15,20 @@
 """Tests for the ExecuteProcess Action."""
 
 import os
+import platform
+import signal
 import sys
 
 from launch import LaunchDescription
 from launch import LaunchService
+from launch.actions.emit_event import EmitEvent
 from launch.actions.execute_process import ExecuteProcess
 from launch.actions.opaque_function import OpaqueFunction
+from launch.actions.register_event_handler import RegisterEventHandler
 from launch.actions.shutdown_action import Shutdown
 from launch.actions.timer_action import TimerAction
+from launch.event_handlers.on_process_start import OnProcessStart
+from launch.events.shutdown import Shutdown as ShutdownEvent
 
 import pytest
 
@@ -86,6 +92,50 @@ def test_execute_process_with_on_exit_behavior():
     assert 0 == ls.run()
     assert on_exit_callback.called
     assert on_exit_function.called
+
+
+def test_execute_process_shutdown():
+    """Test shutting down a process in (non)interactive settings."""
+    def on_exit(event, ctx):
+        on_exit.returncode = event.returncode
+
+    def generate_launch_description():
+        process_action = ExecuteProcess(
+            cmd=[sys.executable, '-c', 'import signal; signal.pause()'],
+            sigterm_timeout='1',  # shorten timeouts
+            on_exit=on_exit
+        )
+        # Launch process and emit shutdown event as if
+        # launch had received a SIGINT
+        return LaunchDescription([
+            process_action,
+            RegisterEventHandler(event_handler=OnProcessStart(
+                target_action=process_action,
+                on_start=[
+                    EmitEvent(event=ShutdownEvent(
+                        reason='none',
+                        due_to_sigint=True
+                    ))
+                ]
+            ))
+        ])
+
+    ls = LaunchService(noninteractive=True)
+    ls.include_launch_description(generate_launch_description())
+    assert 0 == ls.run()
+    if platform.system() != 'Windows':
+        assert on_exit.returncode == -signal.SIGINT  # Got SIGINT
+    else:
+        assert on_exit.returncode != 0  # Process terminated
+
+    ls = LaunchService()  # interactive
+    ls.include_launch_description(generate_launch_description())
+    assert 0 == ls.run()
+    if platform.system() != 'Windows':
+        # Assume interactive Ctrl+C (i.e. SIGINT to process group)
+        assert on_exit.returncode == -signal.SIGTERM  # Got SIGTERM
+    else:
+        assert on_exit.returncode != 0  # Process terminated
 
 
 def test_execute_process_with_respawn():
