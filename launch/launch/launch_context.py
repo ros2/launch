@@ -34,7 +34,8 @@ class LaunchContext:
     """Runtime context used by various launch entities when being visited or executed."""
 
     def __init__(
-        self, *,
+        self,
+        *,
         argv: Optional[Iterable[Text]] = None,
         noninteractive: bool = False
     ) -> None:
