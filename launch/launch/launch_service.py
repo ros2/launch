@@ -58,11 +58,6 @@ class LaunchService:
         """
         Create a LaunchService.
 
-        If called outside of the main-thread before the function
-        :func:`launch.utilities.install_signal_handlers()` has been called,
-        a ValueError can be raised, as setting signal handlers cannot be done
-        outside of the main-thread.
-
         :param: argv stored in the context for access by the entities, None results in []
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
@@ -261,9 +256,6 @@ class LaunchService:
         This should only ever be run from the main thread and not concurrently with other
         asynchronous runs.
 
-        Note that custom signal handlers are set, and KeyboardInterrupt is caught and ignored
-        around the original signal handler. After the run ends, this behavior is undone.
-
         :param: shutdown_when_idle if True (default), the service will shutdown when idle.
         """
         # Make sure this has not been called from any thread but the main thread.
@@ -348,6 +340,9 @@ class LaunchService:
 
         This should only ever be run from the main thread and not concurrently with
         asynchronous runs (see `run_async()` documentation).
+
+        Note that KeyboardInterrupt is caught and ignored, as signals are handled separately.
+        After the run ends, this behavior is undone.
 
         :param: shutdown_when_idle if True (default), the service will shutdown when idle
         """
