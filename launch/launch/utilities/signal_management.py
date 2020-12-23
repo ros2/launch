@@ -12,16 +12,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the signal management functionality."""
+"""Module for signal management functionality."""
 
+import asyncio
 import os
-import socket
 import signal
+import socket
+
+
+from typing import Callable
+from typing import Optional
+from typing import Union
 
 
 class AsyncSafeSignalManager:
+    """
+    A context manager class for asynchronous handling of signals.
 
-    def __init__(self, loop):
+    Similar in purpose to :func:`asyncio.loop.add_signal_handler` but
+    not limited to Unix platforms.
+
+    Signal handlers can be registered at any time with a given manager.
+    These will become active for the extent of said manager context.
+    Unlike regular signal handlers, asynchronous signals handlers
+    can safely interact with their event loop.
+
+    The same manager can be used multiple consecutive times and even
+    be nested with other managers, as these are independent from each
+    other i.e. managers do not override each other's handlers.
+
+    If used outside of the main thread, a ValueError is raised.
+
+    The underlying mechanism is built around :func:`signal.set_wakeup_fd`
+    so as to not interfere with regular handlers installed via
+    :func:`signal.signal`.
+    All signals received are forwarded to the previously setup file
+    descriptor, if any.
+    """
+
+    def __init__(
+        self,
+        loop: asyncio.AbstractEventLoop
+    ):
+        """
+        Instantiate manager.
+
+        :param loop: event loop that will handle the signals.
+        """
         self.__loop = loop
         self.__handlers = {}
         self.__prev_wsock_fd = -1
@@ -55,11 +92,22 @@ class AsyncSafeSignalManager:
             except BlockingIOError:
                 break
 
-    def handle(self, signum, handler):
-        if signum not in signal.Signals.__members__.values():
-            raise ValueError('{} is not a signal number'.format(signum))
-        if not callable(handler):
-            raise ValueError('signal handler must be callable')
+    def handle(
+        self,
+        signum: Union[signal.Signals, int],
+        handler: Optional[Callable[[int], None]],
+    ) -> Optional[Callable[[int], None]]:
+        """
+        Register a callback for asynchronous handling of a given signal.
+
+        :param signum: number of the signal to be handled
+        :param handler: callback taking a signal number
+          as its sole argument, or None
+        :return: previous handler if any, otherwise None
+        """
+        signum = signal.Signals(signum)
+        if handler is not None and not callable(handler):
+            raise ValueError('signal handler must be a callable')
         old_handler = self.__handlers.get(signum, None)
         self.__handlers[signum] = handler
         return old_handler
