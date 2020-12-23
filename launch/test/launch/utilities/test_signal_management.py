@@ -31,8 +31,10 @@ def cap_signals(*signals):
     def _decorator(func):
         @functools.wraps(func)
         def _wrapper(*args, **kwargs):
+            handlers = {}
             try:
-                handlers = {s: signal.signal(s, _noop) for s in signals}
+                for s in signals:
+                    handlers[s] = signal.signal(s, _noop)
                 return func(*args, **kwargs)
             finally:
                 assert all(signal.signal(s, h) is _noop for s, h in handlers.items())
@@ -42,8 +44,9 @@ def cap_signals(*signals):
 
 
 if platform.system() == 'Windows':
-    SIGNAL = signal.CTRL_C_EVENT
-    ANOTHER_SIGNAL = signal.CTRL_BREAK_EVENT
+    # NOTE(hidmic): this is risky, but we have few options.
+    SIGNAL = signal.SIGINT
+    ANOTHER_SIGNAL = signal.SIGBREAK
 else:
     SIGNAL = signal.SIGUSR1
     ANOTHER_SIGNAL = signal.SIGUSR2
