@@ -15,6 +15,7 @@
 """Tests for the signal_management module."""
 
 import asyncio
+import functools
 import signal
 
 from launch.utilities import AsyncSafeSignalManager
@@ -22,25 +23,73 @@ from launch.utilities import AsyncSafeSignalManager
 import osrf_pycommon.process_utils
 
 
+def cap_signals(*signals):
+    def _noop(*args):
+        pass
+
+    def _decorator(func):
+        @functools.wraps(func)
+        def _wrapper(*args, **kwargs):
+            try:
+                handlers = {s: signal.signal(s, _noop) for s in signals}
+                return func(*args, **kwargs)
+            finally:
+                assert all(signal.signal(s, h) is _noop for s, h in handlers.items())
+        return _wrapper
+
+    return _decorator
+
+
+@cap_signals(signal.SIGUSR1, signal.SIGUSR2)
 def test_async_safe_signal_manager():
     """Test AsyncSafeSignalManager class."""
     loop = osrf_pycommon.process_utils.get_loop()
 
-    prev_signal_handler = signal.signal(
-        signal.SIGUSR1, lambda signum: None
-    )
-    try:
-        got_signal = asyncio.Future(loop=loop)
-        with AsyncSafeSignalManager(loop) as manager:
-            manager.handle(
-                signal.SIGUSR1,
-                lambda signum: got_signal.set_result(signum)
-            )
-            loop.call_soon(signal.raise_signal, signal.SIGUSR1)
-            loop.run_until_complete(
-                asyncio.wait([got_signal], timeout=5.0)
-            )
-            assert got_signal.done()
-            assert got_signal.result() == signal.SIGUSR1
-    finally:
-        signal.signal(signal.SIGUSR1, prev_signal_handler)
+    manager = AsyncSafeSignalManager(loop)
+
+    # Register signal handler outside context
+    got_signal = asyncio.Future(loop=loop)
+    manager.handle(signal.SIGUSR1, got_signal.set_result)
+
+    # Signal handling is active within context
+    with manager:
+        # Register signal handler within context
+        got_another_signal = asyncio.Future(loop=loop)
+        manager.handle(signal.SIGUSR2, got_another_signal.set_result)
+
+        # Verify signal handling is working
+        loop.call_soon(signal.raise_signal, signal.SIGUSR1)
+        loop.run_until_complete(asyncio.wait(
+            [got_signal, got_another_signal],
+            return_when=asyncio.FIRST_COMPLETED,
+            timeout=1.0
+        ))
+        assert got_signal.done()
+        assert got_signal.result() == signal.SIGUSR1
+        assert not got_another_signal.done()
+
+        # Unregister signal handler within context
+        manager.handle(signal.SIGUSR1, None)
+
+        # Verify signal handler is no longer there
+        loop.call_soon(signal.raise_signal, signal.SIGUSR1)
+        loop.run_until_complete(asyncio.wait(
+            [got_another_signal], timeout=1.0
+        ))
+        assert not got_another_signal.done()
+
+    # Signal handling is (now) inactive outside context
+    loop.call_soon(signal.raise_signal, signal.SIGUSR2)
+    loop.run_until_complete(asyncio.wait(
+        [got_another_signal], timeout=1.0
+    ))
+    assert not got_another_signal.done()
+
+    # Managers' context may be re-entered
+    with manager:
+        loop.call_soon(signal.raise_signal, signal.SIGUSR2)
+        loop.run_until_complete(asyncio.wait(
+            [got_another_signal], timeout=1.0
+        ))
+        assert got_another_signal.done()
+        assert got_another_signal.result() == signal.SIGUSR2

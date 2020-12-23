@@ -106,8 +106,11 @@ class AsyncSafeSignalManager:
         :return: previous handler if any, otherwise None
         """
         signum = signal.Signals(signum)
-        if handler is not None and not callable(handler):
-            raise ValueError('signal handler must be a callable')
-        old_handler = self.__handlers.get(signum, None)
-        self.__handlers[signum] = handler
+        if handler is not None:
+            if not callable(handler):
+                raise ValueError('signal handler must be a callable')
+            old_handler = self.__handlers.get(signum, None)
+            self.__handlers[signum] = handler
+        else:
+            old_handler = self.__handlers.pop(signum, None)
         return old_handler
