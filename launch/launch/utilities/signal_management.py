@@ -18,10 +18,11 @@ import asyncio
 import os
 import signal
 import socket
-
+import threading
 
 from typing import Callable
 from typing import Optional
+from typing import Tuple  # noqa: F401
 from typing import Union
 
 
@@ -59,21 +60,43 @@ class AsyncSafeSignalManager:
 
         :param loop: event loop that will handle the signals.
         """
-        self.__loop = loop
-        self.__handlers = {}
-        self.__prev_wsock_fd = -1
-        self.__wsock, self.__rsock = socket.socketpair()
+        self.__loop = loop  # type: asyncio.AbstractEventLoop
+        self.__background_loop = None  # type: Optional[asyncio.AbstractEventLoop]
+        self.__handlers = {}  # type: dict
+        self.__prev_wsock_fd = -1  # type: int
+        self.__wsock, self.__rsock = socket.socketpair()  # type: Tuple[socket.socket, socket.socket]  # noqa
         self.__wsock.setblocking(False)
         self.__rsock.setblocking(False)
 
     def __enter__(self):
-        self.__loop.add_reader(self.__rsock.fileno(), self.__handle_signal)
+        try:
+            self.__loop.add_reader(self.__rsock.fileno(), self.__handle_signal)
+        except NotImplementedError:
+            # NOTE(hidmic): some event loops, like the asyncio.ProactorEventLoop
+            # on Windows, do not support asynchronous socket reads. Emulate it.
+            self.__background_loop = asyncio.SelectorEventLoop()
+            self.__background_loop.add_reader(
+                self.__rsock.fileno(),
+                self.__loop.call_soon_threadsafe,
+                self.__handle_signal)
+
+            def run_background_loop():
+                asyncio.set_event_loop(self.__background_loop)
+                self.__background_loop.run_forever()
+
+            self.__background_thread = threading.Thread(target=run_background_loop)
+            self.__background_thread.start()
         self.__prev_wsock_fd = signal.set_wakeup_fd(self.__wsock.fileno())
         return self
 
     def __exit__(self, type_, value, traceback):
         assert self.__wsock.fileno() == signal.set_wakeup_fd(self.__prev_wsock_fd)
-        self.__loop.remove_reader(self.__rsock.fileno())
+        if self.__background_loop:
+            self.__background_loop.call_soon_threadsafe(self.__background_loop.stop)
+            self.__background_thread.join()
+            self.__background_loop.close()
+        else:
+            self.__loop.remove_reader(self.__rsock.fileno())
 
     def __handle_signal(self):
         while True:
