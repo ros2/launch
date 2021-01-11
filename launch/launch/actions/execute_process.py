@@ -233,9 +233,9 @@ class ExecuteProcess(ExecuteLocal):
             Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
         """
-        self.__executable = Executable(cmd=cmd, prefix=prefix, name=name, cwd=cwd, env=env,
-                                       additional_env=additional_env)
-        super().__init__(process_description=self.__executable, **kwargs)
+        executable = Executable(cmd=cmd, prefix=prefix, name=name, cwd=cwd, env=env,
+                                additional_env=additional_env)
+        super().__init__(process_description=executable, **kwargs)
 
     @classmethod
     def _parse_cmdline(
@@ -376,32 +376,32 @@ class ExecuteProcess(ExecuteLocal):
     @property
     def name(self):
         """Getter for name."""
-        if self.__executable.final_name is not None:
-            return self.__executable.final_name
-        return self.__executable.name
+        if self.process_description.final_name is not None:
+            return self.process_description.final_name
+        return self.process_description.name
 
     @property
     def cmd(self):
         """Getter for cmd."""
-        if self.__executable.final_cmd is not None:
-            return self.__executable.final_cmd
-        return self.__executable.cmd
+        if self.process_description.final_cmd is not None:
+            return self.process_description.final_cmd
+        return self.process_description.cmd
 
     @property
     def cwd(self):
         """Getter for cwd."""
-        if self.__executable.final_cwd is not None:
-            return self.__executable.final_cwd
-        return self.__executable.cwd
+        if self.process_description.final_cwd is not None:
+            return self.process_description.final_cwd
+        return self.process_description.cwd
 
     @property
     def env(self):
         """Getter for env."""
-        if self.__executable.final_env is not None:
-            return self.__executable.final_env
-        return self.__executable.env
+        if self.process_description.final_env is not None:
+            return self.process_description.final_env
+        return self.process_description.env
 
     @property
     def additional_env(self):
         """Getter for additional_env."""
-        return self.__executable.additional_env
+        return self.process_description.additional_env

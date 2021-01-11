@@ -20,28 +20,59 @@
 #
 # This notice must appear in all copies of this file and its derivatives.
 
+import os
+
 from launch.descriptions.executable import Executable
 from launch.launch_context import LaunchContext
+from launch.substitutions import EnvironmentVariable
 
 
 def test_executable():
-    exe = Executable(cmd="test")
+    exe = Executable(cmd='test')
     assert exe is not None
 
 
 def test_cmd_string_in_list():
     exe = Executable(cmd=['ls "my/subdir/with spaces/"'])
     exe.apply_context(LaunchContext())
-    assert all([a == b for a, b in zip(exe.final_cmd, ['ls "my/subdir/with spaces/"'])])
+    assert all(a == b for a, b in zip(exe.final_cmd, ['ls "my/subdir/with spaces/"']))
 
 
 def test_cmd_strings_in_list():
     exe = Executable(cmd=['ls', '"my/subdir/with spaces/"'])
     exe.apply_context(LaunchContext())
-    assert all([a == b for a, b in zip(exe.final_cmd, ['ls', '"my/subdir/with spaces/"'])])
+    assert all(a == b for a, b in zip(exe.final_cmd, ['ls', '"my/subdir/with spaces/"']))
 
 
 def test_cmd_multiple_arguments_in_string():
     exe = Executable(cmd=['ls', '-opt1', '-opt2', '-opt3'])
     exe.apply_context(LaunchContext())
-    assert all([a == b for a, b in zip(exe.final_cmd, ['ls', '-opt1', '-opt2', '-opt3'])])
+    assert all(a == b for a, b in zip(exe.final_cmd, ['ls', '-opt1', '-opt2', '-opt3']))
+
+def test_passthrough_properties():
+    name = 'name'
+    cwd = 'cwd'
+    env = {'a': '1'}
+    exe = Executable(cmd=['test'], name=name, cwd=cwd, env=env)
+    exe.apply_context(LaunchContext())
+    assert exe.final_name.startswith(name)
+    assert exe.final_cwd == cwd
+    assert exe.final_env == env
+    
+def test_substituted_properties():
+    os.environ['EXECUTABLE_TEST_NAME'] = 'name'
+    os.environ['EXECUTABLE_TEST_CWD'] = 'cwd'
+    os.environ['EXECUTABLE_TEST_ENVVAR'] = 'var'
+    os.environ['EXECUTABLE_TEST_ENVVAL'] = 'value'
+    name = EnvironmentVariable('EXECUTABLE_TEST_NAME')
+    cwd = EnvironmentVariable('EXECUTABLE_TEST_CWD')
+    env = {EnvironmentVariable('EXECUTABLE_TEST_ENVVAR'): EnvironmentVariable('EXECUTABLE_TEST_ENVVAL')}
+    exe = Executable(cmd=['test'], name=name, cwd=cwd, env=env)
+    exe.apply_context(LaunchContext())
+    assert exe.final_name.startswith('name')
+    assert exe.final_cwd == 'cwd'
+    assert exe.final_env == {'var': 'value'}
+    del os.environ['EXECUTABLE_TEST_NAME']
+    del os.environ['EXECUTABLE_TEST_CWD']
+    del os.environ['EXECUTABLE_TEST_ENVVAR']
+    del os.environ['EXECUTABLE_TEST_ENVVAL']

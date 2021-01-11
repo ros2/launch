@@ -31,12 +31,13 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 
-from launch.some_substitutions_type import SomeSubstitutionsType
-from launch.substitution import Substitution
-from launch.substitutions import LaunchConfiguration
-from launch.launch_context import LaunchContext
-from launch.utilities import normalize_to_list_of_substitutions
-from launch.utilities import perform_substitutions
+from ..action import Action
+from ..launch_context import LaunchContext
+from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitution import Substitution
+from ..substitutions import LaunchConfiguration
+from ..utilities import normalize_to_list_of_substitutions
+from ..utilities import perform_substitutions
 
 _executable_process_counter_lock = threading.Lock()
 _executable_process_counter = 0  # in Python3, this number is unbounded (no rollover)
@@ -166,7 +167,7 @@ class Executable:
         with _executable_process_counter_lock:
             global _executable_process_counter
             _executable_process_counter += 1
-            self.__final_name = f"{name}-{_executable_process_counter}"
+            self.__final_name = f'{name}-{_executable_process_counter}'
         cwd = None
         if self.__cwd is not None:
             cwd = ''.join([context.perform_substitution(x) for x in self.__cwd])

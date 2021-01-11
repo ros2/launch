@@ -29,7 +29,7 @@ from ..some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
     from ..actions import Action  # noqa: F401
-    from ..actions import ExecuteProcess  # noqa: F401
+    from ..actions import ExecuteLocal  # noqa: F401
 
 
 class OnProcessExit(OnActionEventBase):
@@ -44,7 +44,7 @@ class OnProcessExit(OnActionEventBase):
         self,
         *,
         target_action:
-            Optional[Union[Callable[['ExecuteProcess'], bool], 'ExecuteProcess']] = None,
+            Optional[Union[Callable[['ExecuteLocal'], bool], 'ExecuteLocal']] = None,
         on_exit:
             Union[
                 SomeActionsType,
@@ -53,7 +53,7 @@ class OnProcessExit(OnActionEventBase):
         **kwargs
     ) -> None:
         """Create an OnProcessExit event handler."""
-        from ..actions import ExecuteProcess  # noqa: F811
+        from ..actions import ExecuteLocal  # noqa: F811
         target_action = cast(
             Optional[Union[Callable[['Action'], bool], 'Action']],
             target_action)

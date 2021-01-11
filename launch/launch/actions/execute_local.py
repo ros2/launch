@@ -90,7 +90,7 @@ class ExecuteLocal(Action):
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
         output: Text = 'log',
-        output_format: Text = '[{this.name}] {line}',
+        output_format: Text = '[{this.process_description.name}] {line}',
         log_cmd: bool = False,
         on_exit: Optional[Union[
             SomeActionsType,
@@ -608,7 +608,7 @@ class ExecuteLocal(Action):
 
         if self.__executed:
             raise RuntimeError(
-                f"ExecuteProcess action '{name}': executed more than once: {self.describe()}"
+                f"ExecuteLocal action '{name}': executed more than once: {self.describe()}"
             )
         self.__executed = True
 
