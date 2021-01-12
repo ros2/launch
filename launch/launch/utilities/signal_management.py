@@ -34,8 +34,10 @@ def is_winsock_handle(fd):
     try:
         # On Windows, WinSock handles and regular file handles
         # have disjoint APIs. This test leverages the fact that
-        # attempting to os.dup a WinSock handle will fail.
-        os.close(os.dup(fd))
+        # attempting to get an MSVC runtime file handle from a
+        # WinSock handle will fail.
+        import msvcrt
+        msvcrt.get_osfhandle(fd)
         return False
     except OSError:
         return True
