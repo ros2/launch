@@ -12,133 +12,159 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the signal management functionality."""
+"""Module for signal management functionality."""
 
+import asyncio
+import os
 import platform
 import signal
+import socket
 import threading
 
-import launch.logging
-
-__signal_handlers_installed_lock = threading.Lock()
-__signal_handlers_installed = False
-__custom_sigint_handler = None
-__custom_sigquit_handler = None
-__custom_sigterm_handler = None
+from typing import Callable
+from typing import Optional
+from typing import Tuple  # noqa: F401
+from typing import Union
 
 
-def on_sigint(handler):
-    """
-    Set the signal handler to be called on SIGINT.
-
-    Pass None for no custom handler.
-
-    install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
-    """
-    global __custom_sigint_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigint_handler = handler
-
-
-def on_sigquit(handler):
-    """
-    Set the signal handler to be called on SIGQUIT.
-
-    Note Windows does not have SIGQUIT, so it can be set with this function,
-    but the handler will not be called.
-
-    Pass None for no custom handler.
-
-    install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
-    """
-    global __custom_sigquit_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigquit_handler = handler
-
-
-def on_sigterm(handler):
-    """
-    Set the signal handler to be called on SIGTERM.
-
-    Pass None for no custom handler.
-
-    install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
-    """
-    global __custom_sigterm_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigterm_handler = handler
-
-
-def install_signal_handlers():
-    """
-    Install custom signal handlers so that hooks can be setup from other threads.
-
-    Calling this multiple times does not fail, but the signals are only
-    installed once.
-
-    If called outside of the main-thread, a ValueError is raised, see:
-    https://docs.python.org/3.6/library/signal.html#signal.signal
-
-    Also, if you register your own signal handlers after calling this function,
-    then you should store and forward to the existing signal handlers, because
-    otherwise the signal handlers registered by on_sigint(), on_sigquit, etc.
-    will not be run.
-    And the signal handlers registered with those functions are used to
-    gracefully exit the LaunchService when signaled (at least), and without
-    them it may not behave correctly.
-
-    If you register signal handlers before calling this function, then your
-    signal handler will automatically be called by the signal handlers in this
-    thread.
-    """
-    global __signal_handlers_installed_lock, __signal_handlers_installed
-    with __signal_handlers_installed_lock:
-        if __signal_handlers_installed:
-            return
-        __signal_handlers_installed = True
-
-    global __custom_sigint_handler, __custom_sigquit_handler, __custom_sigterm_handler
-
-    __original_sigint_handler = signal.getsignal(signal.SIGINT)
-    __original_sigterm_handler = signal.getsignal(signal.SIGTERM)
-
-    def __on_sigint(signum, frame):
-        if callable(__custom_sigint_handler):
-            __custom_sigint_handler(signum, frame, __original_sigint_handler)
-        elif callable(__original_sigint_handler):
-            __original_sigint_handler(signum, frame)
-
+def is_winsock_handle(fd):
+    """Check if the given file descriptor is WinSock handle."""
     if platform.system() != 'Windows':
-        # Windows does not support SIGQUIT
-        __original_sigquit_handler = signal.getsignal(signal.SIGQUIT)
-
-        def __on_sigquit(signum, frame):
-            if callable(__custom_sigquit_handler):
-                __custom_sigquit_handler(signum, frame, __original_sigquit_handler)
-            elif callable(__original_sigquit_handler):
-                __original_sigquit_handler(signum, frame)
-
-    def __on_sigterm(signum, frame):
-        if callable(__custom_sigterm_handler):
-            __custom_sigterm_handler(signum, frame, __original_sigterm_handler)
-        elif callable(__original_sigterm_handler):
-            __original_sigterm_handler(signum, frame)
-
-    # signals must be registered in the main thread, but print a nicer message if we're not there
+        return False
     try:
-        signal.signal(signal.SIGINT, __on_sigint)
-        signal.signal(signal.SIGTERM, __on_sigterm)
-        if platform.system() != 'Windows':
-            # Windows does not support SIGQUIT
-            signal.signal(signal.SIGQUIT, __on_sigquit)
-    except ValueError:
-        logger = launch.logging.get_logger(__name__)
-        logger.error("failed to set signal handlers in '{}'".format(__name__))
-        logger.error('this function must be called in the main thread')
-        raise
+        # On Windows, WinSock handles and regular file handles
+        # have disjoint APIs. This test leverages the fact that
+        # attempting to get an MSVC runtime file handle from a
+        # WinSock handle will fail.
+        import msvcrt
+        msvcrt.get_osfhandle(fd)
+        return False
+    except OSError:
+        return True
+
+
+class AsyncSafeSignalManager:
+    """
+    A context manager class for asynchronous handling of signals.
+
+    Similar in purpose to :func:`asyncio.loop.add_signal_handler` but
+    not limited to Unix platforms.
+
+    Signal handlers can be registered at any time with a given manager.
+    These will become active for the extent of said manager context.
+    Unlike regular signal handlers, asynchronous signals handlers
+    can safely interact with their event loop.
+
+    The same manager can be used multiple consecutive times and even
+    be nested with other managers, as these are independent from each
+    other i.e. managers do not override each other's handlers.
+
+    If used outside of the main thread, a ValueError is raised.
+
+    The underlying mechanism is built around :func:`signal.set_wakeup_fd`
+    so as to not interfere with regular handlers installed via
+    :func:`signal.signal`.
+    All signals received are forwarded to the previously setup file
+    descriptor, if any.
+    """
+
+    def __init__(
+        self,
+        loop: asyncio.AbstractEventLoop
+    ):
+        """
+        Instantiate manager.
+
+        :param loop: event loop that will handle the signals.
+        """
+        self.__loop = loop  # type: asyncio.AbstractEventLoop
+        self.__background_loop = None  # type: Optional[asyncio.AbstractEventLoop]
+        self.__handlers = {}  # type: dict
+        self.__prev_wakeup_handle = -1  # type: Union[int, socket.socket]
+        self.__wsock, self.__rsock = socket.socketpair()  # type: Tuple[socket.socket, socket.socket]  # noqa
+        self.__wsock.setblocking(False)
+        self.__rsock.setblocking(False)
+
+    def __enter__(self):
+        try:
+            self.__loop.add_reader(self.__rsock.fileno(), self.__handle_signal)
+        except NotImplementedError:
+            # Some event loops, like the asyncio.ProactorEventLoop
+            # on Windows, do not support asynchronous socket reads.
+            # So we emulate it.
+            self.__background_loop = asyncio.SelectorEventLoop()
+            self.__background_loop.add_reader(
+                self.__rsock.fileno(),
+                self.__loop.call_soon_threadsafe,
+                self.__handle_signal)
+
+            def run_background_loop():
+                asyncio.set_event_loop(self.__background_loop)
+                self.__background_loop.run_forever()
+
+            self.__background_thread = threading.Thread(target=run_background_loop)
+            self.__background_thread.start()
+        self.__prev_wakeup_handle = signal.set_wakeup_fd(self.__wsock.fileno())
+        if self.__prev_wakeup_handle != -1 and is_winsock_handle(self.__prev_wakeup_handle):
+            # On Windows, os.write will fail on a WinSock handle. There is no WinSock API
+            # in the standard library either. Thus we wrap it in a socket.socket instance.
+            self.__prev_wakeup_handle = socket.socket(fileno=self.__prev_wakeup_handle)
+        return self
+
+    def __exit__(self, type_, value, traceback):
+        if isinstance(self.__prev_wakeup_handle, socket.socket):
+            # Detach (Windows) socket and retrieve the raw OS handle.
+            prev_wakeup_handle = self.__prev_wakeup_handle.fileno()
+            self.__prev_wakeup_handle.detach()
+            self.__prev_wakeup_handle = prev_wakeup_handle
+        assert self.__wsock.fileno() == signal.set_wakeup_fd(self.__prev_wakeup_handle)
+        if self.__background_loop:
+            self.__background_loop.call_soon_threadsafe(self.__background_loop.stop)
+            self.__background_thread.join()
+            self.__background_loop.close()
+        else:
+            self.__loop.remove_reader(self.__rsock.fileno())
+
+    def __handle_signal(self):
+        while True:
+            try:
+                data = self.__rsock.recv(4096)
+                if not data:
+                    break
+                for signum in data:
+                    if signum not in self.__handlers:
+                        continue
+                    self.__handlers[signum](signum)
+                if self.__prev_wakeup_handle != -1:
+                    # Send over (Windows) socket or write file.
+                    if isinstance(self.__prev_wakeup_handle, socket.socket):
+                        self.__prev_wakeup_handle.send(data)
+                    else:
+                        os.write(self.__prev_wakeup_handle, data)
+            except InterruptedError:
+                continue
+            except BlockingIOError:
+                break
+
+    def handle(
+        self,
+        signum: Union[signal.Signals, int],
+        handler: Optional[Callable[[int], None]],
+    ) -> Optional[Callable[[int], None]]:
+        """
+        Register a callback for asynchronous handling of a given signal.
+
+        :param signum: number of the signal to be handled
+        :param handler: callback taking a signal number
+          as its sole argument, or None
+        :return: previous handler if any, otherwise None
+        """
+        signum = signal.Signals(signum)
+        if handler is not None:
+            if not callable(handler):
+                raise ValueError('signal handler must be a callable')
+            old_handler = self.__handlers.get(signum, None)
+            self.__handlers[signum] = handler
+        else:
+            old_handler = self.__handlers.pop(signum, None)
+        return old_handler
