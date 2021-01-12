@@ -19,10 +19,7 @@ from .create_future_impl import create_future
 from .ensure_argument_type_impl import ensure_argument_type
 from .normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
 from .perform_substitutions_impl import perform_substitutions
-from .signal_management import install_signal_handlers
-from .signal_management import on_sigint
-from .signal_management import on_sigquit
-from .signal_management import on_sigterm
+from .signal_management import AsyncSafeSignalManager
 from .visit_all_entities_and_collect_futures_impl import visit_all_entities_and_collect_futures
 
 __all__ = [
@@ -32,10 +29,7 @@ __all__ = [
     'create_future',
     'ensure_argument_type',
     'perform_substitutions',
-    'install_signal_handlers',
-    'on_sigint',
-    'on_sigquit',
-    'on_sigterm',
+    'AsyncSafeSignalManager',
     'normalize_to_list_of_substitutions',
     'visit_all_entities_and_collect_futures',
 ]
