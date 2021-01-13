@@ -51,6 +51,14 @@ else:
     SIGNAL = signal.SIGUSR1
     ANOTHER_SIGNAL = signal.SIGUSR2
 
+if not hasattr(signal, 'raise_signal'):
+    # Only available for Python 3.8+
+    def raise_signal(signum):
+        import os
+        os.kill(os.getpid(), signum)
+else:
+    raise_signal = signal.raise_signal
+
 
 @cap_signals(SIGNAL, ANOTHER_SIGNAL)
 def test_async_safe_signal_manager():
@@ -70,7 +78,7 @@ def test_async_safe_signal_manager():
         manager.handle(ANOTHER_SIGNAL, got_another_signal.set_result)
 
         # Verify signal handling is working
-        loop.call_soon(signal.raise_signal, SIGNAL)
+        loop.call_soon(raise_signal, SIGNAL)
         loop.run_until_complete(asyncio.wait(
             [got_signal, got_another_signal],
             return_when=asyncio.FIRST_COMPLETED,
@@ -84,14 +92,14 @@ def test_async_safe_signal_manager():
         manager.handle(SIGNAL, None)
 
         # Verify signal handler is no longer there
-        loop.call_soon(signal.raise_signal, SIGNAL)
+        loop.call_soon(raise_signal, SIGNAL)
         loop.run_until_complete(asyncio.wait(
             [got_another_signal], timeout=1.0
         ))
         assert not got_another_signal.done()
 
     # Signal handling is (now) inactive outside context
-    loop.call_soon(signal.raise_signal, ANOTHER_SIGNAL)
+    loop.call_soon(raise_signal, ANOTHER_SIGNAL)
     loop.run_until_complete(asyncio.wait(
         [got_another_signal], timeout=1.0
     ))
@@ -99,7 +107,7 @@ def test_async_safe_signal_manager():
 
     # Managers' context may be re-entered
     with manager:
-        loop.call_soon(signal.raise_signal, ANOTHER_SIGNAL)
+        loop.call_soon(raise_signal, ANOTHER_SIGNAL)
         loop.run_until_complete(asyncio.wait(
             [got_another_signal], timeout=1.0
         ))

@@ -68,6 +68,10 @@ class AsyncSafeSignalManager:
     descriptor, if any.
     """
 
+    __current = None  # type: AsyncSafeSignalManager
+
+    __set_wakeup_fd = signal.set_wakeup_fd  # type: Callable[[int], int]
+
     def __init__(
         self,
         loop: asyncio.AbstractEventLoop
@@ -77,6 +81,7 @@ class AsyncSafeSignalManager:
 
         :param loop: event loop that will handle the signals.
         """
+        self.__parent = None  # type: AsyncSafeSignalManager
         self.__loop = loop  # type: asyncio.AbstractEventLoop
         self.__background_loop = None  # type: Optional[asyncio.AbstractEventLoop]
         self.__handlers = {}  # type: dict
@@ -104,26 +109,38 @@ class AsyncSafeSignalManager:
 
             self.__background_thread = threading.Thread(target=run_background_loop)
             self.__background_thread.start()
-        self.__prev_wakeup_handle = signal.set_wakeup_fd(self.__wsock.fileno())
-        if self.__prev_wakeup_handle != -1 and is_winsock_handle(self.__prev_wakeup_handle):
-            # On Windows, os.write will fail on a WinSock handle. There is no WinSock API
-            # in the standard library either. Thus we wrap it in a socket.socket instance.
-            self.__prev_wakeup_handle = socket.socket(fileno=self.__prev_wakeup_handle)
+        self.__chain_wakeup_handle(self.__set_wakeup_fd(self.__wsock.fileno()))
+        self.__parent, self.__current = self.__current, self
+        if self.__parent is None:
+            # Do not trust signal.set_wakeup_fd calls within context.
+            # Overwrite handle at the start of the managers' chain.
+            signal.set_wakeup_fd = self.__chain_wakeup_handle
         return self
 
     def __exit__(self, type_, value, traceback):
-        if isinstance(self.__prev_wakeup_handle, socket.socket):
-            # Detach (Windows) socket and retrieve the raw OS handle.
-            prev_wakeup_handle = self.__prev_wakeup_handle.fileno()
-            self.__prev_wakeup_handle.detach()
-            self.__prev_wakeup_handle = prev_wakeup_handle
-        assert self.__wsock.fileno() == signal.set_wakeup_fd(self.__prev_wakeup_handle)
+        prev_wakeup_handle = self.__chain_wakeup_handle(-1)
+        assert self.__wsock.fileno() == self.__set_wakeup_fd(prev_wakeup_handle)
         if self.__background_loop:
             self.__background_loop.call_soon_threadsafe(self.__background_loop.stop)
             self.__background_thread.join()
             self.__background_loop.close()
         else:
             self.__loop.remove_reader(self.__rsock.fileno())
+        if self.__parent is None:
+            signal.set_wakeup_fd = self.__set_wakeup_fd
+        self.__current = self.__parent
+
+    def __chain_wakeup_handle(self, wakeup_handle):
+        if isinstance(wakeup_handle, socket.socket):
+            # Detach (Windows) socket and retrieve the raw OS handle.
+            wakeup_handle, _ = wakeup_handle.fileno(), wakeup_handle.detach()
+        if wakeup_handle != -1 and is_winsock_handle(wakeup_handle):
+            # On Windows, os.write will fail on a WinSock handle. There is no WinSock API
+            # in the standard library either. Thus we wrap it in a socket.socket instance.
+            wakeup_handle = socket.socket(fileno=wakeup_handle)
+        prev_wakeup_handle = self.__prev_wakeup_handle
+        self.__prev_wakeup_handle = wakeup_handle
+        return prev_wakeup_handle
 
     def __handle_signal(self):
         while True:
