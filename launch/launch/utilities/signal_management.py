@@ -131,14 +131,14 @@ class AsyncSafeSignalManager:
         self.__current = self.__parent
 
     def __chain_wakeup_handle(self, wakeup_handle):
-        if isinstance(wakeup_handle, socket.socket):
+        prev_wakeup_handle = self.__prev_wakeup_handle
+        if isinstance(prev_wakeup_handle, socket.socket):
             # Detach (Windows) socket and retrieve the raw OS handle.
-            wakeup_handle, _ = wakeup_handle.fileno(), wakeup_handle.detach()
+            prev_wakeup_handle, _ = prev_wakeup_handle.fileno(), prev_wakeup_handle.detach()
         if wakeup_handle != -1 and is_winsock_handle(wakeup_handle):
             # On Windows, os.write will fail on a WinSock handle. There is no WinSock API
             # in the standard library either. Thus we wrap it in a socket.socket instance.
             wakeup_handle = socket.socket(fileno=wakeup_handle)
-        prev_wakeup_handle = self.__prev_wakeup_handle
         self.__prev_wakeup_handle = wakeup_handle
         return prev_wakeup_handle
 
