@@ -98,12 +98,31 @@ class AsyncSafeSignalManager:
         self.__rsock.setblocking(False)
 
     def __enter__(self):
+        self.__add_signal_readers()
+        try:
+            self.__install_signal_writers()
+        except Exception:
+            self.__remove_signal_readers()
+            raise
+        self.__chain()
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        try:
+            try:
+                self.__uninstall_signal_writers()
+            finally:
+                self.__remove_signal_readers()
+        finally:
+            self.__unchain()
+
+    def __add_signal_readers(self):
         try:
             self.__loop.add_reader(self.__rsock.fileno(), self.__handle_signal)
         except NotImplementedError:
             # Some event loops, like the asyncio.ProactorEventLoop
             # on Windows, do not support asynchronous socket reads.
-            # So we emulate it.
+            # Emulate it.
             self.__background_loop = asyncio.SelectorEventLoop()
             self.__background_loop.add_reader(
                 self.__rsock.fileno(),
@@ -114,26 +133,49 @@ class AsyncSafeSignalManager:
                 asyncio.set_event_loop(self.__background_loop)
                 self.__background_loop.run_forever()
 
-            self.__background_thread = threading.Thread(target=run_background_loop)
+            self.__background_thread = threading.Thread(
+                target=run_background_loop, daemon=True)
             self.__background_thread.start()
-        self.__chain_wakeup_handle(self.__set_wakeup_fd(self.__wsock.fileno()))
+
+    def __remove_signal_readers(self):
+        if self.__background_loop:
+            self.__background_loop.call_soon_threadsafe(self.__background_loop.stop)
+            self.__background_thread.join()
+            self.__background_loop.close()
+            self.__background_loop = None
+        else:
+            self.__loop.remove_reader(self.__rsock.fileno())
+
+    def __install_signal_writers(self):
+        prev_wakeup_handle = self.__set_wakeup_fd(self.__wsock.fileno())
+        try:
+            self.__chain_wakeup_handle(prev_wakeup_handle)
+        except Exception:
+            own_wakeup_handle = self.__set_wakeup_fd(prev_wakeup_handle)
+            assert self.__wsock.fileno() == own_wakeup_handle
+            raise
+
+    def __uninstall_signal_writers(self):
+        prev_wakeup_handle = self.__chain_wakeup_handle(-1)
+        own_wakeup_handle = self.__set_wakeup_fd(prev_wakeup_handle)
+        assert self.__wsock.fileno() == own_wakeup_handle
+
+    def __chain(self):
         self.__parent = AsyncSafeSignalManager.__current
         AsyncSafeSignalManager.__current = self
         if self.__parent is None:
             # Do not trust signal.set_wakeup_fd calls within context.
             # Overwrite handle at the start of the managers' chain.
-            signal.set_wakeup_fd = self.__chain_wakeup_handle
-        return self
+            def modified_set_wakeup_fd(signum):
+                if threading.current_thread() is not threading.main_thread():
+                    raise ValueError(
+                        'set_wakeup_fd only works in main'
+                        ' thread of the main interpreter'
+                    )
+                return self.__chain_wakeup_handle(signum)
+            signal.set_wakeup_fd = modified_set_wakeup_fd
 
-    def __exit__(self, type_, value, traceback):
-        prev_wakeup_handle = self.__chain_wakeup_handle(-1)
-        assert self.__wsock.fileno() == self.__set_wakeup_fd(prev_wakeup_handle)
-        if self.__background_loop:
-            self.__background_loop.call_soon_threadsafe(self.__background_loop.stop)
-            self.__background_thread.join()
-            self.__background_loop.close()
-        else:
-            self.__loop.remove_reader(self.__rsock.fileno())
+    def __unchain(self):
         if self.__parent is None:
             signal.set_wakeup_fd = self.__set_wakeup_fd
         AsyncSafeSignalManager.__current = self.__parent
