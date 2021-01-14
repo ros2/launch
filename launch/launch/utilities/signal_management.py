@@ -66,6 +66,13 @@ class AsyncSafeSignalManager:
     :func:`signal.signal`.
     All signals received are forwarded to the previously setup file
     descriptor, if any.
+
+    ..warning::
+        Within (potentially nested) contexts, :func:`signal.set_wakeup_fd`
+        calls are intercepted such that the given file descriptor overrides
+        the previously setup file descriptor for the outermost manager.
+        This ensures the manager's chain of signal wakeup file descriptors
+        is not broken by third-party code or by asyncio itself in some platforms.
     """
 
     __current = None  # type: AsyncSafeSignalManager
@@ -110,7 +117,8 @@ class AsyncSafeSignalManager:
             self.__background_thread = threading.Thread(target=run_background_loop)
             self.__background_thread.start()
         self.__chain_wakeup_handle(self.__set_wakeup_fd(self.__wsock.fileno()))
-        self.__parent, self.__current = self.__current, self
+        self.__parent = AsyncSafeSignalManager.__current
+        AsyncSafeSignalManager.__current = self
         if self.__parent is None:
             # Do not trust signal.set_wakeup_fd calls within context.
             # Overwrite handle at the start of the managers' chain.
@@ -128,13 +136,13 @@ class AsyncSafeSignalManager:
             self.__loop.remove_reader(self.__rsock.fileno())
         if self.__parent is None:
             signal.set_wakeup_fd = self.__set_wakeup_fd
-        self.__current = self.__parent
+        AsyncSafeSignalManager.__current = self.__parent
 
     def __chain_wakeup_handle(self, wakeup_handle):
         prev_wakeup_handle = self.__prev_wakeup_handle
         if isinstance(prev_wakeup_handle, socket.socket):
             # Detach (Windows) socket and retrieve the raw OS handle.
-            prev_wakeup_handle, _ = prev_wakeup_handle.fileno(), prev_wakeup_handle.detach()
+            prev_wakeup_handle = prev_wakeup_handle.detach()
         if wakeup_handle != -1 and is_winsock_handle(wakeup_handle):
             # On Windows, os.write will fail on a WinSock handle. There is no WinSock API
             # in the standard library either. Thus we wrap it in a socket.socket instance.
