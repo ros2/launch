@@ -24,7 +24,10 @@ from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
 
-import importlib_metadata
+try:
+    import importlib.metadata as importlib_metadata
+except ModuleNotFoundError:
+    import importlib_metadata
 
 from .entity import Entity
 from .expose import instantiate_action
