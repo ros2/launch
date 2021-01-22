@@ -47,7 +47,7 @@ class DeclareLaunchArgument(Action):
     command-line arguments when launched with ``ros2 launch ...``.
 
     In addition to the name, which is also where the argument result is stored,
-    launch arguments may have a default value, a choice list and a description.
+    launch arguments may have a default value, a list of valid value choices, and a description.
     If a default value is given, then the argument becomes optional and the
     default value is placed in the launch configuration instead.
     If no default value is given and no value is given when including the
@@ -81,23 +81,41 @@ class DeclareLaunchArgument(Action):
         name: Text,
         *,
         default_value: Optional[SomeSubstitutionsType] = None,
-        description: Text = 'no description given',
-        arg_choices: List[Text] = None,
+        description: Optional[Text] = None,
+        choices: List[Text] = None,
         **kwargs
     ) -> None:
         """Create a DeclareLaunchArgument action."""
         super().__init__(**kwargs)
         self.__name = name
+        self.__logger = launch.logging.get_logger(__name__)
         if default_value is None:
             self.__default_value = default_value
         else:
             self.__default_value = normalize_to_list_of_substitutions(default_value)
-        self.__description = description
-        if arg_choices is not None:
-            self.__description += " Valid choices are: " + str(arg_choices)
+        if choices is not None:
+            # Check if a non substitution default value is provided and is a valid choice
+            if default_value is not None and not isinstance(default_value, Substitution):
+                if default_value not in choices:
+                    self.__logger.error(
+                        "Provided default_value '{}' is not in provided choices '{}'.".format(
+                            default_value, choices)
+                    )
+                    raise RuntimeError(
+                        "Provided default_value '{}' is not in provided choices '{}'.".format(
+                            default_value, choices))
 
-        self.__arg_choices = arg_choices
-        self.__logger = launch.logging.get_logger(__name__)
+        if description is None:
+            if choices is None:
+                self.__description = 'no description given'
+            else:
+                self.__description = 'One of: ' + str(choices)
+        else:
+            self.__description = description
+            if choices is not None:
+                self.__description += " Valid choices are: " + str(choices)
+
+        self.__choices = choices
 
         # This is used later to determine if this launch argument will be
         # conditionally visited.
@@ -120,9 +138,9 @@ class DeclareLaunchArgument(Action):
         description = entity.get_attr('description', optional=True)
         if description is not None:
             kwargs['description'] = parser.escape_characters(description)
-        arg_choices = entity.get_attr('arg_choices', optional=True)
-        if arg_choices is not None:
-            kwargs['arg_choices'] = parser.escape_characters(arg_choices)
+        choices = entity.get_attr('choices', optional=True)
+        if choices is not None:
+            kwargs['choices'] = parser.escape_characters(choices)
         return cls, kwargs
 
     @property
@@ -141,9 +159,9 @@ class DeclareLaunchArgument(Action):
         return self.__description
 
     @property
-    def arg_choices(self) -> Text:
-        """Getter for self.__arg_choices."""
-        return self.__arg_choices
+    def choices(self) -> List[Text]:
+        """Getter for self.__choices."""
+        return self.__choices
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
@@ -159,10 +177,10 @@ class DeclareLaunchArgument(Action):
             context.launch_configurations[self.name] = \
                 perform_substitutions(context, self.default_value)
 
-        if self.__arg_choices is not None:
+        if self.__choices is not None:
             value = context.launch_configurations[self.name]
-            if value not in self.__arg_choices:
+            if value not in self.__choices:
                 error_msg = ("Argument '{}' provided value '{}' is not valid. Valid options "
-                             "are: {}".format(self.name, value, self.__arg_choices))
+                             "are: {}".format(self.name, value, self.__choices))
                 self.__logger.error(error_msg)
                 raise RuntimeError(error_msg)
