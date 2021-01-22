@@ -47,11 +47,13 @@ class DeclareLaunchArgument(Action):
     command-line arguments when launched with ``ros2 launch ...``.
 
     In addition to the name, which is also where the argument result is stored,
-    launch arguments may have a default value and a description.
+    launch arguments may have a default value, a choice list and a description.
     If a default value is given, then the argument becomes optional and the
     default value is placed in the launch configuration instead.
     If no default value is given and no value is given when including the
     launch description, then an error occurs.
+    If a choice list is given, and the given value is not in it, an error
+    occurs.
 
     The default value may use Substitutions, but the name and description can
     only be Text, since they need a meaningful value before launching, e.g.
@@ -80,6 +82,7 @@ class DeclareLaunchArgument(Action):
         *,
         default_value: Optional[SomeSubstitutionsType] = None,
         description: Text = 'no description given',
+        arg_choices: List[Text] = None,
         **kwargs
     ) -> None:
         """Create a DeclareLaunchArgument action."""
@@ -90,7 +93,10 @@ class DeclareLaunchArgument(Action):
         else:
             self.__default_value = normalize_to_list_of_substitutions(default_value)
         self.__description = description
+        if arg_choices is not None:
+            self.__description += " Valid choices are: " + str(arg_choices)
 
+        self.__arg_choices = arg_choices
         self.__logger = launch.logging.get_logger(__name__)
 
         # This is used later to determine if this launch argument will be
@@ -114,6 +120,9 @@ class DeclareLaunchArgument(Action):
         description = entity.get_attr('description', optional=True)
         if description is not None:
             kwargs['description'] = parser.escape_characters(description)
+        arg_choices = entity.get_attr('arg_choices', optional=True)
+        if arg_choices is not None:
+            kwargs['arg_choices'] = parser.escape_characters(arg_choices)
         return cls, kwargs
 
     @property
@@ -131,6 +140,11 @@ class DeclareLaunchArgument(Action):
         """Getter for self.__description."""
         return self.__description
 
+    @property
+    def arg_choices(self) -> Text:
+        """Getter for self.__arg_choices."""
+        return self.__arg_choices
+
     def execute(self, context: LaunchContext):
         """Execute the action."""
         if self.name not in context.launch_configurations:
@@ -144,3 +158,11 @@ class DeclareLaunchArgument(Action):
                     "Required launch argument '{}' was not provided.".format(self.name))
             context.launch_configurations[self.name] = \
                 perform_substitutions(context, self.default_value)
+
+        if self.__arg_choices is not None:
+            value = context.launch_configurations[self.name]
+            if value not in self.__arg_choices:
+                error_msg = ("Argument '{}' provided value '{}' is not valid. Valid options "
+                             "are: {}".format(self.name, value, self.__arg_choices))
+                self.__logger.error(error_msg)
+                raise RuntimeError(error_msg)
