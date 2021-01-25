@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.15.0 (2021-01-25)
+-------------------
 * Support Python 3.8-provided importlib.metadata (`#482 <https://github.com/ros2/launch/issues/482>`_)
 * Workaround asyncio signal handling on Unix (`#479 <https://github.com/ros2/launch/issues/479>`_)
 * Handle signals within the asyncio loop. (`#476 <https://github.com/ros2/launch/issues/476>`_)
