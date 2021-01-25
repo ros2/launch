@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Support Python 3.8-provided importlib.metadata (`#482 <https://github.com/ros2/launch/issues/482>`_)
+* Workaround asyncio signal handling on Unix (`#479 <https://github.com/ros2/launch/issues/479>`_)
+* Handle signals within the asyncio loop. (`#476 <https://github.com/ros2/launch/issues/476>`_)
+* Support non-interactive launch.LaunchService runs (`#475 <https://github.com/ros2/launch/issues/475>`_)
+* Contributors: Michel Hidalgo, Scott K Logan
+
 0.14.0 (2020-12-08)
 -------------------
 * print stderr message when command failed (`#474 <https://github.com/ros2/launch/issues/474>`_)
