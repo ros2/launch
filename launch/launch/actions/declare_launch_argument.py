@@ -94,7 +94,7 @@ class DeclareLaunchArgument(Action):
         else:
             self.__default_value = normalize_to_list_of_substitutions(default_value)
         if choices is not None:
-            if choices == []:
+            if len(choices) == 0:
                 self.__logger.error(
                     "Provided choices arg is empty. Use None to ignore the choice list.")
                 raise RuntimeError(

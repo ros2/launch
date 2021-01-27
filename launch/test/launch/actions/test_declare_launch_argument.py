@@ -26,7 +26,7 @@ def test_declare_launch_argument_constructors():
     DeclareLaunchArgument('name', default_value='default value')
     DeclareLaunchArgument('name', default_value='default value', description='description')
     DeclareLaunchArgument('name', default_value='val1', description='description',
-                          choices=["val1", "val2"])
+                          choices=['val1', 'val2'])
 
 
 def test_declare_launch_argument_methods():
@@ -45,14 +45,14 @@ def test_declare_launch_argument_methods():
     assert dla2.choices is None
     assert dla2.description, 'description does not have a non-empty default value'
 
-    dla3 = DeclareLaunchArgument('name', description='description', choices=["var1", "var2"])
+    dla3 = DeclareLaunchArgument('name', description='description', choices=['var1', 'var2'])
     assert dla3.default_value is None
-    assert dla3.choices == ["var1", "var2"]
+    assert dla3.choices == ['var1', 'var2']
     assert str(dla3.choices) in dla3.description
 
     with pytest.raises(RuntimeError) as excinfo:
-        DeclareLaunchArgument('name', description='description', choices=["var1", "var2"],
-                              default_value="invalid")
+        DeclareLaunchArgument('name', description='description', choices=['var1', 'var2'],
+                              default_value='invalid')
     assert 'not in provided choices' in str(excinfo.value)
 
 
@@ -72,7 +72,7 @@ def test_declare_launch_argument_execute():
     assert action2.visit(lc2) is None
     assert lc1.launch_configurations['name'] == 'value'
 
-    action3 = DeclareLaunchArgument('name', default_value="var1", choices=["var1", "var2"])
+    action3 = DeclareLaunchArgument('name', default_value='var1', choices=['var1', 'var2'])
     lc3 = LaunchContext()
     assert action3.visit(lc3) is None
     lc3.launch_configurations['name'] = 'invalid_value'
