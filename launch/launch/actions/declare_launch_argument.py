@@ -96,19 +96,19 @@ class DeclareLaunchArgument(Action):
         if choices is not None:
             if len(choices) == 0:
                 self.__logger.error(
-                    "Provided choices arg is empty. Use None to ignore the choice list.")
+                    'Provided choices arg is empty. Use None to ignore the choice list.')
                 raise RuntimeError(
-                    "Provided choices arg is empty. Use None to ignore the choice list.")
+                    'Provided choices arg is empty. Use None to ignore the choice list.')
 
             # Check if a non substitution default value is provided and is a valid choice
             if default_value is not None and not isinstance(default_value, Substitution):
                 if default_value not in choices:
                     self.__logger.error(
-                        "Provided default_value '{}' is not in provided choices '{}'.".format(
+                        'Provided default_value "{}" is not in provided choices "{}".'.format(
                             default_value, choices)
                     )
                     raise RuntimeError(
-                        "Provided default_value '{}' is not in provided choices '{}'.".format(
+                        'Provided default_value "{}" is not in provided choices "{}".'.format(
                             default_value, choices))
 
         if description is None:
@@ -119,7 +119,7 @@ class DeclareLaunchArgument(Action):
         else:
             self.__description = description
             if choices is not None:
-                self.__description += " Valid choices are: " + str(choices)
+                self.__description += ' Valid choices are: ' + str(choices)
 
         self.__choices = choices
 
@@ -175,18 +175,18 @@ class DeclareLaunchArgument(Action):
             if self.default_value is None:
                 # Argument not already set and no default value given, error.
                 self.__logger.error(
-                    "Required launch argument '{}' (description: '{}') was not provided".format(
-                        self.name, self.description)
+                    'Required launch argument "{}" (description: "{}") was not provided'
+                    .format(self.name, self.description)
                 )
                 raise RuntimeError(
-                    "Required launch argument '{}' was not provided.".format(self.name))
+                    'Required launch argument "{}" was not provided.'.format(self.name))
             context.launch_configurations[self.name] = \
                 perform_substitutions(context, self.default_value)
 
         if self.__choices is not None:
             value = context.launch_configurations[self.name]
             if value not in self.__choices:
-                error_msg = ("Argument '{}' provided value '{}' is not valid. Valid options "
-                             "are: {}".format(self.name, value, self.__choices))
+                error_msg = ('Argument "{}" provided value "{}" is not valid. Valid options '
+                             'are: {}'.format(self.name, value, self.__choices))
                 self.__logger.error(error_msg)
                 raise RuntimeError(error_msg)
