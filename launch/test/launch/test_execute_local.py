@@ -35,6 +35,7 @@ from launch.descriptions import Executable
 
 import pytest
 
+
 @pytest.mark.parametrize('test_input,expected', [
     (None, [True, False]),
     ({'TEST_NEW_ENV': '2'}, [False, True])

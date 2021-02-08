@@ -507,17 +507,6 @@ class ExecuteLocal(Action):
         def on_stderr_received(self, data: bytes) -> None:
             self.__context.emit_event_sync(ProcessStderr(text=data, **self.__process_event_args))
 
-    def __expand_substitutions(self, context):
-        # store packed kwargs for all ProcessEvent based events
-        self.__process_event_args = {
-            'action': self,
-            'name': self.__process_description.final_name,
-            'cmd': self.__process_description.final_cmd,
-            'cwd': self.__process_description.final_cwd,
-            'env': self.__process_description.final_env,
-            # pid is added to the dictionary in the connection_made() method of the protocol.
-        }
-
     async def __execute_process(self, context: LaunchContext) -> None:
         process_event_args = self.__process_event_args
         if process_event_args is None:
@@ -589,8 +578,17 @@ class ExecuteLocal(Action):
 
     def prepare(self, context: LaunchContext):
         """Prepare the action for execution."""
-        self.__process_description.apply_context(context)
-        self.__expand_substitutions(context)
+        self.__process_description.prepare(self, context)
+
+        # store packed kwargs for all ProcessEvent based events
+        self.__process_event_args = {
+            'action': self,
+            'name': self.__process_description.final_name,
+            'cmd': self.__process_description.final_cmd,
+            'cwd': self.__process_description.final_cwd,
+            'env': self.__process_description.final_env,
+            # pid is added to the dictionary in the connection_made() method of the protocol.
+        }
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """

@@ -148,16 +148,16 @@ class Executable:
         """Getter for final_env."""
         return self.__final_env
 
-    def apply_context(self, context: LaunchContext):
+    def prepare(self, action: Action, context: LaunchContext):
         """
         Prepare an executable description for execution in a given environment.
 
         This does the following:
         - performs substitutions on various properties
-        """
-        self.__expand_substitutions(context)
 
-    def __expand_substitutions(self, context):
+        Note that 'action' is not used at this level; it is provided for use
+        by subclasses which may override this method.
+        """
         # expand substitutions in arguments to async_execute_process()
         cmd = [perform_substitutions(context, x) for x in self.__cmd]
         cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
