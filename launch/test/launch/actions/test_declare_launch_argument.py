@@ -25,6 +25,8 @@ def test_declare_launch_argument_constructors():
     DeclareLaunchArgument('name')
     DeclareLaunchArgument('name', default_value='default value')
     DeclareLaunchArgument('name', default_value='default value', description='description')
+    DeclareLaunchArgument('name', default_value='val1', description='description',
+                          choices=['val1', 'val2'])
 
 
 def test_declare_launch_argument_methods():
@@ -33,13 +35,25 @@ def test_declare_launch_argument_methods():
     assert dla1.name == 'name'
     assert isinstance(dla1.default_value, list)
     assert dla1.description == 'description'
+    assert dla1.choices is None
     assert 'DeclareLaunchArgument' in dla1.describe()
     assert isinstance(dla1.describe_sub_entities(), list)
     assert isinstance(dla1.describe_conditional_sub_entities(), list)
 
     dla2 = DeclareLaunchArgument('name')
     assert dla2.default_value is None
+    assert dla2.choices is None
     assert dla2.description, 'description does not have a non-empty default value'
+
+    dla3 = DeclareLaunchArgument('name', description='description', choices=['var1', 'var2'])
+    assert dla3.default_value is None
+    assert dla3.choices == ['var1', 'var2']
+    assert str(dla3.choices) in dla3.description
+
+    with pytest.raises(RuntimeError) as excinfo:
+        DeclareLaunchArgument('name', description='description', choices=['var1', 'var2'],
+                              default_value='invalid')
+    assert 'not in provided choices' in str(excinfo.value)
 
 
 def test_declare_launch_argument_execute():
@@ -57,3 +71,15 @@ def test_declare_launch_argument_execute():
     lc2 = LaunchContext()
     assert action2.visit(lc2) is None
     assert lc1.launch_configurations['name'] == 'value'
+
+    action3 = DeclareLaunchArgument('name', default_value='var1', choices=['var1', 'var2'])
+    lc3 = LaunchContext()
+    assert action3.visit(lc3) is None
+    lc3.launch_configurations['name'] = 'invalid_value'
+    with pytest.raises(RuntimeError) as excinfo:
+        action3.visit(lc3)
+        assert 'Valid options are: [var1, var2]' in str(excinfo.value)
+    lc3.launch_configurations['name'] = 'var1'
+    assert action3.visit(lc3) is None
+    lc3.launch_configurations['name'] = 'var2'
+    assert action3.visit(lc3) is None

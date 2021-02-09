@@ -47,11 +47,13 @@ class DeclareLaunchArgument(Action):
     command-line arguments when launched with ``ros2 launch ...``.
 
     In addition to the name, which is also where the argument result is stored,
-    launch arguments may have a default value and a description.
+    launch arguments may have a default value, a list of valid value choices, and a description.
     If a default value is given, then the argument becomes optional and the
     default value is placed in the launch configuration instead.
     If no default value is given and no value is given when including the
     launch description, then an error occurs.
+    If a choice list is given, and the given value is not in it, an error
+    occurs.
 
     The default value may use Substitutions, but the name and description can
     only be Text, since they need a meaningful value before launching, e.g.
@@ -79,19 +81,47 @@ class DeclareLaunchArgument(Action):
         name: Text,
         *,
         default_value: Optional[SomeSubstitutionsType] = None,
-        description: Text = 'no description given',
+        description: Optional[Text] = None,
+        choices: List[Text] = None,
         **kwargs
     ) -> None:
         """Create a DeclareLaunchArgument action."""
         super().__init__(**kwargs)
         self.__name = name
+        self.__logger = launch.logging.get_logger(__name__)
         if default_value is None:
             self.__default_value = default_value
         else:
             self.__default_value = normalize_to_list_of_substitutions(default_value)
-        self.__description = description
+        if choices is not None:
+            if len(choices) == 0:
+                self.__logger.error(
+                    'Provided choices arg is empty. Use None to ignore the choice list.')
+                raise RuntimeError(
+                    'Provided choices arg is empty. Use None to ignore the choice list.')
 
-        self.__logger = launch.logging.get_logger(__name__)
+            # Check if a non substitution default value is provided and is a valid choice
+            if default_value is not None and not isinstance(default_value, Substitution):
+                if default_value not in choices:
+                    self.__logger.error(
+                        'Provided default_value "{}" is not in provided choices "{}".'.format(
+                            default_value, choices)
+                    )
+                    raise RuntimeError(
+                        'Provided default_value "{}" is not in provided choices "{}".'.format(
+                            default_value, choices))
+
+        if description is None:
+            if choices is None:
+                self.__description = 'no description given'
+            else:
+                self.__description = 'One of: ' + str(choices)
+        else:
+            self.__description = description
+            if choices is not None:
+                self.__description += ' Valid choices are: ' + str(choices)
+
+        self.__choices = choices
 
         # This is used later to determine if this launch argument will be
         # conditionally visited.
@@ -114,6 +144,9 @@ class DeclareLaunchArgument(Action):
         description = entity.get_attr('description', optional=True)
         if description is not None:
             kwargs['description'] = parser.escape_characters(description)
+        choices = entity.get_attr('choices', optional=True)
+        if choices is not None:
+            kwargs['choices'] = parser.escape_characters(choices)
         return cls, kwargs
 
     @property
@@ -131,16 +164,29 @@ class DeclareLaunchArgument(Action):
         """Getter for self.__description."""
         return self.__description
 
+    @property
+    def choices(self) -> List[Text]:
+        """Getter for self.__choices."""
+        return self.__choices
+
     def execute(self, context: LaunchContext):
         """Execute the action."""
         if self.name not in context.launch_configurations:
             if self.default_value is None:
                 # Argument not already set and no default value given, error.
                 self.__logger.error(
-                    "Required launch argument '{}' (description: '{}') was not provided".format(
-                        self.name, self.description)
+                    'Required launch argument "{}" (description: "{}") was not provided'
+                    .format(self.name, self.description)
                 )
                 raise RuntimeError(
-                    "Required launch argument '{}' was not provided.".format(self.name))
+                    'Required launch argument "{}" was not provided.'.format(self.name))
             context.launch_configurations[self.name] = \
                 perform_substitutions(context, self.default_value)
+
+        if self.__choices is not None:
+            value = context.launch_configurations[self.name]
+            if value not in self.__choices:
+                error_msg = ('Argument "{}" provided value "{}" is not valid. Valid options '
+                             'are: {}'.format(self.name, value, self.__choices))
+                self.__logger.error(error_msg)
+                raise RuntimeError(error_msg)
