@@ -68,7 +68,7 @@ def test_substituted_properties():
     os.environ['EXECUTABLE_ENVVAL'] = 'value'
     name = EnvironmentVariable('EXECUTABLE_NAME')
     cwd = EnvironmentVariable('EXECUTABLE_CWD')
-    env = {EnvironmentVariable('EXECUTABLE_EV'): EnvironmentVariable('EXECUTABLE_ENVVAL')}
+    env = {EnvironmentVariable('EXECUTABLE_ENVVAR'): EnvironmentVariable('EXECUTABLE_ENVVAL')}
     exe = Executable(cmd=['test'], name=name, cwd=cwd, env=env)
     exe.prepare(None, LaunchContext())
     assert exe.final_name.startswith('name')

@@ -54,6 +54,7 @@ class Executable:
             cwd: Optional[SomeSubstitutionsType] = None,
             env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
             additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+            arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
     ) -> None:
         """
         Initialize an Executable description.
@@ -72,8 +73,10 @@ class Executable:
         :param additional_env: Dictionary of environment variables to be added. If env was
             None, they are added to the current environment. If not, env is updated with
             additional_env.
+        :param: arguments list of extra arguments for the executable
         """
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
+        self.__cmd += [] if arguments is None else [normalize_to_list_of_substitutions(x) for x in arguments]
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
@@ -93,6 +96,7 @@ class Executable:
                 self.__additional_env.append((
                     normalize_to_list_of_substitutions(key),
                     normalize_to_list_of_substitutions(value)))
+        self.__arguments = arguments
         self.__final_cmd = None
         self.__final_cwd = None
         self.__final_env = None
@@ -129,6 +133,11 @@ class Executable:
         return self.__additional_env
 
     @property
+    def arguments(self):
+        """Getter for arguments."""
+        return self.__arguments
+
+    @property
     def final_name(self):
         """Getter for final_name."""
         return self.__final_name
@@ -148,7 +157,7 @@ class Executable:
         """Getter for final_env."""
         return self.__final_env
 
-    def prepare(self, action: Action, context: LaunchContext):
+    def prepare(self, context: LaunchContext, action: Action):
         """
         Prepare an executable description for execution in a given environment.
 
