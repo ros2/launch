@@ -15,6 +15,7 @@
 import os
 import sys
 import unittest
+import unittest.mock as mock
 
 import ament_index_python
 import launch
@@ -23,7 +24,6 @@ import launch_testing
 import launch_testing.actions
 from launch_testing.loader import TestRun as TR
 from launch_testing.test_runner import LaunchTestRunner
-import mock
 
 
 # Run tests on processes that die early with an exit code and make sure the results returned
