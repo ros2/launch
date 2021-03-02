@@ -578,7 +578,7 @@ class ExecuteLocal(Action):
 
     def prepare(self, context: LaunchContext):
         """Prepare the action for execution."""
-        self.__process_description.prepare(self, context)
+        self.__process_description.prepare(context, self)
 
         # store packed kwargs for all ProcessEvent based events
         self.__process_event_args = {
