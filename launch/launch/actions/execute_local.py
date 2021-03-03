@@ -90,7 +90,7 @@ class ExecuteLocal(Action):
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
         output: Text = 'log',
-        output_format: Text = '[{this.process_description.name}] {line}',
+        output_format: Text = '[{this.process_description.final_name}] {line}',
         log_cmd: bool = False,
         on_exit: Optional[Union[
             SomeActionsType,
