@@ -34,19 +34,19 @@ def test_executable():
 
 def test_cmd_string_in_list():
     exe = Executable(cmd=['ls "my/subdir/with spaces/"'])
-    exe.prepare(None, LaunchContext())
+    exe.prepare(LaunchContext(), None)
     assert all(a == b for a, b in zip(exe.final_cmd, ['ls "my/subdir/with spaces/"']))
 
 
 def test_cmd_strings_in_list():
     exe = Executable(cmd=['ls', '"my/subdir/with spaces/"'])
-    exe.prepare(None, LaunchContext())
+    exe.prepare(LaunchContext(), None)
     assert all(a == b for a, b in zip(exe.final_cmd, ['ls', '"my/subdir/with spaces/"']))
 
 
 def test_cmd_multiple_arguments_in_string():
     exe = Executable(cmd=['ls', '-opt1', '-opt2', '-opt3'])
-    exe.prepare(None, LaunchContext())
+    exe.prepare(LaunchContext(), None)
     assert all(a == b for a, b in zip(exe.final_cmd, ['ls', '-opt1', '-opt2', '-opt3']))
 
 
@@ -55,7 +55,7 @@ def test_passthrough_properties():
     cwd = 'cwd'
     env = {'a': '1'}
     exe = Executable(cmd=['test'], name=name, cwd=cwd, env=env)
-    exe.prepare(None, LaunchContext())
+    exe.prepare(LaunchContext(), None)
     assert exe.final_name.startswith(name)
     assert exe.final_cwd == cwd
     assert exe.final_env == env
@@ -70,7 +70,7 @@ def test_substituted_properties():
     cwd = EnvironmentVariable('EXECUTABLE_CWD')
     env = {EnvironmentVariable('EXECUTABLE_ENVVAR'): EnvironmentVariable('EXECUTABLE_ENVVAL')}
     exe = Executable(cmd=['test'], name=name, cwd=cwd, env=env)
-    exe.prepare(None, LaunchContext())
+    exe.prepare(LaunchContext(), None)
     assert exe.final_name.startswith('name')
     assert exe.final_cwd == 'cwd'
     assert exe.final_env == {'var': 'value'}

@@ -76,7 +76,8 @@ class Executable:
         :param: arguments list of extra arguments for the executable
         """
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
-        self.__cmd += [] if arguments is None else [normalize_to_list_of_substitutions(x) for x in arguments]
+        self.__cmd += ([] if arguments is None
+                       else [normalize_to_list_of_substitutions(x) for x in arguments])
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
