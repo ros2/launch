@@ -38,11 +38,12 @@ class LaunchTestFailureRepr:
     """A `_pytest._code.code.ExceptionReprChain`-like object."""
 
     def __init__(self, failures):
-        max_length = max(
-            len(line)
+        lines = [
+            line
             for _, error_description in failures
             for line in error_description.splitlines()
-        )
+        ]
+        max_length = max(len(line) for line in lines) if lines else 3
         thick_sep_line = '=' * max_length
         thin_sep_line = '-' * max_length
         self._fulldescr = '\n' + '\n\n'.join([
