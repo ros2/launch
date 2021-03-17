@@ -31,6 +31,7 @@ from . import handlers
 
 from ..frontend import expose_substitution
 from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitutions import TextSubstitution
 
 __all__ = [
     'get_logger',
@@ -309,7 +310,7 @@ def _log_dir(data: Iterable[SomeSubstitutionsType]):
     if len(data) > 0:
         raise ValueError('log_dir substitution does not expect any arguments')
     # Parser expects callable
-    return lambda: launch_config.log_dir, {}
+    return lambda: TextSubstitution(text=launch_config.log_dir), {}
 
 
 def _normalize_output_configuration(config):
