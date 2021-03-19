@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add arg_choice arg to DeclareLaunchArguments (`#483 <https://github.com/ros2/launch/issues/483>`_)
+* Contributors: Victor Lopez
+
 0.15.0 (2021-01-25)
 -------------------
 * Support Python 3.8-provided importlib.metadata (`#482 <https://github.com/ros2/launch/issues/482>`_)

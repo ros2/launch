@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Use unittest.mock instead of mock (`#487 <https://github.com/ros2/launch/issues/487>`_)
+* Contributors: Michel Hidalgo
+
 0.15.0 (2021-01-25)
 -------------------
 
