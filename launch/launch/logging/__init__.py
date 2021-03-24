@@ -309,8 +309,7 @@ def get_logger(name=None):
 def _log_dir(data: Iterable[SomeSubstitutionsType]):
     if len(data) > 0:
         raise ValueError('log_dir substitution does not expect any arguments')
-    # Parser expects callable
-    return lambda: TextSubstitution(text=launch_config.log_dir), {}
+    return TextSubstitution, {'text': launch_config.log_dir}
 
 
 def _normalize_output_configuration(config):
