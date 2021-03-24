@@ -20,7 +20,9 @@ import pathlib
 import re
 from unittest import mock
 
+from launch.frontend.parse_substitution import parse_substitution
 import launch.logging
+from launch.substitutions import TextSubstitution
 
 import pytest
 
@@ -321,3 +323,15 @@ def test_get_logging_directory():
 
     os.environ.pop('ROS_HOME', None)
     launch.logging.launch_config.reset()
+
+
+def test_get_log_dir_frontend(log_dir):
+    """Test log_dir frontend substitution."""
+    launch.logging.reset()
+    launch.logging.launch_config.log_dir = log_dir
+
+    subst = parse_substitution('$(log_dir)')
+    assert len(subst) == 1
+    result = subst[0]
+    assert isinstance(result, TextSubstitution)
+    assert result.text == log_dir

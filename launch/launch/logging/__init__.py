@@ -24,9 +24,14 @@ import os
 import socket
 import sys
 
+from typing import Iterable
 from typing import List
 
 from . import handlers
+
+from ..frontend import expose_substitution
+from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitutions import TextSubstitution
 
 __all__ = [
     'get_logger',
@@ -298,6 +303,13 @@ def get_logger(name=None):
     if launch_log_file_handler not in logger.handlers:
         logger.addHandler(launch_log_file_handler)
     return logger
+
+
+@expose_substitution('log_dir')
+def _log_dir(data: Iterable[SomeSubstitutionsType]):
+    if len(data) > 0:
+        raise ValueError('log_dir substitution does not expect any arguments')
+    return TextSubstitution, {'text': launch_config.log_dir}
 
 
 def _normalize_output_configuration(config):
