@@ -16,7 +16,6 @@
 
 import asyncio
 import os
-import platform
 import signal
 import socket
 import threading
@@ -26,21 +25,10 @@ from typing import Optional
 from typing import Tuple  # noqa: F401
 from typing import Union
 
-
-def is_winsock_handle(fd):
-    """Check if the given file descriptor is WinSock handle."""
-    if platform.system() != 'Windows':
-        return False
-    try:
-        # On Windows, WinSock handles and regular file handles
-        # have disjoint APIs. This test leverages the fact that
-        # attempting to get an MSVC runtime file handle from a
-        # WinSock handle will fail.
-        import msvcrt
-        msvcrt.get_osfhandle(fd)
-        return False
-    except OSError:
-        return True
+try:
+    _WindowsError = WindowsError
+except NameError:
+    _WindowsError = None
 
 
 class AsyncSafeSignalManager:
@@ -185,10 +173,14 @@ class AsyncSafeSignalManager:
         if isinstance(prev_wakeup_handle, socket.socket):
             # Detach (Windows) socket and retrieve the raw OS handle.
             prev_wakeup_handle = prev_wakeup_handle.detach()
-        if wakeup_handle != -1 and is_winsock_handle(wakeup_handle):
+        if wakeup_handle != -1:
             # On Windows, os.write will fail on a WinSock handle. There is no WinSock API
             # in the standard library either. Thus we wrap it in a socket.socket instance.
-            wakeup_handle = socket.socket(fileno=wakeup_handle)
+            try:
+                wakeup_handle = socket.socket(fileno=wakeup_handle)
+            except _WindowsError as e:
+                if e.winerror != 10038:  # WSAENOTSOCK
+                    raise
         self.__prev_wakeup_handle = wakeup_handle
         return prev_wakeup_handle
 
