@@ -15,6 +15,7 @@
 """Module for signal management functionality."""
 
 import asyncio
+from contextlib import ExitStack
 import os
 import signal
 import socket
@@ -81,16 +82,28 @@ class AsyncSafeSignalManager:
         self.__background_loop = None  # type: Optional[asyncio.AbstractEventLoop]
         self.__handlers = {}  # type: dict
         self.__prev_wakeup_handle = -1  # type: Union[int, socket.socket]
-        self.__wsock, self.__rsock = socket.socketpair()  # type: Tuple[socket.socket, socket.socket]  # noqa
-        self.__wsock.setblocking(False)
-        self.__rsock.setblocking(False)
+        self.__wsock = None
+        self.__rsock = None
+        self.__close_sockets = None
 
     def __enter__(self):
+        pair = socket.socketpair()  # type: Tuple[socket.socket, socket.socket]  # noqa
+        with ExitStack() as stack:
+            self.__wsock = stack.enter_context(pair[0])
+            self.__rsock = stack.enter_context(pair[1])
+            self.__wsock.setblocking(False)
+            self.__rsock.setblocking(False)
+            self.__close_sockets = stack.pop_all().close
+
         self.__add_signal_readers()
         try:
             self.__install_signal_writers()
         except Exception:
             self.__remove_signal_readers()
+            self.__close_sockets()
+            self.__rsock = None
+            self.__wsock = None
+            self.__close_sockets = None
             raise
         self.__chain()
         return self
@@ -103,6 +116,10 @@ class AsyncSafeSignalManager:
                 self.__remove_signal_readers()
         finally:
             self.__unchain()
+            self.__close_sockets()
+            self.__rsock = None
+            self.__wsock = None
+            self.__close_sockets = None
 
     def __add_signal_readers(self):
         try:
