@@ -17,6 +17,7 @@
 import asyncio
 from contextlib import ExitStack
 import os
+import platform
 import signal
 import socket
 import threading
@@ -25,11 +26,6 @@ from typing import Callable
 from typing import Optional
 from typing import Tuple  # noqa: F401
 from typing import Union
-
-try:
-    _WindowsError = WindowsError
-except NameError:
-    _WindowsError = None
 
 
 class AsyncSafeSignalManager:
@@ -190,12 +186,12 @@ class AsyncSafeSignalManager:
         if isinstance(prev_wakeup_handle, socket.socket):
             # Detach (Windows) socket and retrieve the raw OS handle.
             prev_wakeup_handle = prev_wakeup_handle.detach()
-        if wakeup_handle != -1:
+        if wakeup_handle != -1 and platform.system() == 'Windows':
             # On Windows, os.write will fail on a WinSock handle. There is no WinSock API
             # in the standard library either. Thus we wrap it in a socket.socket instance.
             try:
                 wakeup_handle = socket.socket(fileno=wakeup_handle)
-            except _WindowsError as e:
+            except WindowsError as e:
                 if e.winerror != 10038:  # WSAENOTSOCK
                     raise
         self.__prev_wakeup_handle = wakeup_handle
