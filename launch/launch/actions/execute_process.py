@@ -562,9 +562,10 @@ class ExecuteProcess(Action):
             self.__stderr_buffer.truncate(0)
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+        due_to_sigint = cast(Shutdown, event).due_to_sigint
         return self._shutdown_process(
             context,
-            send_sigint=(not cast(Shutdown, event).due_to_sigint),
+            send_sigint=not due_to_sigint or context.noninteractive,
         )
 
     def __get_shutdown_timer_actions(self) -> List[Action]:

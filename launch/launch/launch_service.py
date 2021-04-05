@@ -56,6 +56,7 @@ class LaunchService:
         self,
         *,
         argv: Optional[Iterable[Text]] = None,
+        noninteractive: bool = False,
         debug: bool = False
     ) -> None:
         """
@@ -67,6 +68,8 @@ class LaunchService:
         outside of the main-thread.
 
         :param: argv stored in the context for access by the entities, None results in []
+        :param: noninteractive if True (not default), this service will assume it has
+            no terminal associated e.g. it is being executed from a non interactive script
         :param: debug if True (not default), asyncio the logger are seutp for debug
         """
         # Setup logging and debugging.
@@ -82,7 +85,7 @@ class LaunchService:
         install_signal_handlers()
 
         # Setup context and register a built-in event handler for bootstrapping.
-        self.__context = LaunchContext(argv=self.__argv)
+        self.__context = LaunchContext(argv=self.__argv, noninteractive=noninteractive)
         self.__context.register_event_handler(OnIncludeLaunchDescription())
         self.__context.register_event_handler(OnShutdown(on_shutdown=self.__on_shutdown))
 
