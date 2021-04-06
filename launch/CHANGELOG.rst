@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.17.0 (2021-04-06)
+-------------------
 * Only try to wrap the fd in a socket on Windows (`#498 <https://github.com/ros2/launch/issues/498>`_)
 * Close the socket pair used for signal management (`#497 <https://github.com/ros2/launch/issues/497>`_)
 * Remove is_winsock_handle() and instead test if wrapping the handle in a socket.socket() works (`#494 <https://github.com/ros2/launch/issues/494>`_)
