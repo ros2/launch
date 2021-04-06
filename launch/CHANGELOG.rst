@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Only try to wrap the fd in a socket on Windows (`#498 <https://github.com/ros2/launch/issues/498>`_)
+* Close the socket pair used for signal management (`#497 <https://github.com/ros2/launch/issues/497>`_)
+* Remove is_winsock_handle() and instead test if wrapping the handle in a socket.socket() works (`#494 <https://github.com/ros2/launch/issues/494>`_)
+* Add frontend substitution for logging directory (`#490 <https://github.com/ros2/launch/issues/490>`_)
+* Contributors: Ivan Santiago Paunovic, Jacob Perron
+
 0.16.0 (2021-03-19)
 -------------------
 * Add arg_choice arg to DeclareLaunchArguments (`#483 <https://github.com/ros2/launch/issues/483>`_)
