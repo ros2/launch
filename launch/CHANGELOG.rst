@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.5 (2021-04-14)
+-------------------
+* Support non-interactive launch.LaunchService runs (`#475 <https://github.com/ros2/launch/issues/475>`_) (`#500 <https://github.com/ros2/launch/issues/500>`_)
+* Add arg_choice arg to DeclareLaunchArguments (`#483 <https://github.com/ros2/launch/issues/483>`_) (`#485 <https://github.com/ros2/launch/issues/485>`_)
+* Add respawn and respawn_delay support (`#426 <https://github.com/ros2/launch/issues/426>`_) (`#478 <https://github.com/ros2/launch/issues/478>`_)
+* Allow configuring logging directory through environment variables (`#460 <https://github.com/ros2/launch/issues/460>`_) (`#477 <https://github.com/ros2/launch/issues/477>`_)
+* Contributors: Christophe Bedard, Felix Divo, Michel Hidalgo, Tom Greier, Victor Lopez, Vitaliy Bondar
+
 0.10.4 (2020-12-08)
 -------------------
 * Fix dollar symbols in substitution grammar (`#461 <https://github.com/ros2/launch/issues/461>`_) (`#472 <https://github.com/ros2/launch/issues/472>`_)
