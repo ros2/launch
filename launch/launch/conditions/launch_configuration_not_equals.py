@@ -38,7 +38,7 @@ class LaunchConfigurationNotEquals(LaunchConfigurationEquals):
 
     def __init__(
         self,
-        launch_configuration_name: SomeSubstitutionsType,
+        launch_configuration_name: Text,
         expected_value: Optional[SomeSubstitutionsType]
     ) -> None:
         super().__init__(launch_configuration_name, expected_value)
