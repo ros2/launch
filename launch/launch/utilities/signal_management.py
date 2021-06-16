@@ -21,6 +21,7 @@ import platform
 import signal
 import socket
 import threading
+import warnings
 
 from typing import Callable
 from typing import Optional
@@ -240,3 +241,107 @@ class AsyncSafeSignalManager:
         else:
             old_handler = self.__handlers.pop(signum, None)
         return old_handler
+
+
+
+__global_signal_manager_activated_lock = threading.Lock()
+__global_signal_manager_activated = False
+__global_signal_manager = AsyncSafeSignalManager()
+
+
+def on_sigint(handler):
+    """
+    Set the signal handler to be called on SIGINT.
+
+    Pass None for no custom handler.
+
+    install_signal_handlers() must have been called in the main thread before.
+
+    .. deprecated:: Foxy
+
+      Use AsyncSafeSignalManager instead
+    """
+    warnings.warn(
+        'Global signal management APIs are deprecated. Do not use on_sigint(). '
+        'Use the AsyngSafeSignalManager instead.',
+        DeprecationWarning
+    )
+    __global_signal_manager.handle(signal.SIGINT, handler)
+
+
+def on_sigquit(handler):
+    """
+    Set the signal handler to be called on SIGQUIT.
+
+    Note Windows does not have SIGQUIT, so it can be set with this function,
+    but the handler will not be called.
+
+    Pass None for no custom handler.
+
+    install_signal_handlers() must have been called in the main thread before.
+
+    .. deprecated:: Foxy
+
+      Use AsyncSafeSignalManager instead
+    """
+    warnings.warn(
+        'Global signal management APIs are deprecated. Do not use on_sigquit(). '
+        'Use the AsyngSafeSignalManager instead.',
+        DeprecationWarning
+    )
+    __global_signal_manager.handle(signal.SIGQUIT, handler)
+
+
+def on_sigterm(handler):
+    """
+    Set the signal handler to be called on SIGTERM.
+
+    Pass None for no custom handler.
+
+    install_signal_handlers() must have been called in the main thread before.
+
+    .. deprecated:: Foxy
+
+      Use AsyncSafeSignalManager instead
+    """
+    warnings.warn(
+        'Global signal management APIs are deprecated. Do not use on_sigterm(). '
+        'Use the AsyngSafeSignalManager instead.',
+        DeprecationWarning
+    )
+    __global_signal_manager.handle(signal.SIGTERM, handler)
+
+
+def install_signal_handlers():
+    """
+    Install custom signal handlers so that hooks can be setup from other threads.
+
+    Calling this multiple times does not fail, but the signals are only
+    installed once.
+
+    If called outside of the main-thread, a ValueError is raised, see:
+    https://docs.python.org/3.6/library/signal.html#signal.signal
+
+    Also, if you register your own signal handlers after calling this function,
+    then you should store and forward to the existing signal handlers.
+
+    If you register signal handlers before calling this function, then your
+    signal handler will automatically be called by the signal handlers in this
+    thread.
+
+    .. deprecated:: Foxy
+
+      Use AsyncSafeSignalManager instead
+    """
+    global __global_signal_manager_activated
+    with __global_signal_manager_activated_lock:
+        if __global_signal_manager_activated:
+            return
+        __global_signal_manager_activated = True
+    warnings.warn(
+        'Global signal management APIs are deprecated. '
+        'Do not use install_signal_handlers(). '
+        'Use the AsyngSafeSignalManager instead.',
+        DeprecationWarning
+    )
+    __global_signal_manager.__enter__()
