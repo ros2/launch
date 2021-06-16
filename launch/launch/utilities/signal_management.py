@@ -21,12 +21,13 @@ import platform
 import signal
 import socket
 import threading
-import warnings
-
 from typing import Callable
 from typing import Optional
 from typing import Tuple  # noqa: F401
 from typing import Union
+import warnings
+
+import osrf_pycommon.process_utils
 
 
 class AsyncSafeSignalManager:
@@ -243,10 +244,10 @@ class AsyncSafeSignalManager:
         return old_handler
 
 
-
 __global_signal_manager_activated_lock = threading.Lock()
 __global_signal_manager_activated = False
-__global_signal_manager = AsyncSafeSignalManager()
+__global_signal_manager = AsyncSafeSignalManager(
+    loop=osrf_pycommon.process_utils.get_loop())
 
 
 def on_sigint(handler):
