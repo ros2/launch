@@ -20,6 +20,7 @@ from .ensure_argument_type_impl import ensure_argument_type
 from .normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
 from .perform_substitutions_impl import perform_substitutions
 from .signal_management import AsyncSafeSignalManager
+from .signal_management import install_signal_handlers, on_sigint, on_sigquit, on_sigterm
 from .visit_all_entities_and_collect_futures_impl import visit_all_entities_and_collect_futures
 
 __all__ = [
@@ -30,6 +31,10 @@ __all__ = [
     'ensure_argument_type',
     'perform_substitutions',
     'AsyncSafeSignalManager',
+    'install_signal_handlers',
+    'on_sigint',
+    'on_sigquit',
+    'on_sigterm',
     'normalize_to_list_of_substitutions',
     'visit_all_entities_and_collect_futures',
 ]
