@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.18.0 (2021-06-18)
+-------------------
 * Add missing exec dependency on PyYAML (`#493 <https://github.com/ros2/launch/issues/493>`_)
 * Refactor TimerAction to allow RosTimer to extend (`#512 <https://github.com/ros2/launch/issues/512>`_)
 * Improve (Not)Equals condition type hinting (`#510 <https://github.com/ros2/launch/issues/510>`_)
