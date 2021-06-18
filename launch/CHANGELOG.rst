@@ -2,6 +2,13 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add missing exec dependency on PyYAML (`#493 <https://github.com/ros2/launch/issues/493>`_)
+* Refactor TimerAction to allow RosTimer to extend (`#512 <https://github.com/ros2/launch/issues/512>`_)
+* Improve (Not)Equals condition type hinting (`#510 <https://github.com/ros2/launch/issues/510>`_)
+* Contributors: HMellor, Rebecca Butler, Scott K Logan
+
 0.17.0 (2021-04-06)
 -------------------
 * Only try to wrap the fd in a socket on Windows (`#498 <https://github.com/ros2/launch/issues/498>`_)
