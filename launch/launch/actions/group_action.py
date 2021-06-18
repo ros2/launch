@@ -21,6 +21,7 @@ from typing import Optional
 
 from .pop_launch_configurations import PopLaunchConfigurations
 from .push_launch_configurations import PushLaunchConfigurations
+from .clear_launch_configurations import ClearLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
 from ..frontend import Entity
@@ -48,12 +49,14 @@ class GroupAction(Action):
         *,
         scoped: bool = True,
         launch_configurations: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        forwarded_configurations: Optional[List[SomeSubstitutionsType]] = None,
         **left_over_kwargs
     ) -> None:
         """Create a GroupAction."""
         super().__init__(**left_over_kwargs)
         self.__actions = actions
         self.__scoped = scoped
+        self.__forwarded_configurations = forwarded_configurations
         if launch_configurations is not None:
             self.__launch_configurations = launch_configurations
         else:
@@ -79,11 +82,20 @@ class GroupAction(Action):
             ]
             self.__actions_to_return += list(self.__actions)
             if self.__scoped:
-                self.__actions_to_return = [
-                    PushLaunchConfigurations(),
-                    *self.__actions_to_return,
-                    PopLaunchConfigurations()
-                ]
+                if self.__forwarded_configurations is None:
+                    self.__actions_to_return = [
+                        PushLaunchConfigurations(),
+                        *self.__actions_to_return,
+                        PopLaunchConfigurations()
+                    ]
+                else:
+                    self.__actions_to_return = [
+                        PushLaunchConfigurations(),
+                        ClearLaunchConfigurations(forwarded_configurations=self.__forwarded_configurations),
+                        *self.__actions_to_return,
+                        PopLaunchConfigurations()
+                    ]
+
         return self.__actions_to_return
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
