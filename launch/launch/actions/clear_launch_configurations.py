@@ -38,16 +38,16 @@ class ClearLaunchConfigurations(Action):
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
-
         if self.__forwarded_configurations is not None:
             forwarded_keys = []
             for cfg in self.__forwarded_configurations:
                 key = perform_substitutions(context, cfg.variable_name)
                 forwarded_keys.append(key)
-            
+
             delete = [key for key in context.launch_configurations if key not in forwarded_keys]
 
-            for key in delete: del context.launch_configurations[key]
-      
+            for key in delete:
+                del context.launch_configurations[key]
+
         else:
             context.launch_configurations.clear()

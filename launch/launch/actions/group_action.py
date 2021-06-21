@@ -91,7 +91,8 @@ class GroupAction(Action):
                 else:
                     self.__actions_to_return = [
                         PushLaunchConfigurations(),
-                        ClearLaunchConfigurations(forwarded_configurations=self.__forwarded_configurations),
+                        ClearLaunchConfigurations(
+                            forwarded_configurations=self.__forwarded_configurations),
                         *self.__actions_to_return,
                         PopLaunchConfigurations()
                     ]
