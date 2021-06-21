@@ -766,7 +766,7 @@ class ExecuteProcess(Action):
             ))
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
         # respawn the process if necessary
-        if not context.is_shutdown and not self.__shutdown_future.done() and self.__respawn:
+        if not context.is_shutdown and not self.__shutdown_future.done() and self.__respawn and returncode != 0:
             if self.__respawn_delay is not None and self.__respawn_delay > 0.0:
                 # wait for a timeout(`self.__respawn_delay`) to respawn the process
                 # and handle shutdown event with future(`self.__shutdown_future`)
