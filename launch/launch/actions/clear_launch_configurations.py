@@ -32,7 +32,7 @@ class ClearLaunchConfigurations(Action):
         forwarded_configurations: Optional[List[SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
-        """Create a PushLaunchConfigurations action."""
+        """Create a ClearLaunchConfigurations action."""
         super().__init__(**kwargs)
         self.__forwarded_configurations = forwarded_configurations
 
