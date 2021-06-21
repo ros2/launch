@@ -152,7 +152,7 @@ def test_execute_process_with_respawn():
         return LaunchDescription([
 
             ExecuteProcess(
-                cmd=[sys.executable, '-c', "print('action')"],
+                cmd=[sys.executable, '-c', "print('action'); false"],
                 respawn=True, respawn_delay=respawn_delay, on_exit=on_exit_callback
             ),
 
