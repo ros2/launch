@@ -147,6 +147,8 @@ def test_on_sigint():
         # TODO(jacobperron): implement a functional test by using subprocess.Popen
 
 
+@pytest.mark.skipif(platform.system() == 'Windows',
+                    reason='No SIGQUIT on Windows')
 def test_on_sigquit():
     """Test the on_sigquit() function."""
     with pytest.deprecated_call():
