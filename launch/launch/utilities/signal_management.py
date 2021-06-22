@@ -290,7 +290,8 @@ def on_sigquit(handler):
         'Use the AsyngSafeSignalManager instead.',
         DeprecationWarning
     )
-    __global_signal_manager.handle(signal.SIGQUIT, handler)
+    if platform.system() != 'Windows':
+        __global_signal_manager.handle(signal.SIGQUIT, handler)
 
 
 def on_sigterm(handler):
