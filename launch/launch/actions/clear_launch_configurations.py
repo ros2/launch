@@ -22,32 +22,41 @@ from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 
 from ..utilities import perform_substitutions
+from ..utilities import normalize_to_list_of_substitutions
 
 
 class ClearLaunchConfigurations(Action):
-    """Action that clears the launch configurations from the context."""
+    """
+    Action that clears launch configurations unless explicitly excluded.
+
+    If launch_configurations_to_not_be_cleared is not set or an empty
+    list, all launch configurations are cleared from the current context.
+
+    If a member of launch_configurations_to_not_be_cleared matches a key
+    in the existing context, it will be preserved in the current context.
+    All other launch configurations will be cleared from the current.
+    context.
+    """
 
     def __init__(
         self,
-        forwarded_configurations: Optional[List[SomeSubstitutionsType]] = None,
+        launch_configurations_to_not_be_cleared: Optional[List[SomeSubstitutionsType]] = [],
         **kwargs
     ) -> None:
         """Create a ClearLaunchConfigurations action."""
         super().__init__(**kwargs)
-        self.__forwarded_configurations = forwarded_configurations
+        self.__launch_configurations_to_not_be_cleared = [
+            normalize_to_list_of_substitutions(sub) for sub in
+            launch_configurations_to_not_be_cleared]
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
-        if self.__forwarded_configurations is not None:
-            forwarded_keys = []
-            for cfg in self.__forwarded_configurations:
-                key = perform_substitutions(context, cfg.variable_name)
-                forwarded_keys.append(key)
-
-            delete = [key for key in context.launch_configurations if key not in forwarded_keys]
-
-            for key in delete:
+        if len(self.__launch_configurations_to_not_be_cleared) > 0:
+            saved_keys = [perform_substitutions(context, key)
+                          for key in self.__launch_configurations_to_not_be_cleared]
+            deleted_keys = [key for key in context.launch_configurations
+                            if key not in saved_keys]
+            for key in deleted_keys:
                 del context.launch_configurations[key]
-
         else:
             context.launch_configurations.clear()
