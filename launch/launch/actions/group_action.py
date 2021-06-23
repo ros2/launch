@@ -96,9 +96,11 @@ class GroupAction(Action):
         """Return `GroupAction` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         scoped = entity.get_attr('scoped', data_type=bool, optional=True)
-        scoped = entity.get_attr('forwarded', data_type=bool, optional=True)
+        forwarded = entity.get_attr('forwarded', data_type=bool, optional=True)
         if scoped is not None:
             kwargs['scoped'] = scoped
+        if forwarded is not None:
+            kwargs['forwarded'] = forwarded
         kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
         return cls, kwargs
 
