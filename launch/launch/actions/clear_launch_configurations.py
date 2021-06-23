@@ -40,14 +40,17 @@ class ClearLaunchConfigurations(Action):
 
     def __init__(
         self,
-        launch_configurations_to_not_be_cleared: Optional[List[SomeSubstitutionsType]] = [],
+        launch_configurations_to_not_be_cleared: Optional[List[SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
         """Create a ClearLaunchConfigurations action."""
         super().__init__(**kwargs)
-        self.__launch_configurations_to_not_be_cleared = [
-            normalize_to_list_of_substitutions(sub) for sub in
-            launch_configurations_to_not_be_cleared]
+        if launch_configurations_to_not_be_cleared is not None:
+            self.__launch_configurations_to_not_be_cleared = [
+                normalize_to_list_of_substitutions(sub) for sub in
+                launch_configurations_to_not_be_cleared]
+        else:
+            self.__launch_configurations_to_not_be_cleared = []
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
