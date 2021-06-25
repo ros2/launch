@@ -19,8 +19,9 @@ from launch import LaunchContext
 from launch.actions import GroupAction
 from launch.actions import PopLaunchConfigurations
 from launch.actions import PushLaunchConfigurations
-from launch.actions import ClearLaunchConfigurations
+from launch.actions import ResetLaunchConfigurations
 from launch.actions import SetLaunchConfiguration
+from launch.substitutions import LaunchConfiguration
 
 
 def test_group_action_constructors():
@@ -28,8 +29,8 @@ def test_group_action_constructors():
     GroupAction([])
     GroupAction([Action()])
     GroupAction([Action()], scoped=False)
-    GroupAction([Action()], scoped=False, forwarded=False)
-    GroupAction([Action()], scoped=False, forwarded=False, launch_configurations={'foo': 'FOO'})
+    GroupAction([Action()], scoped=False, forwarding=False)
+    GroupAction([Action()], scoped=False, forwarding=False, launch_configurations={'foo': 'FOO'})
 
 
 def test_group_action_execute():
@@ -41,7 +42,7 @@ def test_group_action_execute():
     assert len(lc1.launch_configurations) == 0
 
     assert len(lc1.launch_configurations) == 0
-    result = GroupAction([], forwarded=True).visit(lc1)
+    result = GroupAction([], forwarding=True).visit(lc1)
     assert len(result) == 2  # push and pop actions, due to scope=True, forwarded=True
     assert isinstance(result[0], PushLaunchConfigurations)
     assert isinstance(result[1], PopLaunchConfigurations)
@@ -50,17 +51,17 @@ def test_group_action_execute():
     assert len(lc1.launch_configurations) == 0
 
     assert len(lc1.launch_configurations) == 0
-    result = GroupAction([], forwarded=False).visit(lc1)
-    assert len(result) == 3  # push, clear, pop actions, due to scope=True, forwarded=False
+    result = GroupAction([], forwarding=False).visit(lc1)
+    assert len(result) == 3  # push, reset, pop actions, due to scope=True, forwarded=False
     assert isinstance(result[0], PushLaunchConfigurations)
-    assert isinstance(result[1], ClearLaunchConfigurations)
+    assert isinstance(result[1], ResetLaunchConfigurations)
     assert isinstance(result[2], PopLaunchConfigurations)
     for a in result:
         a.visit(lc1)
     assert len(lc1.launch_configurations) == 0
 
     assert len(lc1.launch_configurations) == 0
-    result = GroupAction([], forwarded=True, launch_configurations={'foo': 'FOO'}).visit(lc1)
+    result = GroupAction([], forwarding=True, launch_configurations={'foo': 'FOO'}).visit(lc1)
     assert len(result) == 3  # push, set 1 launch_configurations, and pop actions
     assert isinstance(result[0], PushLaunchConfigurations)
     assert isinstance(result[1], SetLaunchConfiguration)
@@ -70,7 +71,7 @@ def test_group_action_execute():
     assert len(lc1.launch_configurations) == 0
 
     assert len(lc1.launch_configurations) == 0
-    result = GroupAction([], forwarded=True,
+    result = GroupAction([], forwarding=True,
                          launch_configurations={'foo': 'FOO', 'bar': 'BAR'}).visit(lc1)
     assert len(result) == 4  # push, set 2 launch_configurations, and pop actions
     assert isinstance(result[0], PushLaunchConfigurations)
@@ -82,14 +83,12 @@ def test_group_action_execute():
     assert len(lc1.launch_configurations) == 0
 
     assert len(lc1.launch_configurations) == 0
-    result = GroupAction([], forwarded=False,
+    result = GroupAction([], forwarding=False,
                          launch_configurations={'foo': 'FOO', 'bar': 'BAR'}).visit(lc1)
-    assert len(result) == 5  # push, clear, set 2 launch_configurations, and pop actions
+    assert len(result) == 3  # push, reset (which will set launch_configurations), and pop actions
     assert isinstance(result[0], PushLaunchConfigurations)
-    assert isinstance(result[1], ClearLaunchConfigurations)
-    assert isinstance(result[2], SetLaunchConfiguration)
-    assert isinstance(result[3], SetLaunchConfiguration)
-    assert isinstance(result[4], PopLaunchConfigurations)
+    assert isinstance(result[1], ResetLaunchConfigurations)
+    assert isinstance(result[2], PopLaunchConfigurations)
     for a in result:
         a.visit(lc1)
     assert len(lc1.launch_configurations) == 0
@@ -118,7 +117,7 @@ def test_group_action_execute():
     assert len(lc1.launch_configurations) == 0
 
     assert len(lc1.launch_configurations) == 0
-    result = GroupAction([Action()], forwarded=True,
+    result = GroupAction([Action()], forwarding=True,
                          launch_configurations={'foo': 'FOO'}).visit(lc1)
     assert len(result) == 4  # push, set 1 launch_configurations, the 1 action, and pop actions
     assert isinstance(result[0], PushLaunchConfigurations)
@@ -131,50 +130,25 @@ def test_group_action_execute():
 
     assert len(lc1.launch_configurations) == 0
     lc1.launch_configurations['foo'] = 'FOO'
-    result = GroupAction([Action()], forwarded=False,
-                         launch_configurations={'bar': 'BAR'}).visit(lc1)
-    assert len(result) == 5  # push, clear, set 1 launch_configurations, 1 action, and pop actions
-    assert isinstance(result[0], PushLaunchConfigurations)
-    assert isinstance(result[1], ClearLaunchConfigurations)
-    assert isinstance(result[2], SetLaunchConfiguration)
-    assert isinstance(result[3], Action)
-    assert isinstance(result[4], PopLaunchConfigurations)
-    result[0].visit(lc1)  # Push
-    assert 'foo' in lc1.launch_configurations.keys()  # Copied to new scope, before clear
-    result[1].visit(lc1)  # Clear
-    assert 'foo' not in lc1.launch_configurations.keys()  # Cleared from scope
-    assert 'bar' not in lc1.launch_configurations.keys()  # Not yet set
-    result[2].visit(lc1)  # Set
-    assert 'bar' in lc1.launch_configurations.keys()  # Set in new scope
-    result[3].visit(lc1)  # Action
-    result[4].visit(lc1)  # Pop
-    assert 'foo' in lc1.launch_configurations.keys()  # Still in original scope
-    assert 'bar' not in lc1.launch_configurations.keys()  # Out of scope from pop, no longer exists
-    assert len(lc1.launch_configurations) == 1
-    lc1.launch_configurations.clear()
-
-    assert len(lc1.launch_configurations) == 0
-    lc1.launch_configurations['foo'] = 'FOO'
     lc1.launch_configurations['bar'] = 'BAR'
-    result = GroupAction([Action()], forwarded=False,
-                         launch_configurations={'bar': None, 'baz': 'BAZ'}).visit(lc1)
-    assert len(result) == 5  # push, clear, set 1 launch_configurations, 1 action, and pop actions
+    result = GroupAction([Action()], forwarding=False,
+                         launch_configurations={'bar': LaunchConfiguration('bar'),
+                                                'baz': 'BAZ'}).visit(lc1)
+    # push, reset (which will set launch_configurations), 1 action, and pop actions
+    assert len(result) == 4
     assert isinstance(result[0], PushLaunchConfigurations)
-    assert isinstance(result[1], ClearLaunchConfigurations)
-    assert isinstance(result[2], SetLaunchConfiguration)
-    assert isinstance(result[3], Action)
-    assert isinstance(result[4], PopLaunchConfigurations)
+    assert isinstance(result[1], ResetLaunchConfigurations)
+    assert isinstance(result[2], Action)
+    assert isinstance(result[3], PopLaunchConfigurations)
     result[0].visit(lc1)  # Push
-    assert 'foo' in lc1.launch_configurations.keys()  # Copied to new scope, before clear
-    assert 'bar' in lc1.launch_configurations.keys()  # Copied to new scope, before clear
-    result[1].visit(lc1)  # Clear
-    assert 'foo' not in lc1.launch_configurations.keys()  # Cleared from scope
-    assert 'bar' in lc1.launch_configurations.keys()  # Exempted from clear, still in new scope
-    assert 'baz' not in lc1.launch_configurations.keys()  # Not yet set
-    result[2].visit(lc1)  # Set
-    assert 'baz' in lc1.launch_configurations.keys()  # Set in new scope
-    result[3].visit(lc1)  # Action
-    result[4].visit(lc1)  # Pop
+    assert 'foo' in lc1.launch_configurations.keys()  # Copied to new scope, before Reset
+    assert 'bar' in lc1.launch_configurations.keys()  # Copied to new scope, before Reset
+    result[1].visit(lc1)  # Reset
+    assert 'foo' not in lc1.launch_configurations.keys()  # Cleared from scope in Reset
+    assert 'bar' in lc1.launch_configurations.keys()  # Evaluated and forwarded in Reset
+    assert 'baz' in lc1.launch_configurations.keys()  # Evaluated and added in Reset
+    result[2].visit(lc1)  # Action
+    result[3].visit(lc1)  # Pop
     assert 'foo' in lc1.launch_configurations.keys()  # Still in original scope
     assert 'bar' in lc1.launch_configurations.keys()  # Still in original scope
     assert 'baz' not in lc1.launch_configurations.keys()  # Out of scope from pop, no longer exists

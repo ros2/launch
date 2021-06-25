@@ -21,7 +21,7 @@ from typing import Optional
 
 from .pop_launch_configurations import PopLaunchConfigurations
 from .push_launch_configurations import PushLaunchConfigurations
-from .clear_launch_configurations import ClearLaunchConfigurations
+from .reset_launch_configurations import ResetLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
 from ..frontend import Entity
@@ -72,7 +72,7 @@ class GroupAction(Action):
         actions: Iterable[Action],
         *,
         scoped: bool = True,
-        forwarded: bool = True,
+        forwarding: bool = True,
         launch_configurations: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         **left_over_kwargs
     ) -> None:
@@ -80,15 +80,11 @@ class GroupAction(Action):
         super().__init__(**left_over_kwargs)
         self.__actions = actions
         self.__scoped = scoped
-        self.__forwarded = forwarded
-        self.__forwarded_configurations = []
-        self.__launch_configurations = {}
+        self.__forwarding = forwarding
         if launch_configurations is not None:
-            for lc in launch_configurations:
-                if launch_configurations[lc] is not None:
-                    self.__launch_configurations[lc] = launch_configurations[lc]
-                else:
-                    self.__forwarded_configurations.append(lc)
+            self.__launch_configurations = launch_configurations
+        else:
+            self.__launch_configurations = {}
         self.__actions_to_return: Optional[List] = None
 
     @classmethod
@@ -96,38 +92,41 @@ class GroupAction(Action):
         """Return `GroupAction` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         scoped = entity.get_attr('scoped', data_type=bool, optional=True)
-        forwarded = entity.get_attr('forwarded', data_type=bool, optional=True)
+        forwarding = entity.get_attr('forwarding', data_type=bool, optional=True)
         if scoped is not None:
             kwargs['scoped'] = scoped
-        if forwarded is not None:
-            kwargs['forwarded'] = forwarded
+        if forwarding is not None:
+            kwargs['forwarding'] = forwarding
         kwargs['actions'] = [parser.parse_action(e) for e in entity.children]
         return cls, kwargs
 
     def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
         """Return subentities."""
         if self.__actions_to_return is None:
-            self.__actions_to_return = []  # type: List[Action]
-            self.__actions_to_return += [
+            self.__actions_to_return = list(self.__actions)
+            configuration_sets = [
                 SetLaunchConfiguration(k, v) for k, v in self.__launch_configurations.items()
             ]
-            self.__actions_to_return += list(self.__actions)
             if self.__scoped:
-                if self.__forwarded:
+                if self.__forwarding:
                     self.__actions_to_return = [
                         PushLaunchConfigurations(),
+                        *configuration_sets,
                         *self.__actions_to_return,
                         PopLaunchConfigurations()
                     ]
                 else:
                     self.__actions_to_return = [
                         PushLaunchConfigurations(),
-                        ClearLaunchConfigurations(
-                            launch_configurations_to_not_be_cleared= # noqa
-                            self.__forwarded_configurations),
+                        ResetLaunchConfigurations(self.__launch_configurations),
                         *self.__actions_to_return,
                         PopLaunchConfigurations()
                     ]
+            else:
+                self.__actions_to_return = [
+                    *configuration_sets,
+                    *self.__actions_to_return
+                ]
         return self.__actions_to_return
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
