@@ -28,8 +28,17 @@ class ResetLaunchConfigurations(Action):
     """
     Action that resets launch configurations in the current context.
 
-    If the given launch configuration name is no set already then nothing
-    happens.
+    This action can be used to clear the launch configurations from the
+    context it was called in. It optionally can be given a dictionary
+    with launch configurations to be set after clearing. Launch
+    configurations given in the dictionary are evaluated before the
+    context launch configurations are cleared. This allows launch
+    configurations to be passed through the clearing of the context.
+
+    If launch_configurations=None or {} then all launch configurations are cleared.
+
+    If launch_configurations has entries (ie {'foo': 'FOO'}) then they will be
+    set after the clearing operation.
     """
 
     def __init__(
@@ -46,16 +55,13 @@ class ResetLaunchConfigurations(Action):
         if self.__launch_configurations is None:
             context.launch_configurations.clear()
         else:
-            # Evaluate configurations into a new dict
             evaled_configurations = {}
             for k, v in self.__launch_configurations.items():
                 ev_k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
                 ev_v = perform_substitutions(context, normalize_to_list_of_substitutions(v))
                 evaled_configurations[ev_k] = ev_v
 
-            # Delete all configurations in context
             context.launch_configurations.clear()
 
-            # Set the evaluated configurations back into the context
             for k, v in evaled_configurations.items():
                 context.launch_configurations[k] = v

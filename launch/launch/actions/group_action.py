@@ -43,28 +43,21 @@ class GroupAction(Action):
     configurations, and/or declaring launch configurations for just the
     group and its yielded actions.
 
-    When scoped is set to True, changes to launch configurations are
-    limited to the scope of actions in the group action.
+    When scoped=True, changes to launch configurations are limited to the
+    scope of actions in the group action.
 
-    When scoped is set to True and forwarded is set to True, all existing
-    launch configurations are available in the scoped context.
+    When scoped=True and forwarding=True, all existing launch configurations
+    are available in the scoped context.
 
-    When scoped is set to True and forwarded is set to False, all existing
-    launch configurations are removed from the scoped context unless it is
-    explicitly forwarded by adding its key to the launch_configurations
-    dictionary with a None value.
+    When scoped=True and forwarding=False, all existing launch configurations
+    are removed from the scoped context.
 
-    Example: All launch configurations except the one with key of 'arg1'
-    will be removed from the scoped context.
-
-    .. code-block:: python
-
-        GroupAction(
-            scoped=True,
-            forwarded=False,
-            launch_configurations={'arg1': None}
-        )
-        ...
+    Any launch configuration defined in the launch_configurations dictionary
+    will be set in the current context. When scoped=False these configurations
+    will persist even after the GroupAction has completed. When scoped=True
+    these configurations will only be available to actions in the GroupAction.
+    When scoped=True and forwarding=False, the launch_configurations dictionary
+    is evaluated before clearing, and then re-set in the cleared scoped context.
     """
 
     def __init__(
