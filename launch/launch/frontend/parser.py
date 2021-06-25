@@ -15,9 +15,11 @@
 
 """Module for Parser class and parsing methods."""
 
+import itertools
 import os.path
 from typing import List
 from typing import Optional
+from typing import Set
 from typing import Text
 from typing import TextIO
 from typing import Type
@@ -56,8 +58,9 @@ class Parser:
     Abstract class for parsing launch actions, substitutions and descriptions.
 
     Implementations of the parser class, should override the load method.
-    They could also override the parse_substitution method, or not.
-    load_launch_extensions, parse_action and parse_description are not suposed to be overrided.
+    They could also override the parse_substitution and/or get_file_extensions methods, or not.
+    load_launch_extensions, parse_action, parse_description and get_file_extensions_from_parsers
+    are not suposed to be overrided.
     """
 
     extensions_loaded = False
@@ -139,6 +142,15 @@ class Parser:
             raise RuntimeError('Not recognized frontend implementation')
 
     @classmethod
+    def get_file_extensions_from_parsers(cls) -> Set[Type['Parser']]:
+        """Return a set of file extensions gathered from the parser implementations."""
+        cls.load_parser_implementations()
+        return set(itertools.chain.from_iterable([
+            parser_extension.get_file_extensions()
+            for parser_extension in cls.frontend_parsers.values()
+        ]))
+
+    @classmethod
     def load(
         cls,
         file: Union[FilePath, TextIO],
@@ -183,3 +195,8 @@ class Parser:
         finally:
             if didopen:
                 fileobj.close()
+
+    @classmethod
+    def get_file_extensions(cls) -> Set[Text]:
+        """Return a set of file extensions for this parser."""
+        return {}
