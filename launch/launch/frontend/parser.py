@@ -198,5 +198,5 @@ class Parser:
 
     @classmethod
     def get_file_extensions(cls) -> Set[Text]:
-        """Return a set of file extensions for this parser."""
+        """Return the set of file extensions known to this parser."""
         return {}
