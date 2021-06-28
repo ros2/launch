@@ -145,10 +145,10 @@ class Parser:
     def get_file_extensions_from_parsers(cls) -> Set[Type['Parser']]:
         """Return a set of file extensions gathered from the parser implementations."""
         cls.load_parser_implementations()
-        return set(itertools.chain.from_iterable([
+        return set(itertools.chain.from_iterable(
             parser_extension.get_file_extensions()
             for parser_extension in cls.frontend_parsers.values()
-        ]))
+        ))
 
     @classmethod
     def load(
