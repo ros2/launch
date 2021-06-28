@@ -39,14 +39,15 @@ def get_launch_description_from_any_launch_file(
     :raise `ValueError`: Invalid file. The file may not be a text file.
     """
     loaders = [get_launch_description_from_frontend_launch_file]
-    extension = os.path.splitext(launch_file_path)[1]
+    launch_file_name = os.path.basename(launch_file_path)
+    extension = os.path.splitext(launch_file_name)[1]
     if extension:
         extension = extension[1:]
     if extension == 'py':
         loaders.insert(0, get_launch_description_from_python_launch_file)
     else:
         loaders.append(get_launch_description_from_python_launch_file)
-        extension = '' if not Parser.is_extension_valid(extension) else extension
+        extension = '' if not Parser.is_filename_valid(launch_file_name) else extension
     exceptions = []
     for loader in loaders:
         try:
