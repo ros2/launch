@@ -189,7 +189,8 @@ class Parser:
             filename = getattr(fileobj, 'name', '')
             implementations = cls.get_parsers_from_filename(filename)
             implementations += [
-                parser for parser in cls.frontend_parsers.values() if parser not in implementations
+                parser for _, parser in sorted(cls.frontend_parsers.items())
+                if parser not in implementations
             ]
 
             exceptions = []
