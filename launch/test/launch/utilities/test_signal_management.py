@@ -123,59 +123,63 @@ def test_async_safe_signal_manager():
 
 def test_install_signal_handlers():
     """Test the install_signal_handlers() function."""
-    install_signal_handlers()
-    install_signal_handlers()
-    install_signal_handlers()
+    with pytest.deprecated_call():
+        install_signal_handlers()
+        install_signal_handlers()
+        install_signal_handlers()
 
 
 def test_on_sigint():
     """Test the on_sigint() function."""
-    # None is acceptable
-    on_sigint(None)
+    with pytest.deprecated_call():
+        # None is acceptable
+        on_sigint(None)
 
-    def mock_sigint_handler():
-        pass
+        def mock_sigint_handler():
+            pass
 
-    on_sigint(mock_sigint_handler)
+        on_sigint(mock_sigint_handler)
 
-    # Non-callable is not
-    with pytest.raises(ValueError):
-        on_sigint('non-callable')
+        # Non-callable is not
+        with pytest.raises(ValueError):
+            on_sigint('non-callable')
 
-    # TODO(jacobperron): implement a functional test by using subprocess.Popen
+        # TODO(jacobperron): implement a functional test by using subprocess.Popen
 
 
 @pytest.mark.skipif(platform.system() == 'Windows',
                     reason='No SIGQUIT on Windows')
 def test_on_sigquit():
     """Test the on_sigquit() function."""
-    # None is acceptable
-    on_sigquit(None)
+    with pytest.deprecated_call():
+        # None is acceptable
+        on_sigquit(None)
 
-    def mock_sigquit_handler():
-        pass
+        def mock_sigquit_handler():
+            pass
 
-    on_sigquit(mock_sigquit_handler)
+        on_sigquit(mock_sigquit_handler)
 
-    # Non-callable is not
-    with pytest.raises(ValueError):
-        on_sigquit('non-callable')
+        # Non-callable is not
+        with pytest.raises(ValueError):
+            on_sigquit('non-callable')
 
-    # TODO(jacobperron): implement a functional test by using subprocess.Popen
+        # TODO(jacobperron): implement a functional test by using subprocess.Popen
 
 
 def test_on_sigterm():
     """Test the on_sigterm() function."""
-    # None is acceptable
-    on_sigterm(None)
+    with pytest.deprecated_call():
+        # None is acceptable
+        on_sigterm(None)
 
-    def mock_sigterm_handler():
-        pass
+        def mock_sigterm_handler():
+            pass
 
-    on_sigterm(mock_sigterm_handler)
+        on_sigterm(mock_sigterm_handler)
 
-    # Non-callable is not
-    with pytest.raises(ValueError):
-        on_sigterm('non-callable')
+        # Non-callable is not
+        with pytest.raises(ValueError):
+            on_sigterm('non-callable')
 
-    # TODO(jacobperron): implement a functional test by using subprocess.Popen
+        # TODO(jacobperron): implement a functional test by using subprocess.Popen
