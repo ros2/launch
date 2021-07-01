@@ -18,12 +18,14 @@
 import itertools
 import os.path
 from typing import List
+from typing import Optional
 from typing import Set
 from typing import Text
 from typing import TextIO
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
+import warnings
 
 try:
     import importlib.metadata as importlib_metadata
@@ -119,6 +121,32 @@ class Parser:
         """Return the registered extensions."""
         cls.load_parser_implementations()
         return cls.frontend_parsers.keys()
+
+    @classmethod
+    def is_extension_valid(
+        cls,
+        extension: Text,
+    ) -> bool:
+        """Return an entity loaded with a markup file."""
+        warnings.warn(
+            'Parser.is_extension_valid is deprecated, use Parser.is_filename_valid instead')
+        cls.load_parser_implementations()
+        return extension in cls.frontend_parsers
+
+    @classmethod
+    def get_parser_from_extension(
+        cls,
+        extension: Text,
+    ) -> Optional[Type['Parser']]:
+        """Return an entity loaded with a markup file."""
+        warnings.warn(
+            'Parser.get_parser_from_extension is deprecated, '
+            'use Parser.get_parsers_from_filename instead')
+        cls.load_parser_implementations()
+        try:
+            return cls.frontend_parsers[extension]
+        except KeyError:
+            raise RuntimeError('Not recognized frontend implementation')
 
     @classmethod
     def may_parse(
