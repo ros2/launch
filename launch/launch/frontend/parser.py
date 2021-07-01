@@ -81,11 +81,12 @@ class Parser:
     def load_parser_implementations(cls):
         """Load all the available frontend entities."""
         if cls.frontend_parsers is None:
-            cls.frontend_parsers = {
+            parsers = {
                 entry_point.name: entry_point.load()
                 for entry_point in importlib_metadata.entry_points().get(
                         'launch.frontend.parser', [])
             }
+            cls.frontend_parsers = dict(sorted(parsers.items()))
 
     def parse_action(self, entity: Entity) -> Action:
         """Parse an action, using its registered parsing method."""
@@ -176,7 +177,7 @@ class Parser:
         """Return a list of parsers which entity loaded with a markup file."""
         cls.load_parser_implementations()
         return [
-            parser for _, parser in sorted(cls.frontend_parsers.items())
+            parser for _, parser in cls.frontend_parsers.items()
             if parser.may_parse(filename)
         ]
 
@@ -216,7 +217,7 @@ class Parser:
             filename = getattr(fileobj, 'name', '')
             implementations = cls.get_parsers_from_filename(filename)
             implementations += [
-                parser for _, parser in sorted(cls.frontend_parsers.items())
+                parser for _, parser in cls.frontend_parsers.items()
                 if parser not in implementations
             ]
 
