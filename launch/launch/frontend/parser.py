@@ -62,7 +62,7 @@ class Parser:
     They could also override the parse_substitution and/or get_file_extensions methods, or not.
     load_launch_extensions, parse_action, parse_description, get_available_extensions, may_parse,
     is_filename_valid, get_parsers_from_filename and get_file_extensions_from_parsers are not
-    suposed to be overrided.
+    supposed to be overriden.
     """
 
     extensions_loaded = False
@@ -154,7 +154,7 @@ class Parser:
         cls,
         filename: Text,
     ) -> bool:
-        """Return `true` if the filename is valid for this parser."""
+        """Return `True` if the filename is valid for this parser."""
         return any(filename.endswith('.' + ext) for ext in cls.get_file_extensions())
 
     @classmethod
@@ -162,7 +162,7 @@ class Parser:
         cls,
         filename: Text,
     ) -> bool:
-        """Return `true` if the filename is valid for any parser."""
+        """Return `True` if the filename is valid for any parser."""
         cls.load_parser_implementations()
         return any(
             parser.may_parse(filename)
@@ -177,7 +177,7 @@ class Parser:
         """Return a list of parsers which entity loaded with a markup file."""
         cls.load_parser_implementations()
         return [
-            parser for _, parser in cls.frontend_parsers.items()
+            parser for parser in cls.frontend_parsers.values()
             if parser.may_parse(filename)
         ]
 
@@ -217,7 +217,7 @@ class Parser:
             filename = getattr(fileobj, 'name', '')
             implementations = cls.get_parsers_from_filename(filename)
             implementations += [
-                parser for _, parser in cls.frontend_parsers.items()
+                parser for parser in cls.frontend_parsers.values()
                 if parser not in implementations
             ]
 
