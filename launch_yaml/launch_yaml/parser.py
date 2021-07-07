@@ -15,6 +15,8 @@
 
 """Module for YAML Parser class."""
 
+from typing import Set
+from typing import Text
 from typing import TextIO
 from typing import Union
 
@@ -51,3 +53,8 @@ class Parser(frontend.Parser):
         finally:
             if didopen:
                 fileobj.close()
+
+    @classmethod
+    def get_file_extensions(cls) -> Set[Text]:
+        """Return the set of file extensions known to this parser."""
+        return {'launch.yaml', 'launch.yml', 'yaml', 'yml'}
