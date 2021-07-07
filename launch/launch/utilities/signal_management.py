@@ -12,19 +12,242 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the signal management functionality."""
+"""Module for signal management functionality."""
 
+import asyncio
+from contextlib import ExitStack
+import os
 import platform
 import signal
+import socket
 import threading
+from typing import Callable
+from typing import Optional
+from typing import Tuple  # noqa: F401
+from typing import Union
+import warnings
 
-import launch.logging
+import osrf_pycommon.process_utils
 
-__signal_handlers_installed_lock = threading.Lock()
-__signal_handlers_installed = False
-__custom_sigint_handler = None
-__custom_sigquit_handler = None
-__custom_sigterm_handler = None
+
+class AsyncSafeSignalManager:
+    """
+    A context manager class for asynchronous handling of signals.
+
+    Similar in purpose to :func:`asyncio.loop.add_signal_handler` but
+    not limited to Unix platforms.
+
+    Signal handlers can be registered at any time with a given manager.
+    These will become active for the extent of said manager context.
+    Unlike regular signal handlers, asynchronous signals handlers
+    can safely interact with their event loop.
+
+    The same manager can be used multiple consecutive times and even
+    be nested with other managers, as these are independent from each
+    other i.e. managers do not override each other's handlers.
+
+    If used outside of the main thread, a ValueError is raised.
+
+    The underlying mechanism is built around :func:`signal.set_wakeup_fd`
+    so as to not interfere with regular handlers installed via
+    :func:`signal.signal`.
+    All signals received are forwarded to the previously setup file
+    descriptor, if any.
+
+    ..warning::
+        Within (potentially nested) contexts, :func:`signal.set_wakeup_fd`
+        calls are intercepted such that the given file descriptor overrides
+        the previously setup file descriptor for the outermost manager.
+        This ensures the manager's chain of signal wakeup file descriptors
+        is not broken by third-party code or by asyncio itself in some platforms.
+    """
+
+    __current = None  # type: AsyncSafeSignalManager
+
+    __set_wakeup_fd = signal.set_wakeup_fd  # type: Callable[[int], int]
+
+    def __init__(
+        self,
+        loop: asyncio.AbstractEventLoop
+    ):
+        """
+        Instantiate manager.
+
+        :param loop: event loop that will handle the signals.
+        """
+        self.__parent = None  # type: AsyncSafeSignalManager
+        self.__loop = loop  # type: asyncio.AbstractEventLoop
+        self.__background_loop = None  # type: Optional[asyncio.AbstractEventLoop]
+        self.__handlers = {}  # type: dict
+        self.__prev_wakeup_handle = -1  # type: Union[int, socket.socket]
+        self.__wsock = None
+        self.__rsock = None
+        self.__close_sockets = None
+
+    def __enter__(self):
+        pair = socket.socketpair()  # type: Tuple[socket.socket, socket.socket]  # noqa
+        with ExitStack() as stack:
+            self.__wsock = stack.enter_context(pair[0])
+            self.__rsock = stack.enter_context(pair[1])
+            self.__wsock.setblocking(False)
+            self.__rsock.setblocking(False)
+            self.__close_sockets = stack.pop_all().close
+
+        self.__add_signal_readers()
+        try:
+            self.__install_signal_writers()
+        except Exception:
+            self.__remove_signal_readers()
+            self.__close_sockets()
+            self.__rsock = None
+            self.__wsock = None
+            self.__close_sockets = None
+            raise
+        self.__chain()
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        try:
+            try:
+                self.__uninstall_signal_writers()
+            finally:
+                self.__remove_signal_readers()
+        finally:
+            self.__unchain()
+            self.__close_sockets()
+            self.__rsock = None
+            self.__wsock = None
+            self.__close_sockets = None
+
+    def __add_signal_readers(self):
+        try:
+            self.__loop.add_reader(self.__rsock.fileno(), self.__handle_signal)
+        except NotImplementedError:
+            # Some event loops, like the asyncio.ProactorEventLoop
+            # on Windows, do not support asynchronous socket reads.
+            # Emulate it.
+            self.__background_loop = asyncio.SelectorEventLoop()
+            self.__background_loop.add_reader(
+                self.__rsock.fileno(),
+                self.__loop.call_soon_threadsafe,
+                self.__handle_signal)
+
+            def run_background_loop():
+                asyncio.set_event_loop(self.__background_loop)
+                self.__background_loop.run_forever()
+
+            self.__background_thread = threading.Thread(
+                target=run_background_loop, daemon=True)
+            self.__background_thread.start()
+
+    def __remove_signal_readers(self):
+        if self.__background_loop:
+            self.__background_loop.call_soon_threadsafe(self.__background_loop.stop)
+            self.__background_thread.join()
+            self.__background_loop.close()
+            self.__background_loop = None
+        else:
+            self.__loop.remove_reader(self.__rsock.fileno())
+
+    def __install_signal_writers(self):
+        prev_wakeup_handle = self.__set_wakeup_fd(self.__wsock.fileno())
+        try:
+            self.__chain_wakeup_handle(prev_wakeup_handle)
+        except Exception:
+            own_wakeup_handle = self.__set_wakeup_fd(prev_wakeup_handle)
+            assert self.__wsock.fileno() == own_wakeup_handle
+            raise
+
+    def __uninstall_signal_writers(self):
+        prev_wakeup_handle = self.__chain_wakeup_handle(-1)
+        own_wakeup_handle = self.__set_wakeup_fd(prev_wakeup_handle)
+        assert self.__wsock.fileno() == own_wakeup_handle
+
+    def __chain(self):
+        self.__parent = AsyncSafeSignalManager.__current
+        AsyncSafeSignalManager.__current = self
+        if self.__parent is None:
+            # Do not trust signal.set_wakeup_fd calls within context.
+            # Overwrite handle at the start of the managers' chain.
+            def modified_set_wakeup_fd(signum):
+                if threading.current_thread() is not threading.main_thread():
+                    raise ValueError(
+                        'set_wakeup_fd only works in main'
+                        ' thread of the main interpreter'
+                    )
+                return self.__chain_wakeup_handle(signum)
+            signal.set_wakeup_fd = modified_set_wakeup_fd
+
+    def __unchain(self):
+        if self.__parent is None:
+            signal.set_wakeup_fd = self.__set_wakeup_fd
+        AsyncSafeSignalManager.__current = self.__parent
+
+    def __chain_wakeup_handle(self, wakeup_handle):
+        prev_wakeup_handle = self.__prev_wakeup_handle
+        if isinstance(prev_wakeup_handle, socket.socket):
+            # Detach (Windows) socket and retrieve the raw OS handle.
+            prev_wakeup_handle = prev_wakeup_handle.detach()
+        if wakeup_handle != -1 and platform.system() == 'Windows':
+            # On Windows, os.write will fail on a WinSock handle. There is no WinSock API
+            # in the standard library either. Thus we wrap it in a socket.socket instance.
+            try:
+                wakeup_handle = socket.socket(fileno=wakeup_handle)
+            except WindowsError as e:
+                if e.winerror != 10038:  # WSAENOTSOCK
+                    raise
+        self.__prev_wakeup_handle = wakeup_handle
+        return prev_wakeup_handle
+
+    def __handle_signal(self):
+        while True:
+            try:
+                data = self.__rsock.recv(4096)
+                if not data:
+                    break
+                for signum in data:
+                    if signum not in self.__handlers:
+                        continue
+                    self.__handlers[signum](signum)
+                if self.__prev_wakeup_handle != -1:
+                    # Send over (Windows) socket or write file.
+                    if isinstance(self.__prev_wakeup_handle, socket.socket):
+                        self.__prev_wakeup_handle.send(data)
+                    else:
+                        os.write(self.__prev_wakeup_handle, data)
+            except InterruptedError:
+                continue
+            except BlockingIOError:
+                break
+
+    def handle(
+        self,
+        signum: Union[signal.Signals, int],
+        handler: Optional[Callable[[int], None]],
+    ) -> Optional[Callable[[int], None]]:
+        """
+        Register a callback for asynchronous handling of a given signal.
+
+        :param signum: number of the signal to be handled
+        :param handler: callback taking a signal number
+          as its sole argument, or None
+        :return: previous handler if any, otherwise None
+        """
+        signum = signal.Signals(signum)
+        if handler is not None:
+            if not callable(handler):
+                raise ValueError('signal handler must be a callable')
+            old_handler = self.__handlers.get(signum, None)
+            self.__handlers[signum] = handler
+        else:
+            old_handler = self.__handlers.pop(signum, None)
+        return old_handler
+
+
+__global_signal_manager_activated_lock = threading.Lock()
+__global_signal_manager_activated = False
+__global_signal_manager = AsyncSafeSignalManager(
+    loop=osrf_pycommon.process_utils.get_loop())
 
 
 def on_sigint(handler):
@@ -34,12 +257,17 @@ def on_sigint(handler):
     Pass None for no custom handler.
 
     install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
+
+    .. deprecated:: Foxy
+
+      Use AsyncSafeSignalManager instead
     """
-    global __custom_sigint_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigint_handler = handler
+    warnings.warn(
+        'Global signal management APIs are deprecated. Do not use on_sigint(). '
+        'Use the AsyngSafeSignalManager instead.',
+        DeprecationWarning
+    )
+    __global_signal_manager.handle(signal.SIGINT, handler)
 
 
 def on_sigquit(handler):
@@ -52,12 +280,18 @@ def on_sigquit(handler):
     Pass None for no custom handler.
 
     install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
+
+    .. deprecated:: Foxy
+
+      Use AsyncSafeSignalManager instead
     """
-    global __custom_sigquit_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigquit_handler = handler
+    warnings.warn(
+        'Global signal management APIs are deprecated. Do not use on_sigquit(). '
+        'Use the AsyngSafeSignalManager instead.',
+        DeprecationWarning
+    )
+    if platform.system() != 'Windows':
+        __global_signal_manager.handle(signal.SIGQUIT, handler)
 
 
 def on_sigterm(handler):
@@ -67,12 +301,17 @@ def on_sigterm(handler):
     Pass None for no custom handler.
 
     install_signal_handlers() must have been called in the main thread before.
-    It is called automatically by the constructor of `launch.LaunchService`.
+
+    .. deprecated:: Foxy
+
+      Use AsyncSafeSignalManager instead
     """
-    global __custom_sigterm_handler
-    if handler is not None and not callable(handler):
-        raise ValueError('handler must be callable or None')
-    __custom_sigterm_handler = handler
+    warnings.warn(
+        'Global signal management APIs are deprecated. Do not use on_sigterm(). '
+        'Use the AsyngSafeSignalManager instead.',
+        DeprecationWarning
+    )
+    __global_signal_manager.handle(signal.SIGTERM, handler)
 
 
 def install_signal_handlers():
@@ -86,59 +325,25 @@ def install_signal_handlers():
     https://docs.python.org/3.6/library/signal.html#signal.signal
 
     Also, if you register your own signal handlers after calling this function,
-    then you should store and forward to the existing signal handlers, because
-    otherwise the signal handlers registered by on_sigint(), on_sigquit, etc.
-    will not be run.
-    And the signal handlers registered with those functions are used to
-    gracefully exit the LaunchService when signaled (at least), and without
-    them it may not behave correctly.
+    then you should store and forward to the existing signal handlers.
 
     If you register signal handlers before calling this function, then your
     signal handler will automatically be called by the signal handlers in this
     thread.
+
+    .. deprecated:: Foxy
+
+      Use AsyncSafeSignalManager instead
     """
-    global __signal_handlers_installed_lock, __signal_handlers_installed
-    with __signal_handlers_installed_lock:
-        if __signal_handlers_installed:
+    global __global_signal_manager_activated
+    with __global_signal_manager_activated_lock:
+        if __global_signal_manager_activated:
             return
-        __signal_handlers_installed = True
-
-    global __custom_sigint_handler, __custom_sigquit_handler, __custom_sigterm_handler
-
-    __original_sigint_handler = signal.getsignal(signal.SIGINT)
-    __original_sigterm_handler = signal.getsignal(signal.SIGTERM)
-
-    def __on_sigint(signum, frame):
-        if callable(__custom_sigint_handler):
-            __custom_sigint_handler(signum, frame, __original_sigint_handler)
-        elif callable(__original_sigint_handler):
-            __original_sigint_handler(signum, frame)
-
-    if platform.system() != 'Windows':
-        # Windows does not support SIGQUIT
-        __original_sigquit_handler = signal.getsignal(signal.SIGQUIT)
-
-        def __on_sigquit(signum, frame):
-            if callable(__custom_sigquit_handler):
-                __custom_sigquit_handler(signum, frame, __original_sigquit_handler)
-            elif callable(__original_sigquit_handler):
-                __original_sigquit_handler(signum, frame)
-
-    def __on_sigterm(signum, frame):
-        if callable(__custom_sigterm_handler):
-            __custom_sigterm_handler(signum, frame, __original_sigterm_handler)
-        elif callable(__original_sigterm_handler):
-            __original_sigterm_handler(signum, frame)
-
-    # signals must be registered in the main thread, but print a nicer message if we're not there
-    try:
-        signal.signal(signal.SIGINT, __on_sigint)
-        signal.signal(signal.SIGTERM, __on_sigterm)
-        if platform.system() != 'Windows':
-            # Windows does not support SIGQUIT
-            signal.signal(signal.SIGQUIT, __on_sigquit)
-    except ValueError:
-        logger = launch.logging.get_logger(__name__)
-        logger.error("failed to set signal handlers in '{}'".format(__name__))
-        logger.error('this function must be called in the main thread')
-        raise
+        __global_signal_manager_activated = True
+    warnings.warn(
+        'Global signal management APIs are deprecated. '
+        'Do not use install_signal_handlers(). '
+        'Use the AsyngSafeSignalManager instead.',
+        DeprecationWarning
+    )
+    __global_signal_manager.__enter__()
