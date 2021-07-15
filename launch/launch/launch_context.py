@@ -28,6 +28,7 @@ import launch.logging
 from .event import Event
 from .event_handler import BaseEventHandler
 from .substitution import Substitution
+from .some_substitutions_type import SomeSubstitutionsType
 
 
 class LaunchContext:
@@ -37,7 +38,8 @@ class LaunchContext:
         self,
         *,
         argv: Optional[Iterable[Text]] = None,
-        noninteractive: bool = False
+        noninteractive: bool = False,
+        launch_prefix: Optional[SomeSubstitutionsType] = None
     ) -> None:
         """
         Create a LaunchContext.
@@ -48,6 +50,7 @@ class LaunchContext:
         """
         self.__argv = argv if argv is not None else []
         self.__noninteractive = noninteractive
+        self.__launch_prefix = launch_prefix
 
         self._event_queue = asyncio.Queue()  # type: asyncio.Queue
         self._event_handlers = collections.deque()  # type: collections.deque
@@ -75,6 +78,11 @@ class LaunchContext:
     def noninteractive(self):
         """Getter for noninteractive."""
         return self.__noninteractive
+
+    @property
+    def launch_prefix(self):
+        """Getter for launch_prefix."""
+        return self.__launch_prefix
 
     def _set_is_shutdown(self, state: bool) -> None:
         self.__is_shutdown = state

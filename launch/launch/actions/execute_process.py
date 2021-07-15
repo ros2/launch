@@ -681,7 +681,16 @@ class ExecuteProcess(Action):
         cmd = [perform_substitutions(context, x) for x in self.__cmd]
         name = os.path.basename(cmd[0]) if self.__name is None \
             else perform_substitutions(context, self.__name)
-        cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
+
+        if context.launch_prefix is not None:
+            cmd = shlex.split(
+                perform_substitutions(
+                    context,
+                    normalize_to_list_of_substitutions(context.launch_prefix)
+                )
+            ) + cmd
+        else:
+            cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
         with _global_process_counter_lock:
             global _global_process_counter
             _global_process_counter += 1

@@ -47,6 +47,15 @@ def test_launch_context_get_noninteractive():
     assert not lc.noninteractive
 
 
+def test_launch_context_get_launch_prefix():
+    """Test the getting of launch_prefix in the LaunchContext class."""
+    lc = LaunchContext(launch_prefix="testing")
+    assert lc.launch_prefix == "testing"
+
+    lc = LaunchContext()
+    assert not lc.launch_prefix
+
+
 def test_launch_context_get_set_asyncio_loop():
     """Test the getting and settings for asyncio_loop in the LaunchContext class."""
     lc = LaunchContext()

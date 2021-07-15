@@ -41,6 +41,7 @@ from .events import IncludeLaunchDescription
 from .events import Shutdown
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
+from .some_substitutions_type import SomeSubstitutionsType
 from .launch_description_entity import LaunchDescriptionEntity
 from .some_actions_type import SomeActionsType
 from .utilities import AsyncSafeSignalManager
@@ -55,7 +56,8 @@ class LaunchService:
         *,
         argv: Optional[Iterable[Text]] = None,
         noninteractive: bool = False,
-        debug: bool = False
+        debug: bool = False,
+        launch_prefix: Optional[SomeSubstitutionsType] = None
     ) -> None:
         """
         Create a LaunchService.
@@ -74,7 +76,10 @@ class LaunchService:
         self.__logger = launch.logging.get_logger('launch')
 
         # Setup context and register a built-in event handler for bootstrapping.
-        self.__context = LaunchContext(argv=self.__argv, noninteractive=noninteractive)
+        self.__context = LaunchContext(
+            argv=self.__argv, noninteractive=noninteractive,
+            launch_prefix=launch_prefix
+        )
         self.__context.register_event_handler(OnIncludeLaunchDescription())
         self.__context.register_event_handler(OnShutdown(on_shutdown=self.__on_shutdown))
 
