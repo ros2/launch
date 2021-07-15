@@ -2,6 +2,11 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Make each parser extension provide a set of file extensions (`#516 <https://github.com/ros2/launch/issues/516>`_)
+* Contributors: Christophe Bedard
+
 0.18.0 (2021-06-18)
 -------------------
 
