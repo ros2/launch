@@ -2,8 +2,8 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.19.0 (2021-07-15)
+-------------------
 * Make each parser extension provide a set of file extensions (`#516 <https://github.com/ros2/launch/issues/516>`_)
 * Contributors: Christophe Bedard
 
