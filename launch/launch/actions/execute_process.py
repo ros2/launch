@@ -230,6 +230,9 @@ class ExecuteProcess(Action):
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
+        self.__prefix_filter = normalize_to_list_of_substitutions(
+            LaunchConfiguration('launch-prefix-filter', default='')
+        )
         self.__output = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
         self.__output_format = output_format
 
@@ -681,7 +684,20 @@ class ExecuteProcess(Action):
         cmd = [perform_substitutions(context, x) for x in self.__cmd]
         name = os.path.basename(cmd[0]) if self.__name is None \
             else perform_substitutions(context, self.__name)
-        cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
+
+        # Peform filtering for prefix application
+        filter_str = perform_substitutions(context, self.__prefix_filter)
+        filter_list = []
+        if len(filter_str):
+            filter_list = filter_str.split('/')
+        for filter_elem in filter_list:
+            if filter_elem == os.path.basename(cmd[0]):
+                cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
+                break
+        # Apply to all if no filter is provided
+        if not len(filter_list):
+            cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
+
         with _global_process_counter_lock:
             global _global_process_counter
             _global_process_counter += 1
