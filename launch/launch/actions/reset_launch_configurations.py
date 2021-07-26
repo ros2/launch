@@ -29,11 +29,13 @@ class ResetLaunchConfigurations(Action):
     Action that resets launch configurations in the current context.
 
     This action can be used to clear the launch configurations from the
-    context it was called in. It optionally can be given a dictionary
-    with launch configurations to be set after clearing. Launch
-    configurations given in the dictionary are evaluated before the
-    context launch configurations are cleared. This allows launch
-    configurations to be passed through the clearing of the context.
+    context it was called in. 
+    It optionally can be given a dictionary with launch configurations 
+    to be set after clearing. 
+    Launch configurations given in the dictionary are evaluated before 
+    the context launch configurations are cleared. 
+    This allows launch configurations to be passed through the clearing 
+    of the context.
 
     If launch_configurations=None or {} then all launch configurations are cleared.
 
