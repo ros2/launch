@@ -54,8 +54,9 @@ class GroupAction(Action):
 
     Any launch configuration defined in the launch_configurations dictionary
     will be set in the current context. When scoped=False these configurations
-    will persist even after the GroupAction has completed. When scoped=True
-    these configurations will only be available to actions in the GroupAction.
+    will persist even after the GroupAction has completed.
+    When scoped=True these configurations will only be available to actions in
+    the GroupAction.
     When scoped=True and forwarding=False, the launch_configurations dictionary
     is evaluated before clearing, and then re-set in the cleared scoped context.
     """
