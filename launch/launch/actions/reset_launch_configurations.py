@@ -57,13 +57,13 @@ class ResetLaunchConfigurations(Action):
         if self.__launch_configurations is None:
             context.launch_configurations.clear()
         else:
-            evaled_configurations = {}
+            evaluated_configurations = {}
             for k, v in self.__launch_configurations.items():
-                ev_k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
-                ev_v = perform_substitutions(context, normalize_to_list_of_substitutions(v))
-                evaled_configurations[ev_k] = ev_v
+                evaluated_k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
+                evaluated_v = perform_substitutions(context, normalize_to_list_of_substitutions(v))
+                evaluated_configurations[evaluated_k] = evaluated_v
 
             context.launch_configurations.clear()
 
-            for k, v in evaled_configurations.items():
+            for k, v in evaluated_configurations.items():
                 context.launch_configurations[k] = v
