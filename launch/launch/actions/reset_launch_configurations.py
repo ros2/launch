@@ -37,7 +37,7 @@ class ResetLaunchConfigurations(Action):
 
     If launch_configurations=None or {} then all launch configurations are cleared.
 
-    If launch_configurations has entries (ie {'foo': 'FOO'}) then they will be
+    If launch_configurations has entries (i.e. {'foo': 'FOO'}) then they will be
     set after the clearing operation.
     """
 
