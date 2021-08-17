@@ -18,6 +18,7 @@ import asyncio
 import io
 import os
 import platform
+import re
 import shlex
 import signal
 import threading
@@ -687,15 +688,14 @@ class ExecuteProcess(Action):
 
         # Peform filtering for prefix application
         filter_str = perform_substitutions(context, self.__prefix_filter)
-        filter_list = []
+        regex_filter = None
         if len(filter_str):
-            filter_list = filter_str.split('/')
-        for filter_elem in filter_list:
-            if filter_elem == os.path.basename(cmd[0]):
-                cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
-                break
+            regex_filter = re.compile(filter_str)
+        if regex_filter is not None and regex_filter.match(os.path.basename(cmd[0])):
+            cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
+
         # Apply to all if no filter is provided
-        if not len(filter_list):
+        if regex_filter is None:
             cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
 
         with _global_process_counter_lock:
