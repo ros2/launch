@@ -231,6 +231,7 @@ class ExecuteProcess(Action):
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
+        self.__override_filter = False if prefix is None else True
         self.__prefix_filter = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix-filter', default='')
         )
@@ -694,8 +695,8 @@ class ExecuteProcess(Action):
         if regex_filter is not None and regex_filter.match(os.path.basename(cmd[0])):
             cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
 
-        # Apply to all if no filter is provided
-        if regex_filter is None:
+        # Apply to all if no filter is provided or filter is overridden
+        if regex_filter is None or self.__override_filter:
             cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
 
         with _global_process_counter_lock:
