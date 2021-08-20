@@ -37,7 +37,8 @@ class ResetLaunchConfigurations(Action):
     This allows launch configurations to be passed through the clearing
     of the context.
 
-    If launch_configurations is None or an empty dict then all launch configurations will be cleared.
+    If launch_configurations is None or an empty dict then all launch configurations
+    will be cleared.
 
     If launch_configurations has entries (i.e. {'foo': 'FOO'}) then these will be
     set after the clearing operation.
@@ -64,6 +65,4 @@ class ResetLaunchConfigurations(Action):
                 evaluated_configurations[evaluated_k] = evaluated_v
 
             context.launch_configurations.clear()
-
-            for k, v in evaluated_configurations.items():
-                context.launch_configurations[k] = v
+            context.launch_configurations.update(evaluated_configurations)
