@@ -66,6 +66,7 @@ def test_reset_launch_configurations_execute():
     assert len(lc4.launch_configurations) == 2
     ResetLaunchConfigurations(launch_configurations={'foo': LaunchConfiguration('foo')}).visit(lc4)
     assert len(lc4.launch_configurations) == 1
+    assert lc4.launch_configurations['foo'] == 'FOO'
     assert 'bar' not in lc4.launch_configurations.keys()
 
     # Add a launch configuration that did not exist
@@ -76,3 +77,17 @@ def test_reset_launch_configurations_execute():
     assert len(lc5.launch_configurations) == 2
     ResetLaunchConfigurations(launch_configurations={'baz': 'BAZ'}).visit(lc5)
     assert len(lc5.launch_configurations) == 1
+    assert lc5.launch_configurations['baz'] == 'BAZ'
+    assert 'foo' not in lc5.launch_configurations.keys()
+    assert 'bar' not in lc5.launch_configurations.keys()
+
+    # Overwrite an existing launch configuration
+    lc6 = LaunchContext()
+    assert len(lc6.launch_configurations) == 0
+    lc6.launch_configurations['foo'] = 'FOO'
+    lc6.launch_configurations['bar'] = 'BAR'
+    assert len(lc6.launch_configurations) == 2
+    ResetLaunchConfigurations(launch_configurations={'foo': 'OOF'}).visit(lc6)
+    assert len(lc6.launch_configurations) == 1
+    assert lc6.launch_configurations['foo'] == 'OOF'
+    assert 'bar' not in lc6.launch_configurations.keys()
