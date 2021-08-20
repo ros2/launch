@@ -39,7 +39,7 @@ class ResetLaunchConfigurations(Action):
 
     If launch_configurations is None or an empty dict then all launch configurations will be cleared.
 
-    If launch_configurations has entries (i.e. {'foo': 'FOO'}) then they will be
+    If launch_configurations has entries (i.e. {'foo': 'FOO'}) then these will be
     set after the clearing operation.
     """
 
