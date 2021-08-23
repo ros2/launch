@@ -231,10 +231,9 @@ class ExecuteProcess(Action):
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
-        self.__override_filter = False if prefix is None else True
         self.__prefix_filter = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix-filter', default='')
-        )
+        ) if prefix is None else None
         self.__output = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
         self.__output_format = output_format
 
