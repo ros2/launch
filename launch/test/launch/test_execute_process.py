@@ -208,3 +208,23 @@ def test_execute_process_prefix_filter_no_match():
 
     test_process.execute(lc)
     assert 'time' not in test_process.process_details['cmd']
+
+
+def test_execute_process_prefix_filter_override_in_launch_file():
+    lc = LaunchContext()
+    lc._set_asyncio_loop(asyncio.get_event_loop())
+    SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
+    assert len(lc.launch_configurations) == 1
+    SetLaunchConfiguration(
+        'launch-prefix-filter', 'no-match').visit(lc)
+    assert len(lc.launch_configurations) == 2
+
+    test_process = ExecuteProcess(
+        prefix='echo',
+        cmd=[sys.executable, '-c', "print('action')"],
+        output='screen'
+    )
+
+    test_process.execute(lc)
+    assert 'echo' in test_process.process_details['cmd'] and \
+        'time' not in test_process.process_details['cmd']
