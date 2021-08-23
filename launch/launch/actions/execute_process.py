@@ -188,7 +188,9 @@ class ExecuteProcess(Action):
             'emulate_tty' configuration does not represent a boolean.
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
-            called 'launch-prefix'
+            called 'launch-prefix'. Note that a non-default prefix provided in
+            a launch file will override the prefix provided via the `--launch-prefix` CLI
+            argument regardless of whether `--launch-prefix-filter` is provided.
         :param: output configuration for process output logging. Defaults to 'log'
             i.e. log both stdout and stderr to launch main log file and stderr to
             the screen.
