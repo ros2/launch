@@ -686,7 +686,7 @@ class ExecuteProcess(Action):
         name = os.path.basename(cmd[0]) if self.__name is None \
             else perform_substitutions(context, self.__name)
 
-        # Peform filtering for prefix application
+        # Perform filtering for prefix application
         filter_str = perform_substitutions(context, self.__prefix_filter)
         regex_filter = None
         if len(filter_str):
