@@ -687,15 +687,12 @@ class ExecuteProcess(Action):
             else perform_substitutions(context, self.__name)
 
         # Perform filtering for prefix application
-        filter_str = perform_substitutions(context, self.__prefix_filter)
-        regex_filter = None
-        if len(filter_str):
-            regex_filter = re.compile(filter_str)
-        if regex_filter is not None and regex_filter.match(os.path.basename(cmd[0])):
-            cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
-
-        # Apply to all if no filter is provided or filter is overridden
-        if regex_filter is None or self.__override_filter:
+        should_apply_prefix = True  # by default
+        if self.__prefix_filter is not None:  # no prefix given on construction
+            prefix_filter = perform_substitutions(context, self.__prefix_filter)
+            # Apply if filter regex matches (empty regex matches all strings)
+            should_apply_prefix = re.match(prefix_filter, os.path.basename(cmd[0]))
+        if should_apply_prefix:
             cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
 
         with _global_process_counter_lock:
