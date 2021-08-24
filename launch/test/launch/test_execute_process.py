@@ -14,13 +14,16 @@
 
 """Tests for the ExecuteProcess Action."""
 
+import asyncio
 import os
 import platform
 import signal
 import sys
 
+from launch import LaunchContext
 from launch import LaunchDescription
 from launch import LaunchService
+from launch.actions import SetLaunchConfiguration
 from launch.actions.emit_event import EmitEvent
 from launch.actions.execute_process import ExecuteProcess
 from launch.actions.opaque_function import OpaqueFunction
@@ -168,3 +171,60 @@ def test_execute_process_with_respawn():
     ls.include_launch_description(generate_launch_description())
     assert 0 == ls.run()
     assert expected_called_count == on_exit_callback.called_count
+
+
+def test_execute_process_prefix_filter_match():
+    lc = LaunchContext()
+    lc._set_asyncio_loop(asyncio.get_event_loop())
+    SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
+    assert len(lc.launch_configurations) == 1
+    SetLaunchConfiguration(
+        'launch-prefix-filter',
+        f'{os.path.basename(sys.executable)}').visit(lc)
+    assert len(lc.launch_configurations) == 2
+
+    test_process = ExecuteProcess(
+        cmd=[sys.executable, '-c', "print('action')"],
+        output='screen'
+    )
+
+    test_process.execute(lc)
+    assert 'time' in test_process.process_details['cmd']
+
+
+def test_execute_process_prefix_filter_no_match():
+    lc = LaunchContext()
+    lc._set_asyncio_loop(asyncio.get_event_loop())
+    SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
+    assert len(lc.launch_configurations) == 1
+    SetLaunchConfiguration(
+        'launch-prefix-filter', 'no-match').visit(lc)
+    assert len(lc.launch_configurations) == 2
+
+    test_process = ExecuteProcess(
+        cmd=[sys.executable, '-c', "print('action')"],
+        output='screen'
+    )
+
+    test_process.execute(lc)
+    assert 'time' not in test_process.process_details['cmd']
+
+
+def test_execute_process_prefix_filter_override_in_launch_file():
+    lc = LaunchContext()
+    lc._set_asyncio_loop(asyncio.get_event_loop())
+    SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
+    assert len(lc.launch_configurations) == 1
+    SetLaunchConfiguration(
+        'launch-prefix-filter', 'no-match').visit(lc)
+    assert len(lc.launch_configurations) == 2
+
+    test_process = ExecuteProcess(
+        prefix='echo',
+        cmd=[sys.executable, '-c', "print('action')"],
+        output='screen'
+    )
+
+    test_process.execute(lc)
+    assert 'echo' in test_process.process_details['cmd'] and \
+        'time' not in test_process.process_details['cmd']
