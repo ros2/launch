@@ -49,7 +49,7 @@ This is a non-exhaustive list of actions that `launch` may provide:
   - This action will set a :class:`launch.LaunchConfiguration` to a specified value, creating it if it doesn't already exist.
   - These launch configurations can be accessed by any action via a substitution, but are scoped by default.
 
-- :class:`launch.actions.DeclareLaunchDescriptionArgument`
+- :class:`launch.actions.DeclareLaunchArgument`
 
   - This action will declare a launch description argument, which can have a name, default value, and documentation.
   - The argument will be exposed via a command line option for a root launch description, or as action configurations to the include launch description action for the included launch description.

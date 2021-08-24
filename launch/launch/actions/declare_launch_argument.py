@@ -74,6 +74,23 @@ class DeclareLaunchArgument(Action):
     exception is raised because none is set and there is no default value.
     However, the pre-condition does not guarantee that the argument was visible
     if behind condition or situational inclusions.
+
+    .. doctest::
+
+        >>> ld = LaunchDescription([
+        ...     DeclareLaunchArgument('simple_argument'),
+        ...     DeclareLaunchArgument('with_default_value', default_value='default'),
+        ...     DeclareLaunchArgument(
+        ...         'with_default_and_description',
+        ...         default_value='some_default',
+        ...         description='this argument is used to configure ...'),
+        ...     DeclareLaunchArgument(
+        ...         'mode',
+        ...         default_value='A',
+        ...         description='Choose between mode A and mode B',
+        ...         choices=['A', 'B']),
+        ...     # other actions here, ...
+        ... ])
     """
 
     def __init__(
