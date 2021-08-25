@@ -39,4 +39,4 @@ class Parser(frontend.Parser):
     @classmethod
     def get_file_extensions(cls) -> Set[Text]:
         """Return the set of file extensions known to this parser."""
-        return {'launch.xml', 'xml'}
+        return {'launch.xml', 'xml', 'launch'}
