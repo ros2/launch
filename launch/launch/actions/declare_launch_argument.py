@@ -91,6 +91,15 @@ class DeclareLaunchArgument(Action):
         ...         choices=['A', 'B']),
         ...     # other actions here, ...
         ... ])
+
+    .. code-block:: xml
+
+        <launch>
+            <arg name="simple_argument"/>
+            <arg name="with_default_value" default_value="default"/>
+            <arg name="with_default_and_description" default_value="some_default"
+                description="this argument is used to configure ..."/>
+        </launch>
     """
 
     def __init__(
@@ -163,6 +172,7 @@ class DeclareLaunchArgument(Action):
             kwargs['description'] = parser.escape_characters(description)
         choices = entity.get_attr('choices', optional=True)
         if choices is not None:
+            # TODO(ivanpauno): choices is a list, fix this.
             kwargs['choices'] = parser.escape_characters(choices)
         return cls, kwargs
 

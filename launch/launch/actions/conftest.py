@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def add_np(doctest_namespace):
+def add_imports_to_doctest_namespace(doctest_namespace):
     doctest_namespace['launch'] = launch
     doctest_namespace['LaunchDescription'] = LaunchDescription
     for x in launch.actions.__all__:
