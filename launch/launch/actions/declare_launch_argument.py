@@ -172,7 +172,6 @@ class DeclareLaunchArgument(Action):
             kwargs['description'] = parser.escape_characters(description)
         choices = entity.get_attr('choices', optional=True)
         if choices is not None:
-            # TODO(ivanpauno): choices is a list, fix this.
             kwargs['choices'] = parser.escape_characters(choices)
         return cls, kwargs
 
