@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# imports needed for doctests
-# import pytest
-
 
 def pytest_ignore_collect(path):
     # pytest doctest messes up when trying to import .launch.py packages, ignore them.
