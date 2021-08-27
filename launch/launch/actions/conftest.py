@@ -15,6 +15,8 @@
 # imports needed for doctests
 import launch
 import launch.actions
+import launch.conditions
+import launch.substitutions
 
 import pytest
 
@@ -23,5 +25,10 @@ import pytest
 def add_imports_to_doctest_namespace(doctest_namespace):
     doctest_namespace['launch'] = launch
     doctest_namespace['LaunchDescription'] = launch.LaunchDescription
-    for x in launch.actions.__all__:
-        doctest_namespace[x] = getattr(launch.actions, x)
+    for subpackage in (
+        launch.actions,
+        launch.conditions,
+        launch.substitutions,
+    ):
+        for x in subpackage.__all__:
+            doctest_namespace[x] = getattr(subpackage, x)
