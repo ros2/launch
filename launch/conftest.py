@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import PurePath
+
 
 def pytest_ignore_collect(path):
     # pytest doctest messes up when trying to import .launch.py packages, ignore them.
@@ -19,5 +21,5 @@ def pytest_ignore_collect(path):
     # logging.handlers, ignore that as well.
     return str(path).endswith((
         '.launch.py',
-        'logging/handlers.py',
+        str(PurePath('logging') / 'handlers.py'),
     ))
