@@ -85,7 +85,7 @@ _global_process_counter = 0  # in Python3, this number is unbounded (no rollover
 @expose_action('executable')
 class ExecuteProcess(Action):
     """
-    Action that begins executing a process and sets up event handlers for the process.
+    Action that begins executing a process and sets up event handlers for it.
 
     Simple example:
 
