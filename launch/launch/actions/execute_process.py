@@ -150,11 +150,6 @@ class ExecuteProcess(Action):
                 <arg name="open_gui" description="when truthy, the gui will be opened"/>
                 <executable cmd="my_cmd --open-gui" if="$(var open_gui)"/>
                 <executable cmd="my_cmd" unless="$(var open_gui)"/>
-                <!--If you have a launch configuration named 'open_gui_arg' that is equal
-                    to "--open-gui" when the "open_gui" argument is truthy and "" when it's
-                    falsy, you'd think that avoiding conditions is possible and you can only
-                    use one executable action with `cmd="my_cmd $(var open_gui_arg)"`.
-                    Unfortunately, that doesn't work, use conditions as in this example.-->
             </launch>
 
     Environment variables:
