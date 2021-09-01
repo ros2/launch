@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.6 (2021-08-31)
+-------------------
+
 0.10.5 (2021-04-14)
 -------------------
 * Fix max() with empty sequence (`#440 <https://github.com/ros2/launch/issues/440>`_) (`#491 <https://github.com/ros2/launch/issues/491>`_)

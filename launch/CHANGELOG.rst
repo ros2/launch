@@ -2,6 +2,16 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.6 (2021-08-31)
+-------------------
+* Handle signals within the asyncio loop (`#506 <https://github.com/ros2/launch/issues/506>`_)
+  * Handle signals within the asyncio loop (`#476 <https://github.com/ros2/launch/issues/476>`_)
+  * Workaround asyncio signal handling on Unix (`#479 <https://github.com/ros2/launch/issues/479>`_)
+  * Remove is_winsock_handle() and instead test if wrapping the handle in a socket.socket() works (`#494 <https://github.com/ros2/launch/issues/494>`_)
+  * Close the socket pair used for signal management (`#497 <https://github.com/ros2/launch/issues/497>`_)
+  * Only try to wrap the fd in a socket on Windows (`#498 <https://github.com/ros2/launch/issues/498>`_)
+* Contributors: Michael Jeronimo
+
 0.10.5 (2021-04-14)
 -------------------
 * Support non-interactive launch.LaunchService runs (`#475 <https://github.com/ros2/launch/issues/475>`_) (`#500 <https://github.com/ros2/launch/issues/500>`_)
