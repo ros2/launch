@@ -12,10 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import legacy
-from .fixture import fixture
+import launch
+import launch_testing
 
-__all__ = [
-    'fixture',
-    'legacy',
-]
+import pytest
+
+
+@launch_testing.pytest.fixture(scope='module')
+def ld():
+    return launch.LaunchDescription([launch_testing.actions.ReadyToTest()])
+
+
+@pytest.mark.launch_testing(fixture=ld)
+async def test_case_1():
+    assert True
+
+
+@pytest.mark.launch_testing(fixture=ld)
+def test_case_2():
+    assert True

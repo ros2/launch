@@ -413,3 +413,7 @@ class LaunchService:
     def context(self):
         """Getter for context."""
         return self.__context
+
+    @property
+    def event_loop(self):
+        return self.__loop_from_run_thread
