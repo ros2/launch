@@ -143,7 +143,7 @@ def pytest_runtest_setup(item):
     """Inject fixtures in launch_testing marked tests."""
     marker = item.get_closest_marker('launch_testing')
     if marker is not None:
-        # inject the corrent launch_testing fixture here
+        # inject the correct launch_testing fixture here
         if 'fixture' not in marker.kwargs:
             raise RuntimeError(
                 'from keyword argument is required in a pytest.mark.launch_testing() decorator: \n'
