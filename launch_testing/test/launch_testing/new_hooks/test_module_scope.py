@@ -47,5 +47,19 @@ def test_case_2(order):
     assert True
 
 
+@pytest.mark.launch_testing(fixture=launch_description)
+def test_case_3():
+    assert True
+    yield
+    assert True
+
+
+@pytest.mark.launch_testing(fixture=launch_description)
+async def test_case_4():
+    assert True
+    yield
+    assert True
+
+
 def test_order(order):
     assert order == ['test_case_1', 'test_case_2', 'test_after_shutdown']
