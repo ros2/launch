@@ -30,7 +30,7 @@ except ImportError:
 def get_launch_service_fixture(scope='function'):
 
     @pytest.fixture(scope=scope)
-    def launch_service():
+    def launch_service(event_loop):
         ls = launch.LaunchService()
         yield ls
         assert ls._is_idle(), (

@@ -47,22 +47,13 @@ def pytest_configure(config):
         'run using the specified launch_pad.',
     )
 
-# Adapted from https://github.com/pytest-dev/pytest-asyncio,
-# see their license https://github.com/pytest-dev/pytest-asyncio/blob/master/LICENSE.
-@pytest.mark.tryfirst
-def pytest_pycollect_makeitem(collector, name, obj):
-    """Collect coroutine based launch tests."""
-    if collector.funcnamefilter(name) and inspect.iscoroutinefunction(obj):
-        item = pytest.Function.from_parent(collector, name=name)
 
-        # Due to how pytest test collection works, module-level pytestmarks
-        # are applied after the collection step. Since this is the collection
-        # step, we look ourselves.
-        transfer_markers(obj, item.cls, item.module)
-        item = pytest.Function.from_parent(collector, name=name)  # To reload keywords.
-
-        if 'launch_testing' in item.keywords:
-            return list(collector._genfunctions(name, obj))
+def finalize_launch_service(ls, eprefix=''):
+    ls.shutdown()
+    loop = ls.event_loop
+    if loop is not None:
+        rc = loop.run_until_complete(ls.task)
+        assert rc == 0, f"{eprefix} launch service failed when finishing, return code '{rc}'"
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
@@ -94,12 +85,13 @@ def pytest_fixture_setup(fixturedef, request):
         event = asyncio.Event()
         ready._add_callback(lambda: event.set())
 
-        def finalize():
-            ls.shutdown()
-            rc = event_loop.run_until_complete(run_async_task)
-            assert rc == 0, f"{eprefix} launch service failed when finishing, return code '{rc}'"
-        fixturedef.addfinalizer(finalize)
+        fixturedef.addfinalizer(functools.partial(finalize_launch_service, ls=ls, eprefix=eprefix))
         run_until_complete(event_loop, event.wait())
+        # this is guaranteed by the current run_async() implementation, let's check it just in case
+        # it changes in the future
+        assert ls.event_loop is event_loop
+        assert ls.context.asyncio_loop is event_loop
+        assert ls.task is run_async_task
         return
     yield
 
@@ -139,23 +131,48 @@ def get_ready_to_test_action(launch_description):
     )
 
 
-def pytest_runtest_setup(item):
-    """Inject fixtures in launch_testing marked tests."""
-    marker = item.get_closest_marker('launch_testing')
-    if marker is not None:
-        # inject the correct launch_testing fixture here
-        if 'fixture' not in marker.kwargs:
-            raise RuntimeError(
-                'from keyword argument is required in a pytest.mark.launch_testing() decorator: \n'
-                f'{get_error_context_from_obj(item.obj)}'
-            )
-        fixturename = marker.kwargs['fixture'].__name__
-        if fixturename in item.fixturenames:
-            item.fixturenames.remove(fixturename)
-        item.fixturenames.insert(0, fixturename)
-        if 'launch_service' in item.fixturenames:
-            item.fixturenames.remove('launch_service')
-        item.fixturenames.insert(0, 'launch_service')
+def is_valid_test_item(obj):
+    """Return true if obj is a valid launch test item."""
+    return inspect.iscoroutinefunction(obj) or inspect.isfunction(obj)
+
+# Adapted from https://github.com/pytest-dev/pytest-asyncio,
+# see their license https://github.com/pytest-dev/pytest-asyncio/blob/master/LICENSE.
+@pytest.mark.tryfirst
+def pytest_pycollect_makeitem(collector, name, obj):
+    """Collect coroutine based launch tests."""
+    if collector.funcnamefilter(name) and is_valid_test_item(obj):
+        item = pytest.Function.from_parent(collector, name=name)
+
+        # Due to how pytest test collection works, module-level pytestmarks
+        # are applied after the collection step. Since this is the collection
+        # step, we look ourselves.
+        transfer_markers(obj, item.cls, item.module)
+        item = pytest.Function.from_parent(collector, name=name)  # To reload keywords.
+
+        marker = item.get_closest_marker('launch_testing')
+        if marker is not None:
+            # inject the correct launch_testing fixture here
+            if 'fixture' not in marker.kwargs:
+                warnings.warn(
+                    '"fixture" keyword argument is required in a pytest.mark.launch_testing() '
+                    f'decorator: \n{get_error_context_from_obj(item.obj)}'
+                )
+                return None
+            fixturename = marker.kwargs['fixture'].__name__
+            # injects the needed fixtures in all items here
+            # injecting the fixture here makes sure that pytest reorder tests correctly
+            items = list(collector._genfunctions(name, obj))
+            for item in items:
+                if fixturename in item.fixturenames:
+                    item.fixturenames.remove(fixturename)
+                item.fixturenames.insert(0, fixturename)
+                if 'launch_service' in item.fixturenames:
+                    item.fixturenames.remove('launch_service')
+                item.fixturenames.insert(0, 'launch_service')
+                if 'event_loop' in item.fixturenames:
+                    item.fixturenames.remove('event_loop')
+                item.fixturenames.insert(0, 'event_loop')
+            return items
 
 
 def get_error_context_from_obj(obj):
@@ -177,6 +194,25 @@ def get_error_context_from_obj(obj):
     return error_msg
 
 
+@pytest.mark.trylast
+def pytest_collection_modifyitems(session, config, items):
+    """Reorder tests, so shutdown tests happen after the corresponding fixture teardown."""
+
+    def cmp(left, right):
+        leftm = left.get_closest_marker('launch_testing')
+        rightm = right.get_closest_marker('launch_testing')
+        if None in (leftm, rightm):
+            return 0
+        if leftm.kwargs['fixture'] is not rightm.kwargs['fixture']:
+            return 0
+        left_is_shutdown = int(leftm.kwargs.get('shutdown', False))
+        right_is_shutdown = int(rightm.kwargs.get('shutdown', False))
+        return left_is_shutdown - right_is_shutdown
+
+    # python sort is guaranteed to be stable
+    items.sort(key=functools.cmp_to_key(cmp))
+
+
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_pyfunc_call(pyfuncitem):
     """Run launch_testing test coroutines and functions in an event loop."""
@@ -186,44 +222,56 @@ def pytest_pyfunc_call(pyfuncitem):
         func = pyfuncitem.obj
         spec = inspect.getfullargspec(func)
         fixturename = marker.kwargs['fixture'].__name__
+        shutdown_test = marker.kwargs.get('shutdown', False)
         ld_extra_args_pair = pyfuncitem.funcargs[fixturename]
         extra_args = {}
         if isinstance(ld_extra_args_pair, tuple) and len(ld_extra_args_pair) == 2:
             extra_args = ld_extra_args_pair[1]
+        event_loop = pyfuncitem.funcargs['event_loop']
         ls = pyfuncitem.funcargs['launch_service']
         for name, value in extra_args.items():
             if name in itertools.chain(spec.args, spec.kwonlyargs):
                 args[name] = value
+        before = None
+        if shutdown_test:
+            def before():
+                finalize_launch_service(
+                    ls,
+                    eprefix=(
+                        'Failed to finalize launch service while running test'
+                        f' "{pyfuncitem.obj.__name__}"'))
         if inspect.iscoroutinefunction(func):
-            pyfuncitem.obj = wrap_coroutine(func, args, ls)
+            pyfuncitem.obj = wrap_coroutine(func, args, event_loop, before)
         else:
-            pyfuncitem.obj = wrap_func(func, args, ls)
+            pyfuncitem.obj = wrap_func(func, args, event_loop, before)
     yield
 
 
-def wrap_coroutine(func, args, ls):
+def wrap_coroutine(func, args, event_loop, before):
     """Return a sync wrapper around an async function to be executed in the event loop."""
 
     @functools.wraps(func)
     def inner(**kwargs):
+        if before is not None:
+            before()
         update_arguments(kwargs, args)
         coro = func(**kwargs)
-        loop = ls.event_loop
-        task = asyncio.ensure_future(coro, loop=loop)
-        run_until_complete(loop, task)
+        task = asyncio.ensure_future(coro, loop=event_loop)
+        run_until_complete(event_loop, task)
 
     return inner
 
 
-def wrap_func(func, args, ls):
+def wrap_func(func, args, event_loop, before):
     """Return a wrapper that runs the test in a separate thread while driving the event loop."""
 
     @functools.wraps(func)
     def inner(**kwargs):
+        if before is not None:
+            before()
         update_arguments(kwargs, args)
-        loop = ls.event_loop
-        future = loop.run_in_executor(None, functools.partial(func, **kwargs))
-        run_until_complete(loop, future)
+        future = event_loop.run_in_executor(None, functools.partial(func, **kwargs))
+        run_until_complete(event_loop, future)
     return inner
 
 
@@ -249,7 +297,7 @@ def run_until_complete(loop, future_like):
 
 
 @pytest.fixture
-def launch_service():
+def launch_service(event_loop):
     """Create an instance of the launch service for each test case."""
     ls = LaunchService()
     yield ls

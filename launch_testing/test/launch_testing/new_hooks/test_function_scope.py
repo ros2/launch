@@ -19,15 +19,15 @@ import pytest
 
 
 @launch_testing.pytest.fixture()
-def ld():
+def launch_description():
     return launch.LaunchDescription([launch_testing.actions.ReadyToTest()])
 
 
-@pytest.mark.launch_testing(fixture=ld)
+@pytest.mark.launch_testing(fixture=launch_description)
 async def test_case_1():
     assert True
 
 
-@pytest.mark.launch_testing(fixture=ld)
+@pytest.mark.launch_testing(fixture=launch_description)
 def test_case_2():
     assert True

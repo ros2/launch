@@ -18,16 +18,34 @@ import launch_testing
 import pytest
 
 
+@pytest.fixture(scope='module')
+def order():
+    return []
+
+
 @launch_testing.pytest.fixture(scope='module')
-def ld():
+def launch_description():
     return launch.LaunchDescription([launch_testing.actions.ReadyToTest()])
 
 
-@pytest.mark.launch_testing(fixture=ld)
-async def test_case_1():
+@pytest.mark.launch_testing(fixture=launch_description, shutdown=True)
+async def test_after_shutdown(order, launch_service):
+    order.append('test_after_shutdown')
+    assert launch_service._is_idle()
+    assert launch_service.event_loop is None
+
+
+@pytest.mark.launch_testing(fixture=launch_description)
+async def test_case_1(order):
+    order.append('test_case_1')
     assert True
 
 
-@pytest.mark.launch_testing(fixture=ld)
-def test_case_2():
+@pytest.mark.launch_testing(fixture=launch_description)
+def test_case_2(order):
+    order.append('test_case_2')
     assert True
+
+
+def test_order(order):
+    assert order == ['test_case_1', 'test_case_2', 'test_after_shutdown']
