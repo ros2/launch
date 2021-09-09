@@ -27,28 +27,41 @@ except ImportError:
     from _pytest.fixtures import scopemismatch as scope_gt
 
 
-def get_launch_service_fixture(scope='function'):
+def finalize_launch_service(launch_service, eprefix=''):
+    launch_service.shutdown(force_sync=True)
+    loop = launch_service.event_loop
+    if loop is not None and not loop.is_closed():
+        rc = loop.run_until_complete(launch_service.task)
+        assert rc == 0, f"{eprefix} launch service failed when finishing, return code '{rc}'"
+
+
+def get_launch_service_fixture(*, scope='function', overridable=True):
+    """Return a launch service fixture."""
 
     @pytest.fixture(scope=scope)
     def launch_service(event_loop):
+        """Create an instance of the launch service for each test case."""
         ls = launch.LaunchService()
         yield ls
-        assert ls._is_idle(), (
-            'launch service must be shut down before fixture tear down'
-        )
-    launch_service._launch_testing_overridable_fixture = True
+        finalize_launch_service(ls, eprefix='When tearing down launch_service fixture')
+    if overridable:
+        launch_service._launch_testing_overridable_fixture = True
+        launch_service._launch_testing_fixture_scope = scope
     return launch_service
 
 
-def get_event_loop_fixture(scope='function'):
+def get_event_loop_fixture(*, scope='function', overridable=True):
+    """Return an event loop fixture."""
 
     @pytest.fixture(scope=scope)
     def event_loop():
+        """Create an event loop instance for each test case."""
         loop = asyncio.get_event_loop_policy().new_event_loop()
         yield loop
         loop.close()
-    event_loop._launch_testing_overridable_fixture = True
-    event_loop._launch_testing_fixture_scope = scope
+    if overridable:
+        event_loop._launch_testing_overridable_fixture = True
+        event_loop._launch_testing_fixture_scope = scope
     return event_loop
 
 
@@ -78,9 +91,9 @@ def fixture(*args, **kwargs):
                     getattr(obj, '_launch_testing_overridable_fixture', False) and
                     scope_gt(scope, obj._launch_testing_fixture_scope)
                 ):
-                    mod_locals[name] = getter(scope)
+                    mod_locals[name] = getter(scope=scope)
             else:
-                mod_locals[name] = getter(scope)
+                mod_locals[name] = getter(scope=scope)
 
     def decorator(fixture_function):
         fixture_function._launch_pytest_fixture = True
