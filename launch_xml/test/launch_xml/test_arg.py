@@ -38,7 +38,6 @@ def test_arg():
     assert 'something' == arg.description
 
 
-
 def test_arg_with_choices():
     xml_file = \
         """\
