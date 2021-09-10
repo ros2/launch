@@ -38,6 +38,26 @@ def test_arg():
     assert 'something' == arg.description
 
 
+def test_arg_with_choices():
+    xml_file = \
+        """\
+        <launch>
+            <arg name="my_arg" default="asd" description="something">
+                <choice value="asd"/>
+                <choice value="bsd"/>
+            </arg>
+        </launch>
+        """
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    ld = parser.parse_description(root_entity)
+    arg = ld.entities[0]
+    assert 'my_arg' == arg.name
+    assert 'asd' == ''.join([x.perform(None) for x in arg.default_value])
+    assert "something. Valid choices are: ['asd', 'bsd']" == arg.description
+    assert ['asd', 'bsd'] == arg.choices
+
+
 def test_arg_wrong_attribute():
     xml_file = \
         """\

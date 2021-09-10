@@ -14,6 +14,7 @@
 
 """Module for the DeclareLaunchArgument action."""
 
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
@@ -108,7 +109,7 @@ class DeclareLaunchArgument(Action):
         *,
         default_value: Optional[SomeSubstitutionsType] = None,
         description: Optional[Text] = None,
-        choices: List[Text] = None,
+        choices: Iterable[Text] = None,
         **kwargs
     ) -> None:
         """Create a DeclareLaunchArgument action."""
@@ -127,7 +128,7 @@ class DeclareLaunchArgument(Action):
                     'Provided choices arg is empty. Use None to ignore the choice list.')
 
             # Check if a non substitution default value is provided and is a valid choice
-            if default_value is not None and not isinstance(default_value, Substitution):
+            if default_value is not None and not isinstance(default_value, (Substitution, list)):
                 if default_value not in choices:
                     self.__logger.error(
                         'Provided default_value "{}" is not in provided choices "{}".'.format(
@@ -145,6 +146,8 @@ class DeclareLaunchArgument(Action):
         else:
             self.__description = description
             if choices is not None:
+                if not self.__description.endswith('.'):
+                    self.__description += '.'
                 self.__description += ' Valid choices are: ' + str(choices)
 
         self.__choices = choices
@@ -170,9 +173,11 @@ class DeclareLaunchArgument(Action):
         description = entity.get_attr('description', optional=True)
         if description is not None:
             kwargs['description'] = parser.escape_characters(description)
-        choices = entity.get_attr('choices', optional=True)
+        choices = entity.get_attr('choice', data_type=List[Entity], optional=True)
         if choices is not None:
-            kwargs['choices'] = parser.escape_characters(choices)
+            kwargs['choices'] = [
+                parser.escape_characters(choice.get_attr('value')) for choice in choices
+            ]
         return cls, kwargs
 
     @property
