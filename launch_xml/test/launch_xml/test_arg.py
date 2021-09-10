@@ -54,7 +54,7 @@ def test_arg_with_choices():
     arg = ld.entities[0]
     assert 'my_arg' == arg.name
     assert 'asd' == ''.join([x.perform(None) for x in arg.default_value])
-    assert "something Valid choices are: ['asd', 'bsd']" == arg.description
+    assert "something. Valid choices are: ['asd', 'bsd']" == arg.description
     assert ['asd', 'bsd'] == arg.choices
 
 

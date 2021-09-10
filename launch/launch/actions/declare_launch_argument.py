@@ -146,6 +146,8 @@ class DeclareLaunchArgument(Action):
         else:
             self.__description = description
             if choices is not None:
+                if not self.__description.endswith('.'):
+                    self.__description += '.'
                 self.__description += ' Valid choices are: ' + str(choices)
 
         self.__choices = choices
