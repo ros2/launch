@@ -399,10 +399,10 @@ def wrap_asyncgen(func, args, event_loop, on_shutdown):
     def inner(**kwargs):
         update_arguments(kwargs, args)
         agen = func(**kwargs)
-        shutdown.agen = agen
         coro = agen.__anext__()
         task = asyncio.ensure_future(coro, loop=event_loop)
         run_until_complete(event_loop, task)
+        shutdown.agen = agen
 
     return inner, shutdown
 
