@@ -418,6 +418,7 @@ class LaunchService:
 
     @property
     def event_loop(self):
+        """Getter for the event loop being used in the thread running the launch service."""
         return self.__loop_from_run_thread
 
     @property
