@@ -24,6 +24,7 @@ import pytest
 @pytest.mark.launch_test
 @launch_testing.markers.keep_alive
 def generate_test_description():
+    """Launch a simple process to print 'hello_world'."""
     return launch.LaunchDescription([
         launch.actions.ExecuteProcess(
             cmd=['echo', 'hello_world']
@@ -35,6 +36,7 @@ def generate_test_description():
 class TestHelloWorldProcess(unittest.TestCase):
 
     def test_read_stdout(self, proc_output):
+        """Check if 'hello_world' was found in the stdout."""
         proc_output.assertWaitFor('hello_world', timeout=10, stream='stdout')
 
 
@@ -42,4 +44,5 @@ class TestHelloWorldProcess(unittest.TestCase):
 class TestHelloWorldShutdown(unittest.TestCase):
 
     def test_exit_codes(self, proc_info):
+        """Check if the processes exited normally."""
         launch_testing.asserts.assertExitCodes(proc_info)
