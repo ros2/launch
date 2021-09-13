@@ -201,6 +201,17 @@ add_launch_test(
 
 ## Examples
 
+### `hello_world_launch_test.py`
+
+Usage:
+
+```sh
+launch_test test/launch_testing/examples/hello_world_launch_test.py
+```
+
+This test is meant to be a simple example on how to use the ``launch_testing``. It launches a process to print "hello_world" in the ``stdout`` stream,
+and uses ``proc_output.assertWaitFor()`` to detect the text. Finally it checks if the original process exited normally.
+
 ### `good_proc_launch_test.py`
 
 Usage:
