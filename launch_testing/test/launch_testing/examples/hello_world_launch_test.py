@@ -17,10 +17,12 @@ import unittest
 import launch
 import launch.actions
 import launch_testing.actions
+import launch_testing.markers
 import pytest
 
 
 @pytest.mark.launch_test
+@launch_testing.markers.keep_alive
 def generate_test_description():
     return launch.LaunchDescription([
         launch.actions.ExecuteProcess(
