@@ -324,10 +324,11 @@ def wrap_func(func, args, event_loop, before_test):
 
 def wrap_generator(func, args, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for a generator function."""
+    gen = None
 
     @functools.wraps(func)
     def shutdown(**kwargs):
-        gen = getattr(shutdown, 'gen', None)
+        nonlocal gen
         if gen is None:
             skip('shutdown test skipped because the test failed before')
         on_shutdown()
@@ -343,11 +344,12 @@ def wrap_generator(func, args, event_loop, on_shutdown):
 
     @functools.wraps(func)
     def inner(**kwargs):
+        nonlocal gen
         update_arguments(kwargs, args)
-        gen = func(**kwargs)
-        future = event_loop.run_in_executor(None, lambda: next(gen))
+        local_gen = func(**kwargs)
+        future = event_loop.run_in_executor(None, lambda: next(local_gen))
         run_until_complete(event_loop, future)
-        shutdown.gen = gen
+        gen = local_gen
 
     return inner, shutdown
 
@@ -376,10 +378,11 @@ def wrap_generator_fscope(func, args, event_loop, on_shutdown):
 
 def wrap_asyncgen(func, args, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for an async gen function."""
+    agen = None
 
     @functools.wraps(func)
     def shutdown(**kwargs):
-        agen = getattr(shutdown, 'agen', None)
+        nonlocal agen
         if agen is None:
             skip('shutdown test skipped because the test failed before')
         on_shutdown()
@@ -397,12 +400,13 @@ def wrap_asyncgen(func, args, event_loop, on_shutdown):
 
     @functools.wraps(func)
     def inner(**kwargs):
+        nonlocal agen
         update_arguments(kwargs, args)
-        agen = func(**kwargs)
-        coro = agen.__anext__()
+        local_agen = func(**kwargs)
+        coro = local_agen.__anext__()
         task = asyncio.ensure_future(coro, loop=event_loop)
         run_until_complete(event_loop, task)
-        shutdown.agen = agen
+        agen = local_agen
 
     return inner, shutdown
 
