@@ -66,7 +66,7 @@ class ResetLaunchConfigurations(Action):
         if args is not None:
             kwargs['launch_configurations'] = dict()
             for e in args:
-                arg_name = parser.parse_substitution(e.get_attr('name'))[0]
+                arg_name = tuple(parser.parse_substitution(e.get_attr('name')))
                 arg_value = parser.parse_substitution(e.get_attr('value'))
                 kwargs['launch_configurations'][arg_name] = arg_value
         return cls, kwargs
