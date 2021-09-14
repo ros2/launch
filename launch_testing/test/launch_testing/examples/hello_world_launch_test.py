@@ -21,25 +21,32 @@ import launch_testing.markers
 import pytest
 
 
+# This function specifies the processes to be run for our test
 @pytest.mark.launch_test
 @launch_testing.markers.keep_alive
 def generate_test_description():
     """Launch a simple process to print 'hello_world'."""
     return launch.LaunchDescription([
+        # Launch a process to test
         launch.actions.ExecuteProcess(
             cmd=['echo', 'hello_world']
         ),
+        # Tell launch to start the test
         launch_testing.actions.ReadyToTest()
     ])
 
 
+# This is our test fixture. Each method is a test case.
 class TestHelloWorldProcess(unittest.TestCase):
 
     def test_read_stdout(self, proc_output):
         """Check if 'hello_world' was found in the stdout."""
+        # 'proc_output' is added automatically by the launch_testing framework.
+        # Refer to the documentation for further details.
         proc_output.assertWaitFor('hello_world', timeout=10, stream='stdout')
 
 
+# These tests are run after the original launch processes have shutdown.
 @launch_testing.post_shutdown_test()
 class TestHelloWorldShutdown(unittest.TestCase):
 
