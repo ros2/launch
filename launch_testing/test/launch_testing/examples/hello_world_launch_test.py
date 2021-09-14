@@ -37,16 +37,18 @@ def generate_test_description():
 
 
 # This is our test fixture. Each method is a test case.
+# These run alongside the processes specified in generate_test_description()
 class TestHelloWorldProcess(unittest.TestCase):
 
     def test_read_stdout(self, proc_output):
         """Check if 'hello_world' was found in the stdout."""
-        # 'proc_output' is added automatically by the launch_testing framework.
+        # 'proc_output' is an object added automatically by the launch_testing framework.
+        # It captures the outputs of the processes launched in generate_test_description()
         # Refer to the documentation for further details.
         proc_output.assertWaitFor('hello_world', timeout=10, stream='stdout')
 
 
-# These tests are run after the original launch processes have shutdown.
+# These tests are run after the processes in generate_test_description() have shutdown.
 @launch_testing.post_shutdown_test()
 class TestHelloWorldShutdown(unittest.TestCase):
 
