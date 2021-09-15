@@ -29,7 +29,8 @@ def generate_test_description():
     return launch.LaunchDescription([
         # Launch a process to test
         launch.actions.ExecuteProcess(
-            cmd=['echo', 'hello_world']
+            cmd=['echo', 'hello_world'],
+            shell='True'
         ),
         # Tell launch to start the test
         launch_testing.actions.ReadyToTest()
