@@ -30,7 +30,7 @@ def generate_test_description():
         # Launch a process to test
         launch.actions.ExecuteProcess(
             cmd=['echo', 'hello_world'],
-            shell='True'
+            shell=True
         ),
         # Tell launch to start the test
         launch_testing.actions.ReadyToTest()
