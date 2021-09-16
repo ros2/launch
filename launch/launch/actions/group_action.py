@@ -94,11 +94,12 @@ class GroupAction(Action):
         if forwarding is not None:
             kwargs['forwarding'] = forwarding
         if keeps is not None:
-            kwargs['launch_configurations'] = dict()
+            kwargs['launch_configurations'] = {
+                    tuple(parser.parse_substitution(e.get_attr('name'))):
+                    parser.parse_substitution(e.get_attr('value')) for e in keeps
+            }
             for e in keeps:
-                keep_name = tuple(parser.parse_substitution(e.get_attr('name')))
-                keep_value = parser.parse_substitution(e.get_attr('value'))
-                kwargs['launch_configurations'][keep_name] = keep_value
+                e.assert_entity_completely_parsed()
         kwargs['actions'] = [parser.parse_action(e) for e in entity.children
                              if e.type_name != 'keep']
         return cls, kwargs
