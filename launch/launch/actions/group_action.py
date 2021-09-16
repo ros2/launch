@@ -88,19 +88,19 @@ class GroupAction(Action):
         _, kwargs = super().parse(entity, parser)
         scoped = entity.get_attr('scoped', data_type=bool, optional=True)
         forwarding = entity.get_attr('forwarding', data_type=bool, optional=True)
-        args = entity.get_attr('arg', data_type=List[Entity], optional=True)
+        keeps = entity.get_attr('keep', data_type=List[Entity], optional=True)
         if scoped is not None:
             kwargs['scoped'] = scoped
         if forwarding is not None:
             kwargs['forwarding'] = forwarding
-        if args is not None:
+        if keeps is not None:
             kwargs['launch_configurations'] = dict()
-            for e in args:
-                arg_name = tuple(parser.parse_substitution(e.get_attr('name')))
-                arg_value = parser.parse_substitution(e.get_attr('value'))
-                kwargs['launch_configurations'][arg_name] = arg_value
+            for e in keeps:
+                keep_name = tuple(parser.parse_substitution(e.get_attr('name')))
+                keep_value = parser.parse_substitution(e.get_attr('value'))
+                kwargs['launch_configurations'][keep_name] = keep_value
         kwargs['actions'] = [parser.parse_action(e) for e in entity.children
-                             if e.type_name != 'arg']
+                             if e.type_name != 'keep']
         return cls, kwargs
 
     def get_sub_entities(self) -> List[LaunchDescriptionEntity]:

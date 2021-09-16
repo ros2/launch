@@ -62,13 +62,13 @@ class ResetLaunchConfigurations(Action):
     def parse(cls, entity: Entity, parser: Parser):
         """Return `ResetLaunchConfigurations` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        args = entity.get_attr('arg', data_type=List[Entity], optional=True)
-        if args is not None:
+        keeps = entity.get_attr('keep', data_type=List[Entity], optional=True)
+        if keeps is not None:
             kwargs['launch_configurations'] = dict()
-            for e in args:
-                arg_name = tuple(parser.parse_substitution(e.get_attr('name')))
-                arg_value = parser.parse_substitution(e.get_attr('value'))
-                kwargs['launch_configurations'][arg_name] = arg_value
+            for e in keeps:
+                keep_name = tuple(parser.parse_substitution(e.get_attr('name')))
+                keep_value = parser.parse_substitution(e.get_attr('value'))
+                kwargs['launch_configurations'][keep_name] = keep_value
         return cls, kwargs
 
     def execute(self, context: LaunchContext):
