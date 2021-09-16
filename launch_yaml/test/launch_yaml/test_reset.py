@@ -31,11 +31,11 @@ def test_reset():
                 value: 'FOO'
             - let:
                 name: 'bar'
-                value: &bar 'BAR'
+                value: 'BAR'
             - reset:
                 keep:
                     -   name: 'bar'
-                        value: *bar
+                        value: $(var bar)
                     -   name: 'baz'
                         value: 'BAZ'
         """  # noqa: E501

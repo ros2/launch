@@ -32,13 +32,13 @@ def test_group():
                 value: 'FOO'
             - let:
                 name: 'bar'
-                value: &bar 'BAR'
+                value: 'BAR'
             - group:
                 scoped: True
                 forwarding: False
                 keep:
                     -   name: 'bar'
-                        value: *bar
+                        value: $(var bar)
                     -   name: 'baz'
                         value: 'BAZ'
                 children:
