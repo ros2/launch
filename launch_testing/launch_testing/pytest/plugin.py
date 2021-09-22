@@ -16,6 +16,7 @@ import asyncio
 import functools
 import inspect
 import itertools
+from collections.abc import Sequence
 import warnings
 
 from _pytest.outcomes import fail
@@ -43,6 +44,11 @@ except ImportError:  # Pytest 4.1.0 removes the transfer_marker api (#104)
         pass
 
 
+class LaunchTestWarning(pytest.PytestWarning):
+    """Raised in this plugin to warn users."""
+    pass
+
+
 def pytest_configure(config):
     """Inject launch_testing marker documentation."""
     config.addinivalue_line(
@@ -51,46 +57,6 @@ def pytest_configure(config):
         'mark the test as a launch test, it will be '
         'run using the specified launch_pad.',
     )
-
-
-@pytest.hookimpl(hookwrapper=True, tryfirst=True)
-def pytest_fixture_setup(fixturedef, request):
-    """Set up launch service for all launch_pytest fixtures."""
-    if getattr(fixturedef.func, '_launch_pytest_fixture', False):
-        eprefix = f"When running launch_pytest fixture '{fixturedef.func.__name__}':"
-        ls = request.getfixturevalue('launch_service')
-        event_loop = request.getfixturevalue('event_loop')
-        # get the result of the launch fixture, we take advantage of other wrappers this way
-        outcome = yield
-        ret = outcome.get_result()
-        wrong_ret_type_error = (
-            f'{eprefix} return value must be either a launch description '
-            'or a launch description, locals pair'
-        )
-        ld = ret
-        if isinstance(ret, tuple):
-            assert len(ret) == 2, wrong_ret_type_error
-            ld, _ = ret
-        assert isinstance(ld, launch.LaunchDescription), wrong_ret_type_error
-        ls.include_launch_description(ld)
-        run_async_task = event_loop.create_task(ls.run_async(
-            # TODO(ivanpauno): maybe this could be configurable (?)
-            shutdown_when_idle=True
-        ))
-        ready = get_ready_to_test_action(ld)
-        asyncio.set_event_loop(event_loop)
-        event = asyncio.Event()
-        ready._add_callback(lambda: event.set())
-
-        fixturedef.addfinalizer(functools.partial(finalize_launch_service, ls, eprefix=eprefix))
-        run_until_complete(event_loop, event.wait())
-        # this is guaranteed by the current run_async() implementation, let's check it just in case
-        # it changes in the future
-        assert ls.event_loop is event_loop
-        assert ls.context.asyncio_loop is event_loop
-        assert ls.task is run_async_task
-        return
-    yield
 
 
 # TODO(ivanpauno): Deduplicate with launch_testing
@@ -128,6 +94,91 @@ def get_ready_to_test_action(launch_description):
     )
 
 
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
+def pytest_fixture_setup(fixturedef, request):
+    """Set up launch service for all launch_pytest fixtures."""
+    if getattr(fixturedef.func, '_launch_pytest_fixture', False):
+        eprefix = f"When running launch_pytest fixture '{fixturedef.func.__name__}':"
+        ls = request.getfixturevalue('launch_service')
+        event_loop = request.getfixturevalue('event_loop')
+        # get the result of the launch fixture, we take advantage of other wrappers this way
+        outcome = yield
+        ret = outcome.get_result()
+        wrong_ret_type_error = (
+            f'{eprefix} return value must be either a launch description '
+            'or a sequence which first item is a launch description'
+        )
+        ld = ret
+        if isinstance(ret, Sequence):
+            assert len(ret) > 0, wrong_ret_type_error
+            ld = ret[0]
+        assert isinstance(ld, launch.LaunchDescription), wrong_ret_type_error
+        ls.include_launch_description(ld)
+        run_async_task = event_loop.create_task(ls.run_async(
+            # TODO(ivanpauno): maybe this could be configurable (?)
+            shutdown_when_idle=True
+        ))
+        ready = get_ready_to_test_action(ld)
+        asyncio.set_event_loop(event_loop)
+        event = asyncio.Event()
+        ready._add_callback(lambda: event.set())
+
+        fixturedef.addfinalizer(functools.partial(finalize_launch_service, ls, eprefix=eprefix))
+        run_until_complete(event_loop, event.wait())
+        # this is guaranteed by the current run_async() implementation, let's check it just in case
+        # it changes in the future
+        assert ls.event_loop is event_loop
+        assert ls.context.asyncio_loop is event_loop
+        assert ls.task is run_async_task
+        return
+    yield
+
+
+def is_launch_test(item):
+    """Return `True` if the item is a launch test."""
+    mark = item.get_closest_marker('launch_testing')
+    return mark is not None
+
+
+def is_launch_test_mark_valid(item):
+    """
+    Return `True` if the item is a launch test.
+
+    If not, a warning and a skip mark will be added to the item.
+    """
+    kwargs = item.get_closest_marker('launch_testing').kwargs
+    ret = 'fixture' in kwargs and kwargs['fixture'] is not None
+    if not ret:
+        msg = (
+                    '"fixture" keyword argument is required in a pytest.mark.launch_testing() '
+                    f'decorator')
+        item.warn(LaunchTestWarning(msg))
+        item.add_marker(pytest.mark.skip(msg))
+    return ret
+
+
+def has_shutdown_kwarg(item):
+    """Return `True` if the launch test shutdown kwarg is true."""
+    return item.get_closest_marker('launch_testing').kwargs.get('shutdown', False)
+
+
+def get_launch_test_fixture(item):
+    """Return the launch test fixture name, `None` if this isn't a launch test."""
+    mark = item.get_closest_marker('launch_testing')
+    if mark is None:
+        return None
+    try:
+        return mark.kwargs['fixture']
+    except KeyError:
+        return None
+
+
+def get_launch_test_fixturename(item):
+    """Return the launch test fixture name, `None` if this isn't a launch test."""
+    fixture = get_launch_test_fixture(item)
+    return None if fixture is None else fixture.__name__
+
+
 def is_valid_test_item(obj):
     """Return true if obj is a valid launch test item."""
     return (
@@ -141,23 +192,23 @@ def need_shutdown_test_item(obj):
     return inspect.isgeneratorfunction(obj) or inspect.isasyncgenfunction(obj)
 
 
-def generate_test_items(collector, name, obj, fixturename, is_shutdown):
+def generate_test_items(collector, name, obj, fixturename, is_shutdown, needs_renaming):
     """Return list of test items for the corresponding object and injects the needed fixtures."""
+    # Inject all needed fixtures.
+    # We use the `usefixtures` pytest mark instead of injecting them in fixturenames
+    # directly, because the second option doesn't handle parameterized launch fixtures
+    # correctly.
+    # We also need to inject the mark before calling _genfunctions(),
+    # so it actually returns many items for parameterized launch fixtures.
+    fixtures_to_inject = (fixturename, 'launch_service', 'event_loop')
+    pytest.mark.usefixtures(*fixtures_to_inject)(obj)
     items = list(collector._genfunctions(name, obj))
     for item in items:
-        if fixturename in item.fixturenames:
-            item.fixturenames.remove(fixturename)
-        item.fixturenames.insert(0, fixturename)
-        if 'launch_service' in item.fixturenames:
-            item.fixturenames.remove('launch_service')
-        item.fixturenames.insert(0, 'launch_service')
-        if 'event_loop' in item.fixturenames:
-            item.fixturenames.remove('event_loop')
-        item.fixturenames.insert(0, 'event_loop')
+        # Mark shutdown tests correctly
         item._launch_testing_is_shutdown = is_shutdown
-        if is_shutdown:
+        if is_shutdown and needs_renaming:
             # rename the items, to differentiate them from the normal test stage
-            item.name = f'{name}[shutdown_test]'
+            item.name = f'{item.name}[shutdown_test]'
     return items
 
 
@@ -175,24 +226,19 @@ def pytest_pycollect_makeitem(collector, name, obj):
         transfer_markers(obj, item.cls, item.module)
         item = pytest.Function.from_parent(collector, name=name)  # To reload keywords.
 
-        marker = item.get_closest_marker('launch_testing')
-        if marker is not None:
-            # inject the correct launch_testing fixture here
-            if 'fixture' not in marker.kwargs:
-                warnings.warn(
-                    '"fixture" keyword argument is required in a pytest.mark.launch_testing() '
-                    f'decorator: \n{get_error_context_from_obj(item.obj)}'
-                )
-                return None
-            fixture = marker.kwargs['fixture']
+        if is_launch_test(item):
+            if not is_launch_test_mark_valid(item):
+                # return an item with a warning that's going to be skipped
+                return [item]
+            fixture = get_launch_test_fixture(item)
             fixturename = fixture.__name__
             scope = fixture._pytestfixturefunction.scope
-            is_shutdown = marker.kwargs.get('shutdown', False)
-            items = generate_test_items(collector, name, obj, fixturename, is_shutdown)
+            is_shutdown = has_shutdown_kwarg(item)
+            items = generate_test_items(collector, name, obj, fixturename, is_shutdown, False)
             if need_shutdown_test_item(obj) and scope != 'function':
                 # for function scope we only need one shutdown item
                 # if not we're going to use two event loops!!!
-                shutdown_items = generate_test_items(collector, name, obj, fixturename, True)
+                shutdown_items = generate_test_items(collector, name, obj, fixturename, True, True)
                 for item, shutdown_item in zip(items, shutdown_items):
                     item._launch_testing_shutdown_item = shutdown_item
                 items.extend(shutdown_items)
@@ -218,90 +264,119 @@ def get_error_context_from_obj(obj):
     return error_msg
 
 
+def is_shutdown_test(item):
+    """Return `True` if the item is a launch test."""
+    return getattr(item, '_launch_testing_is_shutdown', False)
+
+
+def is_same_launch_test_fixture(left_item, right_item):
+    """Return `True` if both items are using the same fixture with the same parameters."""
+    lfn = get_launch_test_fixture(left_item)
+    rfn = get_launch_test_fixture(right_item)
+    if None in (lfn, rfn):
+        return False
+    if lfn != rfn:
+        return False
+    if lfn._pytestfixturefunction.scope == 'function':
+        return False
+    name = lfn.__name__
+    def get_fixture_params(item):
+        if getattr(item, 'callspec', None) is None:
+            return None
+        return item.callspec.params.get(name, None)
+    return get_fixture_params(left_item) == get_fixture_params(right_item)
+
+
 @pytest.mark.trylast
 def pytest_collection_modifyitems(session, config, items):
-    """Reorder tests, so shutdown tests happen after the corresponding fixture teardown."""
+    """Move shutdown tests after normal tests."""
 
-    def cmp(left, right):
-        leftm = left.get_closest_marker('launch_testing')
-        rightm = right.get_closest_marker('launch_testing')
-        if None in (leftm, rightm):
-            return 0
-        fixture = leftm.kwargs['fixture']
-        if fixture is not rightm.kwargs['fixture']:
-            return 0
-        if fixture._pytestfixturefunction.scope == 'function':
-            return 0
-        left_is_shutdown = int(left._launch_testing_is_shutdown)
-        right_is_shutdown = int(right._launch_testing_is_shutdown)
-        return left_is_shutdown - right_is_shutdown
-
-    # python sort is guaranteed to be stable
-    items.sort(key=functools.cmp_to_key(cmp))
-    # This approach doesn't work, because we cannot guarantee when fixture
-    # finalizers are going to be run.
-    # remove the launch_testing fixture from shutdown tests
-    # so launch service shutdown happens right before... by magic!!!
+    for i, item in enumerate(items):
+        # This algo has worst case Nitems * Nlaunchtestitems time complexity.
+        # We could probably find something better, but it's not that easy because:
+        # - Tests using the same launch fixture might not be already grouped,
+        #   i.e. there might be a test not using the fixture in the middle.
+        #   TODO(ivanpauno): Check if that's not actually guaranteed.
+        #   If that's the case, we can easily modify this to have Nlaunchtestitems complexity.
+        # - There's no strict partial order relation we can use.
+        if not is_launch_test(item):
+            continue
+        new_position = None
+        for j, other in enumerate(items[i+1:]):
+            if (
+                is_same_launch_test_fixture(item, other)
+                and is_shutdown_test(item) and not is_shutdown_test(other)
+            ):
+                new_position = i + 1 + j
+        if new_position is not None:
+            items.insert(new_position, items.pop(i))
     for item in items:
-        marker = item.get_closest_marker('launch_testing')
-        if marker is not None and item._launch_testing_is_shutdown:
-            item.fixturenames.remove(marker.kwargs['fixture'].__name__)
+        if not is_shutdown_test(item):
+            continue
+        fixturename = get_launch_test_fixturename(item)
+        if fixturename in item.fixturenames:
+            item.fixturenames.remove(fixturename)
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_pyfunc_call(pyfuncitem):
     """Run launch_testing test coroutines and functions in an event loop."""
-    marker = pyfuncitem.get_closest_marker('launch_testing')
-    if marker is not None:
+    if is_launch_test(pyfuncitem):
         args = {}
         func = pyfuncitem.obj
         spec = inspect.getfullargspec(func)
-        shutdown_test = pyfuncitem._launch_testing_is_shutdown
-        extra_args = {}
-        fixture = marker.kwargs['fixture']
+        shutdown_test = is_shutdown_test(pyfuncitem)
+        fixture = get_launch_test_fixture(pyfuncitem)
         scope = fixture._pytestfixturefunction.scope
-        if not shutdown_test:
-            fixturename = marker.kwargs['fixture'].__name__
-            ld_extra_args_pair = pyfuncitem.funcargs[fixturename]
-            if isinstance(ld_extra_args_pair, tuple) and len(ld_extra_args_pair) == 2:
-                extra_args = ld_extra_args_pair[1]
         event_loop = pyfuncitem.funcargs['event_loop']
         ls = pyfuncitem.funcargs['launch_service']
         on_shutdown = functools.partial(
             finalize_launch_service, ls, eprefix=f'When running test {func.__name__}')
         before_test = on_shutdown if shutdown_test else None
-        for name, value in extra_args.items():
-            if name in itertools.chain(spec.args, spec.kwonlyargs):
-                args[name] = value
         if inspect.iscoroutinefunction(func):
-            pyfuncitem.obj = wrap_coroutine(func, args, event_loop, before_test)
+            pyfuncitem.obj = wrap_coroutine(func, event_loop, before_test)
         elif inspect.isgeneratorfunction(func):
             if scope != 'function':
-                pyfuncitem.obj, pyfuncitem._launch_testing_shutdown_item.obj = (
-                    wrap_generator(func, args, event_loop, on_shutdown)
+                shutdown_item = pyfuncitem._launch_testing_shutdown_item
+                pyfuncitem.obj, shutdown_item.obj = (
+                    wrap_generator(func, event_loop, on_shutdown)
                 )
+                shutdown_item._fixtureinfo = shutdown_item.session._fixturemanager.getfixtureinfo(
+                    shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
             else:
-                pyfuncitem.obj = wrap_generator_fscope(func, args, event_loop, on_shutdown)
+                pyfuncitem.obj = wrap_generator_fscope(func, event_loop, on_shutdown)
         elif inspect.isasyncgenfunction(func):
             if scope != 'function':
-                pyfuncitem.obj, pyfuncitem._launch_testing_shutdown_item.obj = (
-                    wrap_asyncgen(func, args, event_loop, on_shutdown)
+                shutdown_item = pyfuncitem._launch_testing_shutdown_item
+                pyfuncitem.obj, shutdown_item.obj = (
+                    wrap_asyncgen(func, event_loop, on_shutdown)
                 )
+                shutdown_item._fixtureinfo = shutdown_item.session._fixturemanager.getfixtureinfo(
+                    shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
             else:
-                pyfuncitem.obj = wrap_asyncgen_fscope(func, args, event_loop, on_shutdown)
+                pyfuncitem.obj = wrap_asyncgen_fscope(func, event_loop, on_shutdown)
         elif not getattr(pyfuncitem.obj, '_launch_testing_wrapped', False):
-            pyfuncitem.obj = wrap_func(func, args, event_loop, before_test)
+            pyfuncitem.obj = wrap_func(func, event_loop, before_test)
     yield
 
 
-def wrap_coroutine(func, args, event_loop, before_test):
+def run_until_complete(loop, future_like):
+    """Similar to `asyncio.EventLoop.run_until_complete`, but it consumes all exceptions."""
+    try:
+        loop.run_until_complete(future_like)
+    except BaseException:
+        if future_like.done() and not future_like.cancelled():
+            future_like.exception()
+        raise
+
+
+def wrap_coroutine(func, event_loop, before_test):
     """Return a sync wrapper around an async function to be executed in the event loop."""
 
     @functools.wraps(func)
     def inner(**kwargs):
         if before_test is not None:
             before_test()
-        update_arguments(kwargs, args)
         coro = func(**kwargs)
         task = asyncio.ensure_future(coro, loop=event_loop)
         run_until_complete(event_loop, task)
@@ -309,25 +384,23 @@ def wrap_coroutine(func, args, event_loop, before_test):
     return inner
 
 
-def wrap_func(func, args, event_loop, before_test):
+def wrap_func(func, event_loop, before_test):
     """Return a wrapper that runs the test in a separate thread while driving the event loop."""
 
     @functools.wraps(func)
     def inner(**kwargs):
         if before_test is not None:
             before_test()
-        update_arguments(kwargs, args)
         future = event_loop.run_in_executor(None, functools.partial(func, **kwargs))
         run_until_complete(event_loop, future)
     return inner
 
 
-def wrap_generator(func, args, event_loop, on_shutdown):
+def wrap_generator(func, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for a generator function."""
     gen = None
 
-    @functools.wraps(func)
-    def shutdown(**kwargs):
+    def shutdown():
         nonlocal gen
         if gen is None:
             skip('shutdown test skipped because the test failed before')
@@ -341,11 +414,11 @@ def wrap_generator(func, args, event_loop, on_shutdown):
             pytrace=False
         )
     shutdown._launch_testing_wrapped = True
+    shutdown.__name__ = f'{func.__name__}[shutdown]'
 
     @functools.wraps(func)
     def inner(**kwargs):
         nonlocal gen
-        update_arguments(kwargs, args)
         local_gen = func(**kwargs)
         future = event_loop.run_in_executor(None, lambda: next(local_gen))
         run_until_complete(event_loop, future)
@@ -354,12 +427,11 @@ def wrap_generator(func, args, event_loop, on_shutdown):
     return inner, shutdown
 
 
-def wrap_generator_fscope(func, args, event_loop, on_shutdown):
+def wrap_generator_fscope(func, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for a generator function."""
 
     @functools.wraps(func)
     def inner(**kwargs):
-        update_arguments(kwargs, args)
         gen = func(**kwargs)
         future = event_loop.run_in_executor(None, lambda: next(gen))
         run_until_complete(event_loop, future)
@@ -376,11 +448,10 @@ def wrap_generator_fscope(func, args, event_loop, on_shutdown):
     return inner
 
 
-def wrap_asyncgen(func, args, event_loop, on_shutdown):
+def wrap_asyncgen(func, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for an async gen function."""
     agen = None
 
-    @functools.wraps(func)
     def shutdown(**kwargs):
         nonlocal agen
         if agen is None:
@@ -396,12 +467,12 @@ def wrap_asyncgen(func, args, event_loop, on_shutdown):
             'launch tests using an async gen function must stop iteration after yielding once',
             pytrace=False
         )
+    shutdown.__name__ = f'{func.__name__}[shutdown]'
     shutdown._launch_testing_wrapped = True
 
     @functools.wraps(func)
     def inner(**kwargs):
         nonlocal agen
-        update_arguments(kwargs, args)
         local_agen = func(**kwargs)
         coro = local_agen.__anext__()
         task = asyncio.ensure_future(coro, loop=event_loop)
@@ -411,12 +482,11 @@ def wrap_asyncgen(func, args, event_loop, on_shutdown):
     return inner, shutdown
 
 
-def wrap_asyncgen_fscope(func, args, event_loop, on_shutdown):
+def wrap_asyncgen_fscope(func, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for an async gen function."""
 
     @functools.wraps(func)
     def inner(**kwargs):
-        update_arguments(kwargs, args)
         agen = func(**kwargs)
         coro = agen.__anext__()
         task = asyncio.ensure_future(coro, loop=event_loop)
@@ -434,27 +504,6 @@ def wrap_asyncgen_fscope(func, args, event_loop, on_shutdown):
         )
 
     return inner
-
-
-def update_arguments(kwargs, extra_kwargs):
-    """Update kwargs with extra_kwargs, print a warning if a key overlaps."""
-    overlapping_keys = kwargs.keys() & extra_kwargs.keys()
-    if overlapping_keys:
-        warnings.warn(
-            'Argument(s) returned in launch_testing fixture has the same name than a pytest '
-            'fixture. Use different names to avoid confusing errors.')
-
-    kwargs.update(extra_kwargs)
-
-
-def run_until_complete(loop, future_like):
-    """Similar to `asyncio.EventLoop.run_until_complete`, but it consumes all exceptions."""
-    try:
-        loop.run_until_complete(future_like)
-    except BaseException:
-        if future_like.done() and not future_like.cancelled():
-            future_like.exception()
-        raise
 
 
 """Launch service fixture."""
