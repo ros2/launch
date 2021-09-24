@@ -80,10 +80,9 @@ def get_ready_to_test_action(launch_description):
     try:
         ready_action = next(gen)
     except StopIteration:  # No ReadyToTest action found
-        raise RuntimeError(
-            'launch_pytest fixtures must return a LaunchDescription '
-            'containing a ReadyToTest action'
-        )
+        ready_action = launch_testing.actions.ReadyToTest()
+        launch_description.append(ready_action)
+        return ready_action
     try:
         next(gen)
     except StopIteration:  # Only one ReadyToTest action must be found
