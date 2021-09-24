@@ -13,11 +13,9 @@
 # limitations under the License.
 
 import asyncio
+from collections.abc import Sequence
 import functools
 import inspect
-import itertools
-from collections.abc import Sequence
-import warnings
 
 from _pytest.outcomes import fail
 from _pytest.outcomes import skip
@@ -46,6 +44,7 @@ except ImportError:  # Pytest 4.1.0 removes the transfer_marker api (#104)
 
 class LaunchTestWarning(pytest.PytestWarning):
     """Raised in this plugin to warn users."""
+
     pass
 
 
@@ -279,6 +278,7 @@ def is_same_launch_test_fixture(left_item, right_item):
     if lfn._pytestfixturefunction.scope == 'function':
         return False
     name = lfn.__name__
+
     def get_fixture_params(item):
         if getattr(item, 'callspec', None) is None:
             return None
@@ -327,9 +327,7 @@ def pytest_collection_modifyitems(session, config, items):
 def pytest_pyfunc_call(pyfuncitem):
     """Run launch_testing test coroutines and functions in an event loop."""
     if is_launch_test(pyfuncitem):
-        args = {}
         func = pyfuncitem.obj
-        spec = inspect.getfullargspec(func)
         shutdown_test = is_shutdown_test(pyfuncitem)
         fixture = get_launch_test_fixture(pyfuncitem)
         scope = fixture._pytestfixturefunction.scope
