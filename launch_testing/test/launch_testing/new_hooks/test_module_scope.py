@@ -37,12 +37,12 @@ def launch_description(request):
 # We cannot get variables from the dictionary returned by launch_description
 # because we're removing the fixture before running the tests.
 # Maybe we can delete this feature, and use generators/asyncgens.
-# @pytest.mark.launch_testing(fixture=launch_description, shutdown=True)
-# def test_after_shutdown(order, launch_service, launch_description):
-#     param = launch_description[1]
-#     order.append(f'test_after_shutdown[{param}]')
-#     assert launch_service._is_idle()
-#     assert launch_service.event_loop is None
+@pytest.mark.launch_testing(fixture=launch_description, shutdown=True)
+def test_after_shutdown(order, launch_service, launch_description):
+    param = launch_description[1]
+    order.append(f'test_after_shutdown[{param}]')
+    assert launch_service._is_idle()
+    assert launch_service.event_loop is None
 
 
 @pytest.mark.launch_testing(fixture=launch_description)
@@ -91,14 +91,14 @@ def test_order(order):
         'test_case_2[asd]',
         'test_case_3[asd]',
         'test_case_4[asd]',
-        # 'test_after_shutdown[asd]',
+        'test_after_shutdown[asd]',
         'test_case_3[asd][shutdown]',
         'test_case_4[asd][shutdown]',
         'test_case_1[bsd]',
         'test_case_2[bsd]',
         'test_case_3[bsd]',
         'test_case_4[bsd]',
-        # 'test_after_shutdown[bsd]',
+        'test_after_shutdown[bsd]',
         'test_case_3[bsd][shutdown]',
         'test_case_4[bsd][shutdown]',
     ]

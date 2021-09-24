@@ -290,7 +290,15 @@ def is_same_launch_test_fixture(left_item, right_item):
 def pytest_collection_modifyitems(session, config, items):
     """Move shutdown tests after normal tests."""
 
-    for i, item in enumerate(items):
+    def enumerate_reversed(sequence):
+        # reversed(enumerate(sequence)), doesn't work
+        # here a little generator for that
+        n = len(sequence) - 1
+        for elem in sequence[::-1]:
+            yield n, elem
+            n -= 1
+
+    for i, item in enumerate_reversed(items):
         # This algo has worst case Nitems * Nlaunchtestitems time complexity.
         # We could probably find something better, but it's not that easy because:
         # - Tests using the same launch fixture might not be already grouped,
@@ -298,6 +306,8 @@ def pytest_collection_modifyitems(session, config, items):
         #   TODO(ivanpauno): Check if that's not actually guaranteed.
         #   If that's the case, we can easily modify this to have Nlaunchtestitems complexity.
         # - There's no strict partial order relation we can use.
+        #
+        # iterate in reverse order, so the order of shutdown item is stable
         if not is_launch_test(item):
             continue
         new_position = None
@@ -307,14 +317,10 @@ def pytest_collection_modifyitems(session, config, items):
                 and is_shutdown_test(item) and not is_shutdown_test(other)
             ):
                 new_position = i + 1 + j
+                print(f'moving {item.name} after {other.name}: {i} {i+j+1}')
         if new_position is not None:
             items.insert(new_position, items.pop(i))
-    for item in items:
-        if not is_shutdown_test(item):
-            continue
-        fixturename = get_launch_test_fixturename(item)
-        if fixturename in item.fixturenames:
-            item.fixturenames.remove(fixturename)
+            print([item.name for item in items])
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
