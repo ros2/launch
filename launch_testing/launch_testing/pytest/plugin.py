@@ -326,40 +326,50 @@ def pytest_collection_modifyitems(session, config, items):
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_pyfunc_call(pyfuncitem):
     """Run launch_testing test coroutines and functions in an event loop."""
-    if is_launch_test(pyfuncitem):
-        func = pyfuncitem.obj
-        shutdown_test = is_shutdown_test(pyfuncitem)
-        fixture = get_launch_test_fixture(pyfuncitem)
-        scope = fixture._pytestfixturefunction.scope
-        event_loop = pyfuncitem.funcargs['event_loop']
-        ls = pyfuncitem.funcargs['launch_service']
-        on_shutdown = functools.partial(
-            finalize_launch_service, ls, eprefix=f'When running test {func.__name__}')
-        before_test = on_shutdown if shutdown_test else None
-        if inspect.iscoroutinefunction(func):
-            pyfuncitem.obj = wrap_coroutine(func, event_loop, before_test)
-        elif inspect.isgeneratorfunction(func):
-            if scope != 'function':
-                shutdown_item = pyfuncitem._launch_testing_shutdown_item
-                pyfuncitem.obj, shutdown_item.obj = (
-                    wrap_generator(func, event_loop, on_shutdown)
-                )
-                shutdown_item._fixtureinfo = shutdown_item.session._fixturemanager.getfixtureinfo(
-                    shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
-            else:
-                pyfuncitem.obj = wrap_generator_fscope(func, event_loop, on_shutdown)
-        elif inspect.isasyncgenfunction(func):
-            if scope != 'function':
-                shutdown_item = pyfuncitem._launch_testing_shutdown_item
-                pyfuncitem.obj, shutdown_item.obj = (
-                    wrap_asyncgen(func, event_loop, on_shutdown)
-                )
-                shutdown_item._fixtureinfo = shutdown_item.session._fixturemanager.getfixtureinfo(
-                    shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
-            else:
-                pyfuncitem.obj = wrap_asyncgen_fscope(func, event_loop, on_shutdown)
-        elif not getattr(pyfuncitem.obj, '_launch_testing_wrapped', False):
-            pyfuncitem.obj = wrap_func(func, event_loop, before_test)
+    if not is_launch_test(pyfuncitem):
+        yield
+        return
+
+    func = pyfuncitem.obj
+    if has_shutdown_kwarg(pyfuncitem) and need_shutdown_test_item(func):
+        skip(
+            'generator or asyncgenerator based launch test items cannot be marked with'
+            ' shutdown=True'
+        )
+        yield
+        return
+    shutdown_test = is_shutdown_test(pyfuncitem)
+    fixture = get_launch_test_fixture(pyfuncitem)
+    scope = fixture._pytestfixturefunction.scope
+    event_loop = pyfuncitem.funcargs['event_loop']
+    ls = pyfuncitem.funcargs['launch_service']
+    on_shutdown = functools.partial(
+        finalize_launch_service, ls, eprefix=f'When running test {func.__name__}')
+    before_test = on_shutdown if shutdown_test else None
+    if inspect.iscoroutinefunction(func):
+        pyfuncitem.obj = wrap_coroutine(func, event_loop, before_test)
+    elif inspect.isgeneratorfunction(func):
+        if scope != 'function':
+            shutdown_item = pyfuncitem._launch_testing_shutdown_item
+            pyfuncitem.obj, shutdown_item.obj = (
+                wrap_generator(func, event_loop, on_shutdown)
+            )
+            shutdown_item._fixtureinfo = shutdown_item.session._fixturemanager.getfixtureinfo(
+                shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
+        else:
+            pyfuncitem.obj = wrap_generator_fscope(func, event_loop, on_shutdown)
+    elif inspect.isasyncgenfunction(func):
+        if scope != 'function':
+            shutdown_item = pyfuncitem._launch_testing_shutdown_item
+            pyfuncitem.obj, shutdown_item.obj = (
+                wrap_asyncgen(func, event_loop, on_shutdown)
+            )
+            shutdown_item._fixtureinfo = shutdown_item.session._fixturemanager.getfixtureinfo(
+                shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
+        else:
+            pyfuncitem.obj = wrap_asyncgen_fscope(func, event_loop, on_shutdown)
+    elif not getattr(pyfuncitem.obj, '_launch_testing_wrapped', False):
+        pyfuncitem.obj = wrap_func(func, event_loop, before_test)
     yield
 
 
