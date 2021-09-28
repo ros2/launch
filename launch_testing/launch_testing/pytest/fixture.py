@@ -65,7 +65,7 @@ def get_event_loop_fixture(*, scope='function', overridable=True):
     return event_loop
 
 
-def fixture(*args, **kwargs):
+def fixture(decorated = None, *args, **kwargs):
     """
     Decorate launch_test fixtures.
 
@@ -98,4 +98,6 @@ def fixture(*args, **kwargs):
     def decorator(fixture_function):
         fixture_function._launch_pytest_fixture = True
         return pytest.fixture(fixture_function, *args, **kwargs)
-    return decorator
+    if decorated is None:
+        return decorator
+    return decorator(decorated)

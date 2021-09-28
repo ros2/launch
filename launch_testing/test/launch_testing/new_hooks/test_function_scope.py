@@ -23,7 +23,7 @@ def order():
     return []
 
 
-@launch_testing.pytest.fixture()
+@launch_testing.pytest.fixture
 def launch_description():
     return launch.LaunchDescription([
         launch_testing.util.KeepAliveProc(),
