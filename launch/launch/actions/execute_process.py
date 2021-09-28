@@ -84,7 +84,93 @@ _global_process_counter = 0  # in Python3, this number is unbounded (no rollover
 
 @expose_action('executable')
 class ExecuteProcess(Action):
-    """Action that begins executing a process and sets up event handlers for the process."""
+    """
+    Action that begins executing a process and sets up event handlers for it.
+
+    Simple example:
+
+        .. doctest::
+
+            >>> ld = LaunchDescription([
+            ...     ExecuteProcess(
+            ...         cmd=['ls', '-las'],
+            ...         name='my_ls_process',  # this is optional
+            ...         output='both',
+            ...     ),
+            ... ])
+
+        .. code-block:: xml
+
+            <launch>
+                <executable cmd="ls -las" name="my_ls_process" output="both"/>
+            </launch>
+
+    Substitutions in the command:
+
+        .. doctest::
+
+            >>> ld = LaunchDescription([
+            ...     DeclareLaunchArgument(name='file_path', description='file path to cat'),
+            ...     ExecuteProcess(
+            ...         # each item of the command arguments' list can be:
+            ...         # a string ('cat'),
+            ...         # a substitution (`LaunchConfiguration('file_path')`),
+            ...         # or a list of string/substitutions
+            ...         # (`[LaunchConfiguration('directory'), '/file.txt']`)
+            ...         cmd=['cat', LaunchConfiguration('file_path')],
+            ...     ),
+            ... ])
+
+        .. code-block:: xml
+
+            <launch>
+                <arg name="file_path" description="path of the file to cat"/>
+                <executable cmd="cat $(var file_path)"/>
+            </launch>
+
+    Optional cli argument:
+
+        .. doctest::
+
+            >>> ld = LaunchDescription([
+            ...     DeclareLaunchArgument(name='open_gui', default_value='False'),
+            ...     ExecuteProcess(
+            ...         cmd=['my_cmd', '--open-gui'],
+            ...         condition=IfCondition(LaunchConfiguration('open_gui')),
+            ...     ),
+            ...     ExecuteProcess(
+            ...         cmd=['my_cmd'],
+            ...         condition=UnlessCondition(LaunchConfiguration('open_gui')),
+            ...     ),
+            ... ])
+
+        .. code-block:: xml
+
+            <launch>
+                <arg name="open_gui" description="when truthy, the gui will be opened"/>
+                <executable cmd="my_cmd --open-gui" if="$(var open_gui)"/>
+                <executable cmd="my_cmd" unless="$(var open_gui)"/>
+            </launch>
+
+    Environment variables:
+
+        .. doctest::
+
+            >>> ld = LaunchDescription([
+            ...     ExecuteProcess(
+            ...         cmd=['my_cmd'],
+            ...         additional_env={'env_variable': 'env_var_value'},
+            ...     ),
+            ... ])
+
+        .. code-block:: xml
+
+            <launch>
+                <executable cmd="my_cmd">
+                    <env name="env_variable" value="env_var_value"/>
+                </executable>
+            </launch>
+    """
 
     def __init__(
         self,
