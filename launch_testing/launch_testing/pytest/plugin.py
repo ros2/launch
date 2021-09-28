@@ -96,6 +96,7 @@ def get_ready_to_test_action(launch_description):
 def pytest_fixture_setup(fixturedef, request):
     """Set up launch service for all launch_pytest fixtures."""
     if getattr(fixturedef.func, '_launch_pytest_fixture', False):
+        options = fixturedef.func._launch_pytest_fixture_options
         eprefix = f"When running launch_pytest fixture '{fixturedef.func.__name__}':"
         ls = request.getfixturevalue('launch_service')
         event_loop = request.getfixturevalue('event_loop')
@@ -114,14 +115,14 @@ def pytest_fixture_setup(fixturedef, request):
         ls.include_launch_description(ld)
         run_async_task = event_loop.create_task(ls.run_async(
             # TODO(ivanpauno): maybe this could be configurable (?)
-            shutdown_when_idle=True
+            shutdown_when_idle=options['shutdown_when_idle']
         ))
         ready = get_ready_to_test_action(ld)
         asyncio.set_event_loop(event_loop)
         event = asyncio.Event()
         ready._add_callback(lambda: event.set())
-
-        fixturedef.addfinalizer(functools.partial(finalize_launch_service, ls, eprefix=eprefix))
+        fixturedef.addfinalizer(functools.partial(
+            finalize_launch_service, ls, eprefix=eprefix, auto_shutdown=options['auto_shutdown']))
         run_until_complete(event_loop, event.wait())
         # this is guaranteed by the current run_async() implementation, let's check it just in case
         # it changes in the future
@@ -343,8 +344,12 @@ def pytest_pyfunc_call(pyfuncitem):
     scope = fixture._pytestfixturefunction.scope
     event_loop = pyfuncitem.funcargs['event_loop']
     ls = pyfuncitem.funcargs['launch_service']
+    auto_shutdown = fixture._launch_pytest_fixture_options['auto_shutdown']
     on_shutdown = functools.partial(
-        finalize_launch_service, ls, eprefix=f'When running test {func.__name__}')
+        finalize_launch_service,
+        ls,
+        eprefix=f'When running test {func.__name__}',
+        auto_shutdown=auto_shutdown)
     before_test = on_shutdown if shutdown_test else None
     if inspect.iscoroutinefunction(func):
         pyfuncitem.obj = wrap_coroutine(func, event_loop, before_test)

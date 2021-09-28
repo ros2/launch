@@ -27,8 +27,9 @@ except ImportError:
     from _pytest.fixtures import scopemismatch as scope_gt
 
 
-def finalize_launch_service(launch_service, eprefix=''):
-    launch_service.shutdown(force_sync=True)
+def finalize_launch_service(launch_service, eprefix='', auto_shutdown=True):
+    if auto_shutdown:
+        launch_service.shutdown(force_sync=True)
     loop = launch_service.event_loop
     if loop is not None and not loop.is_closed():
         rc = loop.run_until_complete(launch_service.task)
@@ -65,12 +66,26 @@ def get_event_loop_fixture(*, scope='function', overridable=True):
     return event_loop
 
 
-def fixture(decorated = None, *args, **kwargs):
+def fixture(
+    decorated = None,
+    *args,
+    shutdown_when_idle = True,
+    auto_shutdown = True,
+    **kwargs
+):
     """
     Decorate launch_test fixtures.
 
-    For documentation on the supported arguments, see
+    See also
     https://docs.pytest.org/en/latest/reference/reference.html#pytest-fixture.
+
+    :param decorated: object to be decorated.
+    :param \*args: extra posicional arguments to be passed to pytest.fixture().
+    :param shutdown_when_idle: when true, the launch service will shutdown when idle.
+    :param auto_shutdown: when true, the launch service will be shutdown automatically
+        after all pre-shutdown tests get run. If false, shutdown needs to be signaled in a
+        different way or the launch fixture should be self terminating.
+    :param \**kwargs: extra keyword arguments to be passed to pytest.fixture().
     """
     # Automagically override the event_loop and launch_testing fixtures
     # with a fixture of the correct scope.
@@ -97,6 +112,10 @@ def fixture(decorated = None, *args, **kwargs):
 
     def decorator(fixture_function):
         fixture_function._launch_pytest_fixture = True
+        fixture_function._launch_pytest_fixture_options = {
+            'shutdown_when_idle': shutdown_when_idle,
+            'auto_shutdown': auto_shutdown,
+        }
         return pytest.fixture(fixture_function, *args, **kwargs)
     if decorated is None:
         return decorator
