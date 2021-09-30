@@ -18,6 +18,7 @@
 """Module for a description of an Executable."""
 
 import os
+import re
 import shlex
 import threading
 from typing import Dict
@@ -59,7 +60,10 @@ class Executable:
             and Substitutions to be resolved at runtime
         :param: prefix a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
-            called 'launch-prefix'
+            called 'launch-prefix'. Note that a non-default prefix provided in
+            a launch file will override the prefix provided via the `launch-prefix`
+            launch configuration regardless of whether the `launch-prefix-filter` launch
+            configuration is provided.
         :param name: The label used to represent the process, as a string or a Substitution
             to be resolved at runtime, defaults to the basename of the executable
         :param cwd: The directory in which to run the executable
@@ -76,6 +80,9 @@ class Executable:
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
+        self.__prefix_filter = normalize_to_list_of_substitutions(
+            LaunchConfiguration('launch-prefix-filter', default='')
+        ) if prefix is None else None
         self.__name = name if name is None else normalize_to_list_of_substitutions(name)
         self.__cwd = cwd if cwd is None else normalize_to_list_of_substitutions(cwd)
         self.__env = None  # type: Optional[List[Tuple[List[Substitution], List[Substitution]]]]
@@ -165,7 +172,14 @@ class Executable:
         """
         # expand substitutions in arguments to async_execute_process()
         cmd = [perform_substitutions(context, x) for x in self.__cmd]
-        cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
+        # Perform filtering for prefix application
+        should_apply_prefix = True  # by default
+        if self.__prefix_filter is not None:  # no prefix given on construction
+            prefix_filter = perform_substitutions(context, self.__prefix_filter)
+            # Apply if filter regex matches (empty regex matches all strings)
+            should_apply_prefix = re.match(prefix_filter, os.path.basename(cmd[0]))
+        if should_apply_prefix:
+            cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
         self.__final_cmd = cmd
         name = os.path.basename(cmd[0]) if self.__name is None \
             else perform_substitutions(context, self.__name)
