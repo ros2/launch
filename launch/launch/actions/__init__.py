@@ -25,6 +25,7 @@ from .opaque_function import OpaqueFunction
 from .pop_launch_configurations import PopLaunchConfigurations
 from .push_launch_configurations import PushLaunchConfigurations
 from .register_event_handler import RegisterEventHandler
+from .reset_launch_configurations import ResetLaunchConfigurations
 from .set_environment_variable import SetEnvironmentVariable
 from .set_launch_configuration import SetLaunchConfiguration
 from .shutdown_action import Shutdown
@@ -44,6 +45,7 @@ __all__ = [
     'OpaqueFunction',
     'PopLaunchConfigurations',
     'PushLaunchConfigurations',
+    'ResetLaunchConfigurations',
     'RegisterEventHandler',
     'SetEnvironmentVariable',
     'SetLaunchConfiguration',
