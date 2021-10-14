@@ -150,8 +150,8 @@ def is_launch_test_mark_valid(item):
     ret = 'fixture' in kwargs and kwargs['fixture'] is not None
     if not ret:
         msg = (
-                    '"fixture" keyword argument is required in a pytest.mark.launch_testing() '
-                    f'decorator')
+            '"fixture" keyword argument is required in a pytest.mark.launch_testing() '
+            f'decorator')
         item.warn(LaunchTestWarning(msg))
         item.add_marker(pytest.mark.skip(msg))
     return ret
