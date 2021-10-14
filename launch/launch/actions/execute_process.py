@@ -228,6 +228,8 @@ class ExecuteProcess(ExecuteLocal):
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
+        :param: cached_output if `True`, both stdout and stderr will be cached.
+            Use get_stdout() and get_stderr() to read the buffered output.
         :param: on_exit list of actions to execute upon process exit.
         :param: respawn if 'True', relaunch the process that abnormally died.
             Defaults to 'False'.

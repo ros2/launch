@@ -27,6 +27,7 @@ import pytest
 
 from .fixture import finalize_launch_service
 from .fixture import get_launch_service_fixture
+from .fixture import get_launch_context_fixture
 
 """
 launch_testing native pytest based implementation.
@@ -524,5 +525,8 @@ def wrap_asyncgen_fscope(func, event_loop, on_shutdown):
     return inner
 
 
-"""Launch service fixture."""
 launch_service = get_launch_service_fixture(overridable=False)
+"""Launch service fixture."""
+
+launch_context = get_launch_context_fixture(overridable=False)
+"""Launch context fixture."""

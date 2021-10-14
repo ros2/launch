@@ -16,6 +16,7 @@
 
 import asyncio
 import io
+import logging
 import os
 import platform
 import signal
@@ -91,6 +92,7 @@ class ExecuteLocal(Action):
         emulate_tty: bool = False,
         output: Text = 'log',
         output_format: Text = '[{this.process_description.final_name}] {line}',
+        cached_output: bool = False,
         log_cmd: bool = False,
         on_exit: Optional[Union[
             SomeActionsType,
@@ -176,6 +178,8 @@ class ExecuteLocal(Action):
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
+        :param: cached_output if `True`, both stdout and stderr will be cached.
+            Use get_stdout() and get_stderr() to read the buffered output.
         :param: on_exit list of actions to execute upon process exit.
         :param: respawn if 'True', relaunch the process that abnormally died.
             Defaults to 'False'.
@@ -191,6 +195,7 @@ class ExecuteLocal(Action):
         self.__output_format = output_format
 
         self.__log_cmd = log_cmd
+        self.__cached_output = cached_output
         self.__on_exit = on_exit
         self.__respawn = respawn
         self.__respawn_delay = respawn_delay
@@ -329,59 +334,32 @@ class ExecuteLocal(Action):
         cast(ProcessStdin, event)
         return None
 
-    def __on_process_stdout(
-        self, event: ProcessIO
+    def __on_process_output(
+        self, event: ProcessIO, buffer: io.TextIOBase, logger: logging.Logger
     ) -> Optional[SomeActionsType]:
         to_write = event.text.decode(errors='replace')
-        if self.__stdout_buffer.closed:
-            # __stdout_buffer was probably closed by __flush_buffers on shutdown.  Output without
+        if buffer.closed:
+            # buffer was probably closed by __flush_buffers on shutdown.  Output without
             # buffering.
-            self.__stdout_logger.info(
+            buffer.info(
                 self.__output_format.format(line=to_write, this=self)
             )
         else:
-            self.__stdout_buffer.write(to_write)
-            self.__stdout_buffer.seek(0)
+            buffer.write(to_write)
+            buffer.seek(0)
             last_line = None
-            for line in self.__stdout_buffer:
+            for line in buffer:
                 if line.endswith(os.linesep):
-                    self.__stdout_logger.info(
+                    logger.info(
                         self.__output_format.format(line=line[:-len(os.linesep)], this=self)
                     )
                 else:
                     last_line = line
                     break
-            self.__stdout_buffer.seek(0)
-            self.__stdout_buffer.truncate(0)
+            buffer.seek(0)
+            buffer.truncate(0)
             if last_line is not None:
-                self.__stdout_buffer.write(last_line)
-
-    def __on_process_stderr(
-        self, event: ProcessIO
-    ) -> Optional[SomeActionsType]:
-        to_write = event.text.decode(errors='replace')
-        if self.__stderr_buffer.closed:
-            # __stderr buffer was probably closed by __flush_buffers on shutdown.  Output without
-            # buffering.
-            self.__stderr_logger.info(
-                self.__output_format.format(line=to_write, this=self)
-            )
-        else:
-            self.__stderr_buffer.write(to_write)
-            self.__stderr_buffer.seek(0)
-            last_line = None
-            for line in self.__stderr_buffer:
-                if line.endswith(os.linesep):
-                    self.__stderr_logger.info(
-                        self.__output_format.format(line=line[:-len(os.linesep)], this=self)
-                    )
-                else:
-                    last_line = line
-                    break
-            self.__stderr_buffer.seek(0)
-            self.__stderr_buffer.truncate(0)
-            if last_line is not None:
-                self.__stderr_buffer.write(last_line)
+                buffer.write(last_line)
 
     def __flush_buffers(self, event, context):
         line = self.__stdout_buffer.getvalue()
@@ -406,6 +384,35 @@ class ExecuteLocal(Action):
             self.__stdout_buffer.truncate(0)
             self.__stderr_buffer.seek(0)
             self.__stderr_buffer.truncate(0)
+
+    def __on_process_output_cached(
+        self, event: ProcessIO, buffer, logger
+    ) -> Optional[SomeActionsType]:
+        to_write = event.text.decode(errors='replace')
+        last_cursor = buffer.tell()
+        self.__stdout_buffer.seek(0, 2)  # go to end of buffer
+        buffer.write(to_write)
+        buffer.seek(last_cursor)
+        new_cursor = last_cursor
+        for line in buffer:
+            if not line.endswith(os.linesep):
+                break
+            new_cursor = buffer.tell()
+            logger.info(
+                self.__output_format.format(line=line[:-len(os.linesep)], this=self)
+            )
+        buffer.seek(new_cursor)
+
+    def __flush_cached_buffers(self, event, context):
+        for line in self.__stdout_buffer:
+            self.__stdout_buffer.info(
+                self.__output_format.format(line=line, this=self)
+            )
+
+        for line in self.__stderr_buffer:
+            self.__stderr_logger.info(
+                self.__output_format.format(line=line, this=self)
+            )
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
         due_to_sigint = cast(Shutdown, event).due_to_sigint
@@ -614,6 +621,13 @@ class ExecuteLocal(Action):
             # If shutdown starts before execution can start, don't start execution.
             return None
 
+        if self.__cached_output:
+            on_output_method = self.__on_process_output_cached
+            flush_buffers_method = self.__flush_cached_buffers
+        else:
+            on_output_method = self.__on_process_output
+            flush_buffers_method = self.__flush_buffers
+
         event_handlers = [
             EventHandler(
                 matcher=lambda event: is_a_subclass(event, ShutdownProcess),
@@ -626,8 +640,10 @@ class ExecuteLocal(Action):
             OnProcessIO(
                 target_action=self,
                 on_stdin=self.__on_process_stdin,
-                on_stdout=self.__on_process_stdout,
-                on_stderr=self.__on_process_stderr
+                on_stdout=lambda event: on_output_method(
+                    event, self.__stdout_buffer, self.__stdout_logger),
+                on_stderr=lambda event: on_output_method(
+                    event, self.__stderr_buffer, self.__stderr_logger),
             ),
             OnShutdown(
                 on_shutdown=self.__on_shutdown,
@@ -638,7 +654,7 @@ class ExecuteLocal(Action):
             ),
             OnProcessExit(
                 target_action=self,
-                on_exit=self.__flush_buffers,
+                on_exit=flush_buffers_method,
             ),
         ]
         for event_handler in event_handlers:
@@ -660,3 +676,34 @@ class ExecuteLocal(Action):
     def get_asyncio_future(self) -> Optional[asyncio.Future]:
         """Return an asyncio Future, used to let the launch system know when we're done."""
         return self.__completed_future
+
+    def get_stdout(self):
+        """
+        Get cached stdout.
+
+        :raises RuntimeError: if cached_output is false.
+        """
+        if not self.__cached_output:
+            raise RuntimeError(
+                'cached output must be true to be able to get stdout,'
+                f" proc '{self.__process_description.name}'")
+        return self.__stdout_buffer.getvalue()
+
+    def get_stderr(self):
+        """
+        Get cached stdout.
+
+        :raises RuntimeError: if cached_output is false.
+        """
+        if not self.__cached_output:
+            raise RuntimeError(
+                'cached output must be true to be able to get stderr, proc'
+                f" '{self.__process_description.name}'")
+        return self.__stderr_buffer.getvalue()
+
+    @property
+    def return_code(self):
+        """Get the process return code, None if it hasn't finished."""
+        if self._subprocess_transport is None:
+            return None
+        return self._subprocess_transport.get_returncode()

@@ -51,6 +51,19 @@ def get_launch_service_fixture(*, scope='function', overridable=True):
     return launch_service
 
 
+def get_launch_context_fixture(*, scope='function', overridable=True):
+    """Return a launch service fixture."""
+
+    @pytest.fixture(scope=scope)
+    def launch_context(launch_service):
+        """Create an instance of the launch service for each test case."""
+        return launch_service.context
+    if overridable:
+        launch_context._launch_testing_overridable_fixture = True
+        launch_context._launch_testing_fixture_scope = scope
+    return launch_context
+
+
 def get_event_loop_fixture(*, scope='function', overridable=True):
     """Return an event loop fixture."""
 
@@ -98,7 +111,8 @@ def fixture(
         mod_locals = vars(mod)
         for name, getter in (
             ('launch_service', get_launch_service_fixture),
-            ('event_loop', get_event_loop_fixture)
+            ('event_loop', get_event_loop_fixture),
+            ('launch_context', get_launch_context_fixture),
         ):
             if name in mod_locals:
                 obj = mod_locals[name]

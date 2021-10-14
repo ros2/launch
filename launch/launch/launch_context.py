@@ -174,9 +174,17 @@ class LaunchContext:
         """Check whether an event would be handled or not."""
         return any(handler.matches(event) for handler in self._event_handlers)
 
-    def register_event_handler(self, event_handler: BaseEventHandler) -> None:
-        """Register a event handler."""
-        self._event_handlers.appendleft(event_handler)
+    def register_event_handler(self, event_handler: BaseEventHandler, append = False) -> None:
+        """
+        Register a event handler.
+        
+        :param append: if 'true', the new event handler will be executed after the previously
+            registered ones. If not, it will prepend the old handlers.
+        """
+        if append:
+            self._event_handlers.append(event_handler)
+        else:
+            self._event_handlers.appendleft(event_handler)
 
     def unregister_event_handler(self, event_handler: BaseEventHandler) -> None:
         """Unregister an event handler."""
