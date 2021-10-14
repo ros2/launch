@@ -319,10 +319,8 @@ def pytest_collection_modifyitems(session, config, items):
                 and is_shutdown_test(item) and not is_shutdown_test(other)
             ):
                 new_position = i + 1 + j
-                print(f'moving {item.name} after {other.name}: {i} {i+j+1}')
         if new_position is not None:
             items.insert(new_position, items.pop(i))
-            print([item.name for item in items])
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
