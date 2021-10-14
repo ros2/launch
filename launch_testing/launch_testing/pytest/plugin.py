@@ -245,25 +245,6 @@ def pytest_pycollect_makeitem(collector, name, obj):
             return items
 
 
-def get_error_context_from_obj(obj):
-    """Return formatted information of the object location."""
-    try:
-        fspath = inspect.getsourcefile(obj)
-    except TypeError:
-        return 'location information of the object not found'
-    try:
-        lines, lineno = inspect.getsourcelines(obj)
-    except IOError:
-        return f'file {fspath}: source code not available'
-    error_msg = f'file {fspath}, line {lineno}'
-    for line in lines:
-        line = line.rstrip()
-        error_msg += f'\n  {line}'
-        if line.lstrip().startswith('def'):
-            break
-    return error_msg
-
-
 def is_shutdown_test(item):
     """Return `True` if the item is a launch test."""
     return getattr(item, '_launch_testing_is_shutdown', False)
