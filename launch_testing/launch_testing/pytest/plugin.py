@@ -256,7 +256,7 @@ def is_same_launch_test_fixture(left_item, right_item):
     rfn = get_launch_test_fixture(right_item)
     if None in (lfn, rfn):
         return False
-    if lfn != rfn:
+    if lfn is not rfn:
         return False
     if lfn._pytestfixturefunction.scope == 'function':
         return False
