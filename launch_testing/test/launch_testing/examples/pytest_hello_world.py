@@ -50,9 +50,11 @@ def test_read_stdout(hello_world_proc, launch_context):
         # pytest generates easier to understand failures when assertions are used.
         assert output == 'hello_world\n', 'process never printed hello_world'
     assert tools.wait_for_output_sync(launch_context, hello_world_proc, validate_output, timeout=5)
+
     def validate_output(output):
         return output == 'this will never happen'
-    assert not tools.wait_for_output_sync(launch_context, hello_world_proc, validate_output, timeout=0.1)
+    assert not tools.wait_for_output_sync(
+        launch_context, hello_world_proc, validate_output, timeout=0.1)
     yield
     # this is executed after launch service shutdown
     assert hello_world_proc.return_code == 0

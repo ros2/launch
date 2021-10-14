@@ -17,7 +17,6 @@ import contextlib
 import threading
 import time
 
-import launch
 from launch import event_handlers
 
 
@@ -29,9 +28,11 @@ def register_event_handler(context, event_handler):
     finally:
         context.unregister_event_handler(event_handler)
 
+
 def _get_on_process_start(execute_process_action, pyevent):
     event_handlers.OnProcessStart(
         target_action=execute_process_action, on_start=lambda _1, _2: pyevent.set())
+
 
 async def _wait_for_event(
     launch_context, execute_process_action, get_launch_event_handler, timeout=None
@@ -40,6 +41,7 @@ async def _wait_for_event(
     event_handler = get_launch_event_handler(execute_process_action, pyevent)
     with register_event_handler(launch_context, event_handler):
         await asyncio.wait_for(pyevent.wait(), timeout)
+
 
 async def _wait_for_event_with_condition(
     launch_context, execute_process_action, get_launch_event_handler, condition, timeout=None
@@ -57,6 +59,7 @@ async def _wait_for_event_with_condition(
             now = time.time()
     return cond_value
 
+
 def _wait_for_event_sync(
     launch_context, execute_process_action, get_launch_event_handler, timeout=None
 ):
@@ -64,6 +67,7 @@ def _wait_for_event_sync(
     event_handler = get_launch_event_handler(execute_process_action, pyevent)
     with register_event_handler(launch_context, event_handler):
         pyevent.wait(timeout)
+
 
 def _wait_for_event_with_condition_sync(
     launch_context, execute_process_action, get_launch_event_handler, condition, timeout=None
@@ -81,9 +85,11 @@ def _wait_for_event_with_condition_sync(
             now = time.time()
     return cond_value
 
+
 def _get_stdout_event_handler(action, pyevent):
     return event_handlers.OnProcessIO(
         target_action=action, on_stdout=lambda _1: pyevent.set())
+
 
 async def wait_for_output(
     launch_context, execute_process_action, validate_output, timeout=None

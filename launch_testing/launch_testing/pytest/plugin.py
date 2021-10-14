@@ -26,8 +26,8 @@ import launch_testing
 import pytest
 
 from .fixture import finalize_launch_service
-from .fixture import get_launch_service_fixture
 from .fixture import get_launch_context_fixture
+from .fixture import get_launch_service_fixture
 
 """
 launch_testing native pytest based implementation.

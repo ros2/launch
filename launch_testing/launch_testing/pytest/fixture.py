@@ -80,17 +80,16 @@ def get_event_loop_fixture(*, scope='function', overridable=True):
 
 
 def fixture(
-    decorated = None,
+    decorated=None,
     *args,
-    shutdown_when_idle = True,
-    auto_shutdown = True,
+    shutdown_when_idle=True,
+    auto_shutdown=True,
     **kwargs
 ):
-    """
+    r"""
     Decorate launch_test fixtures.
 
-    See also
-    https://docs.pytest.org/en/latest/reference/reference.html#pytest-fixture.
+    See also https://docs.pytest.org/en/latest/reference/reference.html#pytest-fixture.
 
     :param decorated: object to be decorated.
     :param \*args: extra positional arguments to be passed to `pytest.fixture()`
