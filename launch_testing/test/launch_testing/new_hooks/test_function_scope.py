@@ -31,11 +31,6 @@ def launch_description():
     ])
 
 
-# TODO(ivanpauno)
-# We cannot get variables from the dictionary returned by launch_description
-# because we're removing the fixture before running the tests.
-# Maybe we can delete this feature, and use generators/asyncgens.
-# We can always get the variables returned by the launch_testing fixture there.
 @pytest.mark.launch_testing(fixture=launch_description, shutdown=True)
 async def test_after_shutdown(order, launch_service):
     order.append('test_after_shutdown')
