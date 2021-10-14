@@ -93,7 +93,7 @@ def fixture(
     https://docs.pytest.org/en/latest/reference/reference.html#pytest-fixture.
 
     :param decorated: object to be decorated.
-    :param \*args: extra posicional arguments to be passed to pytest.fixture().
+    :param \*args: extra positional arguments to be passed to `pytest.fixture()`
     :param shutdown_when_idle: when true, the launch service will shutdown when idle.
     :param auto_shutdown: when true, the launch service will be shutdown automatically
         after all pre-shutdown tests get run. If false, shutdown needs to be signaled in a
