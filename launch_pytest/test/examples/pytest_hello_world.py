@@ -14,10 +14,12 @@
 
 
 import launch
-import launch.actions
-import launch_testing.actions
-import launch_testing.markers
-from launch_testing.tools import pytest_process as tools
+
+import launch_testing
+
+import launch_pytest
+from launch_pytest.tools import process as process_tools
+
 import pytest
 
 
@@ -31,7 +33,7 @@ def hello_world_proc():
     )
 
 # This function specifies the processes to be run for our test.
-@launch_testing.pytest.fixture
+@launch_pytest.fixture
 def launch_description(hello_world_proc):
     """Launch a simple process to print 'hello_world'."""
     return launch.LaunchDescription([
@@ -42,18 +44,18 @@ def launch_description(hello_world_proc):
     ])
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 def test_read_stdout(hello_world_proc, launch_context):
     """Check if 'hello_world' was found in the stdout."""
     def validate_output(output):
         # this function can use assertions to validate the output or return a boolean.
         # pytest generates easier to understand failures when assertions are used.
         assert output == 'hello_world\n', 'process never printed hello_world'
-    assert tools.wait_for_output_sync(launch_context, hello_world_proc, validate_output, timeout=5)
+    assert process_tools.wait_for_output_sync(launch_context, hello_world_proc, validate_output, timeout=5)
 
     def validate_output(output):
         return output == 'this will never happen'
-    assert not tools.wait_for_output_sync(
+    assert not process_tools.wait_for_output_sync(
         launch_context, hello_world_proc, validate_output, timeout=0.1)
     yield
     # this is executed after launch service shutdown

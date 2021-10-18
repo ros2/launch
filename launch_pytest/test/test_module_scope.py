@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import launch
+import launch_pytest
 import launch_testing
 
 import pytest
@@ -25,7 +26,7 @@ def order():
     print('end')
 
 
-@launch_testing.pytest.fixture(scope='module', params=['asd', 'bsd'])
+@launch_pytest.fixture(scope='module', params=['asd', 'bsd'])
 def launch_description(request):
     return launch.LaunchDescription([
         launch_testing.util.KeepAliveProc(),
@@ -33,7 +34,7 @@ def launch_description(request):
     ]), request.param
 
 
-@pytest.mark.launch_testing(fixture=launch_description, shutdown=True)
+@pytest.mark.launch(fixture=launch_description, shutdown=True)
 def test_after_shutdown(order, launch_service, launch_description):
     param = launch_description[1]
     order.append(f'test_after_shutdown[{param}]')
@@ -41,21 +42,21 @@ def test_after_shutdown(order, launch_service, launch_description):
     assert launch_service.event_loop is None
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 async def test_case_1(order, launch_description):
     param = launch_description[1]
     order.append(f'test_case_1[{param}]')
     assert True
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 def test_case_2(order, launch_description):
     param = launch_description[1]
     order.append(f'test_case_2[{param}]')
     assert True
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 def test_case_3(order, launch_service, launch_description):
     param = launch_description[1]
     order.append(f'test_case_3[{param}]')
@@ -65,7 +66,7 @@ def test_case_3(order, launch_service, launch_description):
     order.append(f'test_case_3[{param}][shutdown]')
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 async def test_case_4(order, launch_service, launch_description):
     param = launch_description[1]
     order.append(f'test_case_4[{param}]')
@@ -74,11 +75,6 @@ async def test_case_4(order, launch_service, launch_description):
     assert launch_service.event_loop is None
 
     order.append(f'test_case_4[{param}][shutdown]')
-
-
-# @pytest.mark.launch_testing
-# def test_should_be_skipped():
-#     assert True
 
 
 def test_order(order):

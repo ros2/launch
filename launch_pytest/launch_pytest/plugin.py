@@ -30,7 +30,7 @@ from .fixture import get_launch_context_fixture
 from .fixture import get_launch_service_fixture
 
 """
-launch_testing native pytest based implementation.
+Native pytest plugin for launch based tests.
 """
 
 
@@ -50,10 +50,10 @@ class LaunchTestWarning(pytest.PytestWarning):
 
 
 def pytest_configure(config):
-    """Inject launch_testing marker documentation."""
+    """Inject launch marker documentation."""
     config.addinivalue_line(
         'markers',
-        'launch_testing: '
+        'launch: '
         'mark the test as a launch test, it will be '
         'run using the specified launch_pad.',
     )
@@ -136,7 +136,7 @@ def pytest_fixture_setup(fixturedef, request):
 
 def is_launch_test(item):
     """Return `True` if the item is a launch test."""
-    mark = item.get_closest_marker('launch_testing')
+    mark = item.get_closest_marker('launch')
     return mark is not None
 
 
@@ -146,11 +146,11 @@ def is_launch_test_mark_valid(item):
 
     If not, a warning and a skip mark will be added to the item.
     """
-    kwargs = item.get_closest_marker('launch_testing').kwargs
+    kwargs = item.get_closest_marker('launch').kwargs
     ret = 'fixture' in kwargs and kwargs['fixture'] is not None
     if not ret:
         msg = (
-            '"fixture" keyword argument is required in a pytest.mark.launch_testing() '
+            '"fixture" keyword argument is required in a pytest.mark.launch() '
             f'decorator')
         item.warn(LaunchTestWarning(msg))
         item.add_marker(pytest.mark.skip(msg))
@@ -159,12 +159,12 @@ def is_launch_test_mark_valid(item):
 
 def has_shutdown_kwarg(item):
     """Return `True` if the launch test shutdown kwarg is true."""
-    return item.get_closest_marker('launch_testing').kwargs.get('shutdown', False)
+    return item.get_closest_marker('launch').kwargs.get('shutdown', False)
 
 
 def get_launch_test_fixture(item):
     """Return the launch test fixture name, `None` if this isn't a launch test."""
-    mark = item.get_closest_marker('launch_testing')
+    mark = item.get_closest_marker('launch')
     if mark is None:
         return None
     try:
@@ -205,7 +205,7 @@ def generate_test_items(collector, name, obj, fixturename, is_shutdown, needs_re
     items = list(collector._genfunctions(name, obj))
     for item in items:
         # Mark shutdown tests correctly
-        item._launch_testing_is_shutdown = is_shutdown
+        item._launch_pytest_is_shutdown = is_shutdown
         if is_shutdown and needs_renaming:
             # rename the items, to differentiate them from the normal test stage
             item.name = f'{item.name}[shutdown_test]'
@@ -240,14 +240,14 @@ def pytest_pycollect_makeitem(collector, name, obj):
                 # if not we're going to use two event loops!!!
                 shutdown_items = generate_test_items(collector, name, obj, fixturename, True, True)
                 for item, shutdown_item in zip(items, shutdown_items):
-                    item._launch_testing_shutdown_item = shutdown_item
+                    item._launch_pytest_shutdown_item = shutdown_item
                 items.extend(shutdown_items)
             return items
 
 
 def is_shutdown_test(item):
     """Return `True` if the item is a launch test."""
-    return getattr(item, '_launch_testing_is_shutdown', False)
+    return getattr(item, '_launch_pytest_is_shutdown', False)
 
 
 def is_same_launch_test_fixture(left_item, right_item):
@@ -306,7 +306,7 @@ def pytest_collection_modifyitems(session, config, items):
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_pyfunc_call(pyfuncitem):
-    """Run launch_testing test coroutines and functions in an event loop."""
+    """Run launch_pytest test coroutines and functions in an event loop."""
     if not is_launch_test(pyfuncitem):
         yield
         return
@@ -335,7 +335,7 @@ def pytest_pyfunc_call(pyfuncitem):
         pyfuncitem.obj = wrap_coroutine(func, event_loop, before_test)
     elif inspect.isgeneratorfunction(func):
         if scope != 'function':
-            shutdown_item = pyfuncitem._launch_testing_shutdown_item
+            shutdown_item = pyfuncitem._launch_pytest_shutdown_item
             pyfuncitem.obj, shutdown_item.obj = (
                 wrap_generator(func, event_loop, on_shutdown)
             )
@@ -345,7 +345,7 @@ def pytest_pyfunc_call(pyfuncitem):
             pyfuncitem.obj = wrap_generator_fscope(func, event_loop, on_shutdown)
     elif inspect.isasyncgenfunction(func):
         if scope != 'function':
-            shutdown_item = pyfuncitem._launch_testing_shutdown_item
+            shutdown_item = pyfuncitem._launch_pytest_shutdown_item
             pyfuncitem.obj, shutdown_item.obj = (
                 wrap_asyncgen(func, event_loop, on_shutdown)
             )
@@ -353,7 +353,7 @@ def pytest_pyfunc_call(pyfuncitem):
                 shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
         else:
             pyfuncitem.obj = wrap_asyncgen_fscope(func, event_loop, on_shutdown)
-    elif not getattr(pyfuncitem.obj, '_launch_testing_wrapped', False):
+    elif not getattr(pyfuncitem.obj, '_launch_pytest_wrapped', False):
         pyfuncitem.obj = wrap_func(func, event_loop, before_test)
     yield
 
@@ -411,7 +411,7 @@ def wrap_generator(func, event_loop, on_shutdown):
             'launch tests using a generator function must stop iteration after yielding once',
             pytrace=False
         )
-    shutdown._launch_testing_wrapped = True
+    shutdown._launch_pytest_wrapped = True
     shutdown.__name__ = f'{func.__name__}[shutdown]'
 
     @functools.wraps(func)
@@ -466,7 +466,7 @@ def wrap_asyncgen(func, event_loop, on_shutdown):
             pytrace=False
         )
     shutdown.__name__ = f'{func.__name__}[shutdown]'
-    shutdown._launch_testing_wrapped = True
+    shutdown._launch_pytest_wrapped = True
 
     @functools.wraps(func)
     def inner(**kwargs):

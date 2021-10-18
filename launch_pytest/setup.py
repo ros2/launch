@@ -4,26 +4,27 @@ from setuptools import find_packages
 from setuptools import setup
 
 
+package_name = 'launch_pytest'
+
 setup(
-    name='launch_testing',
+    name=package_name,
     version='0.19.0',
     packages=find_packages(exclude=['test']),
     data_files=[
-        ('share/ament_index/resource_index/packages', ['resource/launch_testing']),
-        ('lib/launch_testing', glob.glob('example_processes/**')),
-        ('share/launch_testing', ['package.xml']),
-        ('share/launch_testing/examples', glob.glob('test/launch_testing/examples/[!_]**')),
+        ('share/ament_index/resource_index/packages', [f'resource/{package_name}']),
+        (f'lib/{package_name}', glob.glob('example_processes/**')),
+        (f'share/{package_name}', ['package.xml']),
+        (f'share/{package_name}/examples', glob.glob(f'test/{package_name}/examples/[!_]**')),
     ],
     entry_points={
-        'console_scripts': ['launch_test=launch_testing.launch_test:main'],
         'pytest11': [
-            'launch_testing = launch_testing.pytest.hooks',
+            'launch_pytest = launch_pytest.plugin'
         ],
     },
     install_requires=['setuptools'],
     zip_safe=True,
-    author='Pete Baughman, Dirk Thomas, Esteve Fernandez',
-    author_email='pete.baughman@apex.ai, dthomas@osrfoundation.org',
+    author='Ivan Paunovic',
+    author_email='ivanpauno@ekumenlabs.com',
     maintainer='William Woodall, Michel Hidalgo',
     maintainer_email='william@osrfoundation.org, michel@ekumenlabs.com',
     url='https://github.com/ros2/launch',

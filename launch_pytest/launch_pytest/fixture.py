@@ -46,8 +46,8 @@ def get_launch_service_fixture(*, scope='function', overridable=True):
         yield ls
         finalize_launch_service(ls, eprefix='When tearing down launch_service fixture')
     if overridable:
-        launch_service._launch_testing_overridable_fixture = True
-        launch_service._launch_testing_fixture_scope = scope
+        launch_service._launch_pytest_overridable_fixture = True
+        launch_service._launch_pytest_fixture_scope = scope
     return launch_service
 
 
@@ -59,8 +59,8 @@ def get_launch_context_fixture(*, scope='function', overridable=True):
         """Create an instance of the launch service for each test case."""
         return launch_service.context
     if overridable:
-        launch_context._launch_testing_overridable_fixture = True
-        launch_context._launch_testing_fixture_scope = scope
+        launch_context._launch_pytest_overridable_fixture = True
+        launch_context._launch_pytest_fixture_scope = scope
     return launch_context
 
 
@@ -74,8 +74,8 @@ def get_event_loop_fixture(*, scope='function', overridable=True):
         yield loop
         loop.close()
     if overridable:
-        event_loop._launch_testing_overridable_fixture = True
-        event_loop._launch_testing_fixture_scope = scope
+        event_loop._launch_pytest_overridable_fixture = True
+        event_loop._launch_pytest_fixture_scope = scope
     return event_loop
 
 
@@ -99,7 +99,7 @@ def fixture(
         different way or the launch fixture should be self terminating.
     :param \**kwargs: extra keyword arguments to be passed to pytest.fixture().
     """
-    # Automagically override the event_loop and launch_testing fixtures
+    # Automagically override the event_loop, launch_service and launch_context fixtures
     # with a fixture of the correct scope.
     # This is not done if the user explicitly provided this fixture,
     # they might get an ScopeError if not correctly defined.
@@ -116,8 +116,8 @@ def fixture(
             if name in mod_locals:
                 obj = mod_locals[name]
                 if (
-                    getattr(obj, '_launch_testing_overridable_fixture', False) and
-                    scope_gt(scope, obj._launch_testing_fixture_scope)
+                    getattr(obj, '_launch_pytest_overridable_fixture', False) and
+                    scope_gt(scope, obj._launch_pytest_fixture_scope)
                 ):
                     mod_locals[name] = getter(scope=scope)
             else:

@@ -14,6 +14,7 @@
 
 import launch
 import launch_testing
+import launch_pytest
 
 import pytest
 
@@ -23,7 +24,7 @@ def order():
     return []
 
 
-@launch_testing.pytest.fixture
+@launch_pytest.fixture
 def launch_description():
     return launch.LaunchDescription([
         launch_testing.util.KeepAliveProc(),
@@ -31,26 +32,26 @@ def launch_description():
     ])
 
 
-@pytest.mark.launch_testing(fixture=launch_description, shutdown=True)
+@pytest.mark.launch(fixture=launch_description, shutdown=True)
 async def test_after_shutdown(order, launch_service):
     order.append('test_after_shutdown')
     assert launch_service._is_idle()
     assert launch_service.event_loop is None
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 async def test_case_1(order):
     order.append('test_case_1')
     assert True
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 def test_case_2(order):
     order.append('test_case_2')
     assert True
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 def test_case_3(order, launch_service):
     order.append('test_case_3')
     yield
@@ -58,7 +59,7 @@ def test_case_3(order, launch_service):
     order.append('test_case_3[shutdown]')
 
 
-@pytest.mark.launch_testing(fixture=launch_description)
+@pytest.mark.launch(fixture=launch_description)
 async def test_case_4(order):
     order.append('test_case_4')
     yield
