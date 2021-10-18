@@ -17,9 +17,7 @@ setup(
         (f'share/{package_name}/examples', glob.glob(f'test/{package_name}/examples/[!_]**')),
     ],
     entry_points={
-        'pytest11': [
-            'launch_pytest = launch_pytest.plugin'
-        ],
+        'pytest11': ['launch_pytest = launch_pytest.plugin'],
     },
     install_requires=['setuptools'],
     zip_safe=True,
