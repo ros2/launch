@@ -15,8 +15,6 @@
 
 import launch
 
-import launch_testing
-
 import launch_pytest
 from launch_pytest.tools import process as process_tools
 
@@ -40,7 +38,7 @@ def launch_description(hello_world_proc):
         hello_world_proc,
         # Tell launch when to start the test
         # If no ReadyToTest action is added, one will be appended automatically.
-        launch_testing.actions.ReadyToTest()
+        launch_pytest.actions.ReadyToTest()
     ])
 
 

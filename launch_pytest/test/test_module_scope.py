@@ -30,7 +30,7 @@ def order():
 def launch_description(request):
     return launch.LaunchDescription([
         launch_testing.util.KeepAliveProc(),
-        launch_testing.actions.ReadyToTest(),
+        launch_pytest.actions.ReadyToTest(),
     ]), request.param
 
 

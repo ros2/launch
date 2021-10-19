@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import actions
-from . import tools
-from .fixture import fixture
+from launch_testing.actions import ReadyToTest
 
 __all__ = [
-    'actions',
-    'fixture',
-    'tools',
+    'ReadyToTest',
 ]

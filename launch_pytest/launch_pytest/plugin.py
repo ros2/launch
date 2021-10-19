@@ -21,10 +21,10 @@ from _pytest.outcomes import fail
 from _pytest.outcomes import skip
 
 import launch
-import launch_testing
 
 import pytest
 
+from .actions import ReadyToTest
 from .fixture import finalize_launch_service
 from .fixture import get_launch_context_fixture
 from .fixture import get_launch_service_fixture
@@ -63,7 +63,7 @@ def pytest_configure(config):
 def iterate_ready_to_test_actions(entities):
     """Search recursively LaunchDescription entities for all ReadyToTest actions."""
     for entity in entities:
-        if isinstance(entity, launch_testing.actions.ReadyToTest):
+        if isinstance(entity, ReadyToTest):
             yield entity
         yield from iterate_ready_to_test_actions(
             entity.describe_sub_entities()
@@ -80,7 +80,7 @@ def get_ready_to_test_action(launch_description):
     try:
         ready_action = next(gen)
     except StopIteration:  # No ReadyToTest action found
-        ready_action = launch_testing.actions.ReadyToTest()
+        ready_action = ReadyToTest()
         launch_description.append(ready_action)
         return ready_action
     try:
