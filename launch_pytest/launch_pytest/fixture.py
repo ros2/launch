@@ -67,12 +67,24 @@ def get_launch_context_fixture(*, scope='function', overridable=True):
 def get_event_loop_fixture(*, scope='function', overridable=True):
     """Return an event loop fixture."""
 
+    # Adapted from https://github.com/pytest-dev/pytest-asyncio,
+    # see their license https://github.com/pytest-dev/pytest-asyncio/blob/master/LICENSE.
     @pytest.fixture(scope=scope)
     def event_loop():
         """Create an event loop instance for each test case."""
         loop = asyncio.get_event_loop_policy().new_event_loop()
+        policy = asyncio.get_event_loop_policy()
+        try:
+            old_loop = policy.get_event_loop()
+            if old_loop is not loop:
+                old_loop.close()
+        except RuntimeError:
+            # Swallow this, since it's probably bad event loop hygiene.
+            pass
+        policy.set_event_loop(loop)
         yield loop
         loop.close()
+        asyncio.set_event_loop_policy(None)
     if overridable:
         event_loop._launch_pytest_overridable_fixture = True
         event_loop._launch_pytest_fixture_scope = scope

@@ -26,6 +26,7 @@ import pytest
 
 from .actions import ReadyToTest
 from .fixture import finalize_launch_service
+from .fixture import get_event_loop_fixture
 from .fixture import get_launch_context_fixture
 from .fixture import get_launch_service_fixture
 
@@ -509,3 +510,6 @@ launch_service = get_launch_service_fixture(overridable=False)
 
 launch_context = get_launch_context_fixture(overridable=False)
 """Launch context fixture."""
+
+event_loop = get_event_loop_fixture(overridable=False)
+"""Event loop fixture."""
