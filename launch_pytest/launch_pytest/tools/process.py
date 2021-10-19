@@ -29,18 +29,17 @@ def register_event_handler(context, event_handler):
         context.unregister_event_handler(event_handler)
 
 
-def _get_on_process_start(execute_process_action, pyevent):
-    event_handlers.OnProcessStart(
-        target_action=execute_process_action, on_start=lambda _1, _2: pyevent.set())
-
-
 async def _wait_for_event(
     launch_context, execute_process_action, get_launch_event_handler, timeout=None
 ):
     pyevent = asyncio.Event()
     event_handler = get_launch_event_handler(execute_process_action, pyevent)
     with register_event_handler(launch_context, event_handler):
-        await asyncio.wait_for(pyevent.wait(), timeout)
+        try:
+            await asyncio.wait_for(pyevent.wait(), timeout)
+        except asyncio.TimeoutError:
+            return False
+    return True
 
 
 async def _wait_for_event_with_condition(
@@ -48,16 +47,29 @@ async def _wait_for_event_with_condition(
 ):
     pyevent = asyncio.Event()
     event_handler = get_launch_event_handler(execute_process_action, pyevent)
-    cond_value = condition()
+    cond_value = False
+    try:
+        cond_value = condition()
+    except AssertionError:
+        pass
     with register_event_handler(launch_context, event_handler):
         start = time.time()
         now = start
         while not cond_value and (timeout is None or now < start + timeout):
-            await asyncio.wait_for(pyevent.wait(), start - now + timeout)
+            try:
+                await asyncio.wait_for(pyevent.wait(), start - now + timeout)
+            except asyncio.TimeoutError:
+                break
             pyevent.clear()
-            cond_value = condition()
+            try:
+                cond_value = condition()
+            except AssertionError:
+                pass
             now = time.time()
-    return cond_value
+    # Call condition() again, if before it returned False.
+    # If assertions were being used and the condition is still not satisfied it should raise here,
+    # pytest renders assertion errors nicely.
+    return condition() if not cond_value else cond_value
 
 
 def _wait_for_event_sync(
@@ -66,7 +78,7 @@ def _wait_for_event_sync(
     pyevent = threading.Event()
     event_handler = get_launch_event_handler(execute_process_action, pyevent)
     with register_event_handler(launch_context, event_handler):
-        pyevent.wait(timeout)
+        return pyevent.wait(timeout)
 
 
 def _wait_for_event_with_condition_sync(
@@ -74,16 +86,26 @@ def _wait_for_event_with_condition_sync(
 ):
     pyevent = threading.Event()
     event_handler = get_launch_event_handler(execute_process_action, pyevent)
-    cond_value = condition()
+    cond_value = False
+    try:
+        cond_value = condition()
+    except AssertionError:
+        pass  # Allow asserts in the condition closures
     with register_event_handler(launch_context, event_handler):
         start = time.time()
         now = start
         while not cond_value and (timeout is None or now < start + timeout):
             pyevent.wait(start - now + timeout)
             pyevent.clear()
-            cond_value = condition()
+            try:
+                cond_value = condition()
+            except AssertionError:
+                pass
             now = time.time()
-    return cond_value
+    # Call condition() again, if before it returned False.
+    # If assertions were being used and the condition is still not satisfied it should raise here,
+    # pytest renders assertion errors nicely.
+    return condition() if not cond_value else cond_value
 
 
 def _get_stdout_event_handler(action, pyevent):
@@ -94,30 +116,85 @@ def _get_stdout_event_handler(action, pyevent):
 async def wait_for_output(
     launch_context, execute_process_action, validate_output, timeout=None
 ):
-    def condition():
-        try:
-            return validate_output(execute_process_action.get_stdout())
-        except AssertionError:
-            return False
-    success = await _wait_for_event_with_condition(
-        launch_context, execute_process_action, _get_stdout_event_handler, condition, timeout)
-    if not success:
-        # Validate the output again, this time not catching assertion errors.
-        # This allows the user to use asserts directly, errors will be nicely rendeded by pytest.
-        return validate_output(execute_process_action.get_stdout())
+    return await _wait_for_event_with_condition(
+        launch_context,
+        execute_process_action,
+        _get_stdout_event_handler,
+        lambda: validate_output(execute_process_action.get_stdout()),
+        timeout)
 
 
 def wait_for_output_sync(
     launch_context, execute_process_action, validate_output, timeout=None
 ):
-    def condition():
-        try:
-            return validate_output(execute_process_action.get_stdout())
-        except AssertionError:
-            return False
-    success = _wait_for_event_with_condition_sync(
-        launch_context, execute_process_action, _get_stdout_event_handler, condition, timeout)
-    if not success:
-        # Validate the output again, this time not catching assertion errors.
-        # This allows the user to use asserts directly, errors will be nicely rendeded by pytest.
-        return validate_output(execute_process_action.get_stdout()) in (None, True)
+    return _wait_for_event_with_condition_sync(
+        launch_context,
+        execute_process_action,
+        _get_stdout_event_handler,
+        lambda: validate_output(execute_process_action.get_stdout()),
+        timeout)
+
+
+def _get_stderr_event_handler(action, pyevent):
+    return event_handlers.OnProcessIO(
+        target_action=action, on_stderr=lambda _1: pyevent.set())
+
+
+async def wait_for_stderr(
+    launch_context, execute_process_action, validate_output, timeout=None
+):
+    return await _wait_for_event_with_condition(
+        launch_context,
+        execute_process_action,
+        _get_stderr_event_handler,
+        lambda: validate_output(execute_process_action.get_stderr()),
+        timeout)
+
+
+def wait_for_stderr_sync(
+    launch_context, execute_process_action, validate_output, timeout=None
+):
+    return _wait_for_event_with_condition_sync(
+        launch_context,
+        execute_process_action,
+        _get_stderr_event_handler,
+        lambda: validate_output(execute_process_action.get_stderr()),
+        timeout)
+
+
+def _get_on_process_start_event_handler(execute_process_action, pyevent):
+    return event_handlers.OnProcessStart(
+        target_action=execute_process_action, on_start=lambda _1, _2: pyevent.set())
+
+
+async def wait_for_start(
+    launch_context, execute_process_action, timeout=None
+):
+    return await _wait_for_event(
+        launch_context, execute_process_action, _get_on_process_start_event_handler, timeout)
+
+
+def wait_for_start_sync(
+    launch_context, execute_process_action, timeout=None
+):
+    return _wait_for_event_sync(
+        launch_context, execute_process_action, _get_on_process_start_event_handler, timeout)
+
+
+def _get_on_process_exit_event_handler(execute_process_action, pyevent):
+    return event_handlers.OnProcessExit(
+        target_action=execute_process_action, on_exit=lambda _1, _2: pyevent.set())
+
+
+async def wait_for_exit(
+    launch_context, execute_process_action, timeout=None
+):
+    return await _wait_for_event(
+        launch_context, execute_process_action, _get_on_process_exit_event_handler, timeout)
+
+
+def wait_for_exit_sync(
+    launch_context, execute_process_action, timeout=None
+):
+    return _wait_for_event_sync(
+        launch_context, execute_process_action, _get_on_process_exit_event_handler, timeout)

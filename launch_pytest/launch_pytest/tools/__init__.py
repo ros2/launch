@@ -13,7 +13,23 @@
 # limitations under the License.
 
 from . import process
+from .process import wait_for_exit
+from .process import wait_for_exit_sync
+from .process import wait_for_output
+from .process import wait_for_output_sync
+from .process import wait_for_start
+from .process import wait_for_start_sync
+from .process import wait_for_stderr
+from .process import wait_for_stderr_sync
 
 __all__ = [
     'process',
+    'wait_for_exit',
+    'wait_for_exit_sync',
+    'wait_for_output',
+    'wait_for_output_sync',
+    'wait_for_start',
+    'wait_for_start_sync',
+    'wait_for_stderr',
+    'wait_for_stderr_sync',
 ]

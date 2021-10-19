@@ -81,7 +81,7 @@ def get_ready_to_test_action(launch_description):
         ready_action = next(gen)
     except StopIteration:  # No ReadyToTest action found
         ready_action = ReadyToTest()
-        launch_description.append(ready_action)
+        launch_description.entities.append(ready_action)
         return ready_action
     try:
         next(gen)

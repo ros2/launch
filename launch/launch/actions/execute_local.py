@@ -390,7 +390,7 @@ class ExecuteLocal(Action):
     ) -> Optional[SomeActionsType]:
         to_write = event.text.decode(errors='replace')
         last_cursor = buffer.tell()
-        self.__stdout_buffer.seek(0, 2)  # go to end of buffer
+        buffer.seek(0, 2)  # go to end of buffer
         buffer.write(to_write)
         buffer.seek(last_cursor)
         new_cursor = last_cursor
@@ -405,7 +405,7 @@ class ExecuteLocal(Action):
 
     def __flush_cached_buffers(self, event, context):
         for line in self.__stdout_buffer:
-            self.__stdout_buffer.info(
+            self.__stdout_logger.info(
                 self.__output_format.format(line=line, this=self)
             )
 
