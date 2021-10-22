@@ -28,7 +28,7 @@ from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..launch_description_source import LaunchDescriptionSource
-from ..launch_description_sources import AnyLaunchDescriptionSource
+from ..launch_description_sources import AnyLaunchDescriptionSource, PythonLaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
@@ -157,3 +157,13 @@ class IncludeLaunchDescription(Action):
 
         # Set launch arguments as launch configurations and then include the launch description.
         return [*set_launch_configuration_actions, launch_description]
+
+
+class IncludePythonLaunch(IncludeLaunchDescription):
+    def __init__(
+        self,
+        launch_file_path: SomeSubstitutionsType,
+        **kwargs
+    ) -> None:
+        """Create an IncludeLaunchDescription action with a PythonLaunchDescriptionSource."""
+        super().__init__(launch_description_source=PythonLaunchDescriptionSource(launch_file_path), **kwargs)
