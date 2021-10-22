@@ -16,15 +16,12 @@
 
 import collections.abc
 from typing import Callable
-from typing import cast
 from typing import List  # noqa
 from typing import Optional
 from typing import Text
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
-
-from launch.events.process.running_process_event import RunningProcessEvent
 
 from ..event import Event
 from ..event_handler import BaseEventHandler
@@ -45,9 +42,9 @@ class OnActionEventBase(BaseEventHandler):
         action_matcher: Optional[Union[Callable[['Action'], bool], 'Action']],
         on_event: Union[
             SomeActionsType,
-            Callable[[RunningProcessEvent, LaunchContext], Optional[SomeActionsType]]
+            Callable[[Event, LaunchContext], Optional[SomeActionsType]]
         ],
-        target_event_cls: Type[RunningProcessEvent],
+        target_event_cls: Type[Event],
         target_action_cls: Type['Action'],
         **kwargs
     ) -> None:
@@ -57,13 +54,13 @@ class OnActionEventBase(BaseEventHandler):
         :param action_matcher: `ExecuteProcess` instance or callable to filter events
             from which proces/processes to handle.
         :param on_event: Action to be done to handle the event.
-        :param target_event_cls: A subclass of `RunningProcessEvent`, indicating which events
+        :param target_event_cls: A subclass of `Event`, indicating which events
             should be handled.
         :param target_action_cls: A subclass of `Action`, indicating which kind of action can
             generate the event.
         """
-        if not issubclass(target_event_cls, RunningProcessEvent):
-            raise TypeError("'target_event_cls' must be a subclass of 'RunningProcessEvent'")
+        if not issubclass(target_event_cls, Event):
+            raise TypeError("'target_event_cls' must be a subclass of 'Event'")
         if (
             not isinstance(action_matcher, (target_action_cls, type(None)))
             and not callable(action_matcher)
@@ -97,7 +94,7 @@ class OnActionEventBase(BaseEventHandler):
             if isinstance(on_event, collections.abc.Iterable):
                 for entity in on_event:
                     if not isinstance(entity, LaunchDescriptionEntity):
-                        raise ValueError(
+                        raise TypeError(
                             "expected all items in 'on_event' iterable to be of type "
                             "'LaunchDescriptionEntity' but got '{}'".format(type(entity)))
                 self.__actions_on_event = list(on_event)  # Outside list is to ensure type is List
@@ -110,7 +107,7 @@ class OnActionEventBase(BaseEventHandler):
 
         if self.__actions_on_event:
             return self.__actions_on_event
-        return self.__on_event(cast(RunningProcessEvent, event), context)
+        return self.__on_event(event, context)
 
     @property
     def handler_description(self) -> Text:
