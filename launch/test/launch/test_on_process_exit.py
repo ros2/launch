@@ -38,8 +38,16 @@ phony_context = Mock(spec=LaunchContext)
 def test_non_execute_process_target():
     with pytest.raises(TypeError):
         OnProcessExit(
-            target_action=Mock(),
+            target_action=NonCallableMock(),
             on_exit=NonCallableMock(spec=Action))
+
+
+def test_callable_target():
+    handler = OnProcessExit(
+        target_action=Mock(spec=ExecuteProcess),
+        on_exit=NonCallableMock(spec=Action))
+    assert not handler.matches(phony_process_started)
+    assert handler.matches(phony_process_exited)
 
 
 def test_non_action_on_exit():
@@ -56,7 +64,7 @@ def test_matches_process_exited():
 
 
 def test_matches_single_process():
-    target_action = Mock(spec=ExecuteProcess)
+    target_action = NonCallableMock(spec=ExecuteProcess)
     handler = OnProcessExit(
         target_action=target_action,
         on_exit=Mock())
