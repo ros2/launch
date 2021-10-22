@@ -18,18 +18,20 @@ from typing import Callable
 from typing import cast
 from typing import Optional
 from typing import TYPE_CHECKING
+from typing import Union
 
-from .on_process_event_base import OnProcessEventBase
+from .on_action_event_base import OnActionEventBase
 from ..event import Event
 from ..events.process import ProcessIO
 from ..launch_context import LaunchContext
 from ..some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
+    from ..actions import Action  # noqa: F401
     from ..actions import ExecuteProcess  # noqa: F401
 
 
-class OnProcessIO(OnProcessEventBase):
+class OnProcessIO(OnActionEventBase):
     """Convenience class for handling I/O from processes via events."""
 
     # TODO(wjwwood): make the __init__ more flexible like OnProcessExit, so
@@ -37,13 +39,19 @@ class OnProcessIO(OnProcessEventBase):
     def __init__(
         self,
         *,
-        target_action: Optional['ExecuteProcess'] = None,
+        target_action:
+            Optional[Union[Callable[['ExecuteProcess'], bool], 'ExecuteProcess']] = None,
         on_stdin: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         on_stdout: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         **kwargs
     ) -> None:
         """Create an OnProcessIO event handler."""
+        from ..actions import ExecuteProcess  # noqa: F811
+        target_action = cast(
+            Optional[Union[Callable[['Action'], bool], 'Action']],
+            target_action)
+
         def handle(event: Event, _: LaunchContext) -> Optional[SomeActionsType]:
             event = cast(ProcessIO, event)
             if event.from_stdout and on_stdout is not None:
@@ -55,8 +63,9 @@ class OnProcessIO(OnProcessEventBase):
             return None
 
         super().__init__(
-            process_matcher=target_action,
+            action_matcher=target_action,
             on_event=handle,
             target_event_cls=ProcessIO,
+            target_action_cls=ExecuteProcess,
             **kwargs,
         )

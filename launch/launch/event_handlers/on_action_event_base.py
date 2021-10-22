@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for OnProcessEventBase class."""
+"""Module for OnActionEventBase class."""
 
 import collections.abc
 from typing import Callable
@@ -33,51 +33,55 @@ from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
-    from ..actions import ExecuteProcess  # noqa: F401
+    from ..action import Action  # noqa: F401
 
 
-class OnProcessEventBase(BaseEventHandler):
-    """Base event handler for handlers targeting a subtype of RunningProcessEvent."""
+class OnActionEventBase(BaseEventHandler):
+    """Base event handler for events that have a source action."""
 
     def __init__(
         self,
         *,
-        process_matcher: Optional[Union[Callable[['ExecuteProcess'], bool], 'ExecuteProcess']],
+        action_matcher: Optional[Union[Callable[['Action'], bool], 'Action']],
         on_event: Union[
             SomeActionsType,
             Callable[[RunningProcessEvent, LaunchContext], Optional[SomeActionsType]]
         ],
         target_event_cls: Type[RunningProcessEvent],
+        target_action_cls: Type['Action'],
         **kwargs
     ) -> None:
         """
-        Construct a `OnProcessEventBase` instance.
+        Construct a `OnActionEventBase` instance.
 
-        :param process_matcher: `ExecuteProcess` instance or callable to filter events
+        :param action_matcher: `ExecuteProcess` instance or callable to filter events
             from which proces/processes to handle.
         :param on_event: Action to be done to handle the event.
         :param target_event_cls: A subclass of `RunningProcessEvent`, indicating which events
             should be handled.
+        :param target_action_cls: A subclass of `Action`, indicating which kind of action can
+            generate the event.
         """
-        from ..actions import ExecuteProcess  # noqa
         if not issubclass(target_event_cls, RunningProcessEvent):
             raise TypeError("'target_event_cls' must be a subclass of 'RunningProcessEvent'")
         if (
-            not isinstance(process_matcher, (ExecuteProcess, type(None)))
-            and not callable(process_matcher)
+            not isinstance(action_matcher, (target_action_cls, type(None)))
+            and not callable(action_matcher)
         ):
-            raise TypeError("process_matcher must be an 'ExecuteProcess' instance or a callable")
+            raise TypeError(
+                f"action_matcher must be an '{target_action_cls.__name__}' instance or a callable"
+            )
         self.__target_event_cls = target_event_cls
-        self.__process_matcher = process_matcher
+        self.__action_matcher = action_matcher
 
         def event_matcher(event):
             if not isinstance(event, target_event_cls):
                 return False
-            if callable(process_matcher):
-                return process_matcher(event.action)
-            if isinstance(process_matcher, ExecuteProcess):
-                return event.action is process_matcher
-            assert process_matcher is None
+            if callable(action_matcher):
+                return action_matcher(event.action)
+            if isinstance(action_matcher, target_action_cls):
+                return event.action is action_matcher
+            assert action_matcher is None
             return True
         super().__init__(matcher=event_matcher, **kwargs)
         self.__actions_on_event: List[LaunchDescriptionEntity] = []
@@ -125,5 +129,5 @@ class OnProcessEventBase(BaseEventHandler):
             return f'event == {self.__target_event_cls.__name__}'
         return (
             f'event == {self.__target_event_cls.__name__} and'
-            f' {self.__process_matcher.__name__}(event.action)'
+            f' {self.__action_matcher.__name__}(event.action)'
         )
