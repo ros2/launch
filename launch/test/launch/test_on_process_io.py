@@ -15,6 +15,7 @@
 """Tests for the OnProcessIO event handler."""
 
 from unittest.mock import Mock
+from unittest.mock import NonCallableMock
 
 from launch import LaunchContext
 from launch.action import Action
@@ -36,7 +37,7 @@ phony_context = Mock(spec=LaunchContext)
 
 def test_non_execute_target():
     with pytest.raises(TypeError):
-        OnProcessIO(target_action=Mock())
+        OnProcessIO(target_action=NonCallableMock())
 
 
 def test_matches_process_io():
@@ -46,7 +47,7 @@ def test_matches_process_io():
 
 
 def test_matches_single_process_output():
-    target_action = Mock(spec=ExecuteProcess)
+    target_action = NonCallableMock(spec=ExecuteProcess)
     handler = OnProcessIO(
         target_action=target_action)
     assert handler.matches(ProcessIO(
@@ -54,6 +55,17 @@ def test_matches_single_process_output():
         text=b'phony io', fd=0))
     assert not handler.matches(phony_process_started)
     assert not handler.matches(phony_process_io)
+
+
+def test_matches_with_callable():
+    target_action = Mock(spec=ExecuteProcess)
+    handler = OnProcessIO(
+        target_action=target_action)
+    assert handler.matches(ProcessIO(
+        action=target_action, name='foo', cmd=['ls'], cwd=None, env=None, pid=3,
+        text=b'phony io', fd=0))
+    assert not handler.matches(phony_process_started)
+    assert handler.matches(phony_process_io)
 
 
 def test_handle_callable_stdin():
