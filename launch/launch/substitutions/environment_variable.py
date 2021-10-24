@@ -33,6 +33,10 @@ class EnvironmentVariable(Substitution):
     Substitution that gets an environment variable value as a string.
 
     If the environment variable is not found, it returns empty string.
+
+    Note that the environment variable is resolved based on the launch context's environment (i.e.,
+    `os.environ`) even though the substitution may be associated with an entity that might have a
+    different set of environment variables.
     """
 
     def __init__(
