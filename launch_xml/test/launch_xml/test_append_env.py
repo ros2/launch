@@ -29,9 +29,9 @@ def test_append_env():
             <append_env name="my_env_var" value="asd"/>
             <append_env name="my_env_var" value="zxc" separator="|"/>
             <append_env name="my_other_env_var" value="fgh"/>
-            <append_env name="my_other_env_var" value="jkl" prepend="False"/>
-            <append_env name="my_other_env_var" value="qwe" prepend="True"/>
-            <append_env name="my_other_env_var" value="rty" prepend="True" separator="|"/>
+            <append_env name="my_other_env_var" value="jkl" prepend="false"/>
+            <append_env name="my_other_env_var" value="qwe" prepend="yes"/>
+            <append_env name="my_other_env_var" value="rty" prepend="true" separator="|"/>
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)

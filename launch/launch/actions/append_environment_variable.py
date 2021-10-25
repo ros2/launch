@@ -16,6 +16,7 @@
 
 import os
 from typing import List
+from typing import Union
 
 from ..action import Action
 from ..frontend import Entity
@@ -26,6 +27,9 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
+from ..utilities.type_utils import normalize_typed_substitution
+from ..utilities.type_utils import NormalizedValueType
+from ..utilities.type_utils import perform_typed_substitution
 
 
 @expose_action('append_env')
@@ -42,7 +46,7 @@ class AppendEnvironmentVariable(Action):
         self,
         name: SomeSubstitutionsType,
         value: SomeSubstitutionsType,
-        prepend: bool = False,
+        prepend: Union[bool, SomeSubstitutionsType] = False,
         separator: SomeSubstitutionsType = os.pathsep,
         **kwargs,
     ) -> None:
@@ -50,7 +54,7 @@ class AppendEnvironmentVariable(Action):
         super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
         self.__value = normalize_to_list_of_substitutions(value)
-        self.__prepend = prepend
+        self.__prepend = normalize_typed_substitution(prepend, bool)
         self.__separator = normalize_to_list_of_substitutions(separator)
 
     @classmethod
@@ -63,9 +67,9 @@ class AppendEnvironmentVariable(Action):
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
         kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
-        prepend = entity.get_attr('prepend', data_type=bool, optional=True)
+        prepend = entity.get_attr('prepend', optional=True, data_type=bool, can_be_str=True)
         if prepend is not None:
-            kwargs['prepend'] = prepend
+            kwargs['prepend'] = parser.parse_if_substitutions(prepend)
         separator = entity.get_attr('separator', optional=True)
         if separator is not None:
             kwargs['separator'] = parser.parse_substitution(separator)
@@ -82,7 +86,7 @@ class AppendEnvironmentVariable(Action):
         return self.__value
 
     @property
-    def prepend(self) -> bool:
+    def prepend(self) -> NormalizedValueType:
         """Getter for the prepend flag."""
         return self.__prepend
 
@@ -95,11 +99,12 @@ class AppendEnvironmentVariable(Action):
         """Execute the action."""
         name = perform_substitutions(context, self.name)
         value = perform_substitutions(context, self.value)
+        prepend = perform_typed_substitution(context, self.prepend, bool)
         separator = perform_substitutions(context, self.separator)
         if name in os.environ:
             os.environ[name] = \
                 os.environ[name] + separator + value \
-                if not self.__prepend \
+                if not prepend \
                 else value + separator + os.environ[name]
         else:
             os.environ[name] = value

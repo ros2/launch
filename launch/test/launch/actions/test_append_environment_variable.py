@@ -64,7 +64,8 @@ def test_append_environment_variable_execute():
     assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
     AppendEnvironmentVariable(
         'ANOTHER_NONEXISTENT_KEY',
-        EnvironmentVariable('NONEXISTENT_KEY')).visit(lc1)
+        EnvironmentVariable('NONEXISTENT_KEY'),
+        prepend=TextSubstitution(text='false')).visit(lc1)
     assert os.environ.get('ANOTHER_NONEXISTENT_KEY') == \
         'some value' + os.pathsep + 'value' + os.pathsep + 'another value' + '|' + 'other value'
 
@@ -74,7 +75,7 @@ def test_append_environment_variable_execute():
         'ANOTHER_NONEXISTENT_KEY',
         TextSubstitution(text='def'),
         separator=EnvironmentVariable('SOME_SEPARATOR'),
-        prepend=True).visit(lc1)
+        prepend=TextSubstitution(text='yes')).visit(lc1)
     assert os.environ.get('ANOTHER_NONEXISTENT_KEY') == 'def' + '//' + 'abc'
 
     # Cleanup environment variables
