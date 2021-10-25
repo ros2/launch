@@ -50,7 +50,17 @@ class AppendEnvironmentVariable(Action):
         separator: SomeSubstitutionsType = os.pathsep,
         **kwargs,
     ) -> None:
-        """Create an AppendEnvironmentVariable action."""
+        """
+        Create an AppendEnvironmentVariable action.
+
+        All parameters can be provided as substitutions.
+        A substitution for the prepend parameter will be coerced to `bool` following YAML rules.
+
+        :param name: the name of the environment variable
+        :param value: the value to set or append
+        :param prepend: whether the value should be prepended instead
+        :param separator: the separator to use, defaulting to a platform-specific separator
+        """
         super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
         self.__value = normalize_to_list_of_substitutions(value)
