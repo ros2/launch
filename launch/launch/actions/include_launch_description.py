@@ -65,7 +65,7 @@ class IncludeLaunchDescription(Action):
     def __init__(
         self,
         launch_description_source: Optional[LaunchDescriptionSource] = None,
-        launch_description_source_path: Optional[Text] = None,
+        path_to_launch: Optional[Text] = None,
         *,
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
@@ -74,13 +74,16 @@ class IncludeLaunchDescription(Action):
     ) -> None:
         """Create an IncludeLaunchDescription action."""
         super().__init__(**kwargs)
-        if launch_description_source:
+        if launch_description_source and path_to_launch:
+            raise ValueError('IncludeLaunchDescription constructor must specify '
+                             'launch_description_source or path_to_launch, not both!')
+        elif launch_description_source:
             self.__launch_description_source = launch_description_source
-        elif launch_description_source_path:
-            self.__launch_description_source = AnyLaunchDescriptionSource(launch_description_source_path)
+        elif path_to_launch:
+            self.__launch_description_source = AnyLaunchDescriptionSource(path_to_launch)
         else:
             raise ValueError('IncludeLaunchDescription constructor must specify '
-                             'launch_description_source or launch_description_source_path!')
+                             'launch_description_source or path_to_launch!')
         self.__launch_arguments = () if launch_arguments is None else tuple(launch_arguments)
 
     @classmethod
