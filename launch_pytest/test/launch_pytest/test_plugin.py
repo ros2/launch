@@ -178,3 +178,124 @@ async def test_case():
 
     result.assert_outcomes(passed=1, failed=1)
     result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
+
+
+def test_fixture_kwarg_is_mandatory(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch
+def test_case():
+    pass
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(skipped=1)
+    result.stdout.re_match_lines(['.*"fixture" keyword argument is required .*'])
+
+
+def test_generator_shutdown_kwarg_true(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description, shutdown=True)
+def test_case():
+    assert True
+    yield
+    assert True
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(failed=1)
+    result.stdout.re_match_lines(['.*generator or async generator.* shutdown=True.*'])
+
+
+def test_async_generator_shutdown_kwarg_true(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description, shutdown=True)
+async def test_case():
+    assert True
+    yield
+    assert True
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(failed=1)
+    result.stdout.re_match_lines(['.*generator or async generator.* shutdown=True.*'])
+
+
+def test_generator_with_pre_shutdown_failure(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture(scope='module')
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description)
+def test_case():
+    assert False
+    yield
+    assert True
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(failed=1, skipped=1)
+
+
+def test_async_generator_with_pre_shutdown_failure(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture(scope='module')
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description)
+async def test_case():
+    assert False
+    yield
+    assert True
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(failed=1, skipped=1)
