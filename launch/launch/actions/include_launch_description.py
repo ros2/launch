@@ -18,6 +18,7 @@ import os
 from typing import Iterable, Sequence
 from typing import List
 from typing import Optional
+from typing import Text
 from typing import Tuple
 
 from .set_launch_configuration import SetLaunchConfiguration
@@ -63,7 +64,8 @@ class IncludeLaunchDescription(Action):
 
     def __init__(
         self,
-        launch_description_source: LaunchDescriptionSource,
+        launch_description_source: Optional[LaunchDescriptionSource] = None,
+        launch_description_source_path: Optional[Text] = None,
         *,
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
@@ -72,7 +74,13 @@ class IncludeLaunchDescription(Action):
     ) -> None:
         """Create an IncludeLaunchDescription action."""
         super().__init__(**kwargs)
-        self.__launch_description_source = launch_description_source
+        if launch_description_source:
+            self.__launch_description_source = launch_description_source
+        elif launch_description_source_path:
+            self.__launch_description_source = AnyLaunchDescriptionSource(launch_description_source_path)
+        else:
+            raise ValueError('IncludeLaunchDescription constructor must specify '
+                             'launch_description_source or launch_description_source_path!')
         self.__launch_arguments = () if launch_arguments is None else tuple(launch_arguments)
 
     @classmethod
