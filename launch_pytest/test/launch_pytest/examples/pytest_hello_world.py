@@ -30,6 +30,7 @@ def hello_world_proc():
         cached_output=True,
     )
 
+
 # This function specifies the processes to be run for our test.
 @launch_pytest.fixture
 def launch_description(hello_world_proc):
@@ -49,7 +50,8 @@ def test_read_stdout(hello_world_proc, launch_context):
         # this function can use assertions to validate the output or return a boolean.
         # pytest generates easier to understand failures when assertions are used.
         assert output == 'hello_world\n', 'process never printed hello_world'
-    assert process_tools.wait_for_output_sync(launch_context, hello_world_proc, validate_output, timeout=5)
+    assert process_tools.wait_for_output_sync(
+        launch_context, hello_world_proc, validate_output, timeout=5)
 
     def validate_output(output):
         return output == 'this will never happen'

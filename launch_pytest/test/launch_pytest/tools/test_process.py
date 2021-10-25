@@ -18,8 +18,7 @@ from launch_pytest import tools
 
 import pytest
 
-PYTHON_SCRIPT = \
-"""
+PYTHON_SCRIPT = """\
 import sys
 import time
 
@@ -28,6 +27,7 @@ print('world', file=sys.stderr)
 time.sleep(5)
 """
 
+
 @pytest.fixture
 def dut():
     return launch.actions.ExecuteProcess(
@@ -35,6 +35,7 @@ def dut():
         cached_output=True,
         output='screen'
     )
+
 
 @launch_pytest.fixture
 def launch_description(dut):
@@ -49,6 +50,7 @@ async def test_async_process_tools(dut, launch_context):
     def check_output(output): assert output == 'hello\n'
     await tools.wait_for_output(
         launch_context, dut, check_output, timeout=10)
+
     def check_stderr(err): assert err == 'world\n'
     await tools.wait_for_stderr(
         launch_context, dut, check_stderr, timeout=10)
@@ -61,6 +63,7 @@ def test_sync_process_tools(dut, launch_context):
     def check_output(output): assert output == 'hello\n'
     tools.wait_for_output_sync(
         launch_context, dut, check_output, timeout=10)
+
     def check_stderr(err): assert err == 'world\n'
     tools.wait_for_stderr_sync(
         launch_context, dut, check_stderr, timeout=10)

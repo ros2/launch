@@ -21,12 +21,12 @@ import launch
 import launch_pytest
 import launch_ros
 
-from std_msgs.msg import String
+import pytest
 
 import rclpy
 from rclpy.node import Node
 
-import pytest
+from std_msgs.msg import String
 
 
 @launch_pytest.fixture

@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import launch
-import launch_testing
 import launch_pytest
+import launch_testing
 
 import pytest
 

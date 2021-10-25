@@ -1,0 +1,180 @@
+# Copyright 2021 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+def test_launch_fixture_is_not_a_launch_description(pytester):
+    pytester.makepyfile("""\
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return object()
+
+@pytest.mark.launch(fixture=launch_description)
+def test_case():
+    assert True
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(errors=1)
+    result.stdout.re_match_lines(['.*must be either a launch description.*'])
+
+
+def test_launch_fixture_is_not_a_sequence_starting_with_a_ld(pytester):
+    pytester.makepyfile("""\
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return [object, 'asd']
+
+@pytest.mark.launch(fixture=launch_description)
+def test_case():
+    assert True
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(errors=1)
+    result.stdout.re_match_lines(['.*must be either a launch description.*'])
+
+
+def test_multiple_ready_to_test_actions(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest(), launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description)
+def test_case():
+    assert True
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(errors=1)
+    result.stdout.re_match_lines(['.*only one ReadyToTest action.*'])
+
+
+def test_generator_yields_twice(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description)
+def test_case():
+    assert True
+    yield
+    assert True
+    yield
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(failed=1)
+    result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
+
+
+def test_generator_yields_twice_module_scope(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture(scope='module')
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description)
+def test_case():
+    assert True
+    yield
+    assert True
+    yield
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(passed=1, failed=1)
+    result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
+
+
+def test_asyncgenerator_yields_twice(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description)
+async def test_case():
+    assert True
+    yield
+    assert True
+    yield
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(failed=1)
+    result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
+
+
+def test_asyncgenerator_yields_twice_module_scope(pytester):
+    pytester.makepyfile("""\
+from launch import LaunchDescription
+import launch_pytest
+import pytest
+
+@launch_pytest.fixture(scope='module')
+def launch_description():
+    return LaunchDescription(
+        [launch_pytest.actions.ReadyToTest()]
+    )
+
+@pytest.mark.launch(fixture=launch_description)
+async def test_case():
+    assert True
+    yield
+    assert True
+    yield
+""")
+
+    result = pytester.runpytest()
+
+    result.assert_outcomes(passed=1, failed=1)
+    result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
