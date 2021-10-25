@@ -19,13 +19,16 @@ import os
 from launch import LaunchContext
 from launch.actions import AppendEnvironmentVariable
 from launch.substitutions import EnvironmentVariable
+from launch.substitutions import TextSubstitution
 
 
 def test_append_environment_variable_constructor():
     """Test the constructor for the AppendEnvironmentVariable class."""
     AppendEnvironmentVariable('name', 'value')
+    AppendEnvironmentVariable('name', 'value', separator='|')
     AppendEnvironmentVariable('name', 'value', prepend=False)
     AppendEnvironmentVariable('name', 'value', prepend=True)
+    AppendEnvironmentVariable('name', 'value', prepend=True, separator='|')
 
 
 def test_append_environment_variable_execute():
@@ -52,14 +55,29 @@ def test_append_environment_variable_execute():
     assert os.environ.get('NONEXISTENT_KEY') == \
         'some value' + os.pathsep + 'value' + os.pathsep + 'another value'
 
-    # Appends with substitutions
+    # Can use an optional separator
+    AppendEnvironmentVariable('NONEXISTENT_KEY', 'other value', separator='|').visit(lc1)
+    assert os.environ.get('NONEXISTENT_KEY') == \
+        'some value' + os.pathsep + 'value' + os.pathsep + 'another value' + '|' + 'other value'
+
+    # Appends/prepends with substitutions
     assert os.environ.get('ANOTHER_NONEXISTENT_KEY') is None
     AppendEnvironmentVariable(
         'ANOTHER_NONEXISTENT_KEY',
         EnvironmentVariable('NONEXISTENT_KEY')).visit(lc1)
     assert os.environ.get('ANOTHER_NONEXISTENT_KEY') == \
-        'some value' + os.pathsep + 'value' + os.pathsep + 'another value'
+        'some value' + os.pathsep + 'value' + os.pathsep + 'another value' + '|' + 'other value'
+
+    os.environ['ANOTHER_NONEXISTENT_KEY'] = 'abc'
+    os.environ['SOME_SEPARATOR'] = '//'
+    AppendEnvironmentVariable(
+        'ANOTHER_NONEXISTENT_KEY',
+        TextSubstitution(text='def'),
+        separator=EnvironmentVariable('SOME_SEPARATOR'),
+        prepend=True).visit(lc1)
+    assert os.environ.get('ANOTHER_NONEXISTENT_KEY') == 'def' + '//' + 'abc'
 
     # Cleanup environment variables
     del os.environ['NONEXISTENT_KEY']
     del os.environ['ANOTHER_NONEXISTENT_KEY']
+    del os.environ['SOME_SEPARATOR']

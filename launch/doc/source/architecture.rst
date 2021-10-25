@@ -61,7 +61,7 @@ This is a non-exhaustive list of actions that `launch` may provide:
 - :class:`launch.actions.AppendEnvironmentVariable`
 
   - This action will set an environment variable by name if it does not exist, otherwise it appends to the existing value using a platform-specific separator.
-  - There is also an option to prepend instead of appending.
+  - There is also an option to prepend instead of appending and to provide a custom separator.
 
 - :class:`launch.actions.GroupAction`
 

@@ -33,7 +33,9 @@ class AppendEnvironmentVariable(Action):
     """
     Action that appends to an environment variable if it exists and sets it if it does not.
 
-    It can also optionally prepend instead of appending.
+    It can optionally prepend instead of appending.
+    It can also optionally use a custom separator, with the default being a platform-specific
+    separator, `os.pathsep`.
     """
 
     def __init__(
@@ -41,6 +43,7 @@ class AppendEnvironmentVariable(Action):
         name: SomeSubstitutionsType,
         value: SomeSubstitutionsType,
         prepend: bool = False,
+        separator: SomeSubstitutionsType = os.pathsep,
         **kwargs,
     ) -> None:
         """Create an AppendEnvironmentVariable action."""
@@ -48,6 +51,7 @@ class AppendEnvironmentVariable(Action):
         self.__name = normalize_to_list_of_substitutions(name)
         self.__value = normalize_to_list_of_substitutions(value)
         self.__prepend = prepend
+        self.__separator = normalize_to_list_of_substitutions(separator)
 
     @classmethod
     def parse(
@@ -62,6 +66,9 @@ class AppendEnvironmentVariable(Action):
         prepend = entity.get_attr('prepend', data_type=bool, optional=True)
         if prepend is not None:
             kwargs['prepend'] = prepend
+        separator = entity.get_attr('separator', optional=True)
+        if separator is not None:
+            kwargs['separator'] = parser.parse_substitution(separator)
         return cls, kwargs
 
     @property
@@ -79,15 +86,21 @@ class AppendEnvironmentVariable(Action):
         """Getter for the prepend flag."""
         return self.__prepend
 
+    @property
+    def separator(self) -> List[Substitution]:
+        """Getter for the separator."""
+        return self.__separator
+
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         name = perform_substitutions(context, self.name)
         value = perform_substitutions(context, self.value)
+        separator = perform_substitutions(context, self.separator)
         if name in os.environ:
             os.environ[name] = \
-                os.environ[name] + os.pathsep + value \
+                os.environ[name] + separator + value \
                 if not self.__prepend \
-                else value + os.pathsep + os.environ[name]
+                else value + separator + os.environ[name]
         else:
             os.environ[name] = value
         return None
