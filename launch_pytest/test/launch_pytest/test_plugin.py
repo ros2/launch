@@ -180,7 +180,7 @@ async def test_case():
     result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
 
 
-def test_fixture_kwarg_is_mandatory(pytester):
+def test_fixture_kwarg_is_mandatory(LineMatcher, pytester):
     pytester.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
@@ -200,7 +200,10 @@ def test_case():
     result = pytester.runpytest()
 
     result.assert_outcomes(skipped=1)
-    result.stdout.re_match_lines(['.*"fixture" keyword argument is required .*'])
+    # Warnings can appear in both stdout or stderr, depending on pytest capture mode.
+    # Test for a match in any of both.
+    LineMatcher(result.outlines + result.errlines).re_match_lines(
+        ['.*"fixture" keyword argument is required .*'])
 
 
 def test_generator_shutdown_kwarg_true(pytester):
