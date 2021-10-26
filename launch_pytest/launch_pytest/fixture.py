@@ -38,7 +38,6 @@ def finalize_launch_service(launch_service, eprefix='', auto_shutdown=True):
 
 def get_launch_service_fixture(*, scope='function', overridable=True):
     """Return a launch service fixture."""
-
     @pytest.fixture(scope=scope)
     def launch_service(event_loop):
         """Create an instance of the launch service for each test case."""
@@ -53,7 +52,6 @@ def get_launch_service_fixture(*, scope='function', overridable=True):
 
 def get_launch_context_fixture(*, scope='function', overridable=True):
     """Return a launch service fixture."""
-
     @pytest.fixture(scope=scope)
     def launch_context(launch_service):
         """Create an instance of the launch service for each test case."""

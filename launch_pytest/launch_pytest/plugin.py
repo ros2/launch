@@ -269,7 +269,6 @@ def is_same_launch_test_fixture(left_item, right_item):
 @pytest.mark.trylast
 def pytest_collection_modifyitems(session, config, items):
     """Move shutdown tests after normal tests."""
-
     def enumerate_reversed(sequence):
         # reversed(enumerate(sequence)), doesn't work
         # here a little generator for that
@@ -367,7 +366,6 @@ def run_until_complete(loop, future_like):
 
 def wrap_coroutine(func, event_loop, before_test):
     """Return a sync wrapper around an async function to be executed in the event loop."""
-
     @functools.wraps(func)
     def inner(**kwargs):
         if before_test is not None:
@@ -381,7 +379,6 @@ def wrap_coroutine(func, event_loop, before_test):
 
 def wrap_func(func, event_loop, before_test):
     """Return a wrapper that runs the test in a separate thread while driving the event loop."""
-
     @functools.wraps(func)
     def inner(**kwargs):
         if before_test is not None:
@@ -424,7 +421,6 @@ def wrap_generator(func, event_loop, on_shutdown):
 
 def wrap_generator_fscope(func, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for a generator function."""
-
     @functools.wraps(func)
     def inner(**kwargs):
         gen = func(**kwargs)
@@ -479,7 +475,6 @@ def wrap_asyncgen(func, event_loop, on_shutdown):
 
 def wrap_asyncgen_fscope(func, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for an async gen function."""
-
     @functools.wraps(func)
     def inner(**kwargs):
         agen = func(**kwargs)
