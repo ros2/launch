@@ -314,10 +314,10 @@ def pytest_pyfunc_call(pyfuncitem):
 
     func = pyfuncitem.obj
     if has_shutdown_kwarg(pyfuncitem) and need_shutdown_test_item(func):
-        skip(
-            'generator or asyncgenerator based launch test items cannot be marked with'
-            ' shutdown=True'
-        )
+        error_msg = (
+            'generator or async generator based launch test items cannot be marked with'
+            ' shutdown=True')
+        fail(error_msg)
         yield
         return
     shutdown_test = is_shutdown_test(pyfuncitem)
