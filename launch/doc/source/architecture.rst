@@ -58,6 +58,11 @@ This is a non-exhaustive list of actions that `launch` may provide:
 
   - This action will set an environment variable by name.
 
+- :class:`launch.actions.AppendEnvironmentVariable`
+
+  - This action will set an environment variable by name if it does not exist, otherwise it appends to the existing value using a platform-specific separator.
+  - There is also an option to prepend instead of appending and to provide a custom separator.
+
 - :class:`launch.actions.GroupAction`
 
   - This action will yield other actions, but can be associated with conditionals (allowing you to use the conditional on the group action rather than on each sub-action individually) and can optionally scope the launch configurations.

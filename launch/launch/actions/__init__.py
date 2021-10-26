@@ -15,6 +15,7 @@
 """actions Module."""
 
 from .declare_launch_argument import DeclareLaunchArgument
+from .append_environment_variable import AppendEnvironmentVariable  # noqa: I100
 from .emit_event import EmitEvent
 from .execute_process import ExecuteProcess
 from .group_action import GroupAction
@@ -35,6 +36,7 @@ from .unset_environment_variable import UnsetEnvironmentVariable
 from .unset_launch_configuration import UnsetLaunchConfiguration
 
 __all__ = [
+    'AppendEnvironmentVariable',
     'DeclareLaunchArgument',
     'EmitEvent',
     'ExecuteProcess',
