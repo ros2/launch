@@ -1,4 +1,5 @@
 import glob
+from pathlib import Path
 
 from setuptools import find_packages
 from setuptools import setup
@@ -14,7 +15,15 @@ setup(
         ('share/ament_index/resource_index/packages', [f'resource/{package_name}']),
         (f'lib/{package_name}', glob.glob('example_processes/**')),
         (f'share/{package_name}', ['package.xml']),
-        (f'share/{package_name}/examples', glob.glob(f'test/{package_name}/examples/[!_]**')),
+        (
+            f'share/{package_name}/examples',
+            [x for x in glob.glob(
+                f'test/{package_name}/examples/[!_]*') if Path(x).is_file()]
+        ),
+        (
+            f'share/{package_name}/examples/executables',
+            glob.glob(f'test/{package_name}/examples/executables/[!_]*')
+        ),
     ],
     entry_points={
         'pytest11': ['launch_pytest = launch_pytest.plugin'],
