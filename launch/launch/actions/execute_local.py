@@ -390,7 +390,7 @@ class ExecuteLocal(Action):
     ) -> Optional[SomeActionsType]:
         to_write = event.text.decode(errors='replace')
         last_cursor = buffer.tell()
-        buffer.seek(0, 2)  # go to end of buffer
+        buffer.seek(0, os.SEEK_END)  # go to end of buffer
         buffer.write(to_write)
         buffer.seek(last_cursor)
         new_cursor = last_cursor

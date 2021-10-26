@@ -66,7 +66,6 @@ def get_launch_context_fixture(*, scope='function', overridable=True):
 
 def get_event_loop_fixture(*, scope='function', overridable=True):
     """Return an event loop fixture."""
-
     # Adapted from https://github.com/pytest-dev/pytest-asyncio,
     # see their license https://github.com/pytest-dev/pytest-asyncio/blob/master/LICENSE.
     @pytest.fixture(scope=scope)

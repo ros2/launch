@@ -116,7 +116,6 @@ def pytest_fixture_setup(fixturedef, request):
         assert isinstance(ld, launch.LaunchDescription), wrong_ret_type_error
         ls.include_launch_description(ld)
         run_async_task = event_loop.create_task(ls.run_async(
-            # TODO(ivanpauno): maybe this could be configurable (?)
             shutdown_when_idle=options['shutdown_when_idle']
         ))
         ready = get_ready_to_test_action(ld)
@@ -148,14 +147,7 @@ def is_launch_test_mark_valid(item):
     If not, a warning and a skip mark will be added to the item.
     """
     kwargs = item.get_closest_marker('launch').kwargs
-    ret = 'fixture' in kwargs and kwargs['fixture'] is not None
-    if not ret:
-        msg = (
-            '"fixture" keyword argument is required in a pytest.mark.launch() '
-            f'decorator')
-        item.warn(LaunchTestWarning(msg))
-        item.add_marker(pytest.mark.skip(msg))
-    return ret
+    return 'fixture' in kwargs and kwargs['fixture'] is not None
 
 
 def has_shutdown_kwarg(item):
@@ -168,10 +160,7 @@ def get_launch_test_fixture(item):
     mark = item.get_closest_marker('launch')
     if mark is None:
         return None
-    try:
-        return mark.kwargs['fixture']
-    except KeyError:
-        return None
+    return mark.kwargs.get('fixture')
 
 
 def get_launch_test_fixturename(item):
@@ -193,7 +182,7 @@ def need_shutdown_test_item(obj):
     return inspect.isgeneratorfunction(obj) or inspect.isasyncgenfunction(obj)
 
 
-def generate_test_items(collector, name, obj, fixturename, is_shutdown, needs_renaming):
+def generate_test_items(collector, name, obj, fixturename, *, is_shutdown, needs_renaming):
     """Return list of test items for the corresponding object and injects the needed fixtures."""
     # Inject all needed fixtures.
     # We use the `usefixtures` pytest mark instead of injecting them in fixturenames
@@ -230,16 +219,23 @@ def pytest_pycollect_makeitem(collector, name, obj):
         if is_launch_test(item):
             if not is_launch_test_mark_valid(item):
                 # return an item with a warning that's going to be skipped
+                msg = (
+                    '"fixture" keyword argument is required in a pytest.mark.launch() '
+                    f'decorator')
+                item.warn(LaunchTestWarning(msg))
+                item.add_marker(pytest.mark.skip(msg))
                 return [item]
             fixture = get_launch_test_fixture(item)
             fixturename = fixture.__name__
             scope = fixture._pytestfixturefunction.scope
             is_shutdown = has_shutdown_kwarg(item)
-            items = generate_test_items(collector, name, obj, fixturename, is_shutdown, False)
+            items = generate_test_items(
+                collector, name, obj, fixturename, is_shutdown=is_shutdown, needs_renaming=False)
             if need_shutdown_test_item(obj) and scope != 'function':
                 # for function scope we only need one shutdown item
                 # if not we're going to use two event loops!!!
-                shutdown_items = generate_test_items(collector, name, obj, fixturename, True, True)
+                shutdown_items = generate_test_items(
+                    collector, name, obj, fixturename, is_shutdown=True, needs_renaming=True)
                 for item, shutdown_item in zip(items, shutdown_items):
                     item._launch_pytest_shutdown_item = shutdown_item
                 items.extend(shutdown_items)
