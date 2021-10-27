@@ -68,6 +68,7 @@ class OnActionEventBase(BaseEventHandler):
             raise TypeError(
                 f"action_matcher must be an '{target_action_cls.__name__}' instance or a callable"
             )
+        self.__target_action_cls = target_action_cls
         self.__target_event_cls = target_event_cls
         self.__action_matcher = action_matcher
 
@@ -126,5 +127,5 @@ class OnActionEventBase(BaseEventHandler):
             return f'event == {self.__target_event_cls.__name__}'
         return (
             f'event == {self.__target_event_cls.__name__} and'
-            f' {self.__action_matcher.__name__}(event.action)'
+            f' {self.__target_action_cls.__name__}(event.action)'
         )
