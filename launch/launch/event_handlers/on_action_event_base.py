@@ -122,7 +122,7 @@ class OnActionEventBase(BaseEventHandler):
     @property
     def matcher_description(self) -> Text:
         """Return the string description of the matcher."""
-        if self.__target_action is None:
+        if self.__action_matcher is None:
             return f'event == {self.__target_event_cls.__name__}'
         return (
             f'event == {self.__target_event_cls.__name__} and'
