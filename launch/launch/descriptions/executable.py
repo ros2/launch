@@ -58,7 +58,7 @@ class Executable:
         :param cmd: A list where the first item is the executable and the rest are
             arguments to the executable, each item may be a string or a list of strings
             and Substitutions to be resolved at runtime
-        :param: prefix a set of commands/arguments to preceed the cmd, used for
+        :param prefix: a set of commands/arguments to preceed the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'. Note that a non-default prefix provided in
             a launch file will override the prefix provided via the `launch-prefix`
@@ -72,7 +72,7 @@ class Executable:
         :param additional_env: Dictionary of environment variables to be added. If env was
             None, they are added to the current environment. If not, env is updated with
             additional_env.
-        :param: arguments list of extra arguments for the executable
+        :param arguments: list of extra arguments for the executable
         """
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__cmd += ([] if arguments is None
