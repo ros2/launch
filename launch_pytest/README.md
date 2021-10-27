@@ -1,6 +1,6 @@
 # launch_pytest
 
-This tool is a framework for launch integration testing. For example:
+This is a framework for launch integration testing. For example:
 
   * The exit codes of all processes are available to the tests.
   * Tests can check that all processes shut down normally, or with specific exit codes.
