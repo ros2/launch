@@ -18,8 +18,8 @@ import os
 from typing import Iterable, Sequence
 from typing import List
 from typing import Optional
-from typing import Text
 from typing import Tuple
+from typing import Union
 
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
@@ -64,8 +64,7 @@ class IncludeLaunchDescription(Action):
 
     def __init__(
         self,
-        launch_description_source: Optional[LaunchDescriptionSource] = None,
-        path_to_launch: Optional[Text] = None,
+        launch_description_source: Union[LaunchDescriptionSource, SomeSubstitutionsType],
         *,
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
@@ -74,16 +73,9 @@ class IncludeLaunchDescription(Action):
     ) -> None:
         """Create an IncludeLaunchDescription action."""
         super().__init__(**kwargs)
-        if launch_description_source and path_to_launch:
-            raise ValueError('IncludeLaunchDescription constructor must specify '
-                             'launch_description_source or path_to_launch, not both!')
-        elif launch_description_source:
-            self.__launch_description_source = launch_description_source
-        elif path_to_launch:
-            self.__launch_description_source = AnyLaunchDescriptionSource(path_to_launch)
-        else:
-            raise ValueError('IncludeLaunchDescription constructor must specify '
-                             'launch_description_source or path_to_launch!')
+        if not isinstance(launch_description_source, LaunchDescriptionSource):
+            launch_description_source = AnyLaunchDescriptionSource(launch_description_source)
+        self.__launch_description_source = launch_description_source
         self.__launch_arguments = () if launch_arguments is None else tuple(launch_arguments)
 
     @classmethod
@@ -91,7 +83,7 @@ class IncludeLaunchDescription(Action):
         """Return `IncludeLaunchDescription` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         file_path = parser.parse_substitution(entity.get_attr('file'))
-        kwargs['launch_description_source'] = AnyLaunchDescriptionSource(file_path)
+        kwargs['launch_description_source'] = file_path
         args = entity.get_attr('arg', data_type=List[Entity], optional=True)
         if args is not None:
             kwargs['launch_arguments'] = [
