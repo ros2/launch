@@ -202,8 +202,9 @@ def generate_test_items(collector, name, obj, fixturename, *, is_shutdown, needs
     return items
 
 
-# Adapted from https://github.com/pytest-dev/pytest-asyncio,
-# see their license https://github.com/pytest-dev/pytest-asyncio/blob/master/LICENSE.
+# Part of this function was adapted from
+# https://github.com/pytest-dev/pytest-asyncio/blob/f21e0da345f877755b89ff87b6dcea70815b4497/pytest_asyncio/plugin.py#L37-L50.
+# See their license https://github.com/pytest-dev/pytest-asyncio/blob/master/LICENSE.
 @pytest.mark.tryfirst
 def pytest_pycollect_makeitem(collector, name, obj):
     """Collect coroutine based launch tests."""
