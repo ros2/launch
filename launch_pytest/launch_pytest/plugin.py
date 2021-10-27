@@ -40,7 +40,7 @@ try:
 except ImportError:  # Pytest 4.1.0 removes the transfer_marker api (#104)
 
     def transfer_markers(*args, **kwargs):  # noqa
-        """Noop when over pytest 4.1.0"""
+        # Noop when over pytest 4.1.0
         pass
 
 
@@ -221,7 +221,7 @@ def pytest_pycollect_makeitem(collector, name, obj):
                 # return an item with a warning that's going to be skipped
                 msg = (
                     '"fixture" keyword argument is required in a pytest.mark.launch() '
-                    f'decorator')
+                    'decorator')
                 item.warn(LaunchTestWarning(msg))
                 item.add_marker(pytest.mark.skip(msg))
                 return [item]
