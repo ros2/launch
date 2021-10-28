@@ -66,6 +66,6 @@ class OnProcessExit(OnActionEventBase):
             action_matcher=target_action,
             on_event=on_exit,
             target_event_cls=ProcessExited,
-            target_action_cls=ExecuteProcess,
+            target_action_cls=ExecuteLocal,
             **kwargs,
         )
