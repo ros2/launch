@@ -43,14 +43,14 @@ class Executable:
     """Describes an executable (usually a single process) which may be run by the launch system."""
 
     def __init__(
-            self, *,
-            cmd: Iterable[SomeSubstitutionsType],
-            prefix: Optional[SomeSubstitutionsType] = None,
-            name: Optional[SomeSubstitutionsType] = None,
-            cwd: Optional[SomeSubstitutionsType] = None,
-            env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-            additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-            arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
+        self, *,
+        cmd: Iterable[SomeSubstitutionsType],
+        prefix: Optional[SomeSubstitutionsType] = None,
+        name: Optional[SomeSubstitutionsType] = None,
+        cwd: Optional[SomeSubstitutionsType] = None,
+        env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
     ) -> None:
         """
         Initialize an Executable description.
