@@ -14,27 +14,24 @@
 
 """Module for OnProcessStart class."""
 
-import collections.abc
 from typing import Callable
 from typing import cast
-from typing import List  # noqa
 from typing import Optional
-from typing import Text
 from typing import TYPE_CHECKING
 from typing import Union
 
+from .on_action_event_base import OnActionEventBase
 from ..event import Event
-from ..event_handler import BaseEventHandler
 from ..events.process import ProcessStarted
 from ..launch_context import LaunchContext
-from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
+    from ..actions import Action  # noqa: F401
     from ..actions import ExecuteProcess  # noqa: F401
 
 
-class OnProcessStart(BaseEventHandler):
+class OnProcessStart(OnActionEventBase):
     """
     Convenience class for handling a process started event.
 
@@ -45,64 +42,28 @@ class OnProcessStart(BaseEventHandler):
     def __init__(
         self,
         *,
-        target_action: 'ExecuteProcess' = None,
-        on_start: Union[SomeActionsType,
-                        Callable[[ProcessStarted, LaunchContext], Optional[SomeActionsType]]],
+        target_action:
+            Optional[Union[Callable[['ExecuteProcess'], bool], 'ExecuteProcess']] = None,
+        on_start:
+            Union[
+                SomeActionsType,
+                Callable[[ProcessStarted, LaunchContext], Optional[SomeActionsType]]],
         **kwargs
     ) -> None:
         """Create an OnProcessStart event handler."""
-        from ..actions import ExecuteProcess  # noqa
-        if not isinstance(target_action, (ExecuteProcess, type(None))):
-            raise TypeError("OnProcessStart requires an 'ExecuteProcess' action as the target")
+        from ..actions import ExecuteProcess  # noqa: F811
+        target_action = cast(
+            Optional[Union[Callable[['Action'], bool], 'Action']],
+            target_action)
+        on_start = cast(
+            Union[
+                SomeActionsType,
+                Callable[[Event, LaunchContext], Optional[SomeActionsType]]],
+            on_start)
         super().__init__(
-            matcher=(
-                lambda event: (
-                    isinstance(event, ProcessStarted) and (
-                        target_action is None or
-                        event.action == target_action
-                    )
-                )
-            ),
+            action_matcher=target_action,
+            on_event=on_start,
+            target_event_cls=ProcessStarted,
+            target_action_cls=ExecuteProcess,
             **kwargs,
-        )
-        self.__target_action = target_action
-        self.__actions_on_start = []  # type: List[LaunchDescriptionEntity]
-        # TODO(sloretz) check that callable matches correct signature
-        if callable(on_start):
-            # on_start is a function or lambda that returns actions
-            self.__on_start = on_start
-        elif isinstance(on_start, collections.abc.Iterable):
-            for entity in on_start:
-                if not isinstance(entity, LaunchDescriptionEntity):
-                    raise ValueError(
-                        "expected all items in 'on_start' iterable to be of type "
-                        "'LaunchDescriptionEntity' but got '{}'".format(type(entity)))
-            self.__actions_on_start = list(on_start)  # Outside list is to ensure type is List
-        elif isinstance(on_start, LaunchDescriptionEntity):
-            self.__actions_on_start = [on_start]
-        else:
-            raise TypeError('on_start with type {} not allowed'.format(repr(on_start)))
-
-    def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
-        """Handle the given event."""
-        super().handle(event, context)
-
-        if self.__actions_on_start:
-            return self.__actions_on_start
-        return self.__on_start(cast(ProcessStarted, event), context)
-
-    @property
-    def handler_description(self) -> Text:
-        """Return the string description of the handler."""
-        if self.__actions_on_start:
-            return '<actions>'
-        return '{}'.format(self.__on_start)
-
-    @property
-    def matcher_description(self) -> Text:
-        """Return the string description of the matcher."""
-        if self.__target_action is None:
-            return 'event == ProcessStarted'
-        return 'event == ProcessStarted and event.action == ExecuteProcess({})'.format(
-            hex(id(self.__target_action))
         )

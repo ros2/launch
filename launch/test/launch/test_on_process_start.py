@@ -38,14 +38,14 @@ phony_context = Mock(spec=LaunchContext)
 def test_non_execute_process_target():
     with pytest.raises(TypeError):
         OnProcessStart(
-            target_action=Mock(),
+            target_action=NonCallableMock(),
             on_start=NonCallableMock(spec=Action))
 
 
 def test_non_action_on_start():
     with pytest.raises(TypeError):
         OnProcessStart(
-            target_action=Mock(spec=ExecuteProcess),
+            target_action=NonCallableMock(),
             on_start=NonCallableMock())
 
 
@@ -56,13 +56,24 @@ def test_matches_process_started():
 
 
 def test_matches_single_process():
-    target_action = Mock(spec=ExecuteProcess)
+    target_action = NonCallableMock(spec=ExecuteProcess)
     handler = OnProcessStart(
         target_action=target_action,
         on_start=Mock())
     assert handler.matches(ProcessStarted(
         action=target_action, name='foo', cmd=['ls'], cwd=None, env=None, pid=3))
     assert not handler.matches(phony_process_started)
+    assert not handler.matches(phony_process_exited)
+
+
+def test_matches_callable():
+    target_action = Mock(spec=ExecuteProcess)
+    handler = OnProcessStart(
+        target_action=target_action,
+        on_start=Mock())
+    assert handler.matches(ProcessStarted(
+        action=target_action, name='foo', cmd=['ls'], cwd=None, env=None, pid=3))
+    assert handler.matches(phony_process_started)
     assert not handler.matches(phony_process_exited)
 
 
