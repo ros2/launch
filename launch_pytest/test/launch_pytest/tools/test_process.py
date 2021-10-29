@@ -27,6 +27,7 @@ print('world', file=sys.stderr)
 time.sleep(5)
 """
 
+import sys
 
 @pytest.fixture
 def dut():
@@ -39,6 +40,7 @@ def dut():
 
 @launch_pytest.fixture
 def launch_description(dut):
+    print('new launch description', file=sys.stderr)
     return launch.LaunchDescription([
         dut,
     ])
@@ -46,6 +48,7 @@ def launch_description(dut):
 
 @pytest.mark.launch(fixture=launch_description)
 async def test_async_process_tools(dut, launch_context):
+    print('test async', file=sys.stderr)
     await tools.wait_for_start(launch_context, dut, timeout=10)
     def check_output(output): assert output == 'hello\n'
     await tools.wait_for_output(
@@ -59,6 +62,7 @@ async def test_async_process_tools(dut, launch_context):
 
 @pytest.mark.launch(fixture=launch_description)
 def test_sync_process_tools(dut, launch_context):
+    print('test sync', file=sys.stderr)
     tools.wait_for_start_sync(launch_context, dut, timeout=10)
     def check_output(output): assert output == 'hello\n'
     tools.wait_for_output_sync(
