@@ -28,7 +28,7 @@ from ..some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
     from ..actions import Action  # noqa: F401
-    from ..actions import ExecuteProcess  # noqa: F401
+    from ..actions import ExecuteLocal  # noqa: F401
 
 
 class OnProcessIO(OnActionEventBase):
@@ -40,14 +40,14 @@ class OnProcessIO(OnActionEventBase):
         self,
         *,
         target_action:
-            Optional[Union[Callable[['ExecuteProcess'], bool], 'ExecuteProcess']] = None,
+            Optional[Union[Callable[['ExecuteLocal'], bool], 'ExecuteLocal']] = None,
         on_stdin: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         on_stdout: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
         **kwargs
     ) -> None:
         """Create an OnProcessIO event handler."""
-        from ..actions import ExecuteProcess  # noqa: F811
+        from ..actions import ExecuteLocal  # noqa: F811
         target_action = cast(
             Optional[Union[Callable[['Action'], bool], 'Action']],
             target_action)
@@ -66,6 +66,6 @@ class OnProcessIO(OnActionEventBase):
             action_matcher=target_action,
             on_event=handle,
             target_event_cls=ProcessIO,
-            target_action_cls=ExecuteProcess,
+            target_action_cls=ExecuteLocal,
             **kwargs,
         )
