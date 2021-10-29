@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-def test_launch_fixture_is_not_a_launch_description(pytester):
-    pytester.makepyfile("""\
+def test_launch_fixture_is_not_a_launch_description(testdir):
+    testdir.makepyfile("""\
 import launch_pytest
 import pytest
 
@@ -27,14 +27,17 @@ def test_case():
     assert True
 """)
 
-    result = pytester.runpytest()
-
-    result.assert_outcomes(errors=1)
+    result = testdir.runpytest()
+    try:
+        result.assert_outcomes(errors=1)
+    except TypeError:
+        # Compatibility to pytest older than 6.0
+        result.assert_outcomes(error=1)
     result.stdout.re_match_lines(['.*must be either a launch description.*'])
 
 
-def test_launch_fixture_is_not_a_sequence_starting_with_a_ld(pytester):
-    pytester.makepyfile("""\
+def test_launch_fixture_is_not_a_sequence_starting_with_a_ld(testdir):
+    testdir.makepyfile("""\
 import launch_pytest
 import pytest
 
@@ -47,14 +50,18 @@ def test_case():
     assert True
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
-    result.assert_outcomes(errors=1)
+    try:
+        result.assert_outcomes(errors=1)
+    except TypeError:
+        # Compatibility to pytest older than 6.0
+        result.assert_outcomes(error=1)
     result.stdout.re_match_lines(['.*must be either a launch description.*'])
 
 
-def test_multiple_ready_to_test_actions(pytester):
-    pytester.makepyfile("""\
+def test_multiple_ready_to_test_actions(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -70,14 +77,18 @@ def test_case():
     assert True
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
-    result.assert_outcomes(errors=1)
+    try:
+        result.assert_outcomes(errors=1)
+    except TypeError:
+        # Compatibility to pytest older than 6.0
+        result.assert_outcomes(error=1)
     result.stdout.re_match_lines(['.*only one ReadyToTest action.*'])
 
 
-def test_generator_yields_twice(pytester):
-    pytester.makepyfile("""\
+def test_generator_yields_twice(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -96,14 +107,14 @@ def test_case():
     yield
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(failed=1)
     result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
 
 
-def test_generator_yields_twice_module_scope(pytester):
-    pytester.makepyfile("""\
+def test_generator_yields_twice_module_scope(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -122,14 +133,14 @@ def test_case():
     yield
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(passed=1, failed=1)
     result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
 
 
-def test_asyncgenerator_yields_twice(pytester):
-    pytester.makepyfile("""\
+def test_asyncgenerator_yields_twice(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -148,14 +159,14 @@ async def test_case():
     yield
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(failed=1)
     result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
 
 
-def test_asyncgenerator_yields_twice_module_scope(pytester):
-    pytester.makepyfile("""\
+def test_asyncgenerator_yields_twice_module_scope(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -174,14 +185,14 @@ async def test_case():
     yield
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(passed=1, failed=1)
     result.stdout.re_match_lines(['.*must stop iteration after yielding once.*'])
 
 
-def test_fixture_kwarg_is_mandatory(LineMatcher, pytester):
-    pytester.makepyfile("""\
+def test_fixture_kwarg_is_mandatory(LineMatcher, testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -197,7 +208,7 @@ def test_case():
     pass
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(skipped=1)
     # Warnings can appear in both stdout or stderr, depending on pytest capture mode.
@@ -206,8 +217,8 @@ def test_case():
         ['.*"fixture" keyword argument is required .*'])
 
 
-def test_generator_shutdown_kwarg_true(pytester):
-    pytester.makepyfile("""\
+def test_generator_shutdown_kwarg_true(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -225,14 +236,14 @@ def test_case():
     assert True
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(failed=1)
     result.stdout.re_match_lines(['.*generator or async generator.* shutdown=True.*'])
 
 
-def test_async_generator_shutdown_kwarg_true(pytester):
-    pytester.makepyfile("""\
+def test_async_generator_shutdown_kwarg_true(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -250,14 +261,14 @@ async def test_case():
     assert True
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(failed=1)
     result.stdout.re_match_lines(['.*generator or async generator.* shutdown=True.*'])
 
 
-def test_generator_with_pre_shutdown_failure(pytester):
-    pytester.makepyfile("""\
+def test_generator_with_pre_shutdown_failure(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -275,13 +286,13 @@ def test_case():
     assert True
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(failed=1, skipped=1)
 
 
-def test_async_generator_with_pre_shutdown_failure(pytester):
-    pytester.makepyfile("""\
+def test_async_generator_with_pre_shutdown_failure(testdir):
+    testdir.makepyfile("""\
 from launch import LaunchDescription
 import launch_pytest
 import pytest
@@ -299,6 +310,6 @@ async def test_case():
     assert True
 """)
 
-    result = pytester.runpytest()
+    result = testdir.runpytest()
 
     result.assert_outcomes(failed=1, skipped=1)

@@ -202,6 +202,14 @@ def generate_test_items(collector, name, obj, fixturename, *, is_shutdown, needs
     return items
 
 
+def from_parent(cls, *args, **kwargs):
+    # Compatibility with old pytest.
+    # from_parent() was added in pytest 5.4
+    if hasattr(cls, 'from_parent'):
+        return cls.from_parent(*args, **kwargs)
+    return cls(*args, **kwargs)
+
+
 # Part of this function was adapted from
 # https://github.com/pytest-dev/pytest-asyncio/blob/f21e0da345f877755b89ff87b6dcea70815b4497/pytest_asyncio/plugin.py#L37-L50.
 # See their license https://github.com/pytest-dev/pytest-asyncio/blob/master/LICENSE.
@@ -209,13 +217,13 @@ def generate_test_items(collector, name, obj, fixturename, *, is_shutdown, needs
 def pytest_pycollect_makeitem(collector, name, obj):
     """Collect coroutine based launch tests."""
     if collector.funcnamefilter(name) and is_valid_test_item(obj):
-        item = pytest.Function.from_parent(collector, name=name)
+        item = from_parent(pytest.Function, parent=collector, name=name)
 
         # Due to how pytest test collection works, module-level pytestmarks
         # are applied after the collection step. Since this is the collection
         # step, we look ourselves.
         transfer_markers(obj, item.cls, item.module)
-        item = pytest.Function.from_parent(collector, name=name)  # To reload keywords.
+        item = from_parent(pytest.Function, parent=collector, name=name)  # To reload keywords.
 
         if is_launch_test(item):
             if not is_launch_test_mark_valid(item):

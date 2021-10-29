@@ -141,7 +141,7 @@ def fixture(
             'shutdown_when_idle': shutdown_when_idle,
             'auto_shutdown': auto_shutdown,
         }
-        return pytest.fixture(fixture_function, *args, **kwargs)
+        return pytest.fixture(*args, **kwargs)(fixture_function)
     if decorated is None:
         return decorator
     return decorator(decorated)
