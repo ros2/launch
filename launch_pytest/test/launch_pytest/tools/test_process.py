@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 import launch
 import launch_pytest
 from launch_pytest import tools
@@ -31,7 +33,7 @@ time.sleep(5)
 @pytest.fixture
 def dut():
     return launch.actions.ExecuteProcess(
-        cmd=['python3', '-c', PYTHON_SCRIPT],
+        cmd=[sys.executable, '-c', PYTHON_SCRIPT],
         cached_output=True,
         output='screen'
     )
