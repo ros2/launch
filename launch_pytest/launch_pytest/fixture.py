@@ -72,26 +72,19 @@ def get_event_loop_fixture(*, scope='function', overridable=True):
     @pytest.fixture(scope=scope)
     def event_loop():
         """Create an event loop instance for each test case."""
-        import sys
-        import traceback
         loop = asyncio.get_event_loop_policy().new_event_loop()
         policy = asyncio.get_event_loop_policy()
         try:
             old_loop = policy.get_event_loop()
             if old_loop is not loop:
                 old_loop.close()
-                print('bye event loop 2', file=sys.stderr)
-                traceback.print_stack()
         except RuntimeError:
             # Swallow this, since it's probably bad event loop hygiene.
             pass
         policy.set_event_loop(loop)
-        print('new event loop', file=sys.stderr)
         yield loop
         loop.close()
         asyncio.set_event_loop_policy(None)
-        print('bye event loop 1', file=sys.stderr)
-        traceback.print_stack()
     if overridable:
         event_loop._launch_pytest_overridable_fixture = True
         event_loop._launch_pytest_fixture_scope = scope
