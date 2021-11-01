@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import sys
 
 import launch
@@ -50,11 +49,11 @@ def launch_description(dut):
 @pytest.mark.launch(fixture=launch_description)
 async def test_async_process_tools(dut, launch_context):
     await tools.wait_for_start(launch_context, dut, timeout=10)
-    def check_output(output): assert output == f'hello{os.linesep}'
+    def check_output(output): assert output.splitlines() == ['hello']
     await tools.wait_for_output(
         launch_context, dut, check_output, timeout=10)
 
-    def check_stderr(err): assert err == f'world{os.linesep}'
+    def check_stderr(err): assert err.splitlines() == ['world']
     await tools.wait_for_stderr(
         launch_context, dut, check_stderr, timeout=10)
     await tools.wait_for_exit(launch_context, dut, timeout=10)
@@ -63,11 +62,11 @@ async def test_async_process_tools(dut, launch_context):
 @pytest.mark.launch(fixture=launch_description)
 def test_sync_process_tools(dut, launch_context):
     tools.wait_for_start_sync(launch_context, dut, timeout=10)
-    def check_output(output): assert output == f'hello{os.linesep}'
+    def check_output(output): assert output.splitlines() == ['hello']
     tools.wait_for_output_sync(
         launch_context, dut, check_output, timeout=10)
 
-    def check_stderr(err): assert err == f'world{os.linesep}'
+    def check_stderr(err): assert err.splitlines() == ['world']
     tools.wait_for_stderr_sync(
         launch_context, dut, check_stderr, timeout=10)
     tools.wait_for_exit_sync(launch_context, dut, timeout=10)
