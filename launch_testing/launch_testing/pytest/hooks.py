@@ -189,7 +189,7 @@ def pytest_launch_collect_makemodule(path, parent, entrypoint):
 
 
 def pytest_addhooks(pluginmanager):
-    import launch_testing.pytest.hookspecs as hookspecs
+    from launch_testing.pytest import hookspecs
     pluginmanager.add_hookspecs(hookspecs)
 
 

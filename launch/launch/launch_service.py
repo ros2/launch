@@ -86,6 +86,7 @@ class LaunchService:
         # it being set to None by run() as it exits.
         self.__loop_from_run_thread_lock = threading.RLock()
         self.__loop_from_run_thread = None
+        self.__this_task = None
 
         # Used to indicate when shutdown() has been called.
         self.__shutting_down = False
@@ -183,6 +184,7 @@ class LaunchService:
             except AttributeError:
                 this_task = asyncio.Task.current_task(this_loop)
 
+            self.__this_task = this_task
             # Setup custom signal handlers for SIGINT, SIGTERM and maybe SIGQUIT.
             sigint_received = False
 
@@ -413,3 +415,13 @@ class LaunchService:
     def context(self):
         """Getter for context."""
         return self.__context
+
+    @property
+    def event_loop(self):
+        """Getter for the event loop being used in the thread running the launch service."""
+        return self.__loop_from_run_thread
+
+    @property
+    def task(self):
+        """Return asyncio task associated with this launch service."""
+        return self.__this_task
