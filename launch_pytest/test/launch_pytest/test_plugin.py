@@ -321,9 +321,12 @@ async def test_case():
 def test_examples(testdir):
     examples_dir = Path(__file__).parent / 'examples'
     for example in examples_dir.iterdir():
-        if example.is_file():
+        # Ignoring `check_node_msgs.py` because we cannot depend on launch_ros here
+        # as it creates a circular dependency between repositories.
+        # We need to move that example elsewhere.
+        if example.is_file() and example.name != 'check_node_msgs.py':
             copied_example = Path(testdir.copy_example(example))
             copied_example.rename(copied_example.parent / f'test_{copied_example.name}')
     shutil.copytree(examples_dir / 'executables', Path(str(testdir.tmpdir)) / 'executables')
-    result = testdir.runpytest_subprocess()
-    result.assert_outcomes(passed=23)
+    result = testdir.runpytest()
+    result.assert_outcomes(passed=22)
