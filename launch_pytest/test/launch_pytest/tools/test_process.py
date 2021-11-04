@@ -48,25 +48,35 @@ def launch_description(dut):
 
 @pytest.mark.launch(fixture=launch_description)
 async def test_async_process_tools(dut, launch_context):
-    await tools.wait_for_start(launch_context, dut, timeout=10)
-    def check_output(output): assert output.splitlines() == ['hello']
-    await tools.wait_for_output(
+    assert await tools.wait_for_start(launch_context, dut, timeout=10)
+
+    def check_output(output):
+        assert output.splitlines() == ['hello']
+        return True
+    assert await tools.wait_for_output(
         launch_context, dut, check_output, timeout=10)
 
-    def check_stderr(err): assert err.splitlines() == ['world']
-    await tools.wait_for_stderr(
+    def check_stderr(err):
+        assert err.splitlines() == ['world']
+        return True
+    assert await tools.wait_for_stderr(
         launch_context, dut, check_stderr, timeout=10)
-    await tools.wait_for_exit(launch_context, dut, timeout=10)
+    assert await tools.wait_for_exit(launch_context, dut, timeout=10)
 
 
 @pytest.mark.launch(fixture=launch_description)
 def test_sync_process_tools(dut, launch_context):
     tools.wait_for_start_sync(launch_context, dut, timeout=10)
-    def check_output(output): assert output.splitlines() == ['hello']
-    tools.wait_for_output_sync(
+
+    def check_output(output):
+        assert output.splitlines() == ['hello']
+        return True
+    assert tools.wait_for_output_sync(
         launch_context, dut, check_output, timeout=10)
 
-    def check_stderr(err): assert err.splitlines() == ['world']
-    tools.wait_for_stderr_sync(
+    def check_stderr(err):
+        assert err.splitlines() == ['world']
+        return True
+    assert tools.wait_for_stderr_sync(
         launch_context, dut, check_stderr, timeout=10)
-    tools.wait_for_exit_sync(launch_context, dut, timeout=10)
+    assert tools.wait_for_exit_sync(launch_context, dut, timeout=10)
