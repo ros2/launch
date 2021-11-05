@@ -39,11 +39,12 @@ def generate_test_description():
             arguments=[str(path_to_test / 'executables' / 'talker.py')],
             additional_env={'PYTHONUNBUFFERED': '1'},
             name='demo_node_1',
+            output='screen',
         ),
     ])
 
 
-@pytest.mark.launch
+@pytest.mark.launch(fixture=generate_test_description)
 def test_check_if_msgs_published():
     rclpy.init()
     try:
