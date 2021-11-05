@@ -49,7 +49,7 @@ def test_read_stdout(hello_world_proc, launch_context):
     def validate_output(output):
         # this function can use assertions to validate the output or return a boolean.
         # pytest generates easier to understand failures when assertions are used.
-        assert output == 'hello_world\n', 'process never printed hello_world'
+        assert output.splitlines() == ['hello_world'], 'process never printed hello_world'
         return True
     assert process_tools.wait_for_output_sync(
         launch_context, hello_world_proc, validate_output, timeout=5)
