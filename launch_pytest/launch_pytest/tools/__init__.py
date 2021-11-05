@@ -13,6 +13,10 @@
 # limitations under the License.
 
 from . import process
+from .process import assert_output
+from .process import assert_output_sync
+from .process import assert_stderr
+from .process import assert_stderr_sync
 from .process import wait_for_exit
 from .process import wait_for_exit_sync
 from .process import wait_for_output
@@ -23,6 +27,10 @@ from .process import wait_for_stderr
 from .process import wait_for_stderr_sync
 
 __all__ = [
+    'assert_output',
+    'assert_output_sync',
+    'assert_stderr',
+    'assert_stderr_sync',
     'process',
     'wait_for_exit',
     'wait_for_exit_sync',
