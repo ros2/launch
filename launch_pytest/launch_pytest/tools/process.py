@@ -119,7 +119,8 @@ async def assert_output(
         _get_stdout_event_handler,
         condition,
         timeout)
-    return cond_value if cond_value else validate_output(execute_process_action.get_stdout())
+    if not cond_value:
+        validate_output(execute_process_action.get_stdout())
 
 
 def wait_for_output_sync(
@@ -148,7 +149,8 @@ def assert_output_sync(
         _get_stdout_event_handler,
         condition,
         timeout)
-    return cond_value if cond_value else validate_output(execute_process_action.get_stdout())
+    if not cond_value:
+        validate_output(execute_process_action.get_stdout())
 
 
 def _get_stderr_event_handler(action, pyevent):
@@ -182,7 +184,8 @@ async def assert_stderr(
         _get_stderr_event_handler,
         condition,
         timeout)
-    return cond_value if cond_value else validate_output(execute_process_action.get_stderr())
+    if not cond_value:
+        validate_output(execute_process_action.get_stderr())
 
 
 def wait_for_stderr_sync(
@@ -211,7 +214,8 @@ def assert_stderr_sync(
         _get_stderr_event_handler,
         condition,
         timeout)
-    return cond_value if cond_value else validate_output(execute_process_action.get_stderr())
+    if not cond_value:
+        validate_output(execute_process_action.get_stderr())
 
 
 def _get_on_process_start_event_handler(execute_process_action, pyevent):
