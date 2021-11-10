@@ -52,14 +52,12 @@ async def test_async_process_tools(dut, launch_context):
 
     def check_output(output):
         assert output.splitlines() == ['hello']
-        return True
-    assert await tools.wait_for_output(
+    await tools.assert_output(
         launch_context, dut, check_output, timeout=10)
 
     def check_stderr(err):
         assert err.splitlines() == ['world']
-        return True
-    assert await tools.wait_for_stderr(
+    await tools.assert_stderr(
         launch_context, dut, check_stderr, timeout=10)
     assert await tools.wait_for_exit(launch_context, dut, timeout=10)
 
@@ -70,13 +68,11 @@ def test_sync_process_tools(dut, launch_context):
 
     def check_output(output):
         assert output.splitlines() == ['hello']
-        return True
-    assert tools.wait_for_output_sync(
+    tools.assert_output_sync(
         launch_context, dut, check_output, timeout=10)
 
     def check_stderr(err):
         assert err.splitlines() == ['world']
-        return True
-    assert tools.wait_for_stderr_sync(
+    tools.assert_stderr_sync(
         launch_context, dut, check_stderr, timeout=10)
     assert tools.wait_for_exit_sync(launch_context, dut, timeout=10)
