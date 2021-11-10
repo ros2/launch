@@ -76,6 +76,25 @@ class LaunchDescription(LaunchDescriptionEntity):
         """
         Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
 
+        See :py:method:`get_launch_arguments_with_launch_descriptions()`
+        for more details.
+        """
+        return [
+            item[0] for item in
+            self.get_launch_arguments_with_include_launch_descriptions(conditional_inclusion)
+        ]
+
+    def get_launch_arguments_with_include_launch_descriptions(
+        self, conditional_inclusion=False
+    ) -> List[DeclareLaunchArgument]:
+        """
+        Return a list of (:py:class:`launch.actions.DeclareLaunchArgument`, Optional[List[:py:class:`launch.actions.IncludeLaunchDescription`]]) pairs.
+
+        The first element of the tuple is a declare launch argument action.
+        The second is `None` if the argument was declared at the top level of this
+        launch description, if not it's a list with all the nested include launch description
+        actions involved.
+
         This list is generated (never cached) by searching through this launch
         description for any instances of the action that declares launch
         arguments.
@@ -97,31 +116,40 @@ class LaunchDescription(LaunchDescriptionEntity):
         Duplicate declarations of an argument are ignored, therefore the
         default value and description from the first instance of the argument
         declaration is used.
-        """
+        """  # noqa: E501
         declared_launch_arguments = []  # type: List[DeclareLaunchArgument]
+        from .actions import ResetLaunchConfigurations
 
-        def process_entities(entities, *, _conditional_inclusion):
+        def process_entities(entities, *, _conditional_inclusion, nested_ild_actions=None):
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
-                    if entity.name in (e.name for e in declared_launch_arguments):
+                    if entity.name in (e.name for e, _ in declared_launch_arguments):
                         continue
                     # Stuff this contextual information into the class for
                     # potential use in command-line descriptions or errors.
                     entity._conditionally_included = _conditional_inclusion
                     entity._conditionally_included |= entity.condition is not None
-                    declared_launch_arguments.append(entity)
+                    declared_launch_arguments.append((entity, nested_ild_actions))
+                if isinstance(entity, ResetLaunchConfigurations):
+                    # Launch arguments after this cannot be set directly by top level arguments
+                    return
                 else:
                     from .actions import IncludeLaunchDescription
+                    next_nested_ild_actions = nested_ild_actions
                     if isinstance(entity, IncludeLaunchDescription):
-                        # Do not check launch arguments of included descriptions.
-                        continue
+                        if next_nested_ild_actions is None:
+                            next_nested_ild_actions = []
+                        next_nested_ild_actions.append(entity)
                     process_entities(
-                        entity.describe_sub_entities(), _conditional_inclusion=False)
+                        entity.describe_sub_entities(),
+                        _conditional_inclusion=False,
+                        nested_ild_actions=next_nested_ild_actions)
                     for conditional_sub_entity in entity.describe_conditional_sub_entities():
                         process_entities(
                             conditional_sub_entity[1],
-                            _conditional_inclusion=True)
+                            _conditional_inclusion=True,
+                            nested_ild_actions=next_nested_ild_actions)
 
         process_entities(self.entities, _conditional_inclusion=conditional_inclusion)
 

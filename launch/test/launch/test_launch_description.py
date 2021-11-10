@@ -60,7 +60,7 @@ def test_launch_description_get_launch_arguments():
         ]))),
     ])
     la = ld.get_launch_arguments()
-    assert len(la) == 0
+    assert len(la) == 1
 
     this_dir = os.path.dirname(os.path.abspath(__file__))
     ld = LaunchDescription([
@@ -68,7 +68,7 @@ def test_launch_description_get_launch_arguments():
             os.path.join(this_dir, 'launch_file_with_argument.launch.py'))),
     ])
     la = ld.get_launch_arguments()
-    assert len(la) == 0
+    assert len(la) == 1
 
     # From issue #144: get_launch_arguments was broken when an entitity had conditional
     # sub entities
