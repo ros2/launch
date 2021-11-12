@@ -23,6 +23,7 @@ from launch import LaunchService
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.actions import SetLaunchConfiguration
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.utilities import perform_substitutions
 
 import pytest
@@ -185,3 +186,31 @@ def test_include_launch_description_launch_arguments():
     )
     lc2 = LaunchContext()
     action2.visit(lc2)
+
+
+def test_include_python():
+    """Test including Python, with and without explicit PythonLaunchDescriptionSource."""
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    simple_launch_file_path = os.path.join(this_dir,
+                                           '..',
+                                           'launch_description_source',
+                                           'simple.launch.py')
+
+    # Explicitly construct with PythonLaunchDescriptionSource
+    plds = PythonLaunchDescriptionSource(simple_launch_file_path)
+    action0 = IncludeLaunchDescription(plds)
+
+    # Construct action with path instead of PythonLaunchDescriptionSource object
+    action1 = IncludeLaunchDescription(simple_launch_file_path)
+
+    # The two actions should be equivalent
+    for action in [action0, action1]:
+        assert 'IncludeLaunchDescription' in action.describe()
+        assert isinstance(action.describe_sub_entities(), list)
+        assert isinstance(action.describe_conditional_sub_entities(), list)
+        # Result should only contain a single launch description as there are no launch arguments.
+        assert len(action.visit(LaunchContext())) == 1
+        assert action.get_asyncio_future() is None
+        assert len(action.launch_arguments) == 0
+
+        assert action.launch_description_source.location == simple_launch_file_path
