@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.7 (2021-11-12)
+-------------------
+* Allow for raw path specification in IncludeLaunchDescription (`#544 <https://github.com/ros2/launch/issues/544>`_) (`#548 <https://github.com/ros2/launch/issues/548>`_)
+* Handle empty strings in type coercion. (`#443 <https://github.com/ros2/launch/issues/443>`_)
+* Consolidate type_utils in a way that can be reused in substitution results that need to be coerced to a specific type (`#438 <https://github.com/ros2/launch/issues/438>`_)
+* Fix up parser.py (`#414 <https://github.com/ros2/launch/issues/414>`_)
+* Contributors: Dan Rose, David V. Lu!!, Ivan Santiago Paunovic, Jacob Perron, Michel Hidalgo
+
 0.10.6 (2021-08-31)
 -------------------
 * Handle signals within the asyncio loop (`#506 <https://github.com/ros2/launch/issues/506>`_)

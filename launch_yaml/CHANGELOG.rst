@@ -2,6 +2,11 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.7 (2021-11-12)
+-------------------
+* Consolidate type_utils in a way that can be reused in substitution results that need to be coerced to a specific type (`#438 <https://github.com/ros2/launch/issues/438>`_)
+* Contributors: Ivan Santiago Paunovic
+
 0.10.6 (2021-08-31)
 -------------------
 

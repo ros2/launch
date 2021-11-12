@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>launch_yaml</name>
-  <version>0.10.6</version>
+  <version>0.10.7</version>
   <description>YAML frontend for the launch package.</description>
   <maintainer email="ivanpauno@ekumenlabs.com">Ivan Paunovic</maintainer>
   <license>Apache License 2.0</license>
