@@ -18,6 +18,8 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
+from typing import TYPE_CHECKING
 
 import launch.logging
 
@@ -25,6 +27,9 @@ from .action import Action
 from .actions import DeclareLaunchArgument
 from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
+
+if TYPE_CHECKING:
+    from .actions.include_launch_description import IncludeLaunchDescription  # noqa: F401
 
 
 class LaunchDescription(LaunchDescriptionEntity):
@@ -86,9 +91,9 @@ class LaunchDescription(LaunchDescriptionEntity):
 
     def get_launch_arguments_with_include_launch_descriptions(
         self, conditional_inclusion=False
-    ) -> List[DeclareLaunchArgument]:
+    ) -> List[Tuple[DeclareLaunchArgument, List['IncludeLaunchDescription']]]:
         """
-        Return a list of (:py:class:`launch.actions.DeclareLaunchArgument`, Optional[List[:py:class:`launch.actions.IncludeLaunchDescription`]]) pairs.
+        Return a list of launch arguments with its associated include launch descriptions actions.
 
         The first element of the tuple is a declare launch argument action.
         The second is `None` if the argument was declared at the top level of this
@@ -116,8 +121,10 @@ class LaunchDescription(LaunchDescriptionEntity):
         Duplicate declarations of an argument are ignored, therefore the
         default value and description from the first instance of the argument
         declaration is used.
-        """  # noqa: E501
-        declared_launch_arguments = []  # type: List[DeclareLaunchArgument]
+        """
+        from .actions import IncludeLaunchDescription  # noqa: F811
+        declared_launch_arguments: List[
+            Tuple[DeclareLaunchArgument, List[IncludeLaunchDescription]]] = []
         from .actions import ResetLaunchConfigurations
 
         def process_entities(entities, *, _conditional_inclusion, nested_ild_actions=None):
@@ -135,7 +142,6 @@ class LaunchDescription(LaunchDescriptionEntity):
                     # Launch arguments after this cannot be set directly by top level arguments
                     return
                 else:
-                    from .actions import IncludeLaunchDescription
                     next_nested_ild_actions = nested_ild_actions
                     if isinstance(entity, IncludeLaunchDescription):
                         if next_nested_ild_actions is None:
