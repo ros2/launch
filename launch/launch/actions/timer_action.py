@@ -65,7 +65,13 @@ class TimerAction(Action):
         cancel_on_shutdown: Union[bool, SomeSubstitutionsType] = True,
         **kwargs
     ) -> None:
-        """Create a TimerAction."""
+        """
+        Create a TimerAction.
+
+        :param period: the time (in seconds) to set the timer for
+        :param actions: an iterable containing actions to be executed on timeout
+        :param cancel_on_shutdown: whether to cancel the timer on launch shutdown
+        """
         super().__init__(**kwargs)
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
         ensure_argument_type(period, period_types, 'period', 'TimerAction')
