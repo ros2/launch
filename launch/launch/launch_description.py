@@ -81,15 +81,16 @@ class LaunchDescription(LaunchDescriptionEntity):
         """
         Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
 
-        See :py:method:`get_launch_arguments_with_launch_descriptions()`
+        See :py:method:`get_launch_arguments_with_include_launch_description_actions()`
         for more details.
         """
         return [
             item[0] for item in
-            self.get_launch_arguments_with_include_launch_descriptions(conditional_inclusion)
+            self.get_launch_arguments_with_include_launch_description_actions(
+                conditional_inclusion)
         ]
 
-    def get_launch_arguments_with_include_launch_descriptions(
+    def get_launch_arguments_with_include_launch_description_actions(
         self, conditional_inclusion=False
     ) -> List[Tuple[DeclareLaunchArgument, List['IncludeLaunchDescription']]]:
         """

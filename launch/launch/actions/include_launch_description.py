@@ -161,7 +161,7 @@ class IncludeLaunchDescription(Action):
             for arg_name, arg_value in self.launch_arguments
         ]
         declared_launch_arguments = (
-            launch_description.get_launch_arguments_with_include_launch_descriptions())
+            launch_description.get_launch_arguments_with_include_launch_description_actions())
         for argument, ild_actions in declared_launch_arguments:
             if argument._conditionally_included or argument.default_value is not None:
                 continue
