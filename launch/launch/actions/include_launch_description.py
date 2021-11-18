@@ -135,10 +135,11 @@ class IncludeLaunchDescription(Action):
                 perform_substitutions(context, normalize_to_list_of_substitutions(arg_name))
                 for arg_name, arg_value in self.__launch_arguments
             ]
-        except Exception:
+        except Exception as exc:
             self.__logger.debug(
                 'Failed to get launch arguments names for launch description: '
                 f'{self.__launch_description_source.location}'
+                f'exception: {str(exc)}'
             )
         return None
 
