@@ -137,9 +137,9 @@ class IncludeLaunchDescription(Action):
             ]
         except Exception as exc:
             self.__logger.debug(
-                'Failed to get launch arguments names for launch description: '
-                f'{self.__launch_description_source.location}'
-                f'exception: {str(exc)}'
+                'Failed to get launch arguments names for launch description '
+                f"'{self.__launch_description_source.location}', "
+                f'with exception: {str(exc)}'
             )
         return None
 
