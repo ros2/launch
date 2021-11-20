@@ -22,6 +22,7 @@ from launch import LaunchDescriptionSource
 from launch import LaunchService
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
+from launch.actions import ResetLaunchConfigurations
 from launch.actions import SetLaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.utilities import perform_substitutions
@@ -183,6 +184,24 @@ def test_include_launch_description_launch_arguments():
     action2 = IncludeLaunchDescription(
         LaunchDescriptionSource(ld2),
         launch_arguments={'foo': 'FOO', 'foo2': 'FOO2'}.items(),
+    )
+    lc2 = LaunchContext()
+    action2.visit(lc2)
+
+    # Test that arguments after a ResetLaunchConfigurations action are not checked
+    ld1 = LaunchDescription([DeclareLaunchArgument('foo')])
+    action1 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld1)
+    )
+    ld2 = LaunchDescription(
+        [
+            DeclareLaunchArgument('foo2'),
+            ResetLaunchConfigurations(),
+            SetLaunchConfiguration('foo', 'asd'),
+            action1])
+    action2 = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld2),
+        launch_arguments={'foo2': 'FOO2'}.items(),
     )
     lc2 = LaunchContext()
     action2.visit(lc2)

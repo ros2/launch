@@ -18,6 +18,8 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
+from typing import TYPE_CHECKING
 
 import launch.logging
 
@@ -25,6 +27,9 @@ from .action import Action
 from .actions import DeclareLaunchArgument
 from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
+
+if TYPE_CHECKING:
+    from .actions.include_launch_description import IncludeLaunchDescription  # noqa: F401
 
 
 class LaunchDescription(LaunchDescriptionEntity):
@@ -76,6 +81,26 @@ class LaunchDescription(LaunchDescriptionEntity):
         """
         Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
 
+        See :py:method:`get_launch_arguments_with_include_launch_description_actions()`
+        for more details.
+        """
+        return [
+            item[0] for item in
+            self.get_launch_arguments_with_include_launch_description_actions(
+                conditional_inclusion)
+        ]
+
+    def get_launch_arguments_with_include_launch_description_actions(
+        self, conditional_inclusion=False
+    ) -> List[Tuple[DeclareLaunchArgument, List['IncludeLaunchDescription']]]:
+        """
+        Return a list of launch arguments with its associated include launch descriptions actions.
+
+        The first element of the tuple is a declare launch argument action.
+        The second is `None` if the argument was declared at the top level of this
+        launch description, if not it's a list with all the nested include launch description
+        actions involved.
+
         This list is generated (never cached) by searching through this launch
         description for any instances of the action that declares launch
         arguments.
@@ -98,30 +123,40 @@ class LaunchDescription(LaunchDescriptionEntity):
         default value and description from the first instance of the argument
         declaration is used.
         """
-        declared_launch_arguments = []  # type: List[DeclareLaunchArgument]
+        from .actions import IncludeLaunchDescription  # noqa: F811
+        declared_launch_arguments: List[
+            Tuple[DeclareLaunchArgument, List[IncludeLaunchDescription]]] = []
+        from .actions import ResetLaunchConfigurations
 
-        def process_entities(entities, *, _conditional_inclusion):
+        def process_entities(entities, *, _conditional_inclusion, nested_ild_actions=None):
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
-                    if entity.name in (e.name for e in declared_launch_arguments):
+                    if entity.name in (e.name for e, _ in declared_launch_arguments):
                         continue
                     # Stuff this contextual information into the class for
                     # potential use in command-line descriptions or errors.
                     entity._conditionally_included = _conditional_inclusion
                     entity._conditionally_included |= entity.condition is not None
-                    declared_launch_arguments.append(entity)
+                    declared_launch_arguments.append((entity, nested_ild_actions))
+                if isinstance(entity, ResetLaunchConfigurations):
+                    # Launch arguments after this cannot be set directly by top level arguments
+                    return
                 else:
-                    from .actions import IncludeLaunchDescription
+                    next_nested_ild_actions = nested_ild_actions
                     if isinstance(entity, IncludeLaunchDescription):
-                        # Do not check launch arguments of included descriptions.
-                        continue
+                        if next_nested_ild_actions is None:
+                            next_nested_ild_actions = []
+                        next_nested_ild_actions.append(entity)
                     process_entities(
-                        entity.describe_sub_entities(), _conditional_inclusion=False)
+                        entity.describe_sub_entities(),
+                        _conditional_inclusion=False,
+                        nested_ild_actions=next_nested_ild_actions)
                     for conditional_sub_entity in entity.describe_conditional_sub_entities():
                         process_entities(
                             conditional_sub_entity[1],
-                            _conditional_inclusion=True)
+                            _conditional_inclusion=True,
+                            nested_ild_actions=next_nested_ild_actions)
 
         process_entities(self.entities, _conditional_inclusion=conditional_inclusion)
 
