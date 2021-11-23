@@ -33,8 +33,8 @@ class PythonExpression(Substitution):
     Substitution that can access contextual local variables.
 
     The expression may contain Substitutions, but must return something that can
-    be converted to a string with `str()`. It also may contain math symbols and
-    functions.
+    be converted to a string with `str()`.
+    It also may contain math symbols and functions.
     """
 
     def __init__(self, expression: SomeSubstitutionsType) -> None:
