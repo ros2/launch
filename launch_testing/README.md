@@ -85,7 +85,7 @@ The `launch_testing` framework automatically records all stdout from the launche
 This information is made available to the tests via the `proc_info` and `proc_output` object.
 These objects can be used by one of several assert methods to check the output or exit codes of the process:
 
-`launch_testing.asserts.assertInStdout(proc_output, msg, proc, cmd_args=None, *, strict_proc_matching=True)`
+`launch_testing.asserts.assertInStdout(proc_output, msg, process, cmd_args=None, *, strict_proc_matching=True)`
 
 Asserts that a message is found in the stdout of a particular process.
 
@@ -93,7 +93,7 @@ Asserts that a message is found in the stdout of a particular process.
 
     The text to look for in the process standard out
 
-  - `proc`:
+  - `process`:
 
     Either the process name as a string, or a `launch.actions.ExecuteProcess` object that was used to start the process.
     Pass `None` or an empty string to search all processes.
@@ -107,7 +107,7 @@ Asserts that a message is found in the stdout of a particular process.
     When looking up a process by name, `strict_proc_matching=True` will make it an error to match multiple processes.
     This prevents an assert from accidentally passing if the output came from a different process than the one the user was expecting.
 
-`launch_testing.asserts.assertExitCodes(proc_info, allowable_exit_codes=[EXIT_OK], proc, cmd_args=None, *, strict_proc_matching=True)`
+`launch_testing.asserts.assertExitCodes(proc_info, allowable_exit_codes=[EXIT_OK], process, cmd_args=None, *, strict_proc_matching=True)`
 
 Asserts that the specified processes exited with a particular exit code.
 
@@ -117,14 +117,14 @@ Asserts that the specified processes exited with a particular exit code.
     By default `EXIT_OK` (0) plus `EXIT_FORCED` (1) on Windows.
     Other exit codes provided are `EXIT_SIGINT` (130), `EXIT_SIGQUIT` (131), `EXIT_SIGKILL` (137) and `EXIT_SIGSEGV` (139).
 
-  - The `proc`, `cmd_args`, and `strict_proc_matching` arguments behave the same way as in `assertInStdout`.
+  - The `process`, `cmd_args`, and `strict_proc_matching` arguments behave the same way as in `assertInStdout`.
     By default, assert on the exit codes of all processes.
 
-`launch_testing.asserts.assertSequentialStdout(proc_output, proc, cmd_args=None)`
+`launch_testing.asserts.assertSequentialStdout(proc_output, process, cmd_args=None)`
 
 Asserts that standard out was seen in a particular order.
 
-  - `proc` and `cmd_args`:
+  - `process` and `cmd_args`:
 
     These arguments are the same as in `assertInStdout` and `assertExitCodes`, however it is not possible to match multiple processes because there is no way to determine the order of stdout that came from multiple processes.
 
@@ -144,9 +144,9 @@ with assertSequentialStdout(self.proc_output, "proc_name") as cm:
 The `ActiveTests` can also call methods that wait for particular output or a particular process to exit or time out.
 These asserts are methods on the `proc_output` and `proc_info` objects.
 
-`proc_output.assertWaitFor(msg, proc=None, cmd_args=None, *, strict_proc_matching=True, timeout=10)`
+`proc_output.assertWaitFor(msg, process=None, cmd_args=None, *, strict_proc_matching=True, timeout=10)`
 
-  - `msg`, `proc`, `cmd_args`, and `strict_proc_matching`:
+  - `msg`, `process`, `cmd_args`, and `strict_proc_matching`:
 
     These arguments work the same as in other assert methods.
     By default, this method waits on output from any process.
@@ -155,9 +155,9 @@ These asserts are methods on the `proc_output` and `proc_info` objects.
 
     The amount of time to wait before raising an `AssertionError`.
 
-`proc_info.assertWaitForShutdown(proc, cmd_args=None, *, timeout=10)`
+`proc_info.assertWaitForShutdown(process, cmd_args=None, *, timeout=10)`
 
-  - `proc` and `cmd_args`:
+  - `process` and `cmd_args`:
 
     These arguments work the same as in other assertions, but it is not possible to wait on multiple processes to shut down.
 
