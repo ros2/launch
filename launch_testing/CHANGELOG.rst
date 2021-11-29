@@ -2,6 +2,16 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Declare frontend group dependency & use explicit dependencies in launch_testing (`#520 <https://github.com/ros2/launch/issues/520>`_)
+* Update maintainers to Aditya Pande and Michel Hidalgo (`#559 <https://github.com/ros2/launch/issues/559>`_)
+* Updated maintainers (`#555 <https://github.com/ros2/launch/issues/555>`_)
+* First prototype of native pytest plugin for launch based tests (`#528 <https://github.com/ros2/launch/issues/528>`_)
+* Adding Executable description class (`#454 <https://github.com/ros2/launch/issues/454>`_)
+* Add a "hello world" style example (`#532 <https://github.com/ros2/launch/issues/532>`_)
+* Contributors: Aditya Pande, Audrow Nash, Christophe Bedard, Ivan Santiago Paunovic, roger-strain
+
 0.19.0 (2021-07-15)
 -------------------
 

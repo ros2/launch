@@ -2,6 +2,17 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Declare frontend group dependency & use explicit dependencies in launch_testing (`#520 <https://github.com/ros2/launch/issues/520>`_)
+* Update maintainers to Aditya Pande and Michel Hidalgo (`#559 <https://github.com/ros2/launch/issues/559>`_)
+* Updated maintainers (`#555 <https://github.com/ros2/launch/issues/555>`_)
+* Add AppendEnvironmentVariable action (`#543 <https://github.com/ros2/launch/issues/543>`_)
+* Feature clear launch configs (`#515 <https://github.com/ros2/launch/issues/515>`_)
+* Fix `DeclareLaunchArgument` xml parsing and constructor (`#529 <https://github.com/ros2/launch/issues/529>`_)
+* Add 'launch' to sets of launch file extensions (`#518 <https://github.com/ros2/launch/issues/518>`_)
+* Contributors: Aditya Pande, Audrow Nash, Christophe Bedard, Derek Chopp, Ivan Santiago Paunovic
+
 0.19.0 (2021-07-15)
 -------------------
 * Make each parser extension provide a set of file extensions (`#516 <https://github.com/ros2/launch/issues/516>`_)

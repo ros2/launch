@@ -1,12 +1,15 @@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package test_launch_testing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package launch_pytest
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Forthcoming
 -----------
 * Update maintainers to Aditya Pande and Michel Hidalgo (`#559 <https://github.com/ros2/launch/issues/559>`_)
+* [launch_pytest] Modify how wait_for_output()/wait_for_stderr() work, add assert\_*() alternatives (`#553 <https://github.com/ros2/launch/issues/553>`_)
 * Updated maintainers (`#555 <https://github.com/ros2/launch/issues/555>`_)
-* Contributors: Aditya Pande, Audrow Nash
+* * [launch_pytest] Fix issue when colcon --retest-until-fail flag is used (`#552 <https://github.com/ros2/launch/issues/552>`_)
+* First prototype of native pytest plugin for launch based tests (`#528 <https://github.com/ros2/launch/issues/528>`_)
+* Contributors: Aditya Pande, Audrow Nash, Ivan Santiago Paunovic
 
 0.19.0 (2021-07-15)
 -------------------
@@ -28,8 +31,6 @@ Forthcoming
 
 0.13.0 (2020-11-04)
 -------------------
-* Update package maintainers (`#465 <https://github.com/ros2/launch/issues/465>`_)
-* Contributors: Michel Hidalgo
 
 0.12.0 (2020-08-18)
 -------------------
@@ -39,8 +40,6 @@ Forthcoming
 
 0.11.0 (2020-08-04)
 -------------------
-* Add pytest.ini to test_launch_testing so tests succeed locally. (`#431 <https://github.com/ros2/launch/issues/431>`_)
-* Contributors: Chris Lalancette
 
 0.10.2 (2020-05-26)
 -------------------
@@ -57,16 +56,13 @@ Forthcoming
 0.9.4 (2019-11-08)
 ------------------
 
-0.9.3 (2019-10-23)
-------------------
+0.9.3 (2019-10-23 22:36)
+------------------------
 
-0.9.2 (2019-10-23)
-------------------
+0.9.2 (2019-10-23 17:49)
+------------------------
 
-0.9.1 (2019-09-25)
-------------------
-
-0.9.0 (2019-09-18)
+0.9.1 (2019-09-18)
 ------------------
 
 0.8.3 (2019-05-29)
@@ -77,8 +73,6 @@ Forthcoming
 
 0.8.1 (2019-05-08)
 ------------------
-* Merge apex_launchtest functionality into launch_testing (`#215 <https://github.com/ros2/launch/issues/215>`_)
-* Contributors: Michel Hidalgo
 
 0.8.0 (2019-04-13)
 ------------------

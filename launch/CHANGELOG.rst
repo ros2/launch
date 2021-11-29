@@ -2,6 +2,27 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Evaluate math symbols and functions in python expression (`#557 <https://github.com/ros2/launch/issues/557>`_)
+* Document TimerAction params (`#558 <https://github.com/ros2/launch/issues/558>`_)
+* Improve launch arguments introspection (`#556 <https://github.com/ros2/launch/issues/556>`_)
+* Update maintainers to Aditya Pande and Michel Hidalgo (`#559 <https://github.com/ros2/launch/issues/559>`_)
+* Updated maintainers (`#555 <https://github.com/ros2/launch/issues/555>`_)
+* First prototype of native pytest plugin for launch based tests (`#528 <https://github.com/ros2/launch/issues/528>`_)
+* Allow for raw path specification in IncludeLaunchDescription (`#544 <https://github.com/ros2/launch/issues/544>`_)
+* Adding Executable description class (`#454 <https://github.com/ros2/launch/issues/454>`_)
+* event handlers: Allow to match the target action with a callable and not only with an object instance (`#540 <https://github.com/ros2/launch/issues/540>`_)
+* Add AppendEnvironmentVariable action (`#543 <https://github.com/ros2/launch/issues/543>`_)
+* Document EnvironmentVariable substitution resolution context caveat (`#541 <https://github.com/ros2/launch/issues/541>`_)
+* Feature clear launch configs (`#515 <https://github.com/ros2/launch/issues/515>`_)
+* Add examples to ExecuteProcess docs (`#525 <https://github.com/ros2/launch/issues/525>`_)
+* Fix `DeclareLaunchArgument` xml parsing and constructor (`#529 <https://github.com/ros2/launch/issues/529>`_)
+* Fix pytest run on Windows (`#526 <https://github.com/ros2/launch/issues/526>`_)
+* Improving docs (`#523 <https://github.com/ros2/launch/issues/523>`_)
+* Add filtering mechanism for executable prefix application (`#522 <https://github.com/ros2/launch/issues/522>`_)
+* Contributors: Aditya Pande, Audrow Nash, Cameron Miller, Christophe Bedard, David V. Lu!!, Derek Chopp, Immanuel Martini, Ivan Santiago Paunovic, roger-strain
+
 0.19.0 (2021-07-15)
 -------------------
 * Make each parser extension provide a set of file extensions (`#516 <https://github.com/ros2/launch/issues/516>`_)
