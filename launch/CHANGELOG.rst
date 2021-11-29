@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.20.0 (2021-11-29)
+-------------------
 * Evaluate math symbols and functions in python expression (`#557 <https://github.com/ros2/launch/issues/557>`_)
 * Document TimerAction params (`#558 <https://github.com/ros2/launch/issues/558>`_)
 * Improve launch arguments introspection (`#556 <https://github.com/ros2/launch/issues/556>`_)

@@ -2,8 +2,8 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.20.0 (2021-11-29)
+-------------------
 * Update maintainers to Aditya Pande and Michel Hidalgo (`#559 <https://github.com/ros2/launch/issues/559>`_)
 * [launch_pytest] Modify how wait_for_output()/wait_for_stderr() work, add assert\_*() alternatives (`#553 <https://github.com/ros2/launch/issues/553>`_)
 * Updated maintainers (`#555 <https://github.com/ros2/launch/issues/555>`_)
