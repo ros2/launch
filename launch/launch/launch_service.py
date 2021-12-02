@@ -319,10 +319,14 @@ class LaunchService:
                     entity_futures.append(process_one_event_task)
 
                     # Wait on events and futures
-                    await asyncio.wait(
+                    completed_tasks, _ = await asyncio.wait(
                         entity_futures,
                         return_when=asyncio.FIRST_COMPLETED
                     )
+                    # Propagate exception from completed task
+                    for completed_task in completed_tasks:
+                        if completed_task.exception():
+                            raise completed_task.exception()
 
                 except KeyboardInterrupt:
                     continue
