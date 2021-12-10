@@ -344,7 +344,7 @@ class ExecuteProcess(ExecuteLocal):
         if 'respawn' not in ignore:
             respawn = entity.get_attr('respawn', data_type=bool, optional=True)
             if respawn is not None:
-                kwargs['respawn'] = respawn
+                kwargs['respawn'] = parser.parse_substitution(respawn)
 
         if 'respawn_delay' not in ignore:
             respawn_delay = entity.get_attr('respawn_delay', data_type=float, optional=True)

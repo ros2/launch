@@ -597,6 +597,10 @@ class ExecuteLocal(Action):
             # pid is added to the dictionary in the connection_made() method of the protocol.
         }
 
+        if self.__respawn:
+            self.__respawn = evaluate_condition_expression(
+                context, normalize_to_list_of_substitutions(self.__respawn))
+
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
         Execute the action.
