@@ -79,7 +79,7 @@ class Parser:
                     entry_point.load()
                 except Exception:
                     warnings.warn(f'Failed to load the launch extension: {entry_point.name}\n'
-                                  f'{traceback.format_exec()}')
+                                  f'{traceback.format_exc()}')
             cls.extensions_loaded = True
 
     @classmethod
@@ -92,7 +92,7 @@ class Parser:
                     parsers[entry_point.name] = entry_point.load()
                 except Exception:
                     warnings.warn(f'Failed to load the parser extension: {entry_point.name}\n'
-                                  f'{traceback.format_exec()}')
+                                  f'{traceback.format_exc()}')
             cls.frontend_parsers = dict(sorted(parsers.items()))
 
     def parse_action(self, entity: Entity) -> Action:
