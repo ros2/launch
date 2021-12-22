@@ -14,8 +14,8 @@
 
 """Test the abstract Parser class."""
 
-from unittest.mock import patch
 import importlib.metadata  # noqa: F401
+from unittest.mock import patch
 import warnings  # noqa: F401
 
 from launch.frontend.parser import Parser
