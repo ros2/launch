@@ -205,6 +205,14 @@ def test_eval_subst():
     assert 'asdbsd' == expr.perform(LaunchContext())
 
 
+def test_eval_subst_of_math_expr():
+    subst = parse_substitution(r'$(eval "ceil(1.3)")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert '2' == expr.perform(LaunchContext())
+
+
 def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):
     return [perform_substitutions_without_context(x) for x in cmd_subs]
 
