@@ -574,8 +574,9 @@ class ExecuteLocal(Action):
                 # wait for a timeout(`self.__respawn_delay`) to respawn the process
                 # and handle shutdown event with future(`self.__shutdown_future`)
                 # to make sure `ros2 launch` exit in time
+                respawn_task = asyncio.create_task(asyncio.sleep(self.__respawn_delay))
                 await asyncio.wait(
-                    [asyncio.sleep(self.__respawn_delay), self.__shutdown_future],
+                    [respawn_task, self.__shutdown_future],
                     return_when=asyncio.FIRST_COMPLETED
                 )
             if not self.__shutdown_future.done():

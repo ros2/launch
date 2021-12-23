@@ -152,7 +152,7 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
     """
     is_list = False
     scalar_type: ScalarTypesType = cast(ScalarTypesType, data_type)
-    if is_typing_list(data_type) and data_type.__args__:
+    if is_typing_list(data_type) and getattr(data_type, '__args__', None):
         is_list = True
         scalar_type = data_type.__args__[0]  # type: ignore
     if is_valid_scalar_type(scalar_type) is False:
