@@ -72,6 +72,8 @@ from ..utilities import create_future
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
+from ..utilities.type_utils import normalize_typed_substitution
+from ..utilities.type_utils import perform_typed_substitution
 
 _global_process_counter_lock = threading.Lock()
 _global_process_counter = 0  # in Python3, this number is unbounded (no rollover)
@@ -598,8 +600,8 @@ class ExecuteLocal(Action):
         }
 
         if self.__respawn:
-            self.__respawn = evaluate_condition_expression(
-                context, normalize_to_list_of_substitutions(self.__respawn))
+            self.__respawn = perform_typed_substitution(
+                context, normalize_typed_substitution(self.__respawn, bool), bool)
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
