@@ -342,7 +342,7 @@ class ExecuteProcess(ExecuteLocal):
                 kwargs['output'] = parser.escape_characters(output)
 
         if 'respawn' not in ignore:
-            respawn = entity.get_attr('respawn', data_type=bool, optional=True)
+            respawn = entity.get_attr('respawn', optional=True)
             if respawn is not None:
                 kwargs['respawn'] = parser.parse_substitution(respawn)
 
