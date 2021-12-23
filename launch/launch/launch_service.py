@@ -319,10 +319,19 @@ class LaunchService:
                     entity_futures.append(process_one_event_task)
 
                     # Wait on events and futures
-                    await asyncio.wait(
+                    completed_tasks, _ = await asyncio.wait(
                         entity_futures,
                         return_when=asyncio.FIRST_COMPLETED
                     )
+                    # Propagate exception from completed tasks
+                    completed_tasks_exceptions = [task.exception() for task in completed_tasks]
+                    completed_tasks_exceptions = list(filter(None, completed_tasks_exceptions))
+                    if completed_tasks_exceptions:
+                        self.__logger.debug('An exception was raised in an async action/event')
+                        # in case there is more than one completed_task, log other exceptions
+                        for completed_tasks_exception in completed_tasks_exceptions[1:]:
+                            self.__logger.error(completed_tasks_exception)
+                        raise completed_tasks_exceptions[0]
 
                 except KeyboardInterrupt:
                     continue
