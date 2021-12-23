@@ -17,6 +17,7 @@
 
 import itertools
 import os.path
+import traceback
 from typing import List
 from typing import Optional
 from typing import Set
@@ -74,18 +75,24 @@ class Parser:
         if cls.extensions_loaded is False:
             for entry_point in importlib_metadata.entry_points().get(
                     'launch.frontend.launch_extension', []):
-                entry_point.load()
+                try:
+                    entry_point.load()
+                except Exception:
+                    warnings.warn(f'Failed to load the launch extension: {entry_point.name}\n'
+                                  f'{traceback.format_exc()}')
             cls.extensions_loaded = True
 
     @classmethod
     def load_parser_implementations(cls):
         """Load all the available frontend entities."""
         if cls.frontend_parsers is None:
-            parsers = {
-                entry_point.name: entry_point.load()
-                for entry_point in importlib_metadata.entry_points().get(
-                        'launch.frontend.parser', [])
-            }
+            parsers = {}
+            for entry_point in importlib_metadata.entry_points().get('launch.frontend.parser', []):
+                try:
+                    parsers[entry_point.name] = entry_point.load()
+                except Exception:
+                    warnings.warn(f'Failed to load the parser extension: {entry_point.name}\n'
+                                  f'{traceback.format_exc()}')
             cls.frontend_parsers = dict(sorted(parsers.items()))
 
     def parse_action(self, entity: Entity) -> Action:
