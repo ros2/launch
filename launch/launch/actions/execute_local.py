@@ -100,7 +100,7 @@ class ExecuteLocal(Action):
             SomeActionsType,
             Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]
         ]] = None,
-        respawn: bool = False,
+        respawn: Union[bool, SomeSubstitutionsType] = False,
         respawn_delay: Optional[float] = None,
         **kwargs
     ) -> None:
