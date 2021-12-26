@@ -33,7 +33,7 @@ def generate_test_description():
     TEST_PROC_PATH = os.path.join(
         ament_index_python.get_package_prefix('launch_testing'),
         'lib/launch_testing',
-        'good_proc'
+        'good_proc.py'
     )
 
     # This is necessary to get unbuffered output from the process under test

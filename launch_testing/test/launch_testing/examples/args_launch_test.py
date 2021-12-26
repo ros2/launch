@@ -37,7 +37,7 @@ def generate_test_description():
             os.path.join(
                 ament_index_python.get_package_prefix('launch_testing'),
                 'lib/launch_testing',
-                'terminating_proc',
+                'terminating_proc.py',
             ),
 
             # Arguments

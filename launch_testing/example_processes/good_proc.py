@@ -20,22 +20,22 @@ import time
 
 # This is a simple program that generates some stdout, waits for ctrl+c, and exits with
 # an exit code of zero
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     if sys.argv[1:]:
-        print("Called with arguments {}".format(sys.argv[1:]))
+        print('Called with arguments {}'.format(sys.argv[1:]))
 
-    print("Starting Up")
+    print('Starting Up')
 
     loops = 0
     try:
         while True:
-            print("Loop {}".format(loops))
+            print('Loop {}'.format(loops))
             loops += 1
             time.sleep(1.0)
     except KeyboardInterrupt:
         pass
 
-    print("Shutting Down")
+    print('Shutting Down')
 
     sys.exit(0)

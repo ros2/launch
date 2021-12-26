@@ -20,25 +20,25 @@ import time
 
 # This process pretends to do some simple setup, then pretends to do some simple work,
 # then shuts itself down automatically
-if __name__ == "__main__":
+if __name__ == '__main__':
 
-    print("Starting Up")
+    print('Starting Up')
     time.sleep(1.0)
-    print("Ready")
+    print('Ready')
 
     if sys.argv[1:]:
-        print("Called with arguments {}".format(sys.argv[1:]))
+        print('Called with arguments {}'.format(sys.argv[1:]))
 
     if '--exception' in sys.argv[1:]:
-        raise Exception("Process had a pretend error")
+        raise Exception('Process had a pretend error')
 
     try:
-        print("Emulating Work")
+        print('Emulating Work')
         time.sleep(1.0)
-        print("Done")
+        print('Done')
     except KeyboardInterrupt:
         pass
 
-    print("Shutting Down")
+    print('Shutting Down')
 
     sys.exit(0)

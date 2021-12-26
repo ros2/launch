@@ -31,7 +31,7 @@ def test_wait_for_shutdown(source_test_loader):
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
-            'good_proc'
+            'good_proc.py'
         )
 
         good_process = launch.actions.ExecuteProcess(
@@ -87,14 +87,14 @@ def test_wait_for_startup(source_test_loader):
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
-            'good_proc'
+            'good_proc.py'
         )
 
         good_process = launch.actions.ExecuteProcess(
                 cmd=[sys.executable, TEST_PROC_PATH],
         )
 
-        # Start 'good_proc' after a ten second timer elapses
+        # Start 'good_proc.py' after a ten second timer elapses
         return launch.LaunchDescription([
             launch.actions.TimerAction(
                 period=10.0,

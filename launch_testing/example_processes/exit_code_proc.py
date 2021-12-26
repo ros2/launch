@@ -15,18 +15,17 @@
 # limitations under the License.
 
 import sys
-import time
 
 
 # This process pretends to do some simple setup, then pretends to do some simple work,
 # then shuts itself down automatically
-if __name__ == "__main__":
+if __name__ == '__main__':
 
-    if "--silent" in sys.argv[1:]:
+    if '--silent' in sys.argv[1:]:
         sys.exit(1)
 
     if '--exception' in sys.argv[1:]:
-        raise Exception("Process had a pretend error")
+        raise Exception('Process had a pretend error')
 
-    print("Exiting with a code")
-    sys.exit(1) 
+    print('Exiting with a code')
+    sys.exit(1)

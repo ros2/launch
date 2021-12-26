@@ -224,8 +224,8 @@ Usage:
 launch_test test/launch_testing/examples/good_proc_launch_test.py
 ```
 
-This test checks a process called good_proc (source found in the [example_processes folder](example_processes)).
-good_proc is a simple python process that prints "Loop 1, Loop2, etc. every second until it's terminated with ctrl+c.
+This test checks a process called good_proc.py (source found in the [example_processes folder](example_processes)).
+good_proc.py is a simple python process that prints "Loop 1, Loop2, etc. every second until it's terminated with ctrl+c.
 The test will launch the process, wait for a few loops to complete by monitoring stdout, then terminate the process
 and run some post-shutdown checks.
 

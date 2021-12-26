@@ -34,11 +34,11 @@ def get_test_process_action(*, args=[]):
     test_proc_path = os.path.join(
         ament_index_python.get_package_prefix('launch_testing'),
         'lib/launch_testing',
-        'terminating_proc'
+        'terminating_proc.py'
     )
     return launch.actions.ExecuteProcess(
         cmd=[sys.executable, test_proc_path, *args],
-        name='terminating_proc',
+        name='terminating_proc.py',
         # This is necessary to get unbuffered output from the process under test
         additional_env={'PYTHONUNBUFFERED': '1'},
         output='screen'
