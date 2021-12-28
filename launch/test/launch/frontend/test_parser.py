@@ -14,11 +14,16 @@
 
 """Test the abstract Parser class."""
 
-import importlib.metadata  # noqa: F401
+import sys
 from unittest.mock import patch
-import warnings  # noqa: F401
 
 from launch.frontend.parser import Parser
+
+
+def entry_points_patch():
+    if sys.version_info >= (3, 8, 0):
+        return patch('importlib.metadata.entry_points')
+    return patch('importlib_metadata.entry_points')
 
 
 class InvalidEntryPoint:
@@ -30,7 +35,7 @@ class InvalidEntryPoint:
 
 
 def test_invalid_launch_extension():
-    with patch('warnings.warn') as mock_warn, patch('importlib.metadata.entry_points') as mock_ep:
+    with patch('warnings.warn') as mock_warn, entry_points_patch() as mock_ep:
         mock_ep.return_value = {
             'launch.frontend.launch_extension': [InvalidEntryPoint()]
         }
@@ -43,7 +48,7 @@ def test_invalid_launch_extension():
 
 
 def test_invalid_parser_implementations():
-    with patch('warnings.warn') as mock_warn, patch('importlib.metadata.entry_points') as mock_ep:
+    with patch('warnings.warn') as mock_warn, entry_points_patch() as mock_ep:
         mock_ep.return_value = {
             'launch.frontend.parser': [InvalidEntryPoint()]
         }
