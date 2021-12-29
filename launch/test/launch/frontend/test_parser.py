@@ -14,10 +14,10 @@
 
 """Test the abstract Parser class."""
 
-import importlib.metadata  # noqa: F401
 from unittest.mock import patch
 import warnings  # noqa: F401
 
+from launch.frontend.parser import importlib_metadata
 from launch.frontend.parser import Parser
 
 
@@ -30,7 +30,8 @@ class InvalidEntryPoint:
 
 
 def test_invalid_launch_extension():
-    with patch('warnings.warn') as mock_warn, patch('importlib.metadata.entry_points') as mock_ep:
+    with patch('warnings.warn') as mock_warn, \
+            patch(importlib_metadata.__name__ + '.entry_points') as mock_ep:
         mock_ep.return_value = {
             'launch.frontend.launch_extension': [InvalidEntryPoint()]
         }
@@ -39,11 +40,12 @@ def test_invalid_launch_extension():
 
         assert mock_ep.called
         assert mock_warn.call_args
-        assert mock_warn.call_args.args[0].startswith('Failed to load')
+        assert mock_warn.call_args[0][0].startswith('Failed to load')
 
 
 def test_invalid_parser_implementations():
-    with patch('warnings.warn') as mock_warn, patch('importlib.metadata.entry_points') as mock_ep:
+    with patch('warnings.warn') as mock_warn, \
+            patch(importlib_metadata.__name__ + '.entry_points') as mock_ep:
         mock_ep.return_value = {
             'launch.frontend.parser': [InvalidEntryPoint()]
         }
@@ -52,4 +54,4 @@ def test_invalid_parser_implementations():
 
         assert mock_ep.called
         assert mock_warn.call_args
-        assert mock_warn.call_args.args[0].startswith('Failed to load')
+        assert mock_warn.call_args[0][0].startswith('Failed to load')
