@@ -18,24 +18,27 @@ import sys
 import time
 
 
-# This is a simple program that generates some stdout, waits for ctrl+c, and exits with
-# an exit code of zero
-if __name__ == "__main__":
+# This process pretends to do some simple setup, then pretends to do some simple work,
+# then shuts itself down automatically
+if __name__ == '__main__':
+
+    print('Starting Up')
+    time.sleep(1.0)
+    print('Ready')
 
     if sys.argv[1:]:
-        print("Called with arguments {}".format(sys.argv[1:]))
+        print('Called with arguments {}'.format(sys.argv[1:]))
 
-    print("Starting Up")
+    if '--exception' in sys.argv[1:]:
+        raise Exception('Process had a pretend error')
 
-    loops = 0
     try:
-        while True:
-            print("Loop {}".format(loops))
-            loops += 1
-            time.sleep(1.0)
+        print('Emulating Work')
+        time.sleep(1.0)
+        print('Done')
     except KeyboardInterrupt:
         pass
 
-    print("Shutting Down")
+    print('Shutting Down')
 
     sys.exit(0)

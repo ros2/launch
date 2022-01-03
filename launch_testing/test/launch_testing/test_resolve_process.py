@@ -82,7 +82,7 @@ class TestStringProcessResolution(unittest.TestCase):
         proc_command = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
-            'good_proc',
+            'good_proc.py',
         )
         proc_env = os.environ.copy()
         proc_env['PYTHONUNBUFFERED'] = '1'

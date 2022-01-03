@@ -34,7 +34,7 @@ def test_dut_that_shuts_down(capsys):
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
-            'terminating_proc'
+            'terminating_proc.py'
         )
 
         return launch.LaunchDescription([
@@ -69,13 +69,13 @@ def test_dut_that_has_exception(capsys):
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
-            'terminating_proc'
+            'terminating_proc.py'
         )
 
         EXIT_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
-            'exit_code_proc'
+            'exit_code_proc.py'
         )
 
         return launch.LaunchDescription([
@@ -117,7 +117,7 @@ def test_nominally_good_dut(source_test_loader):
     TEST_PROC_PATH = os.path.join(
         ament_index_python.get_package_prefix('launch_testing'),
         'lib/launch_testing',
-        'good_proc'
+        'good_proc.py'
     )
 
     def generate_test_description():
@@ -151,7 +151,7 @@ def test_parametrized_run_with_one_failure(source_test_loader):
         TEST_PROC_PATH = os.path.join(
             ament_index_python.get_package_prefix('launch_testing'),
             'lib/launch_testing',
-            'good_proc'
+            'good_proc.py'
         )
 
         # This is necessary to get unbuffered output from the process under test

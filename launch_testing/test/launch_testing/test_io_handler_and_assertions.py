@@ -32,7 +32,7 @@ from launch_testing.asserts import assertInStdout
 TEST_PROC_PATH = os.path.join(
     ament_index_python.get_package_prefix('launch_testing'),
     'lib/launch_testing',
-    'terminating_proc'
+    'terminating_proc.py'
 )
 TEST_CMD = [sys.executable, TEST_PROC_PATH]
 
@@ -55,21 +55,21 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
 
         cls.proc_1 = launch.actions.ExecuteProcess(
             cmd=TEST_CMD,
-            name='terminating_proc',
+            name='terminating_proc.py',
             env=proc_env
         )
 
         # This process should be distinguishable by its cmd line args
         cls.proc_2 = launch.actions.ExecuteProcess(
             cmd=TEST_CMD + ['--extra'],
-            name='terminating_proc',
+            name='terminating_proc.py',
             env=proc_env
         )
 
         # This process should be distinguishable by its different name
         cls.proc_3 = launch.actions.ExecuteProcess(
             cmd=TEST_CMD + ['node:=different_name'],
-            name='terminating_proc',
+            name='terminating_proc.py',
             env=proc_env
         )
 
@@ -126,9 +126,9 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         self.assertTrue(any(contains_ready))
 
     def test_process_names(self):
-        self.assertIn('terminating_proc-1', self.proc_output.process_names())
-        self.assertIn('terminating_proc-2', self.proc_output.process_names())
-        self.assertIn('terminating_proc-3', self.proc_output.process_names())
+        self.assertIn('terminating_proc.py-1', self.proc_output.process_names())
+        self.assertIn('terminating_proc.py-2', self.proc_output.process_names())
+        self.assertIn('terminating_proc.py-3', self.proc_output.process_names())
 
     def test_processes(self):
         self.assertIn(self.proc_1, self.proc_output.processes())
@@ -143,24 +143,24 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         print(cm.exception)
 
         # Make sure the assertion method lists the names of the process it does have:
-        self.assertIn('terminating_proc-1', str(cm.exception))
-        self.assertIn('terminating_proc-2', str(cm.exception))
-        self.assertIn('terminating_proc-3', str(cm.exception))
+        self.assertIn('terminating_proc.py-1', str(cm.exception))
+        self.assertIn('terminating_proc.py-2', str(cm.exception))
+        self.assertIn('terminating_proc.py-3', str(cm.exception))
 
     def test_assertInStdout_notices_too_many_matching_procs(self):
         with self.assertRaisesRegex(Exception, 'Found multiple processes') as cm:
-            assertInStdout(self.proc_output, self.EXPECTED_TEXT, 'terminating_proc')
+            assertInStdout(self.proc_output, self.EXPECTED_TEXT, 'terminating_proc.py')
 
         # Make sure the assertion method lists the names of the duplicate procs:
-        self.assertIn('terminating_proc-1', str(cm.exception))
-        self.assertIn('terminating_proc-2', str(cm.exception))
-        self.assertIn('terminating_proc-3', str(cm.exception))
+        self.assertIn('terminating_proc.py-1', str(cm.exception))
+        self.assertIn('terminating_proc.py-2', str(cm.exception))
+        self.assertIn('terminating_proc.py-3', str(cm.exception))
 
     def test_strict_proc_matching_false(self):
         assertInStdout(
             self.proc_output,
             self.EXPECTED_TEXT,
-            'terminating_proc',
+            'terminating_proc.py',
             strict_proc_matching=False
         )
 
@@ -168,20 +168,20 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         assertInStdout(
             self.proc_output,
             re.compile(r'Called with arguments \S+'),
-            'terminating_proc-2'
+            'terminating_proc.py-2'
         )
 
     def test_arguments_disambiguate_processes(self):
         txt = self.EXPECTED_TEXT
-        assertInStdout(self.proc_output, txt, 'terminating_proc', '--extra')
-        assertInStdout(self.proc_output, txt, 'terminating_proc', 'node:=different_name')
+        assertInStdout(self.proc_output, txt, 'terminating_proc.py', '--extra')
+        assertInStdout(self.proc_output, txt, 'terminating_proc.py', 'node:=different_name')
         # TODO(hidmic): add NO_CMD_ARGS test again when and if its implementation
         # improves beyond checking argument count.
-        # assertInStdout(self.proc_output, txt, 'terminating_proc', NO_CMD_ARGS)
+        # assertInStdout(self.proc_output, txt, 'terminating_proc.py', NO_CMD_ARGS)
 
     def test_asserts_on_missing_text(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
-            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, 'terminating_proc-1')
+            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, 'terminating_proc.py-1')
 
     def test_asserts_on_missing_text_by_proc(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):

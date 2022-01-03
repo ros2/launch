@@ -32,11 +32,11 @@ def get_test_process_action():
     TEST_PROC_PATH = os.path.join(
         ament_index_python.get_package_prefix('launch_testing'),
         'lib/launch_testing',
-        'good_proc'
+        'good_proc.py'
     )
     return launch.actions.ExecuteProcess(
         cmd=[sys.executable, TEST_PROC_PATH],
-        name='good_proc',
+        name='good_proc.py',
         # This is necessary to get unbuffered output from the process under test
         additional_env={'PYTHONUNBUFFERED': '1'},
     )
@@ -96,9 +96,9 @@ class TestProcessOutput(unittest.TestCase):
     def test_all_context_objects(self, int_val, dut):
         # Multiple arguments are supported
         self.assertEqual(int_val, 10)
-        self.assertIn('good_proc', dut.process_details['name'])
+        self.assertIn('good_proc.py', dut.process_details['name'])
 
     def test_all_context_objects_different_order(self, dut, int_val):
         # Put the arguments in a different order from the above test
         self.assertEqual(int_val, 10)
-        self.assertIn('good_proc', dut.process_details['name'])
+        self.assertIn('good_proc.py', dut.process_details['name'])
