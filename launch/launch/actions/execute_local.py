@@ -199,7 +199,7 @@ class ExecuteLocal(Action):
         self.__log_cmd = log_cmd
         self.__cached_output = cached_output
         self.__on_exit = on_exit
-        self.__respawn = respawn
+        self.__respawn = normalize_typed_substitution(respawn, bool)
         self.__respawn_delay = respawn_delay
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
@@ -599,9 +599,7 @@ class ExecuteLocal(Action):
             # pid is added to the dictionary in the connection_made() method of the protocol.
         }
 
-        if self.__respawn:
-            self.__respawn = perform_typed_substitution(
-                context, normalize_typed_substitution(self.__respawn, bool), bool)
+        self.__respawn = perform_typed_substitution(context, self.__respawn, bool)
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
