@@ -90,7 +90,7 @@ class ExecuteLocal(Action):
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
-        output: Union[Text,SomeSubstitutionsType] = 'log',
+        output: SomeSubstitutionsType = 'log',
         output_format: Text = '[{this.process_description.final_name}] {line}',
         cached_output: bool = False,
         log_cmd: bool = False,
