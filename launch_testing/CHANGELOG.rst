@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.8 (2022-01-12)
+-------------------
+* Fix launch_testing README.md: Changed 'proc' keyword to 'process'. (`#554 <https://github.com/ros2/launch/issues/554>`_)
+* Contributors: Aditya, Michael McConnell
+
 0.10.7 (2021-11-12)
 -------------------
 
