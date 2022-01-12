@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.8 (2022-01-12)
+-------------------
+* Validate unparsed attributes and subentities in launch_xml and launch_yaml. (`#468 <https://github.com/ros2/launch/issues/468>`_) (`#567 <https://github.com/ros2/launch/issues/567>`_)
+* Evaluate math symbols and functions in python expression. (`#557 <https://github.com/ros2/launch/issues/557>`_) (`#562 <https://github.com/ros2/launch/issues/562>`_)
+* Contributors: Aditya, Immanuel Martini, mergify[bot]
+
 0.10.7 (2021-11-12)
 -------------------
 * Allow for raw path specification in IncludeLaunchDescription (`#544 <https://github.com/ros2/launch/issues/544>`_) (`#548 <https://github.com/ros2/launch/issues/548>`_)

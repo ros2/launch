@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.8 (2022-01-12)
+-------------------
+* Validate unparsed attributes and subentities in launch_xml and launch_yaml. (`#468 <https://github.com/ros2/launch/issues/468>`_) (`#567 <https://github.com/ros2/launch/issues/567>`_)
+* Contributors: Aditya, mergify[bot]
+
 0.10.7 (2021-11-12)
 -------------------
 * Consolidate type_utils in a way that can be reused in substitution results that need to be coerced to a specific type (`#438 <https://github.com/ros2/launch/issues/438>`_)

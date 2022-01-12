@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>launch_testing</name>
-  <version>0.10.7</version>
+  <version>0.10.8</version>
   <description>A package to create tests which involve launch files and multiple processes.</description>
   <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
   <author email="pete.baughman@apex.ai">Pete Baughman</author>
