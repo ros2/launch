@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.21.0 (2022-01-14)
+-------------------
+* Use asyncio.wait with timeout rather than sleep (`#576 <https://github.com/ros2/launch/issues/576>`_)
+* Make test_parser compatible with Python older than 3.8 (`#575 <https://github.com/ros2/launch/issues/575>`_)
+* Propagate exceptions of completed actions to launch service main loop (`#566 <https://github.com/ros2/launch/issues/566>`_)
+* Warn when loading launch extensions fails (`#572 <https://github.com/ros2/launch/issues/572>`_)
+* Add in two fixes for Jammy (`#571 <https://github.com/ros2/launch/issues/571>`_)
+* Contributors: Chris Lalancette, Scott K Logan, Shane Loretz, tumtom
+
 0.20.0 (2021-11-29)
 -------------------
 * Evaluate math symbols and functions in python expression (`#557 <https://github.com/ros2/launch/issues/557>`_)

@@ -2,6 +2,12 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.21.0 (2022-01-14)
+-------------------
+* Renamed three files from example_processes (`#573 <https://github.com/ros2/launch/issues/573>`_)
+* Fix launch_testing README.md proc keyword to process. (`#554 <https://github.com/ros2/launch/issues/554>`_) (`#560 <https://github.com/ros2/launch/issues/560>`_)
+* Contributors: Jacob Perron, Khush Jain
+
 0.20.0 (2021-11-29)
 -------------------
 * Declare frontend group dependency & use explicit dependencies in launch_testing (`#520 <https://github.com/ros2/launch/issues/520>`_)
