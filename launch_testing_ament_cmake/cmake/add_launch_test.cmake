@@ -130,6 +130,11 @@ function(add_launch_test filename)
     TIMEOUT "${_launch_test_TIMEOUT}"
     ${_launch_test_UNPARSED_ARGUMENTS}
   )
+  set_tests_properties(
+    "${_launch_test_TARGET}"
+    PROPERTIES
+    LABELS "launch_test"
+  )
 endfunction()
 
 macro(rostest__strip_prefix var prefix)
