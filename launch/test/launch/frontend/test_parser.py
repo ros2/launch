@@ -14,7 +14,6 @@
 
 """Test the abstract Parser class."""
 
-import pytest
 from unittest.mock import patch
 import warnings
 
@@ -22,6 +21,7 @@ from launch.frontend.parser import importlib_metadata
 from launch.frontend.parser import Parser
 import launch.frontend.parser
 
+import pytest
 
 class InvalidEntryPoint:
 
