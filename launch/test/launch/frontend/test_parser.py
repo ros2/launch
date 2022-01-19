@@ -17,11 +17,12 @@
 from unittest.mock import patch
 import warnings
 
+import launch.frontend.parser
 from launch.frontend.parser import importlib_metadata
 from launch.frontend.parser import Parser
-import launch.frontend.parser
 
 import pytest
+
 
 class InvalidEntryPoint:
 
@@ -36,7 +37,7 @@ def skip_if_warned_already(warn_text):
     if hasattr(launch.frontend.parser, '__warningregistry__'):
         for key in launch.frontend.parser.__warningregistry__.keys():
             if warn_text in key[0]:
-                pytest.skip("Skip because warnings can only be raised once")
+                pytest.skip('Skip because warnings can only be raised once')
 
 
 def test_invalid_launch_extension():
