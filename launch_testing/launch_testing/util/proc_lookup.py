@@ -104,7 +104,8 @@ def resolveProcesses(info_obj, *, process=None, cmd_args=None, strict_proc_match
             raise NoMatchingProcessException('No data recorded for any process')
         return all_procs
 
-    if isinstance(process, launch.actions.ExecuteProcess):
+    if (isinstance(process, launch.actions.ExecuteProcess) or
+       isinstance(process, launch.actions.ExecuteLocal)):
         # We want to search a specific process
         if process in info_obj.processes():
             return [process]
