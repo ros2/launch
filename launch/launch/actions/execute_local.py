@@ -90,7 +90,7 @@ class ExecuteLocal(Action):
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
-        output: Text = 'log',
+        output: SomeSubstitutionsType = 'log',
         output_format: Text = '[{this.process_description.final_name}] {line}',
         cached_output: bool = False,
         log_cmd: bool = False,
@@ -192,6 +192,7 @@ class ExecuteLocal(Action):
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
         self.__emulate_tty = emulate_tty
         self.__output = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
+        self.__output = normalize_to_list_of_substitutions(self.__output)
         self.__output_format = output_format
 
         self.__log_cmd = log_cmd
@@ -664,6 +665,7 @@ class ExecuteLocal(Action):
             self.__completed_future = create_future(context.asyncio_loop)
             self.__shutdown_future = create_future(context.asyncio_loop)
             self.__logger = launch.logging.get_logger(name)
+            self.__output = perform_substitutions(context, self.__output)
             self.__stdout_logger, self.__stderr_logger = \
                 launch.logging.get_output_loggers(name, self.__output)
             context.asyncio_loop.create_task(self.__execute_process(context))
