@@ -52,7 +52,7 @@ macro(parse_launch_test_arguments namespace filename)
   cmake_parse_arguments(${namespace}
     ""
     "TARGET;TIMEOUT;PYTHON_EXECUTABLE"
-    "ARGS"
+    "ARGS;LABELS"
     ${ARGN})
 
   if(NOT ${namespace}_TIMEOUT)
@@ -89,6 +89,10 @@ macro(parse_launch_test_arguments namespace filename)
     string(REPLACE "/" "_" ${namespace}_TARGET ${${namespace}_TARGET})
   endif()
 
+  if(NOT ${namespace}_LABELS)
+    set(${namespace}_LABELS "launch_test")
+  endif()
+
   set(${namespace}_RESULT_FILE "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${${namespace}_TARGET}.xunit.xml")
 endmacro()
 
@@ -104,6 +108,8 @@ endmacro()
 # :type PYTHON_EXECUTABLE: string
 # :param TIMEOUT: The test timeout in seconds
 # :type TIMEOUT: integer
+# :param LABELS: The test labels
+# :type LABELS: string
 # :param ARGS: Launch arguments to pass to the launch test
 # :type ARGS: string
 function(add_launch_test filename)
@@ -129,6 +135,11 @@ function(add_launch_test filename)
     RESULT_FILE "${_launch_test_RESULT_FILE}"
     TIMEOUT "${_launch_test_TIMEOUT}"
     ${_launch_test_UNPARSED_ARGUMENTS}
+  )
+  set_tests_properties(
+    "${_launch_test_TARGET}"
+    PROPERTIES
+    LABELS "${_launch_test_LABELS}"
   )
 endfunction()
 
