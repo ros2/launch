@@ -34,9 +34,6 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
 
     def test_catches_bad_signature(self):
 
-        # A `generate_test_description` function without a ready_fn argument is allowed because
-        # it might be a new style function that uses a ReadyToTest action to signal when it's time
-        # for tests to start.
         # If there's no ReadyToTest action, we won't catch that until later because dut.validate()
         # doesn't actually invoke the function.
         # We will still expect to reject functions with wrong name arguments
