@@ -15,6 +15,7 @@
 """Module for the PythonExpression substitution."""
 
 import collections.abc
+import math
 from typing import Iterable
 from typing import List
 from typing import Text
@@ -33,6 +34,7 @@ class PythonExpression(Substitution):
 
     The expression may contain Substitutions, but must return something that can
     be converted to a string with `str()`.
+    It also may contain math symbols and functions.
     """
 
     def __init__(self, expression: SomeSubstitutionsType) -> None:
@@ -67,4 +69,4 @@ class PythonExpression(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by evaluating the expression."""
         from ..utilities import perform_substitutions
-        return str(eval(perform_substitutions(context, self.expression)))
+        return str(eval(perform_substitutions(context, self.expression), {}, math.__dict__))
