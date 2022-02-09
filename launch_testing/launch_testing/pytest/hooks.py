@@ -23,6 +23,9 @@ from ..loader import LoadTestsFromPythonModule
 from ..test_runner import LaunchTestRunner
 
 
+pytest_major = int(pytest.__version__.split('.')[0])
+
+
 class LaunchTestFailure(Exception):
 
     def __init__(self, message, results):
@@ -122,10 +125,22 @@ class LaunchTestItem(pytest.Item):
         return self.fspath, 0, 'launch tests: {}'.format(self.name)
 
 
-class LaunchTestModule(pytest.File):
+class LaunchTestModulePytest7(pytest.File):
 
-    def __init__(self, parent, *, fspath):
-        super().__init__(parent=parent, fspath=fspath)
+    def makeitem(self, *args, **kwargs):
+        return LaunchTestItem.from_parent(*args, **kwargs)
+
+    def collect(self):
+        module = self.fspath.pyimport()
+        yield self.makeitem(
+            name=module.__name__, parent=self,
+            test_runs=LoadTestsFromPythonModule(
+                module, name=module.__name__
+            )
+        )
+
+
+class LaunchTestModule(pytest.File):
 
     @classmethod
     def from_parent(cls, parent, *, fspath):
@@ -157,35 +172,62 @@ def find_launch_test_entrypoint(path):
         return None
 
 
-def pytest_pycollect_makemodule(path, parent):
-    entrypoint = find_launch_test_entrypoint(path)
-    if entrypoint is not None:
-        ihook = parent.session.gethookproxy(path)
-        module = ihook.pytest_launch_collect_makemodule(
-            path=path, parent=parent, entrypoint=entrypoint
-        )
-        if module is not None:
-            return module
-    if path.basename == '__init__.py':
+if pytest_major < 7:
+    def pytest_pycollect_makemodule(path, parent):
+        entrypoint = find_launch_test_entrypoint(path)
+        if entrypoint is not None:
+            ihook = parent.session.gethookproxy(path)
+            module = ihook.pytest_launch_collect_makemodule(
+                path=path, parent=parent, entrypoint=entrypoint
+            )
+            if module is not None:
+                return module
+        if path.basename == '__init__.py':
+            try:
+                # since https://docs.pytest.org/en/latest/changelog.html#deprecations
+                # todo: remove fallback once all platforms use pytest >=5.4
+                return pytest.Package.from_parent(parent, fspath=path)
+            except AttributeError:
+                return pytest.Package(path, parent)
         try:
             # since https://docs.pytest.org/en/latest/changelog.html#deprecations
             # todo: remove fallback once all platforms use pytest >=5.4
-            return pytest.Package.from_parent(parent, fspath=path)
+            return pytest.Module.from_parent(parent, fspath=path)
         except AttributeError:
-            return pytest.Package(path, parent)
-    try:
-        # since https://docs.pytest.org/en/latest/changelog.html#deprecations
-        # todo: remove fallback once all platforms use pytest >=5.4
-        return pytest.Module.from_parent(parent, fspath=path)
-    except AttributeError:
-        return pytest.Module(path, parent)
+            return pytest.Module(path, parent)
+else:
+    def pytest_pycollect_makemodule(module_path, path, parent):
+        entrypoint = find_launch_test_entrypoint(path)
+        if entrypoint is not None:
+            ihook = parent.session.gethookproxy(path)
+            module = ihook.pytest_launch_collect_makemodule(
+                path=module_path, parent=parent, entrypoint=entrypoint
+            )
+            if module is not None:
+                return module
+        if path.basename == '__init__.py':
+            try:
+                # since https://docs.pytest.org/en/latest/changelog.html#deprecations
+                # todo: remove fallback once all platforms use pytest >=5.4
+                return pytest.Package.from_parent(parent, path=module_path)
+            except AttributeError:
+                return pytest.Package(path, parent)
+        try:
+            # since https://docs.pytest.org/en/latest/changelog.html#deprecations
+            # todo: remove fallback once all platforms use pytest >=5.4
+            return pytest.Module.from_parent(parent, path=module_path)
+        except AttributeError:
+            return pytest.Module(path, parent)
 
 
 @pytest.hookimpl(trylast=True)
 def pytest_launch_collect_makemodule(path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
     if marks and any(m.name == 'launch_test' for m in marks):
-        return LaunchTestModule.from_parent(parent, fspath=path)
+        if pytest_major < 7:
+            return LaunchTestModule.from_parent(parent, fspath=path)
+        else:
+            return LaunchTestModulePytest7.from_parent(parent, path=path)
 
 
 def pytest_addhooks(pluginmanager):
