@@ -206,18 +206,9 @@ else:
             if module is not None:
                 return module
         if path.basename == '__init__.py':
-            try:
-                # since https://docs.pytest.org/en/latest/changelog.html#deprecations
-                # todo: remove fallback once all platforms use pytest >=5.4
-                return pytest.Package.from_parent(parent, path=module_path)
-            except AttributeError:
-                return pytest.Package(path, parent)
-        try:
-            # since https://docs.pytest.org/en/latest/changelog.html#deprecations
-            # todo: remove fallback once all platforms use pytest >=5.4
-            return pytest.Module.from_parent(parent, path=module_path)
-        except AttributeError:
-            return pytest.Module(path, parent)
+            return pytest.Package.from_parent(parent, path=module_path)
+
+        return pytest.Module.from_parent(parent, path=module_path)
 
 
 @pytest.hookimpl(trylast=True)
