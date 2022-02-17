@@ -32,6 +32,29 @@ class TestResolveProcess(unittest.TestCase):
     def test_unlaunched_process_lookup(self):
         info_obj = launch_testing.ProcInfoHandler()
 
+        lookup_obj = launch.actions.ExecuteLocal(
+            process_description=launch.descriptions.Executable(
+                cmd=[
+                    'python',
+                    '-c',
+                    '',
+                ]
+            )
+        )
+
+        with self.assertRaises(launch_testing.util.NoMatchingProcessException) as cm:
+            launch_testing.util.resolveProcesses(
+                info_obj,
+                process=lookup_obj
+            )
+
+        # We'll get a good error mesasge here because there were no substitutions in
+        # the execute process cmd - it's all text
+        self.assertIn('python -c', str(cm.exception))
+
+    def test_backward_compatible_unlaunched_process_lookup(self):
+        info_obj = launch_testing.ProcInfoHandler()
+
         lookup_obj = launch.actions.ExecuteProcess(
             cmd=[
                 'python',
@@ -51,6 +74,30 @@ class TestResolveProcess(unittest.TestCase):
         self.assertIn('python -c', str(cm.exception))
 
     def test_unlaunched_process_lookup_with_substitutions(self):
+        info_obj = launch_testing.ProcInfoHandler()
+
+        lookup_obj = launch.actions.ExecuteLocal(
+            process_description=launch.descriptions.Executable(
+                cmd=[
+                    launch.substitutions.LocalSubstitution('foo'),
+                    'python',
+                    '-c',
+                    '',
+                ]
+            )
+        )
+
+        with self.assertRaises(launch_testing.util.NoMatchingProcessException) as cm:
+            launch_testing.util.resolveProcesses(
+                info_obj,
+                process=lookup_obj
+            )
+
+        # Since the process wasn't launched yet, and it has substitutions that need to be
+        # resolved by the launch system, we won't be able to take a guess at the command
+        self.assertIn('Unknown', str(cm.exception))
+
+    def test_backward_compatible_unlaunched_process_lookup_with_substitutions(self):
         info_obj = launch_testing.ProcInfoHandler()
 
         lookup_obj = launch.actions.ExecuteProcess(
