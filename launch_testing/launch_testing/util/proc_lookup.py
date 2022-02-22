@@ -51,7 +51,11 @@ def _proc_to_name_and_args(proc):
         def perform_subs(subs):
             return ''.join([sub.perform(_fake_context()) for sub in subs])
         try:
-            cmd = [perform_subs(sub) for sub in proc.cmd]
+            cmd = []
+            if (isinstance(proc, launch.actions.ExecuteProcess)):
+                cmd = [perform_subs(sub) for sub in proc.cmd]
+            elif (isinstance(proc, launch.actions.ExecuteLocal)):
+                cmd = [perform_subs(sub) for sub in proc.process_description.cmd]
             return ' '.join(cmd)
         except _FakeContextException:
             return 'Unknown - Process not launched yet'
@@ -104,7 +108,8 @@ def resolveProcesses(info_obj, *, process=None, cmd_args=None, strict_proc_match
             raise NoMatchingProcessException('No data recorded for any process')
         return all_procs
 
-    if isinstance(process, launch.actions.ExecuteProcess):
+    if (isinstance(process, launch.actions.ExecuteProcess) or
+       isinstance(process, launch.actions.ExecuteLocal)):
         # We want to search a specific process
         if process in info_obj.processes():
             return [process]
