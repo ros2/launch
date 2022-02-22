@@ -377,12 +377,12 @@ class ExecuteProcess(Action):
             # `unset_enviroment_variable` actions should be used.
             env = entity.get_attr('env', data_type=List[Entity], optional=True)
             if env is not None:
-                kwargs['additional_env'] = {
+                env = {
                     tuple(parser.parse_substitution(e.get_attr('name'))):
                     parser.parse_substitution(e.get_attr('value')) for e in env
                 }
-                for e in env:
-                    e.assert_entity_completely_parsed()
+                kwargs['additional_env'] = env
+
         return cls, kwargs
 
     @property

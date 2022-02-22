@@ -32,7 +32,7 @@ def test_executable():
                 name: my_ls
                 shell: true
                 output: log
-                'launch-prefix': $(env LAUNCH_PREFIX '')
+                launch_prefix: $(env LAUNCH_PREFIX)
                 env:
                     -   name: var
                         value: '1'
