@@ -32,8 +32,6 @@ from launch.actions.shutdown_action import Shutdown
 from launch.actions.timer_action import TimerAction
 from launch.event_handlers.on_process_start import OnProcessStart
 from launch.events.shutdown import Shutdown as ShutdownEvent
-from launch.frontend import Parser
-from launch.frontend.parse_substitution import parse_substitution
 from launch.substitutions.launch_configuration import LaunchConfiguration
 
 import pytest
