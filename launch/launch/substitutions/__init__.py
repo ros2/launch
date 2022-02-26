@@ -15,6 +15,9 @@
 """Package for substitutions."""
 
 from .anon_name import AnonName
+from .boolean_substitution import AndSubstitution
+from .boolean_substitution import NotSubstitution
+from .boolean_substitution import OrSubstitution
 from .command import Command
 from .environment_variable import EnvironmentVariable
 from .find_executable import FindExecutable
@@ -28,12 +31,15 @@ from .this_launch_file import ThisLaunchFile
 from .this_launch_file_dir import ThisLaunchFileDir
 
 __all__ = [
+    'AndSubstitution',
     'AnonName',
     'Command',
     'EnvironmentVariable',
     'FindExecutable',
     'LaunchConfiguration',
     'LocalSubstitution',
+    'NotSubstitution',
+    'OrSubstitution',
     'PathJoinSubstitution',
     'PythonExpression',
     'SubstitutionFailure',
