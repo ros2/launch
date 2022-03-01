@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* 'output' is expanded as a substitution in XML/YAML files (`#577 <https://github.com/ros2/launch/issues/577>`_)
+* Contributors: Khush Jain
+
 0.21.0 (2022-01-14)
 -------------------
 

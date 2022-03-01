@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* 'output' is expanded as a substitution in XML/YAML files (`#577 <https://github.com/ros2/launch/issues/577>`_)
+* Skip warning test if warning already happend (`#585 <https://github.com/ros2/launch/issues/585>`_)
+* Contributors: Khush Jain, Shane Loretz
+
 0.21.0 (2022-01-14)
 -------------------
 * Use asyncio.wait with timeout rather than sleep (`#576 <https://github.com/ros2/launch/issues/576>`_)

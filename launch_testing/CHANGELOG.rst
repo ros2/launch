@@ -2,6 +2,12 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added case for instances of ExecuteLocal in resolveProcess function (`#587 <https://github.com/ros2/launch/issues/587>`_)
+* Add compatitibility with pytest 7 (`#592 <https://github.com/ros2/launch/issues/592>`_)
+* Contributors: Matt Lanting, Shane Loretz
+
 0.21.0 (2022-01-14)
 -------------------
 * Renamed three files from example_processes (`#573 <https://github.com/ros2/launch/issues/573>`_)
