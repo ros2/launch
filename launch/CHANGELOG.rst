@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.21.1 (2022-03-01)
+-------------------
 * 'output' is expanded as a substitution in XML/YAML files (`#577 <https://github.com/ros2/launch/issues/577>`_)
 * Skip warning test if warning already happend (`#585 <https://github.com/ros2/launch/issues/585>`_)
 * Contributors: Khush Jain, Shane Loretz
