@@ -21,6 +21,7 @@ from launch import LaunchContext
 from launch import SomeSubstitutionsType
 from launch import Substitution
 from launch.actions import ExecuteProcess
+from launch.actions import SetLaunchConfiguration
 from launch.frontend.expose import expose_substitution
 from launch.frontend.parse_substitution import parse_if_substitutions
 from launch.frontend.parse_substitution import parse_substitution
@@ -211,6 +212,35 @@ def test_eval_subst_of_math_expr():
     expr = subst[0]
     assert isinstance(expr, PythonExpression)
     assert '2' == expr.perform(LaunchContext())
+
+
+def test_eval_equal():
+    context = LaunchContext()
+    SetLaunchConfiguration('value', 'abc').execute(context)
+
+    subst = parse_substitution(r"$(eval $(var value) == 'abc')")
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'True' == expr.perform(context)
+
+    subst = parse_substitution(r"$(eval $(var value) == 'def')")
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'False' == expr.perform(context)
+
+    subst = parse_substitution(r"$(eval $(var value) != 'abc')")
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'False' == expr.perform(context)
+
+    subst = parse_substitution(r"$(eval $(var value) != 'def')")
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'True' == expr.perform(context)
 
 
 def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):

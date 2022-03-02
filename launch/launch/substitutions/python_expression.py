@@ -15,6 +15,7 @@
 """Module for the PythonExpression substitution."""
 
 import collections.abc
+import itertools
 import math
 from typing import Iterable
 from typing import List
@@ -25,6 +26,8 @@ from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import ensure_argument_type
+from ..utilities import normalize_to_list_of_substitutions
+from ..utilities import perform_substitutions
 
 
 @expose_substitution('eval')
@@ -47,15 +50,15 @@ class PythonExpression(Substitution):
             'expression',
             'PythonExpression')
 
-        from ..utilities import normalize_to_list_of_substitutions
         self.__expression = normalize_to_list_of_substitutions(expression)
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `PythonExpression` substitution."""
-        if len(data) != 1:
-            raise TypeError('eval substitution expects 1 argument')
-        return cls, {'expression': data[0]}
+        if len(data) == 1:
+            return cls, {'expression': data[0]}
+        expression = normalize_to_list_of_substitutions(itertools.chain.from_iterable(data))
+        return cls, {'expression': expression}
 
     @property
     def expression(self) -> List[Substitution]:
@@ -68,5 +71,13 @@ class PythonExpression(Substitution):
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by evaluating the expression."""
-        from ..utilities import perform_substitutions
-        return str(eval(perform_substitutions(context, self.expression), {}, math.__dict__))
+        if len(self.expression) == 1:
+            return str(eval(perform_substitutions(context, self.expression), {}, math.__dict__))
+
+        expressions = [
+            perform_substitutions(context, normalize_to_list_of_substitutions(exp))
+            for exp in self.expression
+        ]
+        if '==' in expressions or '!=' in expressions:
+            expression = f"'{expressions[0]}' {expressions[1]} '{expressions[2]}'"
+            return str(eval(expression, {}, math.__dict__))
