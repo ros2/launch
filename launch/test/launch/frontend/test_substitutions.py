@@ -218,13 +218,14 @@ def test_eval_equal():
     context = LaunchContext()
     SetLaunchConfiguration('value', 'abc').execute(context)
 
+    # With var
     subst = parse_substitution(r"$(eval $(var value) == 'abc')")
     assert len(subst) == 1
     expr = subst[0]
     assert isinstance(expr, PythonExpression)
     assert 'True' == expr.perform(context)
 
-    subst = parse_substitution(r"$(eval $(var value) == 'def')")
+    subst = parse_substitution(r"$(eval $(var value) == 'value')")
     assert len(subst) == 1
     expr = subst[0]
     assert isinstance(expr, PythonExpression)
@@ -236,7 +237,32 @@ def test_eval_equal():
     assert isinstance(expr, PythonExpression)
     assert 'False' == expr.perform(context)
 
-    subst = parse_substitution(r"$(eval $(var value) != 'def')")
+    subst = parse_substitution(r"$(eval $(var value) != 'value')")
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'True' == expr.perform(context)
+
+    # Without var
+    subst = parse_substitution(r"$(eval value == 'abc')")
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'True' == expr.perform(context)
+
+    subst = parse_substitution(r"$(eval value == 'value')")
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'False' == expr.perform(context)
+
+    subst = parse_substitution(r"$(eval value != 'abc')")
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert 'False' == expr.perform(context)
+
+    subst = parse_substitution(r"$(eval value != 'value')")
     assert len(subst) == 1
     expr = subst[0]
     assert isinstance(expr, PythonExpression)
