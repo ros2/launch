@@ -16,6 +16,7 @@
 
 import asyncio
 import collections
+import os
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -60,6 +61,9 @@ class LaunchContext:
 
         self.__launch_configurations_stack = []  # type: List[Dict[Text, Text]]
         self.__launch_configurations = {}  # type: Dict[Text, Text]
+
+        self.__environment_stack = []  # type: List[Dict[Text, Text]]
+        self.__environment = dict(os.environ)  # type: Dict[Text, Text]
 
         self.__is_shutdown = False
         self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
@@ -157,8 +161,16 @@ class LaunchContext:
 
         return AttributeDict(self._get_combined_locals())
 
+    def _push_environment(self):
+        self.__environment_stack.append(self.__environment.copy())
+
+    def _pop_environment(self):
+        if not self.__environment_stack:
+            raise RuntimeError('environment stack unexpectedly empty')
+        self.__environment = self.__environment_stack.pop()
+
     def _push_launch_configurations(self):
-        self.__launch_configurations_stack.append(dict(self.__launch_configurations))
+        self.__launch_configurations_stack.append(self.__launch_configurations.copy())
 
     def _pop_launch_configurations(self):
         if not self.__launch_configurations_stack:
@@ -169,6 +181,11 @@ class LaunchContext:
     def launch_configurations(self) -> Dict[Text, Text]:
         """Getter for launch_configurations dictionary."""
         return self.__launch_configurations
+
+    @property
+    def environment(self) -> Dict[Text, Text]:
+        """Getter for environment variables dictionary."""
+        return self.__environment
 
     def would_handle_event(self, event: Event) -> bool:
         """Check whether an event would be handled or not."""
