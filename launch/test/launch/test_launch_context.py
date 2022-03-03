@@ -113,8 +113,7 @@ def test_launch_context_environment():
     os.environ['LAUNCH_TEST_ENV_PUSH_POP'] = 'FOO'
     context = LaunchContext()
     assert len(context.environment) > 0
-    assert 'LAUNCH_TEST_ENV_PUSH_POP' in context.environment
-    assert context.environment['LAUNCH_TEST_ENV_PUSH_POP'] == 'FOO'
+    assert context.environment == dict(os.environ)
     # cleanup
     del os.environ['LAUNCH_TEST_ENV_PUSH_POP']
 
