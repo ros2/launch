@@ -524,8 +524,10 @@ class ExecuteLocal(Action):
         cwd = process_event_args['cwd']
         env = process_event_args['env']
         if self.__log_cmd:
-            self.__logger.info("process details: cmd=[{}], cwd='{}', custom_env?={}".format(
-                ', '.join(cmd), cwd, 'True' if env is not None else 'False'
+            self.__logger.info("process details: cmd='{}', cwd='{}', custom_env?={}".format(
+                ' '.join(filter(lambda part: part.strip(), cmd)),
+                cwd,
+                'True' if env is not None else 'False'
             ))
 
         emulate_tty = self.__emulate_tty
@@ -566,7 +568,7 @@ class ExecuteLocal(Action):
             self.__logger.info('process has finished cleanly [pid {}]'.format(pid))
         else:
             self.__logger.error("process has died [pid {}, exit code {}, cmd '{}'].".format(
-                pid, returncode, ' '.join(cmd)
+                pid, returncode, ' '.join(filter(lambda part: part.strip(), cmd))
             ))
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
         # respawn the process if necessary
