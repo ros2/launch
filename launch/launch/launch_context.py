@@ -63,7 +63,7 @@ class LaunchContext:
         self.__launch_configurations = {}  # type: Dict[Text, Text]
 
         self.__environment_stack = []  # type: List[Dict[Text, Text]]
-        self.__environment = dict(os.environ)  # type: Dict[Text, Text]
+        self._reset_environment()
 
         self.__is_shutdown = False
         self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
@@ -168,6 +168,9 @@ class LaunchContext:
         if not self.__environment_stack:
             raise RuntimeError('environment stack unexpectedly empty')
         self.__environment = self.__environment_stack.pop()
+
+    def _reset_environment(self):
+        self.__environment = dict(os.environ)  # type: Dict[Text, Text]
 
     def _push_launch_configurations(self):
         self.__launch_configurations_stack.append(self.__launch_configurations.copy())

@@ -23,6 +23,7 @@ from .pop_environment import PopEnvironment
 from .pop_launch_configurations import PopLaunchConfigurations
 from .push_environment import PushEnvironment
 from .push_launch_configurations import PushLaunchConfigurations
+from .reset_environment import ResetEnvironment
 from .reset_launch_configurations import ResetLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
@@ -127,6 +128,7 @@ class GroupAction(Action):
                     self.__actions_to_return = [
                         PushLaunchConfigurations(),
                         PushEnvironment(),
+                        ResetEnvironment(),
                         ResetLaunchConfigurations(self.__launch_configurations),
                         *self.__actions_to_return,
                         PopEnvironment(),
