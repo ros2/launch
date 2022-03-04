@@ -27,13 +27,13 @@ import pytest
 @pytest.mark.parametrize('value', ['True', 'true', '1'])
 def test_not_substitution_true(value):
     lc = LaunchContext()
-    assert NotSubstitution(value).perform(lc) == 'False'
+    assert NotSubstitution(value).perform(lc) == 'false'
 
 
 @pytest.mark.parametrize('value', ['False', 'false', '0'])
 def test_not_substitution_false(value):
     lc = LaunchContext()
-    assert NotSubstitution(value).perform(lc) == 'True'
+    assert NotSubstitution(value).perform(lc) == 'true'
 
 
 def test_not_substitution_invalid():
@@ -46,28 +46,28 @@ def test_not_substitution_invalid():
 @pytest.mark.parametrize('right', ['True', 'true', '1'])
 def test_and_substitution_both_true(left, right):
     lc = LaunchContext()
-    assert AndSubstitution(left, right).perform(lc) == 'True'
+    assert AndSubstitution(left, right).perform(lc) == 'true'
 
 
 @pytest.mark.parametrize('left', ['True', 'true', '1'])
 @pytest.mark.parametrize('right', ['False', 'false', '0'])
 def test_and_substitution_left_true(left, right):
     lc = LaunchContext()
-    assert AndSubstitution(left, right).perform(lc) == 'False'
+    assert AndSubstitution(left, right).perform(lc) == 'false'
 
 
 @pytest.mark.parametrize('left', ['False', 'false', '0'])
 @pytest.mark.parametrize('right', ['True', 'true', '1'])
 def test_and_substitution_right_true(left, right):
     lc = LaunchContext()
-    assert AndSubstitution(left, right).perform(lc) == 'False'
+    assert AndSubstitution(left, right).perform(lc) == 'false'
 
 
 @pytest.mark.parametrize('left', ['False', 'false', '0'])
 @pytest.mark.parametrize('right', ['False', 'false', '0'])
 def test_and_substitution_both_false(left, right):
     lc = LaunchContext()
-    assert AndSubstitution(left, right).perform(lc) == 'False'
+    assert AndSubstitution(left, right).perform(lc) == 'false'
 
 
 def test_and_substitution_invalid():
@@ -82,28 +82,28 @@ def test_and_substitution_invalid():
 @pytest.mark.parametrize('right', ['True', 'true', '1'])
 def test_or_substitution_both_true(left, right):
     lc = LaunchContext()
-    assert OrSubstitution(left, right).perform(lc) == 'True'
+    assert OrSubstitution(left, right).perform(lc) == 'true'
 
 
 @pytest.mark.parametrize('left', ['True', 'true', '1'])
 @pytest.mark.parametrize('right', ['False', 'false', '0'])
 def test_or_substitution_left_true(left, right):
     lc = LaunchContext()
-    assert OrSubstitution(left, right).perform(lc) == 'True'
+    assert OrSubstitution(left, right).perform(lc) == 'true'
 
 
 @pytest.mark.parametrize('left', ['False', 'false', '0'])
 @pytest.mark.parametrize('right', ['True', 'true', '1'])
 def test_or_substitution_right_true(left, right):
     lc = LaunchContext()
-    assert OrSubstitution(left, right).perform(lc) == 'True'
+    assert OrSubstitution(left, right).perform(lc) == 'true'
 
 
 @pytest.mark.parametrize('left', ['False', 'false', '0'])
 @pytest.mark.parametrize('right', ['False', 'false', '0'])
 def test_or_substitution_both_false(left, right):
     lc = LaunchContext()
-    assert OrSubstitution(left, right).perform(lc) == 'False'
+    assert OrSubstitution(left, right).perform(lc) == 'false'
 
 
 def test_or_substitution_invalid():

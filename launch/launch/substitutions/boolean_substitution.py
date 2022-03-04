@@ -64,7 +64,7 @@ class NotSubstitution(Substitution):
         except InvalidConditionExpressionError:
             raise SubstitutionFailure(f'invalid condition expression: {self.value}')
 
-        return str(not condition)
+        return str(not condition).lower()
 
 
 @expose_substitution('and')
@@ -116,7 +116,7 @@ class AndSubstitution(Substitution):
         except InvalidConditionExpressionError:
             raise SubstitutionFailure(f'invalid condition expression: {self.right}')
 
-        return str(left_condition and right_condition)
+        return str(left_condition and right_condition).lower()
 
 
 @expose_substitution('or')
@@ -168,4 +168,4 @@ class OrSubstitution(Substitution):
         except InvalidConditionExpressionError:
             raise SubstitutionFailure(f'invalid condition expression: {self.right}')
 
-        return str(left_condition or right_condition)
+        return str(left_condition or right_condition).lower()

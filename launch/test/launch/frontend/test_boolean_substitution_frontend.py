@@ -96,15 +96,15 @@ def check_boolean_substitution(file):
     or_false_true = sub_entries[10]
     or_false_false = sub_entries[11]
 
-    assert perform(not_true.value) == 'False'
-    assert perform(not_false.value) == 'True'
+    assert perform(not_true.value) == 'false'
+    assert perform(not_false.value) == 'true'
 
-    assert perform(and_true_true.value) == 'True'
-    assert perform(and_true_false.value) == 'False'
-    assert perform(and_false_true.value) == 'False'
-    assert perform(and_false_false.value) == 'False'
+    assert perform(and_true_true.value) == 'true'
+    assert perform(and_true_false.value) == 'false'
+    assert perform(and_false_true.value) == 'false'
+    assert perform(and_false_false.value) == 'false'
 
-    assert perform(or_true_true.value) == 'True'
-    assert perform(or_true_false.value) == 'True'
-    assert perform(or_false_true.value) == 'True'
-    assert perform(or_false_false.value) == 'False'
+    assert perform(or_true_true.value) == 'true'
+    assert perform(or_true_false.value) == 'true'
+    assert perform(or_false_true.value) == 'true'
+    assert perform(or_false_false.value) == 'false'
