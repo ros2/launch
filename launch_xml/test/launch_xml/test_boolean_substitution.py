@@ -20,31 +20,6 @@ from launch.frontend import Parser
 from launch.utilities import perform_substitutions
 
 
-def test_boolean_substitution_yaml():
-    yaml_file = textwrap.dedent(
-        r"""
-        launch:
-            - let: { name: true_value, value: "true" }
-            - let: { name: false_value, value: "false" }
-
-            - let: { name: not_true, value: "$(not $(var true_value))" }
-            - let: { name: not_false, value: "$(not $(var false_value))" }
-
-            - let: { name: and_true_true, value: "$(and $(var true_value) $(var true_value))" }
-            - let: { name: and_true_false, value: "$(and $(var true_value) $(var false_value))" }
-            - let: { name: and_false_true, value: "$(and $(var false_value) $(var true_value))" }
-            - let: { name: and_false_false, value: "$(and $(var false_value) $(var false_value))" }
-
-            - let: { name: or_true_true, value: "$(or $(var true_value) $(var true_value))" }
-            - let: { name: or_true_false, value: "$(or $(var true_value) $(var false_value))" }
-            - let: { name: or_false_true, value: "$(or $(var false_value) $(var true_value))" }
-            - let: { name: or_false_false, value: "$(or $(var false_value) $(var false_value))" }
-        """
-    )
-    with io.StringIO(yaml_file) as f:
-        check_boolean_substitution(f)
-
-
 def test_boolean_substitution_xml():
     xml_file = textwrap.dedent(
         r"""
