@@ -21,6 +21,7 @@ from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List  # noqa: F401
+from typing import Mapping
 from typing import Optional
 from typing import Text
 
@@ -62,8 +63,9 @@ class LaunchContext:
         self.__launch_configurations_stack = []  # type: List[Dict[Text, Text]]
         self.__launch_configurations = {}  # type: Dict[Text, Text]
 
-        self.__environment_stack = []  # type: List[Dict[Text, Text]]
-        self._reset_environment()
+        self.__environment_stack = []  # type: List[Mapping[Text, Text]]
+        # We will reset to this copy when "reset_environment" is called
+        self.__environment_reset = os.environ.copy()  # type: Mapping[Text, Text]
 
         self.__is_shutdown = False
         self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
@@ -162,15 +164,15 @@ class LaunchContext:
         return AttributeDict(self._get_combined_locals())
 
     def _push_environment(self):
-        self.__environment_stack.append(self.__environment.copy())
+        self.__environment_stack.append(os.environ.copy())
 
     def _pop_environment(self):
         if not self.__environment_stack:
             raise RuntimeError('environment stack unexpectedly empty')
-        self.__environment = self.__environment_stack.pop()
+        os.environ = self.__environment_stack.pop()
 
     def _reset_environment(self):
-        self.__environment = dict(os.environ)  # type: Dict[Text, Text]
+        os.environ = self.__environment_reset.copy()
 
     def _push_launch_configurations(self):
         self.__launch_configurations_stack.append(self.__launch_configurations.copy())
@@ -186,9 +188,9 @@ class LaunchContext:
         return self.__launch_configurations
 
     @property
-    def environment(self) -> Dict[Text, Text]:
+    def environment(self) -> Mapping[Text, Text]:
         """Getter for environment variables dictionary."""
-        return self.__environment
+        return os.environ
 
     def would_handle_event(self, event: Event) -> bool:
         """Check whether an event would be handled or not."""
