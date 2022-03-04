@@ -184,7 +184,7 @@ class ExecuteLocal(Action):
             Use get_stdout() and get_stderr() to read the buffered output.
         :param: on_exit list of actions to execute upon process exit.
         :param: respawn if 'True', relaunch the process that abnormally died.
-            Either a boolean of a Substitution to be resolved at runtime. Defaults to 'False'.
+            Either a boolean or a Substitution to be resolved at runtime. Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
         """
         super().__init__(**kwargs)
