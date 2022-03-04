@@ -26,6 +26,7 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
+from ..utilities.type_utils import perform_typed_substitution
 
 
 @expose_substitution('not')
@@ -57,12 +58,9 @@ class NotSubstitution(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            condition_expression = normalize_to_list_of_substitutions(
-                perform_substitutions(context, self.value)
-            )
-            condition = evaluate_condition_expression(context, condition_expression)
-        except InvalidConditionExpressionError:
-            raise SubstitutionFailure(f'invalid condition expression: {self.value}')
+            condition = perform_typed_substitution(context, self.value, bool)
+        except (TypeError, ValueError) as e:
+            raise SubstitutionFailure(e)
 
         return str(not condition).lower()
 
@@ -102,19 +100,13 @@ class AndSubstitution(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            condition_expression = normalize_to_list_of_substitutions(
-                perform_substitutions(context, self.left)
-            )
-            left_condition = evaluate_condition_expression(context, condition_expression)
-        except InvalidConditionExpressionError:
-            raise SubstitutionFailure(f'invalid condition expression: {self.left}')
+            left_condition = perform_typed_substitution(context, self.left, bool)
+        except (TypeError, ValueError) as e:
+            raise SubstitutionFailure(e)
         try:
-            condition_expression = normalize_to_list_of_substitutions(
-                perform_substitutions(context, self.right)
-            )
-            right_condition = evaluate_condition_expression(context, condition_expression)
-        except InvalidConditionExpressionError:
-            raise SubstitutionFailure(f'invalid condition expression: {self.right}')
+            right_condition = perform_typed_substitution(context, self.right, bool)
+        except (TypeError, ValueError) as e:
+            raise SubstitutionFailure(e)
 
         return str(left_condition and right_condition).lower()
 
@@ -154,18 +146,12 @@ class OrSubstitution(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            condition_expression = normalize_to_list_of_substitutions(
-                perform_substitutions(context, self.left)
-            )
-            left_condition = evaluate_condition_expression(context, condition_expression)
-        except InvalidConditionExpressionError:
-            raise SubstitutionFailure(f'invalid condition expression: {self.left}')
+            left_condition = perform_typed_substitution(context, self.left, bool)
+        except (TypeError, ValueError) as e:
+            raise SubstitutionFailure(e)
         try:
-            condition_expression = normalize_to_list_of_substitutions(
-                perform_substitutions(context, self.right)
-            )
-            right_condition = evaluate_condition_expression(context, condition_expression)
-        except InvalidConditionExpressionError:
-            raise SubstitutionFailure(f'invalid condition expression: {self.right}')
+            right_condition = perform_typed_substitution(context, self.right, bool)
+        except (TypeError, ValueError) as e:
+            raise SubstitutionFailure(e)
 
         return str(left_condition or right_condition).lower()
