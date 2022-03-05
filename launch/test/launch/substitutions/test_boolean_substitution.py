@@ -31,6 +31,7 @@ def test_not_substitution():
     with pytest.raises(SubstitutionFailure):
         NotSubstitution('not-condition-expression').perform(lc)
 
+
 def test_and_substitution():
     lc = LaunchContext()
     assert AndSubstitution('true', 'true').perform(lc) == 'true'
