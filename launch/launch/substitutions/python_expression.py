@@ -33,6 +33,10 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
+def is_quoted(exp) -> bool:
+    return isinstance(exp, TextSubstitution) and (not exp.quote)
+
+
 @expose_substitution('eval')
 class PythonExpression(Substitution):
     """
@@ -81,11 +85,11 @@ class PythonExpression(Substitution):
             ]
             if '==' in expressions or '!=' in expressions:
                 left = expressions[0]
-                if isinstance(self.expression[0], TextSubstitution) and (not self.expression[0].quote):
+                if is_quoted(self.expression[0]):
                     left = LaunchConfiguration(left, default=left).perform(context)
 
                 right = expressions[2]
-                if isinstance(self.expression[2], TextSubstitution) and (not self.expression[2].quote):
+                if is_quoted(self.expression[2]):
                     right = LaunchConfiguration(right, default=right).perform(context)
 
                 expression = f"'{left}' {expressions[1]} '{right}'"
