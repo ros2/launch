@@ -20,7 +20,7 @@ from launch.frontend import Parser
 from launch.utilities import perform_substitutions
 
 
-def test_boolean_substitution():
+def test_boolean_substitution_xml():
     xml_file = textwrap.dedent(
         r"""
         <launch>
@@ -39,32 +39,6 @@ def test_boolean_substitution():
             <let name="or_true_false" value="$(or $(var true_value) $(var false_value))" />
             <let name="or_false_true" value="$(or $(var false_value) $(var true_value))" />
             <let name="or_false_false" value="$(or $(var false_value) $(var false_value))" />
-        </launch>
-        """
-    )
-    with io.StringIO(xml_file) as f:
-        check_boolean_substitution(f)
-
-
-def test_boolean_substitution_no_var():
-    xml_file = textwrap.dedent(
-        r"""
-        <launch>
-            <let name="true_value" value="true" />
-            <let name="false_value" value="false" />
-
-            <let name="not_true" value="$(not true_value)" />
-            <let name="not_false" value="$(not false_value)" />
-
-            <let name="and_true_true" value="$(and true_value true_value)" />
-            <let name="and_true_false" value="$(and true_value false_value)" />
-            <let name="and_false_true" value="$(and false_value true_value)" />
-            <let name="and_false_false" value="$(and false_value false_value)" />
-
-            <let name="or_true_true" value="$(or true_value true_value)" />
-            <let name="or_true_false" value="$(or true_value false_value)" />
-            <let name="or_false_true" value="$(or false_value true_value)" />
-            <let name="or_false_false" value="$(or false_value false_value)" />
         </launch>
         """
     )

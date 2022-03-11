@@ -17,7 +17,6 @@
 from typing import Iterable
 from typing import Text
 
-from .launch_configuration import LaunchConfiguration
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -56,9 +55,7 @@ class NotSubstitution(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            value = LaunchConfiguration(self.value, default=self.value).perform(context)
-            condition = perform_typed_substitution(
-                context, normalize_to_list_of_substitutions(value), bool)
+            condition = perform_typed_substitution(context, self.value, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
 
@@ -100,15 +97,11 @@ class AndSubstitution(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            value = LaunchConfiguration(self.left, default=self.left).perform(context)
-            left_condition = perform_typed_substitution(
-                context, normalize_to_list_of_substitutions(value), bool)
+            left_condition = perform_typed_substitution(context, self.left, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
         try:
-            value = LaunchConfiguration(self.right, default=self.right).perform(context)
-            right_condition = perform_typed_substitution(
-                context, normalize_to_list_of_substitutions(value), bool)
+            right_condition = perform_typed_substitution(context, self.right, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
 
@@ -150,15 +143,11 @@ class OrSubstitution(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            value = LaunchConfiguration(self.left, default=self.left).perform(context)
-            left_condition = perform_typed_substitution(
-                context, normalize_to_list_of_substitutions(value), bool)
+            left_condition = perform_typed_substitution(context, self.left, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
         try:
-            value = LaunchConfiguration(self.right, default=self.right).perform(context)
-            right_condition = perform_typed_substitution(
-                context, normalize_to_list_of_substitutions(value), bool)
+            right_condition = perform_typed_substitution(context, self.right, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
 
