@@ -34,7 +34,7 @@ from ..utilities import perform_substitutions
 
 
 def is_quoted(exp) -> bool:
-    return isinstance(exp, TextSubstitution) and (not exp.quote)
+    return isinstance(exp, TextSubstitution) and exp.quote
 
 
 @expose_substitution('eval')
@@ -78,21 +78,18 @@ class PythonExpression(Substitution):
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by evaluating the expression."""
-        if len(self.expression) != 1:
-            expressions = [
-                perform_substitutions(context, normalize_to_list_of_substitutions(exp))
-                for exp in self.expression
-            ]
-            if '==' in expressions or '!=' in expressions:
-                left = expressions[0]
-                if is_quoted(self.expression[0]):
-                    left = LaunchConfiguration(left, default=left).perform(context)
+        expressions = [perform_substitutions(context, [exp]) for exp in self.expression]
 
-                right = expressions[2]
-                if is_quoted(self.expression[2]):
-                    right = LaunchConfiguration(right, default=right).perform(context)
+        if len(expressions) == 3 and (expressions[1] in ['==', '!=']):
+            left = expressions[0]
+            if not is_quoted(self.expression[0]):
+                left = LaunchConfiguration(left, default=left).perform(context)
 
-                expression = f"'{left}' {expressions[1]} '{right}'"
-                return str(eval(expression, {}, math.__dict__))
+            right = expressions[2]
+            if not is_quoted(self.expression[2]):
+                right = LaunchConfiguration(right, default=right).perform(context)
 
-        return str(eval(perform_substitutions(context, self.expression), {}, math.__dict__))
+            expression = f"'{left}' {expressions[1]} '{right}'"
+            return str(eval(expression, {}, math.__dict__))
+
+        return str(eval(''.join(expressions), {}, math.__dict__))
