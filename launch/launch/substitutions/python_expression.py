@@ -74,21 +74,21 @@ class PythonExpression(Substitution):
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by evaluating the expression."""
-        if len(self.expression) == 1:
-            return str(eval(perform_substitutions(context, self.expression), {}, math.__dict__))
+        if len(self.expression) != 1:
+            expressions = [
+                perform_substitutions(context, normalize_to_list_of_substitutions(exp))
+                for exp in self.expression
+            ]
+            if '==' in expressions or '!=' in expressions:
+                left = expressions[0]
+                if isinstance(self.expression[0], TextSubstitution) and (not self.expression[0].quote):
+                    left = LaunchConfiguration(left, default=left).perform(context)
 
-        expressions = [
-            perform_substitutions(context, normalize_to_list_of_substitutions(exp))
-            for exp in self.expression
-        ]
-        if '==' in expressions or '!=' in expressions:
-            left = expressions[0]
-            if isinstance(self.expression[0], TextSubstitution) and (not self.expression[0].quote):
-                left = LaunchConfiguration(left, default=left).perform(context)
+                right = expressions[2]
+                if isinstance(self.expression[2], TextSubstitution) and (not self.expression[2].quote):
+                    right = LaunchConfiguration(right, default=right).perform(context)
 
-            right = expressions[2]
-            if isinstance(self.expression[2], TextSubstitution) and (not self.expression[2].quote):
-                right = LaunchConfiguration(right, default=right).perform(context)
+                expression = f"'{left}' {expressions[1]} '{right}'"
+                return str(eval(expression, {}, math.__dict__))
 
-            expression = f"'{left}' {expressions[1]} '{right}'"
-            return str(eval(expression, {}, math.__dict__))
+        return str(eval(perform_substitutions(context, self.expression), {}, math.__dict__))
