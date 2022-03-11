@@ -21,20 +21,13 @@ from typing import Iterable
 from typing import List
 from typing import Text
 
-from launch.substitutions.text_substitution import TextSubstitution
-
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
-from ..substitutions import LaunchConfiguration
 from ..utilities import ensure_argument_type
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-
-
-def is_quoted(exp) -> bool:
-    return isinstance(exp, TextSubstitution) and exp.quote
 
 
 @expose_substitution('eval')
@@ -82,13 +75,7 @@ class PythonExpression(Substitution):
 
         if len(expressions) == 3 and (expressions[1] in ['==', '!=']):
             left = expressions[0]
-            if not is_quoted(self.expression[0]):
-                left = LaunchConfiguration(left, default=left).perform(context)
-
             right = expressions[2]
-            if not is_quoted(self.expression[2]):
-                right = LaunchConfiguration(right, default=right).perform(context)
-
             expression = f"'{left}' {expressions[1]} '{right}'"
             return str(eval(expression, {}, math.__dict__))
 

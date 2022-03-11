@@ -43,15 +43,7 @@ class ExtractSubstitution(Transformer):
         content = content[0]
         if isinstance(content, Token):
             assert content.type.endswith('_RSTRING')
-
-            if content.type.startswith('SINGLE_QUOTED'):
-                quote = "'"
-            elif content.type.startswith('DOUBLE_QUOTED'):
-                quote = '"'
-            else:
-                quote = None
-
-            return TextSubstitution(text=replace_escaped_characters(content.value), quote=quote)
+            return TextSubstitution(text=replace_escaped_characters(content.value))
         return content
 
     single_quoted_part = part
@@ -90,15 +82,7 @@ class ExtractSubstitution(Transformer):
         content = content[0]
         if isinstance(content, Token):
             assert content.type.endswith('_STRING')
-
-            if content.type.startswith('SINGLE_QUOTED'):
-                quote = "'"
-            elif content.type.startswith('DOUBLE_QUOTED'):
-                quote = '"'
-            else:
-                quote = None
-
-            return TextSubstitution(text=replace_escaped_characters(content.value), quote=quote)
+            return TextSubstitution(text=replace_escaped_characters(content.value))
         return content
 
     single_quoted_fragment = fragment
