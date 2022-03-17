@@ -399,11 +399,7 @@ class LaunchService:
                 self.__context.emit_event_sync(shutdown_event)
             elif self.__loop_from_run_thread == asyncio_event_loop:
                 # If in the thread of the loop.
-                async def emit_event_async():
-                    nonlocal shutdown_event
-                    return await self.__context.emit_event(shutdown_event)
-
-                return emit_event_async
+                retval = self.__context.emit_event(shutdown_event)
             else:
                 # Otherwise in a different thread, so use the thread-safe method.
                 self.emit_event(shutdown_event)
