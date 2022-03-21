@@ -290,7 +290,9 @@ class LaunchService:
                     # the queue
                     is_idle = self._is_idle()  # self._entity_future_pairs is pruned here
                     if not self.__shutting_down and shutdown_when_idle and is_idle:
-                        ret = await self._shutdown(reason='idle', due_to_sigint=False)
+                        ret = self._shutdown(reason='idle', due_to_sigint=False)
+                        if ret is not None:
+                            ret = await ret
                         assert ret is None, ret
                         continue
 
@@ -343,7 +345,9 @@ class LaunchService:
                     msg = 'Caught exception in launch (see debug for traceback): {}'.format(exc)
                     self.__logger.debug(traceback.format_exc())
                     self.__logger.error(msg)
-                    ret = await self._shutdown(reason=msg, due_to_sigint=False)
+                    ret = self._shutdown(reason=msg, due_to_sigint=False)
+                    if ret is not None:
+                        ret = await ret
                     assert ret is None, ret
                     return_code = 1
                     # keep running to let things shutdown properly
