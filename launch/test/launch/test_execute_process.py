@@ -32,6 +32,7 @@ from launch.actions.shutdown_action import Shutdown
 from launch.actions.timer_action import TimerAction
 from launch.event_handlers.on_process_start import OnProcessStart
 from launch.events.shutdown import Shutdown as ShutdownEvent
+from launch.substitutions.launch_configuration import LaunchConfiguration
 
 import pytest
 
@@ -168,6 +169,51 @@ def test_execute_process_with_respawn():
         ])
 
     ls = LaunchService()
+    ls.include_launch_description(generate_launch_description())
+    assert 0 == ls.run()
+    assert expected_called_count == on_exit_callback.called_count
+
+
+def test_execute_process_with_respawn_substitution():
+    """Test launching a process with a respawn substitution and respawn_delay attribute."""
+    def on_exit_callback(event, context):
+        on_exit_callback.called_count = on_exit_callback.called_count + 1
+
+    respawn_delay = 2.0
+    shutdown_time = 3.0  # to shutdown the launch service, so that the process only respawn once
+
+    def generate_launch_description():
+
+        test_process = ExecuteProcess(
+            cmd=[sys.executable, '-c', "print('action')"],
+            respawn=LaunchConfiguration('respawn'),
+            respawn_delay=respawn_delay, on_exit=on_exit_callback,
+        )
+
+        ld = LaunchDescription([
+            test_process,
+            TimerAction(
+                period=shutdown_time,
+                actions=[
+                    Shutdown(reason='Timer expired')
+                ]
+            )
+        ])
+
+        return ld
+
+    ls = LaunchService()
+    ls.context.launch_configurations['respawn'] = 'False'
+    ls.include_launch_description(generate_launch_description())
+    on_exit_callback.called_count = 0
+    expected_called_count = 1  # only normal exit
+    assert 0 == ls.run()
+    assert expected_called_count == on_exit_callback.called_count
+
+    ls = LaunchService()
+    ls.context.launch_configurations['respawn'] = 'True'
+    on_exit_callback.called_count = 0
+    expected_called_count = 2  # normal exit and respawn exit
     ls.include_launch_description(generate_launch_description())
     assert 0 == ls.run()
     assert expected_called_count == on_exit_callback.called_count

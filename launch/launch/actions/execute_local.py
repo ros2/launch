@@ -72,6 +72,8 @@ from ..utilities import create_future
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
+from ..utilities.type_utils import normalize_typed_substitution
+from ..utilities.type_utils import perform_typed_substitution
 
 _global_process_counter_lock = threading.Lock()
 _global_process_counter = 0  # in Python3, this number is unbounded (no rollover)
@@ -98,7 +100,7 @@ class ExecuteLocal(Action):
             SomeActionsType,
             Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]
         ]] = None,
-        respawn: bool = False,
+        respawn: Union[bool, SomeSubstitutionsType] = False,
         respawn_delay: Optional[float] = None,
         **kwargs
     ) -> None:
@@ -182,7 +184,7 @@ class ExecuteLocal(Action):
             Use get_stdout() and get_stderr() to read the buffered output.
         :param: on_exit list of actions to execute upon process exit.
         :param: respawn if 'True', relaunch the process that abnormally died.
-            Defaults to 'False'.
+            Either a boolean or a Substitution to be resolved at runtime. Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
         """
         super().__init__(**kwargs)
@@ -198,7 +200,7 @@ class ExecuteLocal(Action):
         self.__log_cmd = log_cmd
         self.__cached_output = cached_output
         self.__on_exit = on_exit
-        self.__respawn = respawn
+        self.__respawn = normalize_typed_substitution(respawn, bool)
         self.__respawn_delay = respawn_delay
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
@@ -599,6 +601,8 @@ class ExecuteLocal(Action):
             'env': self.__process_description.final_env,
             # pid is added to the dictionary in the connection_made() method of the protocol.
         }
+
+        self.__respawn = perform_typed_substitution(context, self.__respawn, bool)
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
