@@ -39,9 +39,9 @@ def test_and_substitution():
     assert AndSubstitution('false', 'true').perform(lc) == 'false'
     assert AndSubstitution('false', 'false').perform(lc) == 'false'
     with pytest.raises(SubstitutionFailure):
-        AndSubstitution('not-condition-expression', 'True').perform(lc)
+        AndSubstitution('not-condition-expression', 'true').perform(lc)
     with pytest.raises(SubstitutionFailure):
-        AndSubstitution('True', 'not-condition-expression').perform(lc)
+        AndSubstitution('true', 'not-condition-expression').perform(lc)
 
 
 def test_or_substitution():
@@ -51,6 +51,6 @@ def test_or_substitution():
     assert OrSubstitution('false', 'true').perform(lc) == 'true'
     assert OrSubstitution('false', 'false').perform(lc) == 'false'
     with pytest.raises(SubstitutionFailure):
-        OrSubstitution('not-condition-expression', 'True').perform(lc)
+        OrSubstitution('not-condition-expression', 'true').perform(lc)
     with pytest.raises(SubstitutionFailure):
-        OrSubstitution('True', 'not-condition-expression').perform(lc)
+        OrSubstitution('true', 'not-condition-expression').perform(lc)
