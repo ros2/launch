@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the AnonName substitution class."""
+"""Tests for the boolean substitution classes."""
 
 from launch import LaunchContext
 
