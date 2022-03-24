@@ -14,7 +14,6 @@
 
 """Module for the EnvironmentVariable substitution."""
 
-import os
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -33,6 +32,10 @@ class EnvironmentVariable(Substitution):
     Substitution that gets an environment variable value as a string.
 
     If the environment variable is not found, it returns empty string.
+
+    Note that the environment variable is resolved based on the launch context's environment (i.e.,
+    ``context.environment``) even though the substitution may be associated with an entity that
+    might have a different set of environment variables.
     """
 
     def __init__(
@@ -89,7 +92,7 @@ class EnvironmentVariable(Substitution):
         if default_value is not None:
             default_value = perform_substitutions(context, self.default_value)
         name = perform_substitutions(context, self.name)
-        value = os.environ.get(
+        value = context.environment.get(
             name,
             default_value
         )

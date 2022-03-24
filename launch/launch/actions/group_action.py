@@ -19,7 +19,9 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 
+from .pop_environment import PopEnvironment
 from .pop_launch_configurations import PopLaunchConfigurations
+from .push_environment import PushEnvironment
 from .push_launch_configurations import PushLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
@@ -34,12 +36,13 @@ from ..some_substitutions_type import SomeSubstitutionsType
 @expose_action('group')
 class GroupAction(Action):
     """
-    Action that yields other actions, optionally scoping launch configurations.
+    Action that yields other actions.
 
     This action is used to nest other actions without including a separate
     launch description, while also optionally having a condition (like all
-    other actions), scoping launch configurations, and/or declaring launch
-    configurations for just the group and its yielded actions.
+    other actions), scoping launch configurations and environment variables,
+    and/or declaring launch  configurations for just the group and its yielded
+    actions.
     """
 
     def __init__(
@@ -81,7 +84,9 @@ class GroupAction(Action):
             if self.__scoped:
                 self.__actions_to_return = [
                     PushLaunchConfigurations(),
+                    PushEnvironment(),
                     *self.__actions_to_return,
+                    PopEnvironment(),
                     PopLaunchConfigurations()
                 ]
         return self.__actions_to_return

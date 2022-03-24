@@ -17,7 +17,9 @@
 from launch import Action
 from launch import LaunchContext
 from launch.actions import GroupAction
+from launch.actions import PopEnvironment
 from launch.actions import PopLaunchConfigurations
+from launch.actions import PushEnvironment
 from launch.actions import PushLaunchConfigurations
 from launch.actions import SetLaunchConfiguration
 
@@ -40,44 +42,56 @@ def test_group_action_execute():
 
     assert len(lc1.launch_configurations) == 0
     result = GroupAction([]).visit(lc1)
-    assert len(result) == 2  # push and pop actions, due to scope=True
+    assert len(result) == 4  # push and pop actions, due to scope=True
     assert isinstance(result[0], PushLaunchConfigurations)
-    assert isinstance(result[1], PopLaunchConfigurations)
-    for a in result:
-        a.visit(lc1)
-    assert len(lc1.launch_configurations) == 0
-
-    assert len(lc1.launch_configurations) == 0
-    result = GroupAction([], launch_configurations={'foo': 'FOO'}).visit(lc1)
-    assert len(result) == 3  # push, set 1 launch_configurations, and pop actions
-    assert isinstance(result[0], PushLaunchConfigurations)
-    assert isinstance(result[1], SetLaunchConfiguration)
-    assert isinstance(result[2], PopLaunchConfigurations)
-    for a in result:
-        a.visit(lc1)
-    assert len(lc1.launch_configurations) == 0
-
-    assert len(lc1.launch_configurations) == 0
-    result = GroupAction([], launch_configurations={'foo': 'FOO', 'bar': 'BAR'}).visit(lc1)
-    assert len(result) == 4  # push, set 2 launch_configurations, and pop actions
-    assert isinstance(result[0], PushLaunchConfigurations)
-    assert isinstance(result[1], SetLaunchConfiguration)
-    assert isinstance(result[2], SetLaunchConfiguration)
+    assert isinstance(result[1], PushEnvironment)
+    assert isinstance(result[2], PopEnvironment)
     assert isinstance(result[3], PopLaunchConfigurations)
     for a in result:
         a.visit(lc1)
     assert len(lc1.launch_configurations) == 0
 
     assert len(lc1.launch_configurations) == 0
+    result = GroupAction([], launch_configurations={'foo': 'FOO'}).visit(lc1)
+    assert len(result) == 5  # push, set 1 launch_configurations, and pop actions
+    assert isinstance(result[0], PushLaunchConfigurations)
+    assert isinstance(result[1], PushEnvironment)
+    assert isinstance(result[2], SetLaunchConfiguration)
+    assert isinstance(result[3], PopEnvironment)
+    assert isinstance(result[4], PopLaunchConfigurations)
+    for a in result:
+        a.visit(lc1)
+    assert len(lc1.launch_configurations) == 0
+
+    assert len(lc1.launch_configurations) == 0
+    result = GroupAction([], launch_configurations={'foo': 'FOO', 'bar': 'BAR'}).visit(lc1)
+    assert len(result) == 6  # push, set 2 launch_configurations, and pop actions
+    assert isinstance(result[0], PushLaunchConfigurations)
+    assert isinstance(result[1], PushEnvironment)
+    assert isinstance(result[2], SetLaunchConfiguration)
+    assert isinstance(result[3], SetLaunchConfiguration)
+    assert isinstance(result[4], PopEnvironment)
+    assert isinstance(result[5], PopLaunchConfigurations)
+    for a in result:
+        a.visit(lc1)
+    assert len(lc1.launch_configurations) == 0
+
+    assert len(lc1.launch_configurations) == 0
     PushLaunchConfigurations().visit(lc1)
+    PushEnvironment().visit(lc1)
+    lc1.environment['foo_to_test_launch_group'] = 'FOO'
     result = GroupAction([], scoped=False, launch_configurations={'foo': 'FOO'}).visit(lc1)
     assert len(result) == 1  # set 1 launch_configurations
+    assert 'foo_to_test_launch_group' in lc1.environment
     assert isinstance(result[0], SetLaunchConfiguration)
     for a in result:
         a.visit(lc1)
     assert len(lc1.launch_configurations) == 1  # still set after group was included
+    assert 'foo_to_test_launch_group' in lc1.environment
+    PopEnvironment().visit(lc1)
     PopLaunchConfigurations().visit(lc1)
     assert len(lc1.launch_configurations) == 0
+    assert 'foo_to_test_launch_group' not in lc1.environment
 
     assert len(lc1.launch_configurations) == 0
     PushLaunchConfigurations().visit(lc1)
@@ -93,11 +107,13 @@ def test_group_action_execute():
 
     assert len(lc1.launch_configurations) == 0
     result = GroupAction([Action()], launch_configurations={'foo': 'FOO'}).visit(lc1)
-    assert len(result) == 4  # push, set 1 launch_configurations, the 1 action, and pop actions
+    assert len(result) == 6  # push, set 1 launch_configurations, the 1 action, and pop actions
     assert isinstance(result[0], PushLaunchConfigurations)
-    assert isinstance(result[1], SetLaunchConfiguration)
-    assert isinstance(result[2], Action)
-    assert isinstance(result[3], PopLaunchConfigurations)
+    assert isinstance(result[1], PushEnvironment)
+    assert isinstance(result[2], SetLaunchConfiguration)
+    assert isinstance(result[3], Action)
+    assert isinstance(result[4], PopEnvironment)
+    assert isinstance(result[5], PopLaunchConfigurations)
     for a in result:
         a.visit(lc1)
     assert len(lc1.launch_configurations) == 0
