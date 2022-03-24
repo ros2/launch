@@ -17,6 +17,7 @@
 
 """Module for a description of an Executable."""
 
+import copy
 import os
 import re
 import shlex
@@ -68,7 +69,7 @@ class Executable:
             to be resolved at runtime, defaults to the basename of the executable
         :param cwd: The directory in which to run the executable
         :param env: Dictionary of environment variables to be used, starting from a clean
-            environment. If None, the current environment is used.
+            environment. If None, the current environment of the launch context is used.
         :param additional_env: Dictionary of environment variables to be added. If env was
             None, they are added to the current environment. If not, env is updated with
             additional_env.
@@ -191,15 +192,14 @@ class Executable:
         if self.__cwd is not None:
             cwd = ''.join([context.perform_substitution(x) for x in self.__cwd])
         self.__final_cwd = cwd
-        env = None
+        env = {}
         if self.__env is not None:
-            env = {}
             for key, value in self.__env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])
+        else:
+            env = copy.deepcopy(context.environment)
         if self.__additional_env is not None:
-            if env is None:
-                env = dict(os.environ)
             for key, value in self.__additional_env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])

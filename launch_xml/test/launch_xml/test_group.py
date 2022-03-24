@@ -17,8 +17,14 @@
 import io
 import textwrap
 
-from launch.actions import GroupAction, PopLaunchConfigurations, PushLaunchConfigurations
-from launch.actions import ResetLaunchConfigurations, SetLaunchConfiguration
+from launch.actions import GroupAction
+from launch.actions import PopEnvironment
+from launch.actions import PopLaunchConfigurations
+from launch.actions import PushEnvironment
+from launch.actions import PushLaunchConfigurations
+from launch.actions import ResetEnvironment
+from launch.actions import ResetLaunchConfigurations
+from launch.actions import SetLaunchConfiguration
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 
@@ -55,22 +61,28 @@ def test_group():
     assert 'bar' in lc.launch_configurations.keys()
     assert 'BAR' == lc.launch_configurations['bar']
     actions = ld.entities[2].execute(lc)
-    assert 5 == len(actions)
+    assert 8 == len(actions)
     assert isinstance(actions[0], PushLaunchConfigurations)
-    assert isinstance(actions[1], ResetLaunchConfigurations)
-    assert isinstance(actions[2], SetLaunchConfiguration)
-    assert isinstance(actions[3], SetLaunchConfiguration)
-    assert isinstance(actions[4], PopLaunchConfigurations)
+    assert isinstance(actions[1], PushEnvironment)
+    assert isinstance(actions[2], ResetEnvironment)
+    assert isinstance(actions[3], ResetLaunchConfigurations)
+    assert isinstance(actions[4], SetLaunchConfiguration)
+    assert isinstance(actions[5], SetLaunchConfiguration)
+    assert isinstance(actions[6], PopEnvironment)
+    assert isinstance(actions[7], PopLaunchConfigurations)
     actions[0].visit(lc)
     actions[1].visit(lc)
+    actions[2].visit(lc)
+    actions[3].visit(lc)
     assert 'foo' not in lc.launch_configurations.keys()
     assert 'bar' in lc.launch_configurations.keys()
     assert 'BAR' == lc.launch_configurations['bar']
     assert 'baz' in lc.launch_configurations.keys()
     assert 'BAZ' == lc.launch_configurations['baz']
-    actions[2].visit(lc)
-    actions[3].visit(lc)
     actions[4].visit(lc)
+    actions[5].visit(lc)
+    actions[6].visit(lc)
+    actions[7].visit(lc)
 
 
 if __name__ == '__main__':

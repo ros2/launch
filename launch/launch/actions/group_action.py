@@ -19,8 +19,11 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 
+from .pop_environment import PopEnvironment
 from .pop_launch_configurations import PopLaunchConfigurations
+from .push_environment import PushEnvironment
 from .push_launch_configurations import PushLaunchConfigurations
+from .reset_environment import ResetEnvironment
 from .reset_launch_configurations import ResetLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
@@ -35,22 +38,22 @@ from ..some_substitutions_type import SomeSubstitutionsType
 @expose_action('group')
 class GroupAction(Action):
     """
-    Action that yields other actions, optionally scoping and forwarding launch configurations.
+    Action that yields other actions.
 
     This action is used to nest other actions without including a separate
     launch description, while also optionally having a condition (like all
-    other actions), scoping launch configurations, forwarding launch
-    configurations, and/or declaring launch configurations for just the
+    other actions), scoping and forwarding launch configurations and
+    environment variables, and/or declaring launch configurations for just the
     group and its yielded actions.
 
-    When scoped=True, changes to launch configurations are limited to the
-    scope of actions in the group action.
+    When scoped=True, changes to launch configurations and environment
+    variables are limited to the scope of actions in the group action.
 
     When scoped=True and forwarding=True, all existing launch configurations
-    are available in the scoped context.
+    and environment variables are available in the scoped context.
 
     When scoped=True and forwarding=False, all existing launch configurations
-    are removed from the scoped context.
+    and environment variables are removed from the scoped context.
 
     Any launch configuration defined in the launch_configurations dictionary
     will be set in the current context.
@@ -115,15 +118,20 @@ class GroupAction(Action):
                 if self.__forwarding:
                     self.__actions_to_return = [
                         PushLaunchConfigurations(),
+                        PushEnvironment(),
                         *configuration_sets,
                         *self.__actions_to_return,
+                        PopEnvironment(),
                         PopLaunchConfigurations()
                     ]
                 else:
                     self.__actions_to_return = [
                         PushLaunchConfigurations(),
+                        PushEnvironment(),
+                        ResetEnvironment(),
                         ResetLaunchConfigurations(self.__launch_configurations),
                         *self.__actions_to_return,
+                        PopEnvironment(),
                         PopLaunchConfigurations()
                     ]
             else:

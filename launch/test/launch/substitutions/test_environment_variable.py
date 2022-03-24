@@ -43,4 +43,3 @@ def test_this_launch_file_path():
     assert 'SOME_VALUE' == sub1.perform(lc)
     assert 'SOME_VALUE' == sub2.perform(lc)
     assert 'SOME_VALUE' == sub3.perform(lc)
-    del os.environ['MY_ENVIRONMENT_VARIABLE']

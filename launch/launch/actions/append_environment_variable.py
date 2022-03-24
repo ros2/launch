@@ -111,11 +111,11 @@ class AppendEnvironmentVariable(Action):
         value = perform_substitutions(context, self.value)
         prepend = perform_typed_substitution(context, self.prepend, bool)
         separator = perform_substitutions(context, self.separator)
-        if name in os.environ:
-            os.environ[name] = \
-                os.environ[name] + separator + value \
+        if name in context.environment:
+            context.environment[name] = \
+                context.environment[name] + separator + value \
                 if not prepend \
-                else value + separator + os.environ[name]
+                else value + separator + context.environment[name]
         else:
-            os.environ[name] = value
+            context.environment[name] = value
         return None
