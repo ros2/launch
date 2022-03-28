@@ -2,8 +2,8 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.22.0 (2022-03-28)
+-------------------
 * Support scoping environment variables (`#601 <https://github.com/ros2/launch/issues/601>`_)
 * Contributors: Jacob Perron
 
