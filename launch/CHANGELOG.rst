@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Support scoping environment variables (`#601 <https://github.com/ros2/launch/issues/601>`_)
+* Fix awaiting shutdown in launch context (`#603 <https://github.com/ros2/launch/issues/603>`_)
+* Fix parse respawn var (`#569 <https://github.com/ros2/launch/issues/569>`_)
+* Make the logged command pretty in ExecuteLocal (`#594 <https://github.com/ros2/launch/issues/594>`_)
+* Contributors: Jacob Perron, Kosuke Takeuchi
+
 0.21.1 (2022-03-01)
 -------------------
 * 'output' is expanded as a substitution in XML/YAML files (`#577 <https://github.com/ros2/launch/issues/577>`_)

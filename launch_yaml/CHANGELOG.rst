@@ -2,6 +2,11 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Support scoping environment variables (`#601 <https://github.com/ros2/launch/issues/601>`_)
+* Contributors: Jacob Perron
+
 0.21.1 (2022-03-01)
 -------------------
 * 'output' is expanded as a substitution in XML/YAML files (`#577 <https://github.com/ros2/launch/issues/577>`_)
