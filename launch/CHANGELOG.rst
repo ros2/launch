@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.23.0 (2022-03-30)
+-------------------
 * Add boolean substitutions (`#598 <https://github.com/ros2/launch/issues/598>`_)
 * Contributors: Kenji Miyake
 
