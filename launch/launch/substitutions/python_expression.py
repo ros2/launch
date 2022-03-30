@@ -55,7 +55,9 @@ class PythonExpression(Substitution):
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `PythonExpression` substitution."""
-        if len(data) == 1:
+        if len(data) == 0:
+            raise TypeError('eval substitution expects 1 or more argument')
+        elif len(data) == 1:
             return cls, {'expression': data[0]}
         expression = normalize_to_list_of_substitutions(itertools.chain.from_iterable(data))
         return cls, {'expression': expression}

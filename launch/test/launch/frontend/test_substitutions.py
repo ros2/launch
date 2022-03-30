@@ -206,6 +206,12 @@ def test_eval_subst():
     assert 'asdbsd' == expr.perform(LaunchContext())
 
 
+def test_eval_subst_empty():
+    from lark.visitors import VisitError
+    with pytest.raises(VisitError):
+        parse_substitution(r'$(eval)')
+
+
 def test_eval_subst_of_math_expr():
     subst = parse_substitution(r'$(eval "ceil(1.3)")')
     assert len(subst) == 1
