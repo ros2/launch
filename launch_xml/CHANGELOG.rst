@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add boolean substitutions (`#598 <https://github.com/ros2/launch/issues/598>`_)
+* Contributors: Kenji Miyake
+
 0.22.0 (2022-03-28)
 -------------------
 * Support scoping environment variables (`#601 <https://github.com/ros2/launch/issues/601>`_)
