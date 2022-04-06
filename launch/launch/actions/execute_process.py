@@ -346,7 +346,7 @@ class ExecuteProcess(ExecuteLocal):
             if sigterm_timeout is not None:
                 if sigterm_timeout < 0.0:
                     raise ValueError(
-                        'Attribute sigterm_timeout of Entity node expected to be '
+                        'Attribute sigterm_timeout for a process to be executed expected to be '
                         'a non-negative value but got `{}`'.format(sigterm_timeout)
                     )
                 kwargs['sigterm_timeout'] = sigterm_timeout
@@ -356,7 +356,7 @@ class ExecuteProcess(ExecuteLocal):
             if sigkill_timeout is not None:
                 if sigkill_timeout < 0.0:
                     raise ValueError(
-                        'Attribute sigkill_timeout of Entity node expected to be '
+                        'Attribute sigkill_timeout for a process to be executed expected to be '
                         'a non-negative value but got `{}`'.format(sigkill_timeout)
                     )
                 kwargs['sigkill_timeout'] = sigkill_timeout
@@ -371,7 +371,7 @@ class ExecuteProcess(ExecuteLocal):
             if respawn_delay is not None:
                 if respawn_delay < 0.0:
                     raise ValueError(
-                        'Attribute respawn_delay of Entity node expected to be '
+                        'Attribute respawn_delay for a process to be executed expected to be '
                         'a non-negative value but got `{}`'.format(respawn_delay)
                     )
                 kwargs['respawn_delay'] = respawn_delay
