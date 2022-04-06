@@ -73,8 +73,12 @@ class Parser:
     def load_launch_extensions(cls):
         """Load launch extensions, in order to get all the exposed substitutions and actions."""
         if cls.extensions_loaded is False:
-            for entry_point in importlib_metadata.entry_points().get(
-                    'launch.frontend.launch_extension', []):
+            entry_points = importlib_metadata.entry_points()
+            if hasattr(entry_points, 'select'):
+                groups = entry_points.select(group='launch.frontend.launch_extension')
+            else:
+                groups = entry_points.get('launch.frontend.launch_extension', [])
+            for entry_point in groups:
                 try:
                     entry_point.load()
                 except Exception:
@@ -87,7 +91,12 @@ class Parser:
         """Load all the available frontend entities."""
         if cls.frontend_parsers is None:
             parsers = {}
-            for entry_point in importlib_metadata.entry_points().get('launch.frontend.parser', []):
+            entry_points = importlib_metadata.entry_points()
+            if hasattr(entry_points, 'select'):
+                groups = entry_points.select(group='launch.frontend.parser')
+            else:
+                groups = entry_points.get('launch.frontend.parser', [])
+            for entry_point in groups:
                 try:
                     parsers[entry_point.name] = entry_point.load()
                 except Exception:
