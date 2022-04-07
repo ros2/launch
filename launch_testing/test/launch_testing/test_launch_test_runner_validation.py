@@ -47,18 +47,10 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
         with self.assertRaisesRegex(Exception, "unexpected extra argument 'misspelled_ready_fn'"):
             dut.validate()
 
-        dut = LaunchTestRunner(
-            make_test_run_for_dut(
-                lambda ready_fn: None
-            )
-        )
-
-        dut.validate()
-
     def test_too_many_arguments(self):
 
         dut = LaunchTestRunner(
-            make_test_run_for_dut(lambda ready_fn, extra_arg: None)
+            make_test_run_for_dut(lambda extra_arg: None)
         )
 
         with self.assertRaisesRegex(Exception, "unexpected extra argument 'extra_arg'"):
@@ -67,7 +59,7 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
     def test_bad_parametrization_argument(self):
 
         @launch_testing.parametrize('bad_argument', [1, 2, 3])
-        def bad_launch_description(ready_fn):
+        def bad_launch_description():
             pass  # pragma: no cover
 
         dut = LaunchTestRunner(
