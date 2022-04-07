@@ -105,7 +105,7 @@ def test_execute_process_shutdown():
 
     def generate_launch_description():
         process_action = ExecuteProcess(
-            cmd=[sys.executable, '-c', 'import signal; signal.pause()'],
+            cmd=[sys.executable, '-S', '-c', 'input()'],
             sigterm_timeout='1',  # shorten timeouts
             on_exit=on_exit
         )
