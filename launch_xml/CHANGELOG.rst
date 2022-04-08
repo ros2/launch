@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix sphinx directive to cross-ref Launch method (`#605 <https://github.com/ros2/launch/issues/605>`_)
+* Contributors: Abrar Rahman Protyasha
+
 0.23.0 (2022-03-30)
 -------------------
 * Add boolean substitutions (`#598 <https://github.com/ros2/launch/issues/598>`_)
