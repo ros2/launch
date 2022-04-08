@@ -86,7 +86,7 @@ class Entity(BaseEntity):
         """
         Access an attribute of the entity.
 
-        See :ref:meth:`launch.frontend.Entity.get_attr`.
+        See :py:meth:`launch.frontend.Entity.get_attr`.
         `launch_xml` uses type coercion.
         If coercion fails, `ValueError` will be raised.
         """
