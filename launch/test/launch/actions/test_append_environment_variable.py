@@ -21,7 +21,10 @@ from launch.actions import AppendEnvironmentVariable
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import TextSubstitution
 
+from temporary_environment import sandbox_environment_variables
 
+
+@sandbox_environment_variables
 def test_append_environment_variable_constructor():
     """Test the constructor for the AppendEnvironmentVariable class."""
     AppendEnvironmentVariable('name', 'value')
@@ -31,6 +34,7 @@ def test_append_environment_variable_constructor():
     AppendEnvironmentVariable('name', 'value', prepend=True, separator='|')
 
 
+@sandbox_environment_variables
 def test_append_environment_variable_execute():
     """Test the execute() of the AppendEnvironmentVariable class."""
     context = LaunchContext()

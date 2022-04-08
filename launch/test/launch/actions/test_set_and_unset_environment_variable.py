@@ -19,13 +19,17 @@ from launch.actions import SetEnvironmentVariable
 from launch.actions import UnsetEnvironmentVariable
 from launch.substitutions import EnvironmentVariable
 
+from temporary_environment import sandbox_environment_variables
 
+
+@sandbox_environment_variables
 def test_set_and_unset_environment_variable_constructors():
     """Test the constructor for SetEnvironmentVariable and UnsetEnvironmentVariable classes."""
     SetEnvironmentVariable('name', 'value')
     UnsetEnvironmentVariable('name')
 
 
+@sandbox_environment_variables
 def test_set_and_unset_environment_variable_execute():
     """Test the execute() of the SetEnvironmentVariable and UnsetEnvironmentVariable classes."""
     context = LaunchContext()
