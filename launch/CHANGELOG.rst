@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.23.1 (2022-04-08)
+-------------------
 * Start Python faster in test_execute_processs_shutdown to avoid flakey failures (`#608 <https://github.com/ros2/launch/issues/608>`_)
 * Fix warnings from importlib_metdata on Python 3.10. (`#606 <https://github.com/ros2/launch/issues/606>`_)
 * Contributors: Chris Lalancette, Shane Loretz
