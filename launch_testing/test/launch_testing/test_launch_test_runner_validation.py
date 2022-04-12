@@ -34,9 +34,6 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
 
     def test_catches_bad_signature(self):
 
-        # A `generate_test_description` function without a ready_fn argument is allowed because
-        # it might be a new style function that uses a ReadyToTest action to signal when it's time
-        # for tests to start.
         # If there's no ReadyToTest action, we won't catch that until later because dut.validate()
         # doesn't actually invoke the function.
         # We will still expect to reject functions with wrong name arguments
@@ -50,18 +47,10 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
         with self.assertRaisesRegex(Exception, "unexpected extra argument 'misspelled_ready_fn'"):
             dut.validate()
 
-        dut = LaunchTestRunner(
-            make_test_run_for_dut(
-                lambda ready_fn: None
-            )
-        )
-
-        dut.validate()
-
     def test_too_many_arguments(self):
 
         dut = LaunchTestRunner(
-            make_test_run_for_dut(lambda ready_fn, extra_arg: None)
+            make_test_run_for_dut(lambda extra_arg: None)
         )
 
         with self.assertRaisesRegex(Exception, "unexpected extra argument 'extra_arg'"):
@@ -70,7 +59,7 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
     def test_bad_parametrization_argument(self):
 
         @launch_testing.parametrize('bad_argument', [1, 2, 3])
-        def bad_launch_description(ready_fn):
+        def bad_launch_description():
             pass  # pragma: no cover
 
         dut = LaunchTestRunner(
