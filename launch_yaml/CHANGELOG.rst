@@ -2,6 +2,9 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.23.1 (2022-04-08)
 -------------------
 * Fix sphinx directive to cross-ref Launch method (`#605 <https://github.com/ros2/launch/issues/605>`_)

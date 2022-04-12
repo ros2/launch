@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Removed the deprecated `ready_fn` feature (`#589 <https://github.com/ros2/launch/issues/589>`_)
+* Contributors: William Woodall
+
 0.23.1 (2022-04-08)
 -------------------
 
