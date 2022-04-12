@@ -105,8 +105,8 @@ class Command(Substitution):
             stderr = subprocess.STDOUT
 
         try:
-            print(repr(command) + '\n')
-            print(repr(os.environ) + '\n')
+            stderr.write(repr(command) + '\n')
+            stderr.write(repr(os.environ) + '\n')
             result = subprocess.run(
                 command,
                 stdout=subprocess.PIPE,
