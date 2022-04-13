@@ -23,6 +23,8 @@ from launch.actions import PushEnvironment
 from launch.actions import PushLaunchConfigurations
 from launch.actions import SetLaunchConfiguration
 
+from temporary_environment import sandbox_environment_variables
+
 
 def test_group_action_constructors():
     """Test the constructors for the GroupAction class."""
@@ -32,6 +34,7 @@ def test_group_action_constructors():
     GroupAction([Action()], scoped=False, launch_configurations={'foo': 'FOO'})
 
 
+@sandbox_environment_variables
 def test_group_action_execute():
     """Test the execute() of the the GroupAction class."""
     lc1 = LaunchContext()
