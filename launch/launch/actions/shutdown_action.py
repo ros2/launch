@@ -40,7 +40,7 @@ class Shutdown(EmitEvent):
     def parse(cls, entity: Entity, parser: Parser):
         """Return `Shutdown` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        reason = entity.get_attr('reason', optional= True)
+        reason = entity.get_attr('reason', optional=True)
         if reason:
             kwargs['reason'] = parser.parse_substitution(reason)
         return cls, kwargs
