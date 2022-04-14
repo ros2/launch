@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.1 (2022-04-13)
+------------------
+* Sandbox environment in tests to fix repeated job failures (`#609 <https://github.com/ros2/launch/issues/609>`_)
+* Contributors: Shane Loretz
+
 1.0.0 (2022-04-12)
 ------------------
 
