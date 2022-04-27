@@ -20,7 +20,6 @@ import logging
 import os
 import platform
 import signal
-import threading
 import traceback
 from typing import Any  # noqa: F401
 from typing import Callable
@@ -74,9 +73,6 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 from ..utilities.type_utils import normalize_typed_substitution
 from ..utilities.type_utils import perform_typed_substitution
-
-_global_process_counter_lock = threading.Lock()
-_global_process_counter = 0  # in Python3, this number is unbounded (no rollover)
 
 
 class ExecuteLocal(Action):
