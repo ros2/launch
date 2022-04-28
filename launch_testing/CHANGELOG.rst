@@ -2,6 +2,12 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix launch_testing README.md proc keyword to process. (`#554 <https://github.com/ros2/launch/issues/554>`_) (`#561 <https://github.com/ros2/launch/issues/561>`_)
+  Co-authored-by: Michael McConnell <Michael.McConnell-2@leidos.com>
+* Contributors: Jacob Perron
+
 0.17.0 (2021-04-06)
 -------------------
 
