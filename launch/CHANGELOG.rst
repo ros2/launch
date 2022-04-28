@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.17.1 (2022-04-28)
+-------------------
 * Evaluate math symbols and functions in python expression (`#557 <https://github.com/ros2/launch/issues/557>`_) (`#563 <https://github.com/ros2/launch/issues/563>`_)
 * Allow for raw path specification in IncludeLaunchDescription (`#544 <https://github.com/ros2/launch/issues/544>`_) (`#549 <https://github.com/ros2/launch/issues/549>`_)
 * Contributors: David V. Lu!!, Immanuel Martini
