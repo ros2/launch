@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2022-04-29)
+------------------
+* Remove unused variables. (`#612 <https://github.com/ros2/launch/issues/612>`_)
+* Expose shutdown action to xml frontend (`#611 <https://github.com/ros2/launch/issues/611>`_)
+* Contributors: Aditya Pande, Chris Lalancette
+
 1.0.1 (2022-04-13)
 ------------------
 * Sandbox environment in tests to fix repeated job failures (`#609 <https://github.com/ros2/launch/issues/609>`_)
