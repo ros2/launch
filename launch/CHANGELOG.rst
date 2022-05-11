@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.2 (2022-05-10)
+------------------
+* Expose shutdown action to xml frontend (`#611 <https://github.com/ros2/launch/issues/611>`_)
+* Contributors: Aditya Pande
+
 1.0.1 (2022-04-13)
 ------------------
 * Sandbox environment in tests to fix repeated job failures (`#609 <https://github.com/ros2/launch/issues/609>`_)
