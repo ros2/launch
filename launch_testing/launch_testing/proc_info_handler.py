@@ -47,10 +47,7 @@ class ProcInfoHandler:
 
     def process_names(self):
         """Get the name of all recorded processes."""
-        return map(
-            lambda x: x.process_details['name'],
-            self._proc_info.keys()
-        )
+        return [x.process_details['name'] for x in self._proc_info.keys()]
 
     def __getitem__(self, key):
         """
