@@ -33,7 +33,6 @@ def make_test_run_for_dut(generate_test_description_function):
 class TestLaunchTestRunnerValidation(unittest.TestCase):
 
     def test_catches_bad_signature(self):
-
         # If there's no ReadyToTest action, we won't catch that until later because dut.validate()
         # doesn't actually invoke the function.
         # We will still expect to reject functions with wrong name arguments
@@ -48,7 +47,6 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
             dut.validate()
 
     def test_too_many_arguments(self):
-
         dut = LaunchTestRunner(
             make_test_run_for_dut(lambda extra_arg: None)
         )
@@ -57,7 +55,6 @@ class TestLaunchTestRunnerValidation(unittest.TestCase):
             dut.validate()
 
     def test_bad_parametrization_argument(self):
-
         @launch_testing.parametrize('bad_argument', [1, 2, 3])
         def bad_launch_description():
             pass  # pragma: no cover
@@ -76,7 +73,6 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
     # the test description
 
     def test_good_launch_description(self):
-
         def generate_test_description():
             return launch.LaunchDescription([
                 ReadyToTest()
@@ -91,7 +87,6 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
         runs[0].normalized_test_description(ready_fn=lambda: None)
 
     def test_launch_description_with_missing_ready_action(self):
-
         def generate_test_description():
             return launch.LaunchDescription([
             ])
@@ -107,7 +102,6 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
             runs[0].normalized_test_description(ready_fn=lambda: None)
 
     def test_launch_description_with_conditional_ready_action(self):
-
         def generate_test_description():
             return launch.LaunchDescription([
                 launch.actions.TimerAction(
@@ -125,7 +119,6 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
         runs[0].normalized_test_description(ready_fn=lambda: None)
 
     def test_launch_description_with_multiple_conditionals_and_deeper_nesting(self):
-
         def generate_test_description():
             return launch.LaunchDescription([
                 launch.actions.LogInfo(msg='Dummy Action'),
@@ -153,7 +146,6 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
         runs[0].normalized_test_description(ready_fn=lambda: None)
 
     def test_parametrized_launch_description(self):
-
         @launch_testing.parametrize('my_param', [1, 2, 3])
         def generate_test_description(my_param):
             return launch.LaunchDescription([
@@ -169,7 +161,6 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
         runs[0].normalized_test_description(ready_fn=lambda: None)
 
     def test_launch_description_with_ready_action_changed_timeout(self):
-
         def generate_test_description():
             return launch.LaunchDescription([
                 launch.actions.TimerAction(
