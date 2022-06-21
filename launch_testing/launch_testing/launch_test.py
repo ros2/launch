@@ -56,7 +56,10 @@ def add_arguments(parser):
         '--junit-xml', action='store', dest='xmlpath', default=None,
         help='Do write xUnit reports to specified path.'
     )
-
+    parser.add_argument(
+        '--timeout', type=float, default=15.0,
+        help='timeout for ReadyToTest action'
+    )
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -92,7 +95,8 @@ def run(parser, args, test_runner_cls=LaunchTestRunner):
     runner = test_runner_cls(
         test_runs=test_runs,
         launch_file_arguments=args.launch_arguments,
-        debug=args.verbose
+        debug=args.verbose,
+        timeout=args.timeout
     )
 
     _logger_.debug('Validating test configuration')

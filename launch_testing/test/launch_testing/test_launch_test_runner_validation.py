@@ -167,3 +167,24 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
 
         dut.validate()  # Make sure this passes initial validation (probably redundant with above)
         runs[0].normalized_test_description(ready_fn=lambda: None)
+
+    def test_launch_description_with_ready_action_changed_timeout(self):
+
+        def generate_test_description():
+            return launch.LaunchDescription([
+                launch.actions.TimerAction(
+                    period=17.0,  # takes 17 sec for this action to startup
+                    actions=[ReadyToTest()]
+                )
+            ])
+
+        runs = make_test_run_for_dut(generate_test_description)
+        dut = LaunchTestRunner(
+            test_runs=runs,
+            launch_file_arguments=[],
+            debug=False,
+            timeout=20.0  # increase the timeout giving the time for process to startup
+        )
+
+        dut.validate()  # Make sure this passes initial validation (probably redundant with above)
+        runs[0].normalized_test_description(ready_fn=lambda: None)

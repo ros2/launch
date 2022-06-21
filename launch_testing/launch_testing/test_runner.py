@@ -40,13 +40,15 @@ class _RunnerWorker():
                  test_run,
                  test_run_preamble,
                  launch_file_arguments=[],
-                 debug=False):
+                 debug=False,
+                 timeout=15.0):
         self._test_run = test_run
         self._test_run_preamble = test_run_preamble
         self._launch_service = LaunchService(debug=debug)
         self._processes_launched = threading.Event()  # To signal when all processes started
         self._tests_completed = threading.Event()  # To signal when all the tests have finished
         self._launch_file_arguments = launch_file_arguments
+        self._timeout = timeout  # timeout for ReadyToTest Action
 
         # Can't run LaunchService.run on another thread :-(
         # See https://github.com/ros2/launch/issues/126
@@ -181,7 +183,7 @@ class _RunnerWorker():
         # Waits for the DUT processes to start (signaled by the _processes_launched
         # event) and then runs the tests
 
-        if not self._processes_launched.wait(timeout=15):
+        if not self._processes_launched.wait(self._timeout):
             # Timed out waiting for the processes to start
             print('Timed out waiting for processes to start up')
             self._launch_service.shutdown()
@@ -217,7 +219,8 @@ class LaunchTestRunner(object):
     def __init__(self,
                  test_runs,
                  launch_file_arguments=[],
-                 debug=False):
+                 debug=False,
+                 timeout=15):
         """
         Create an LaunchTestRunner object.
 
@@ -229,6 +232,7 @@ class LaunchTestRunner(object):
         self._test_runs = test_runs
         self._launch_file_arguments = launch_file_arguments
         self._debug = debug
+        self._timeout = timeout  # timeout for ReadyToTest Action
 
     def generate_preamble(self):
         """Generate a launch description preamble for a test to be run with."""
@@ -252,7 +256,8 @@ class LaunchTestRunner(object):
                     run,
                     self.generate_preamble(),
                     self._launch_file_arguments,
-                    self._debug)
+                    self._debug,
+                    self._timeout)
                 results[run] = worker.run()
             except unittest.case.SkipTest as skip_exception:
                 # If a 'skip' decorator was placed on the generate_test_description function,
