@@ -220,7 +220,7 @@ class LaunchTestRunner(object):
                  test_runs,
                  launch_file_arguments=[],
                  debug=False,
-                 timeout=15):
+                 timeout=15.0):
         """
         Create an LaunchTestRunner object.
 
