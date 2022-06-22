@@ -58,8 +58,11 @@ def add_arguments(parser):
     )
     parser.add_argument(
         '--timeout', type=float, default=15.0,
-        help='timeout for ReadyToTest action'
+        help='Maximum duration for which the ReadyToTest action waits for the processes'
+             'to start up, if processes take more time than the one specified by timeout'
+             'an error is thrown. By default timeout is 15 seconds.'
     )
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
