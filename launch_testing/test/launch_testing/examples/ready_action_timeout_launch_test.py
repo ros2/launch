@@ -16,7 +16,10 @@ import launch
 from launch.actions import TimerAction
 from launch_testing.actions import ReadyToTest
 
+import pytest
 
+
+@pytest.mark.launch_test
 def generate_test_description():
     # takes 5 sec for the TimerAction process to start
     return launch.LaunchDescription([
