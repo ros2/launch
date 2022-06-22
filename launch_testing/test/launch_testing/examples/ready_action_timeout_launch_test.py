@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import launch
+import launch_testing
 from launch.actions import TimerAction
 from launch_testing.actions import ReadyToTest
 
@@ -23,5 +24,6 @@ import pytest
 def generate_test_description():
     # takes 5 sec for the TimerAction process to start
     return launch.LaunchDescription([
+        launch_testing.util.KeepAliveProc(),
         TimerAction(period=5.0, actions=[ReadyToTest()]),
     ])
