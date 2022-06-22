@@ -33,7 +33,7 @@ def make_test_run_for_dut(generate_test_description_function):
 class TestLaunchTestRunnerValidation(unittest.TestCase):
 
     def test_catches_bad_signature(self):
-        
+
         # If there's no ReadyToTest action, we won't catch that until later because dut.validate()
         # doesn't actually invoke the function.
         # We will still expect to reject functions with wrong name arguments
