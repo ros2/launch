@@ -92,12 +92,15 @@ class TestRun:
 
         self.pre_shutdown_tests = pre_shutdown_tests
         self.post_shutdown_tests = post_shutdown_tests
-        self.timeout = None  # ReadyToTest action timeout
+
+        #  Duration for which the ReadyToTest action waits for the processes
+        #  to start up, 15 seconds by default
+        self.timeout = None
 
         if hasattr(test_description_function, '__ready_to_test_action_timeout__'):
             self.timeout = getattr(test_description_function, '__ready_to_test_action_timeout__')
 
-    # If we're parametrized, extend the test names so we can tell more easily what
+        # If we're parametrized, extend the test names so we can tell more easily what
         # params they were run with
         if self.param_args:
             for tc in itertools.chain(
