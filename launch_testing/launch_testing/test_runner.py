@@ -48,6 +48,9 @@ class _RunnerWorker():
         self._tests_completed = threading.Event()  # To signal when all the tests have finished
         self._launch_file_arguments = launch_file_arguments
 
+        # ReadyToTest action timeout, 15 sec by default
+        self.timeout = 15 if self._test_run.timeout is None else self._test_run.timeout
+
         # Can't run LaunchService.run on another thread :-(
         # See https://github.com/ros2/launch/issues/126
         #
@@ -181,7 +184,7 @@ class _RunnerWorker():
         # Waits for the DUT processes to start (signaled by the _processes_launched
         # event) and then runs the tests
 
-        if not self._processes_launched.wait(timeout=15):
+        if not self._processes_launched.wait(self.timeout):
             # Timed out waiting for the processes to start
             print('Timed out waiting for processes to start up')
             self._launch_service.shutdown()

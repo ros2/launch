@@ -21,10 +21,10 @@ import pytest
 
 
 @pytest.mark.launch_test
-@launch_testing.ready_to_test_action_timeout(10.0)
+@launch_testing.ready_to_test_action_timeout(1)
 def generate_test_description():
     # takes 5 sec for the TimerAction process to start
     return launch.LaunchDescription([
         launch_testing.util.KeepAliveProc(),
-        TimerAction(period=5.0, actions=[ReadyToTest()]),
+        TimerAction(period=2.0, actions=[ReadyToTest()]),
     ])

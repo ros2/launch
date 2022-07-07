@@ -46,16 +46,17 @@ def parametrize(argnames, argvalues):
                 yield partial, partial_args
 
         _wrapped.__parametrized__ = True
+        if hasattr(func, '__ready_to_test_action_timeout__'):
+            _wrapped.__ready_to_test_action_timeout__ = \
+                getattr(func, '__ready_to_test_action_timeout__')
+
         return _wrapped
 
     return _decorator
 
 
 def ready_to_test_action_timeout(timeout):
-    print("## ready_to_test_action_timeout")
-
     def _decorator(func):
-        print("## ready_to_test_action_timeout: _decorator")
         func.__ready_to_test_action_timeout__ = timeout
         return func
 
