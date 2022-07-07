@@ -12,4 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TODO
+import launch_testing
+
+
+def test_ready_to_test_action_attribute():
+
+    @launch_testing.ready_to_test_action_timeout(10)
+    def fake_test_description(arg):
+        pass  # pragma: no cover
+
+    assert hasattr(fake_test_description, '__ready_to_test_action_timeout__')
+    assert getattr(fake_test_description, '__ready_to_test_action_timeout__') == 10
+
+
+def test_parametrize_and_ready_to_test_action_attribute():
+
+    @launch_testing.parametrize('val', [1, 2, 3])
+    @launch_testing.ready_to_test_action_timeout(10)
+    def fake_test_description(arg):
+        pass  # pragma: no cover
+
+    assert hasattr(fake_test_description, '__parametrized__')
+    assert hasattr(fake_test_description, '__ready_to_test_action_timeout__')
+    assert getattr(fake_test_description, '__ready_to_test_action_timeout__') == 10
+
+
+def test_ready_to_test_action_and_parametrize_attribute():
+
+    @launch_testing.ready_to_test_action_timeout(10)
+    @launch_testing.parametrize('val', [1, 2, 3])
+    def fake_test_description(arg):
+        pass  # pragma: no cover
+
+    assert hasattr(fake_test_description, '__parametrized__')
+    assert hasattr(fake_test_description, '__ready_to_test_action_timeout__')
+    assert getattr(fake_test_description, '__ready_to_test_action_timeout__') == 10
+
