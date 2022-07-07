@@ -92,8 +92,13 @@ class TestRun:
 
         self.pre_shutdown_tests = pre_shutdown_tests
         self.post_shutdown_tests = post_shutdown_tests
+        self.timeout = None
 
-        # If we're parametrized, extend the test names so we can tell more easily what
+        if hasattr(test_description_function, '__ready_to_test_action_timeout__'):
+            self.timeout = getattr(test_description_function, '__ready_to_test_action_timeout__')
+            print("### self.timeout ### --> ", self.timeout)
+
+    # If we're parametrized, extend the test names so we can tell more easily what
         # params they were run with
         if self.param_args:
             for tc in itertools.chain(
@@ -161,12 +166,20 @@ class TestRun:
 
 
 def LoadTestsFromPythonModule(module, *, name='launch_tests'):
-    if not hasattr(module.generate_test_description, '__parametrized__'):
+    print("## Entered LoadTestsFromPythonModule")
+
+    if hasattr(module.generate_test_description, '__ready_to_test_action_timeout__'):
+        print("### NICE !###")
         normalized_test_description_func = (
             lambda: [(module.generate_test_description, {})]
         )
-    else:
-        normalized_test_description_func = module.generate_test_description
+
+    # if not hasattr(module.generate_test_description, '__parametrized__'):
+    #     normalized_test_description_func = (
+    #         lambda: [(module.generate_test_description, {})]
+    #     )
+    # else:
+    #     normalized_test_description_func = module.generate_test_description
 
     # If our test description is parameterized, we'll load a set of tests for each
     # individual launch

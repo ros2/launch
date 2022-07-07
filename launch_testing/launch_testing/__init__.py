@@ -15,7 +15,7 @@
 from . import tools
 from .decorator import post_shutdown_test
 from .io_handler import ActiveIoHandler, IoHandler
-from .parametrize import parametrize
+from .parametrize import parametrize, ready_to_test_action_timeout
 from .proc_info_handler import ActiveProcInfoHandler, ProcInfoHandler
 from .ready_aggregator import ReadyAggregator
 
@@ -27,6 +27,7 @@ __all__ = [
     # Functions
     'parametrize',
     'post_shutdown_test',
+    'ready_to_test_action_timeout',
 
     # Classes
     'ActiveIoHandler',
