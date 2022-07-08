@@ -95,7 +95,7 @@ class TestRun:
 
         #  Duration for which the ReadyToTest action waits for the processes
         #  to start up, 15 seconds by default
-        self.timeout = None
+        self.timeout = 15
 
         if hasattr(test_description_function, '__ready_to_test_action_timeout__'):
             self.timeout = getattr(test_description_function, '__ready_to_test_action_timeout__')

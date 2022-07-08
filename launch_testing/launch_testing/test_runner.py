@@ -50,7 +50,7 @@ class _RunnerWorker():
 
         #  Duration for which the ReadyToTest action waits for the processes
         #  to start up, 15 seconds by default
-        self.timeout = self._test_run.timeout if self._test_run.timeout is not None else 15
+        self.timeout = self._test_run.timeout
 
         # Can't run LaunchService.run on another thread :-(
         # See https://github.com/ros2/launch/issues/126
