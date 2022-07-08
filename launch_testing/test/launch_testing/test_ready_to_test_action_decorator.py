@@ -47,4 +47,3 @@ def test_ready_to_test_action_and_parametrize_attribute():
     assert hasattr(fake_test_description, '__parametrized__')
     assert hasattr(fake_test_description, '__ready_to_test_action_timeout__')
     assert getattr(fake_test_description, '__ready_to_test_action_timeout__') == 10
-
