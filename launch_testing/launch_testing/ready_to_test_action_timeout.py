@@ -15,7 +15,7 @@
 
 def ready_to_test_action_timeout(timeout):
     """
-    Decorate a test launch description in a way that it adds ReadyToTest action timeout
+    Decorate a test launch description in a way that it adds ReadyToTest action timeout.
 
     attribute to the function being decorated.
 
