@@ -15,8 +15,8 @@
 import unittest
 
 import launch
-import launch_testing
 from launch.actions import TimerAction
+import launch_testing
 from launch_testing.actions import ReadyToTest
 
 import pytest
