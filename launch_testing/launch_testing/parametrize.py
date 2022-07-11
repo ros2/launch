@@ -44,7 +44,12 @@ def parametrize(argnames, argvalues):
                 partial = functools.partial(func, **partial_args)
                 functools.update_wrapper(partial, func)
                 yield partial, partial_args
+
         _wrapped.__parametrized__ = True
+        if hasattr(func, '__ready_to_test_action_timeout__'):
+            _wrapped.__ready_to_test_action_timeout__ = \
+                getattr(func, '__ready_to_test_action_timeout__')
+
         return _wrapped
 
     return _decorator
