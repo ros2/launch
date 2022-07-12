@@ -27,9 +27,17 @@ class InvalidLaunchFileError(Exception):
                 'The launch file may have a syntax error, or its format is unknown'
             )
         else:
-            self._error_message = (
-                'Caught exception when trying to load file of format [{}]: {}'
-            ).format(self._extension, self._likely_errors[0])
+            if len(self._likely_errors) == 1:
+                self._error_message = (
+                    'Caught exception when trying to load file of format [{}]: {}'
+                ).format(self._extension, self._likely_errors[0])
+            else:
+                self._error_message = (
+                    'Caught multiple exceptions when trying to load file of format [{}]:'
+                ).format(self._extension)
+                for error in self._likely_errors:
+                    self._error_message += '\n - {}'.format(error)
+
             self.__cause__ = self._likely_errors[0]
 
     def __str__(self):
