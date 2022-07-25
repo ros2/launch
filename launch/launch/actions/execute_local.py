@@ -31,6 +31,8 @@ from typing import Text
 from typing import Tuple  # noqa: F401
 from typing import Union
 
+import psutil
+
 import launch.logging
 
 from osrf_pycommon.process_utils import async_execute_process
@@ -87,6 +89,8 @@ class ExecuteLocal(Action):
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
+        sigkill_subprocesses_timeout: SomeSubstitutionsType = LaunchConfiguration(
+            'sigkill_subprocesses_timeout', default=5),
         emulate_tty: bool = False,
         output: SomeSubstitutionsType = 'log',
         output_format: Text = '[{this.process_description.final_name}] {line}',
@@ -158,6 +162,11 @@ class ExecuteLocal(Action):
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
             'sigkill_timeout'
+        :param: sigkill_subprocesses_timeout time until sending SIGKILL directly to dangling
+            subprocesses after sending SIGKILL to the process,
+            as a string or a list of strings and Substitutions to be resolved
+            at runtime, defaults to the LaunchConfiguration called
+            'sigkill_subprocesses_timeout'
         :param: emulate_tty emulate a tty (terminal), defaults to False, but can
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
@@ -188,6 +197,8 @@ class ExecuteLocal(Action):
         self.__shell = shell
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
+        self.__sigkill_subprocesses_timeout = normalize_to_list_of_substitutions(
+            sigkill_subprocesses_timeout)
         self.__emulate_tty = emulate_tty
         self.__output = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
         if not isinstance(self.__output, dict):
@@ -450,6 +461,11 @@ class ExecuteLocal(Action):
         sigkill_timeout = [PythonExpression(
             ('float(', *self.__sigterm_timeout, ') + float(', *self.__sigkill_timeout, ')')
         )]
+        sigkill_subprocesses_timeout = [PythonExpression(
+            (
+                'float(', *self.__sigterm_timeout, ') + float(', *self.__sigkill_timeout,
+                ') + float(', *self.__sigkill_subprocesses_timeout, ')')
+        )]
         # Setup a timer to send us a SIGTERM if we don't shutdown quickly.
         self.__sigterm_timer = TimerAction(
             period=sigterm_timeout,
@@ -480,9 +496,35 @@ class ExecuteLocal(Action):
             ],
             cancel_on_shutdown=False,
         )
+        def kill_subprocesses(
+            context,
+            timeout_substitutions,
+            children=psutil.Process(
+                self._subprocess_transport.get_pid()).children(recursive=True)
+        ):
+            process_name = context.locals.process_name
+            for p in children:
+                try:
+                    p.send_signal(signal.SIGKILL)
+                except psutil.NoSuchProcess:
+                    continue
+                self.__logger.warn(
+                    f'subprocess[pid={p.pid}] of process[{process_name}] was not terminated after '
+                    f"'{perform_substitutions(context, timeout_substitutions)}' seconds of parent "
+                    f"being killed. "
+                    'Sending SIGKILL to subprocess directly.'
+                )
+        self.__sigkill_subprocesses_timer = TimerAction(
+            period=sigkill_subprocesses_timeout,
+            actions=[OpaqueFunction(
+                function=kill_subprocesses,
+                args=(sigkill_subprocesses_timeout, ))],
+            cancel_on_shutdown=False,
+        )
         return [
             cast(Action, self.__sigterm_timer),
             cast(Action, self.__sigkill_timer),
+            cast(Action, self.__sigkill_subprocesses_timer),
         ]
 
     def __get_sigint_event(self):
