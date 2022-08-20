@@ -130,7 +130,7 @@ def test_execute_process_with_output_dictionary():
     """Test launching a process works when output is specified as a dictionary."""
     executable = ExecuteLocal(
         process_description=Executable(
-            cmd=[sys.executable, '-c', "pass"]
+            cmd=[sys.executable, '-c', 'pass']
         ),
         output={'stdout': 'screen', 'stderr': 'screen'}
     )
