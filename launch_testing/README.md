@@ -19,7 +19,7 @@ Run the example by doing:
 launch_test test/launch_testing/examples/good_proc_launch_test.py
 ```
 
-`launch_test` will launch the nodes found in the `generate_test_description` function, run the tests from the `TestGoodProcess` class, shut down the launched nodes, and then run the tests from the `TestNodeOutput` class.
+`launch_test` will launch the nodes found in the `generate_test_description` function, run the tests from the `TestGoodProcess` class, shut down the launched nodes, and then run the tests from the `TestProcessOutput` class.
 
 #### The Launch Description
 
