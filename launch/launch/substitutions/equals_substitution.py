@@ -116,7 +116,7 @@ class EqualsSubstitution(Substitution):
             right = self.right
 
         if _str_is_bool(left) and _str_is_bool(right):
-            return str(left in ('true', '1') == right in ('true', '1')).lower()
+            return str((left.lower() in ('true', '1')) == (right.lower() in ('true', '1'))).lower()
         elif _str_is_float(left) and _str_is_float(right):
             return str(math.isclose(float(left), float(right))).lower()
         else:

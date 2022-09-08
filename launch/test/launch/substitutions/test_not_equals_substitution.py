@@ -22,7 +22,7 @@ from launch.substitutions import PathJoinSubstitution
 import os
 
 
-def test_equals_substitution():
+def test_not_equals_substitution():
     def _permute_assertion(left, right, context, output):
         assert NotEqualsSubstitution(left, right).perform(context) == output
         assert NotEqualsSubstitution(right, left).perform(context) == output
@@ -95,10 +95,6 @@ def test_equals_substitution():
     _permute_assertion('-inf', '-inf', lc, 'false')
 
     # Strings
-    _permute_assertion('nan', 'nan', lc, 'false')
-    _permute_assertion('inf', 'inf', lc, 'false')
-    _permute_assertion('inf', 'nan', lc, 'true')
-
     _permute_assertion("wow", "wow", lc, 'false')
     _permute_assertion("wow", True, lc, 'true')
     _permute_assertion("wow", 1, lc, 'true')
@@ -108,4 +104,4 @@ def test_equals_substitution():
     # Substitutions
     path = ['asd', 'bsd', 'cds']
     sub = PathJoinSubstitution(path)
-    assert NotEqualsSubstitution(sub, os.path.join(*path)).perform(lc) == 'true'
+    assert NotEqualsSubstitution(sub, os.path.join(*path)).perform(lc) == 'false'

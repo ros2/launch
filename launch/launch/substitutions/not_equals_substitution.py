@@ -47,4 +47,4 @@ class NotEqualsSubstitution(EqualsSubstitution):
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
-        return str(not super().perform(context) == 'true').lower()
+        return str(not (super().perform(context) == 'true')).lower()

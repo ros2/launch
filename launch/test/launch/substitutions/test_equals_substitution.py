@@ -31,43 +31,43 @@ def test_equals_substitution():
 
     # NoneType
     _permute_assertion(None, None, lc, 'true')
-    _permute_assertion(None, "", lc, 'true')
-    _permute_assertion(None, "something", lc, 'false')
+    _permute_assertion(None, '', lc, 'true')
+    _permute_assertion(None, 'something', lc, 'false')
 
     # Booleans
     _permute_assertion(True, True, lc, 'true')
     _permute_assertion(False, False, lc, 'true')
     _permute_assertion(True, False, lc, 'false')
 
-    _permute_assertion(True, "true", lc, 'true')
-    _permute_assertion(True, "True", lc, 'true')
-    _permute_assertion(False, "false", lc, 'true')
-    _permute_assertion(False, "False", lc, 'true')
-    _permute_assertion(True, "False", lc, 'false')
+    _permute_assertion(True, 'true', lc, 'true')
+    _permute_assertion(True, 'True', lc, 'true')
+    _permute_assertion(False, 'false', lc, 'true')
+    _permute_assertion(False, 'False', lc, 'true')
+    _permute_assertion(True, 'False', lc, 'false')
 
     _permute_assertion(True, 1, lc, 'true')
-    _permute_assertion(True, "1", lc, 'true')
+    _permute_assertion(True, '1', lc, 'true')
     _permute_assertion(True, 0, lc, 'false')
-    _permute_assertion(True, "0", lc, 'false')
-    _permute_assertion(True, "10", lc, 'false')
-    _permute_assertion(True, "-1", lc, 'false')
+    _permute_assertion(True, '0', lc, 'false')
+    _permute_assertion(True, '10', lc, 'false')
+    _permute_assertion(True, '-1', lc, 'false')
 
     _permute_assertion(False, 1, lc, 'false')
-    _permute_assertion(False, "1", lc, 'false')
+    _permute_assertion(False, '1', lc, 'false')
     _permute_assertion(False, 0, lc, 'true')
-    _permute_assertion(False, "0", lc, 'true')
-    _permute_assertion(False, "10", lc, 'false')
-    _permute_assertion(False, "-1", lc, 'false')
+    _permute_assertion(False, '0', lc, 'true')
+    _permute_assertion(False, '10', lc, 'false')
+    _permute_assertion(False, '-1', lc, 'false')
 
     _permute_assertion('true', 1, lc, 'true')
-    _permute_assertion('true', "1", lc, 'true')
-    _permute_assertion('true', "0", lc, 'false')
-    _permute_assertion('true', "true", lc, 'true')
+    _permute_assertion('true', '1', lc, 'true')
+    _permute_assertion('true', '0', lc, 'false')
+    _permute_assertion('true', 'true', lc, 'true')
     _permute_assertion('false', 1, lc, 'false')
-    _permute_assertion('false', "1", lc, 'false')
-    _permute_assertion('false', "0", lc, 'true')
-    _permute_assertion('false', "false", lc, 'true')
-    _permute_assertion('true', "false", lc, 'false')
+    _permute_assertion('false', '1', lc, 'false')
+    _permute_assertion('false', '0', lc, 'true')
+    _permute_assertion('false', 'false', lc, 'true')
+    _permute_assertion('true', 'false', lc, 'false')
 
     # Numerics
     _permute_assertion(1, 1, lc, 'true')
@@ -95,15 +95,11 @@ def test_equals_substitution():
     _permute_assertion('-inf', '-inf', lc, 'true')
 
     # Strings
-    _permute_assertion('nan', 'nan', lc, 'true')
-    _permute_assertion('inf', 'inf', lc, 'true')
-    _permute_assertion('inf', 'nan', lc, 'false')
-
-    _permute_assertion("wow", "wow", lc, 'true')
-    _permute_assertion("wow", True, lc, 'false')
-    _permute_assertion("wow", 1, lc, 'false')
-    _permute_assertion("wow", 0, lc, 'false')
-    _permute_assertion("wow", 10, lc, 'false')
+    _permute_assertion('wow', 'wow', lc, 'true')
+    _permute_assertion('wow', True, lc, 'false')
+    _permute_assertion('wow', 1, lc, 'false')
+    _permute_assertion('wow', 0, lc, 'false')
+    _permute_assertion('wow', 10, lc, 'false')
 
     # Substitutions
     path = ['asd', 'bsd', 'cds']

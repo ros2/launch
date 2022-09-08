@@ -104,6 +104,18 @@ def test_any_substitution():
     assert AnySubstitution('true', 'true', 'true').perform(lc) == 'true'
     assert AnySubstitution('true', 'true', 'false').perform(lc) == 'true'
     assert AnySubstitution('false', 'false', 'false').perform(lc) == 'false'
+
+    assert AnySubstitution('1').perform(lc) == 'true'
+    assert AnySubstitution('0').perform(lc) == 'false'
+    assert AnySubstitution('1', 'true').perform(lc) == 'true'
+    assert AnySubstitution('1', 'false').perform(lc) == 'true'
+    assert AnySubstitution('0', 'true').perform(lc) == 'true'
+    assert AnySubstitution('0', 'false').perform(lc) == 'false'
+    assert AnySubstitution('1', 'true', 'true').perform(lc) == 'true'
+    assert AnySubstitution('1', 'true', 'false').perform(lc) == 'true'
+    assert AnySubstitution('true', 'true', '0').perform(lc) == 'true'
+    assert AnySubstitution('0', 'false', 'false').perform(lc) == 'false'
+
     with pytest.raises(SubstitutionFailure):
         AnySubstitution('not-condition-expression', 'true').perform(lc)
     with pytest.raises(SubstitutionFailure):
@@ -122,6 +134,18 @@ def test_all_substitution():
     assert AllSubstitution('true', 'true', 'true').perform(lc) == 'true'
     assert AllSubstitution('true', 'true', 'false').perform(lc) == 'false'
     assert AllSubstitution('false', 'false', 'false').perform(lc) == 'false'
+
+    assert AllSubstitution('1').perform(lc) == 'true'
+    assert AllSubstitution('0').perform(lc) == 'false'
+    assert AllSubstitution('1', 'true').perform(lc) == 'true'
+    assert AllSubstitution('1', 'false').perform(lc) == 'false'
+    assert AllSubstitution('0', 'true').perform(lc) == 'false'
+    assert AllSubstitution('0', 'false').perform(lc) == 'false'
+    assert AllSubstitution('1', 'true', 'true').perform(lc) == 'true'
+    assert AllSubstitution('1', 'true', 'false').perform(lc) == 'false'
+    assert AllSubstitution('true', 'true', '0').perform(lc) == 'false'
+    assert AllSubstitution('0', 'false', 'false').perform(lc) == 'false'
+
     with pytest.raises(SubstitutionFailure):
         AllSubstitution('not-condition-expression', 'true').perform(lc)
     with pytest.raises(SubstitutionFailure):
