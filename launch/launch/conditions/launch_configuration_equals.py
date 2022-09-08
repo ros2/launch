@@ -16,6 +16,7 @@
 
 from typing import Optional
 from typing import Text
+import warnings
 
 from ..condition import Condition
 from ..launch_context import LaunchContext
@@ -43,6 +44,16 @@ class LaunchConfigurationEquals(Condition):
         launch_configuration_name: Text,
         expected_value: Optional[SomeSubstitutionsType]
     ) -> None:
+        warnings.warn(
+            "The 'LaunchConfigurationEquals' and 'LaunchConfigurationNotEquals' Conditions are "
+            " deprecated. Use the 'EqualsSubstitution' and 'NotEqualsSubstitution' substitutions "
+            "instead! E.g.:\n"
+            "  IfCondition(\n  "
+            "\tEqualsSubstitution(LaunchConfiguration('some_launch_arg'), \"some_equality_check\")"
+            "\n  )",
+            UserWarning
+        )
+
         self.__launch_configuration_name = launch_configuration_name
         if expected_value is not None:
             self.__expected_value = normalize_to_list_of_substitutions(expected_value)

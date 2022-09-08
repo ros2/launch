@@ -41,6 +41,7 @@ class LaunchConfigurationNotEquals(LaunchConfigurationEquals):
         launch_configuration_name: Text,
         expected_value: Optional[SomeSubstitutionsType]
     ) -> None:
+        # This is deprecated! Use `NotEqualsSubstitution` instead!
         super().__init__(launch_configuration_name, expected_value)
 
     def _predicate_func(self, context: LaunchContext) -> bool:
