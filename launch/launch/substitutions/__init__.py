@@ -15,7 +15,9 @@
 """Package for substitutions."""
 
 from .anon_name import AnonName
+from .boolean_substitution import AllSubstitution
 from .boolean_substitution import AndSubstitution
+from .boolean_substitution import AnySubstitution
 from .boolean_substitution import NotSubstitution
 from .boolean_substitution import OrSubstitution
 from .command import Command
@@ -31,7 +33,9 @@ from .this_launch_file import ThisLaunchFile
 from .this_launch_file_dir import ThisLaunchFileDir
 
 __all__ = [
+    'AllSubstitution',
     'AndSubstitution',
+    'AnySubstitution',
     'AnonName',
     'Command',
     'EnvironmentVariable',
