@@ -37,6 +37,10 @@ class LaunchConfigurationEquals(Condition):
 
     If ``None`` is provided instead of a string expression, then the condition
     evaluates to ``True`` if the launch configuration is not set.
+
+    .. deprecated:: 1.1.0
+       Replaced by the more universally usable substitutions:
+       'EqualsSubstitution' and 'NotEqualsSubstitution'
     """
 
     def __init__(

@@ -23,18 +23,89 @@ import os
 
 
 def test_equals_substitution():
-    lc = LaunchContext()
-    assert NotEqualsSubstitution(None, None).perform(lc) == 'false'
-    assert NotEqualsSubstitution(None, "something").perform(lc) == 'true'
-    assert NotEqualsSubstitution(True, True).perform(lc) == 'false'
-    assert NotEqualsSubstitution(False, False).perform(lc) == 'false'
-    assert NotEqualsSubstitution(True, False).perform(lc) == 'true'
-    assert NotEqualsSubstitution(1, True).perform(lc) == 'false'
-    assert NotEqualsSubstitution(1, 1).perform(lc) == 'false'
-    assert NotEqualsSubstitution(1, 0).perform(lc) == 'true'
-    assert NotEqualsSubstitution(1, "1").perform(lc) == 'true'
-    assert NotEqualsSubstitution("1", "1").perform(lc) == 'false'
+    def _permute_assertion(left, right, context, output):
+        assert NotEqualsSubstitution(left, right).perform(context) == output
+        assert NotEqualsSubstitution(right, left).perform(context) == output
 
+    lc = LaunchContext()
+
+    # NoneType
+    _permute_assertion(None, None, lc, 'false')
+    _permute_assertion(None, "", lc, 'false')
+    _permute_assertion(None, "something", lc, 'true')
+
+    # Booleans
+    _permute_assertion(True, True, lc, 'false')
+    _permute_assertion(False, False, lc, 'false')
+    _permute_assertion(True, False, lc, 'true')
+
+    _permute_assertion(True, "true", lc, 'false')
+    _permute_assertion(True, "True", lc, 'false')
+    _permute_assertion(False, "false", lc, 'false')
+    _permute_assertion(False, "False", lc, 'false')
+    _permute_assertion(True, "False", lc, 'true')
+
+    _permute_assertion(True, 1, lc, 'false')
+    _permute_assertion(True, "1", lc, 'false')
+    _permute_assertion(True, 0, lc, 'true')
+    _permute_assertion(True, "0", lc, 'true')
+    _permute_assertion(True, "10", lc, 'true')
+    _permute_assertion(True, "-1", lc, 'true')
+
+    _permute_assertion(False, 1, lc, 'true')
+    _permute_assertion(False, "1", lc, 'true')
+    _permute_assertion(False, 0, lc, 'false')
+    _permute_assertion(False, "0", lc, 'false')
+    _permute_assertion(False, "10", lc, 'true')
+    _permute_assertion(False, "-1", lc, 'true')
+
+    _permute_assertion('true', 1, lc, 'false')
+    _permute_assertion('true', "1", lc, 'false')
+    _permute_assertion('true', "0", lc, 'true')
+    _permute_assertion('true', "true", lc, 'false')
+    _permute_assertion('false', 1, lc, 'true')
+    _permute_assertion('false', "1", lc, 'true')
+    _permute_assertion('false', "0", lc, 'false')
+    _permute_assertion('false', "false", lc, 'false')
+    _permute_assertion('true', "false", lc, 'true')
+
+    # Numerics
+    _permute_assertion(1, 1, lc, 'false')
+    _permute_assertion(1, 0, lc, 'true')
+    _permute_assertion(1, -1, lc, 'true')
+    _permute_assertion(10, 10, lc, 'false')
+    _permute_assertion(10, -10, lc, 'true')
+
+    _permute_assertion(10, 10.0, lc, 'false')
+    _permute_assertion(10, 10 + 1e-10, lc, 'false')
+    _permute_assertion(10, 10.1, lc, 'true')
+    _permute_assertion(10.0, -10.0, lc, 'true')
+
+    _permute_assertion(float('nan'), float('nan'), lc, 'true')
+    _permute_assertion(float('nan'), 'nan', lc, 'true')
+    _permute_assertion('nan', 'nan', lc, 'true')  # Special case
+
+    _permute_assertion(float('inf'), float('inf'), lc, 'false')
+    _permute_assertion(float('inf'), 'inf', lc, 'false')
+    _permute_assertion('inf', 'inf', lc, 'false')
+
+    _permute_assertion(float('inf'), float('-inf'), lc, 'true')
+    _permute_assertion(float('inf'), '-inf', lc, 'true')
+    _permute_assertion('inf', '-inf', lc, 'true')
+    _permute_assertion('-inf', '-inf', lc, 'false')
+
+    # Strings
+    _permute_assertion('nan', 'nan', lc, 'false')
+    _permute_assertion('inf', 'inf', lc, 'false')
+    _permute_assertion('inf', 'nan', lc, 'true')
+
+    _permute_assertion("wow", "wow", lc, 'false')
+    _permute_assertion("wow", True, lc, 'true')
+    _permute_assertion("wow", 1, lc, 'true')
+    _permute_assertion("wow", 0, lc, 'true')
+    _permute_assertion("wow", 10, lc, 'true')
+
+    # Substitutions
     path = ['asd', 'bsd', 'cds']
     sub = PathJoinSubstitution(path)
-    assert NotEqualsSubstitution(sub, os.path.join(*path)).perform(lc) == 'false'
+    assert NotEqualsSubstitution(sub, os.path.join(*path)).perform(lc) == 'true'

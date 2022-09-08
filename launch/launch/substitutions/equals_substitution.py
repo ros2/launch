@@ -14,6 +14,8 @@
 
 """Module for the EqualsSubstitution substitution."""
 
+import math
+
 from typing import Any
 from typing import Iterable
 from typing import Optional
@@ -29,9 +31,30 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities.type_utils import perform_substitutions
 
 
+def _str_is_bool(input: Text) -> bool:
+    """Check if string input is convertible to a boolean."""
+    if not isinstance(input, Text):
+        return False
+    else:
+        return input.lower() in ('true', 'false', '1', '0')
+
+
+def _str_is_float(input: Text) -> bool:
+    """Check if string input is convertible to a float."""
+    try:
+        float(input)
+        return True
+    except ValueError:
+        return False
+
+
 @expose_substitution('equals')
 class EqualsSubstitution(Substitution):
-    """Substitution that checks if two inputs are equal."""
+    """
+    Substitution that checks if two inputs are equal.
+
+    Returns 'true' or 'false' strings depending on the result.
+    """
 
     def __init__(
         self,
@@ -43,13 +66,21 @@ class EqualsSubstitution(Substitution):
 
         if is_some_substitutions_type(left):
             self.__left = normalize_to_list_of_substitutions(left)
+        elif left is None:
+            self.__left = ""
+        elif isinstance(left, bool):
+            self.__left = str(left).lower()
         else:
-            self.__left = left
+            self.__left = str(left)
 
         if is_some_substitutions_type(right):
             self.__right = normalize_to_list_of_substitutions(right)
+        elif right is None:
+            self.__right = ""
+        elif isinstance(right, bool):
+            self.__right = str(right).lower()
         else:
-            self.__right = right
+            self.__right = str(right)
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
@@ -74,14 +105,19 @@ class EqualsSubstitution(Substitution):
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
-        if is_some_substitutions_type(self.left):
+        if is_some_substitutions_type(self.left) and not isinstance(self.left, Text):
             left = perform_substitutions(context, self.left)
         else:
             left = self.left
 
-        if is_some_substitutions_type(self.right):
+        if is_some_substitutions_type(self.right) and not isinstance(self.right, Text):
             right = perform_substitutions(context, self.right)
         else:
             right = self.right
 
-        return str(left == right).lower()
+        if _str_is_bool(left) and _str_is_bool(right):
+            return str(left in ('true', '1') == right in ('true', '1')).lower()
+        elif _str_is_float(left) and _str_is_float(right):
+            return str(math.isclose(float(left), float(right))).lower()
+        else:
+            return str(left == right).lower()

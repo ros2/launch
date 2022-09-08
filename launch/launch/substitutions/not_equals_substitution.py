@@ -27,7 +27,11 @@ from ..launch_context import LaunchContext
 
 @expose_substitution('not-equals')
 class NotEqualsSubstitution(EqualsSubstitution):
-    """Substitution that checks if two inputs are not equal."""
+    """
+    Substitution that checks if two inputs are not equal.
+
+    Returns 'true' or 'false' strings depending on the result.
+    """
 
     def __init__(
         self,
@@ -43,9 +47,4 @@ class NotEqualsSubstitution(EqualsSubstitution):
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
-        result = super().perform(context)
-
-        if result == 'true':
-            return 'false'
-        else:
-            return 'true'
+        return str(not super().perform(context) == 'true').lower()
