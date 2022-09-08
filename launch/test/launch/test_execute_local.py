@@ -124,3 +124,17 @@ def test_execute_process_with_respawn():
     ls.include_launch_description(generate_launch_description())
     assert 0 == ls.run()
     assert expected_called_count == on_exit_callback.called_count
+
+
+def test_execute_process_with_output_dictionary():
+    """Test launching a process works when output is specified as a dictionary."""
+    executable = ExecuteLocal(
+        process_description=Executable(
+            cmd=[sys.executable, '-c', 'pass']
+        ),
+        output={'stdout': 'screen', 'stderr': 'screen'}
+    )
+    ld = LaunchDescription([executable])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
