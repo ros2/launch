@@ -2,6 +2,11 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.9 (2022-09-12)
+-------------------
+* Support scoping environment variables (`#601 <https://github.com/ros2/launch/issues/601>`_) (`#630 <https://github.com/ros2/launch/issues/630>`_)
+* Contributors: Jacob Perron
+
 0.10.8 (2022-01-12)
 -------------------
 * Validate unparsed attributes and subentities in launch_xml and launch_yaml. (`#468 <https://github.com/ros2/launch/issues/468>`_) (`#567 <https://github.com/ros2/launch/issues/567>`_)
