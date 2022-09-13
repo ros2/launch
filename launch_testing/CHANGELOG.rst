@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2022-09-13)
+------------------
 * Fix Typo (`#641 <https://github.com/ros2/launch/issues/641>`_)
 * ReadyToTest action timeout using decorator (`#625 <https://github.com/ros2/launch/issues/625>`_)
 * Switch to using a comprehension for process_names. (`#614 <https://github.com/ros2/launch/issues/614>`_)

@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2022-09-13)
+------------------
 * Update launch/test/launch/test_execute_local.py
 * Added unit test ensuring that output dictionary works with ExecuteLocal
 * Addresses issue `#588 <https://github.com/ros2/launch/issues/588>`_, allowing dict for 'output'
