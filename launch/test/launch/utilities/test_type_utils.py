@@ -286,10 +286,6 @@ def test_coercion_raises_value_error(coerce_to_type_impl):
     with pytest.raises(ValueError):
         coerce_to_type_impl('Bsd', data_type=bool)
 
-    # '1' and '0' are special cases for bool coercion
-    # with pytest.raises(ValueError):
-    #     coerce_to_type_impl('1', data_type=bool)
-
     with pytest.raises(ValueError):
         coerce_to_type_impl('', data_type=List[float])
     with pytest.raises(ValueError):
