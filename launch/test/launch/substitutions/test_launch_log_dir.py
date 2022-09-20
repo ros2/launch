@@ -23,6 +23,12 @@ from launch.substitutions import TextSubstitution
 import pytest
 
 
+@pytest.fixture
+def log_dir(tmpdir_factory):
+    """Test fixture that generates a temporary directory for log files."""
+    return str(tmpdir_factory.mktemp('logs'))
+
+
 def test_launch_log_dir():
     """Test the constructors for LaunchLogDir class."""
     LaunchLogDir()

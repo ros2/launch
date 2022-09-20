@@ -25,12 +25,6 @@ import launch.logging
 import pytest
 
 
-@pytest.fixture
-def log_dir(tmpdir_factory):
-    """Test fixture that generates a temporary directory for log files."""
-    return str(tmpdir_factory.mktemp('logs'))
-
-
 def test_bad_logging_launch_config():
     """Tests that setup throws at bad configuration."""
     launch.logging.reset()
