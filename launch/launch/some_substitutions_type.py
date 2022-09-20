@@ -34,21 +34,3 @@ SomeSubstitutionsType_types_tuple = (
     Substitution,
     collections.abc.Iterable,
 )
-
-
-def is_some_substitutions_type(input: Optional[Union[Any, Iterable[Any]]]) -> bool:
-    """
-    Check if input is instance of members of SomeSubstitutionsType.
-
-    It is not possible to do a direct comparison, and typing.get_args() doesn't seem to work, so
-    we're forced to use this very inelegant solution...
-    """
-    if isinstance(input, Iterable):
-        return all(
-            (isinstance(i, Substitution) or isinstance(i, Text)) for i in input
-        )
-    else:
-        return any([
-            isinstance(input, Substitution),
-            isinstance(input, Text)
-        ])

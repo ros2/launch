@@ -24,11 +24,10 @@ from typing import Union
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
-from ..some_substitutions_type import is_some_substitutions_type
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
-from ..utilities.type_utils import perform_substitutions
+from ..utilities.type_utils import perform_substitutions, is_substitution
 
 
 def _str_is_bool(input: Text) -> bool:
@@ -64,19 +63,19 @@ class EqualsSubstitution(Substitution):
         """Create an EqualsSubstitution substitution."""
         super().__init__()
 
-        if is_some_substitutions_type(left):
+        if is_substitution(left):
             self.__left = normalize_to_list_of_substitutions(left)
         elif left is None:
-            self.__left = ""
+            self.__left = ''
         elif isinstance(left, bool):
             self.__left = str(left).lower()
         else:
             self.__left = str(left)
 
-        if is_some_substitutions_type(right):
+        if is_substitution(right):
             self.__right = normalize_to_list_of_substitutions(right)
         elif right is None:
-            self.__right = ""
+            self.__right = ''
         elif isinstance(right, bool):
             self.__right = str(right).lower()
         else:
@@ -105,18 +104,20 @@ class EqualsSubstitution(Substitution):
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
-        if is_some_substitutions_type(self.left) and not isinstance(self.left, Text):
+        if is_substitution(self.left) and not isinstance(self.left, Text):
             left = perform_substitutions(context, self.left)
         else:
             left = self.left
 
-        if is_some_substitutions_type(self.right) and not isinstance(self.right, Text):
+        if is_substitution(self.right) and not isinstance(self.right, Text):
             right = perform_substitutions(context, self.right)
         else:
             right = self.right
 
         if _str_is_bool(left) and _str_is_bool(right):
-            return str((left.lower() in ('true', '1')) == (right.lower() in ('true', '1'))).lower()
+            left = perform_typed_substitution(context, left, bool)
+            right = perform_typed_substitution(context, right, bool)
+            return str(left == right).lower()
         elif _str_is_float(left) and _str_is_float(right):
             return str(math.isclose(float(left), float(right))).lower()
         else:

@@ -156,10 +156,18 @@ class OrSubstitution(Substitution):
 
 @expose_substitution('any')
 class AnySubstitution(Substitution):
-    """Substitution that returns 'any' of the input boolean values."""
+    """
+    Substitutes to the string 'true' if at least one of the input arguments evaluates to true.
+
+    If none of the arguments evaluate to true, then this substitution returns the string 'false'.
+    """
 
     def __init__(self, *args: SomeSubstitutionsType) -> None:
-        """Create an AnySubstitution substitution."""
+        """
+        Create an AnySubstitution substitution.
+
+        The following string arguments evaluate to true: '1', 'true', 'True', 'on'
+        """
         super().__init__()
 
         self.__args = [normalize_to_list_of_substitutions(arg) for arg in args]
@@ -193,10 +201,19 @@ class AnySubstitution(Substitution):
 
 @expose_substitution('all')
 class AllSubstitution(Substitution):
-    """Substitution that returns 'all' of the input boolean values."""
+    """
+    Substitutes to the string 'true' if all of the input arguments evaluate to true.
+
+    If any of the arguments evaluates to false, then this substitution returns the string 'false'.
+    """
 
     def __init__(self, *args: SomeSubstitutionsType) -> None:
-        """Create an AllSubstitution substitution."""
+        """
+        Create an AllSubstitution substitution.
+
+        The following string arguments evaluate to true: '1', 'true', 'True', 'on'
+        The following string arguments evaluate to false: '0', 'false', 'False', 'off'
+        """
         super().__init__()
 
         self.__args = [normalize_to_list_of_substitutions(arg) for arg in args]
