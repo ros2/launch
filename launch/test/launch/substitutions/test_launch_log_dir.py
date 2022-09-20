@@ -25,7 +25,7 @@ import pytest
 
 def test_launch_log_dir():
     """Test the constructors for LaunchLogDir class."""
-    ThisLaunchFile()
+    LaunchLogDir()
 
 
 def test_launch_log_dir_methods():
@@ -36,7 +36,7 @@ def test_launch_log_dir_methods():
     assert lld.perform(lc)
 
 
-def test_launch_log_dir_frontend():
+def test_launch_log_dir_frontend(log_dir):
     """Test launch_log_dir/log_dir frontend substitutions."""
     launch.logging.reset()
     launch.logging.launch_config.log_dir = log_dir
