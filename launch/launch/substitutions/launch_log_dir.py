@@ -46,4 +46,4 @@ class LaunchLogDir(Substitution):
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by returning the path to the current launch log directory."""
-        return launch_logging_config.log_dir()
+        return launch_logging_config.log_dir
