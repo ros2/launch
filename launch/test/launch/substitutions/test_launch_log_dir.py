@@ -16,17 +16,7 @@
 
 from launch import LaunchContext
 from launch.frontend.parse_substitution import parse_substitution
-import launch.logging
 from launch.substitutions import LaunchLogDir
-from launch.substitutions import TextSubstitution
-
-import pytest
-
-
-@pytest.fixture
-def log_dir(tmpdir_factory):
-    """Test fixture that generates a temporary directory for log files."""
-    return str(tmpdir_factory.mktemp('logs'))
 
 
 def test_launch_log_dir():
@@ -42,17 +32,10 @@ def test_launch_log_dir_methods():
     assert lld.perform(lc)
 
 
-def test_launch_log_dir_frontend(log_dir):
+def test_launch_log_dir_frontend():
     """Test launch_log_dir/log_dir frontend substitutions."""
-    launch.logging.reset()
-    launch.logging.launch_config.log_dir = log_dir
-
     for sub in ('launch_log_dir', 'log_dir'):
         subst = parse_substitution(f'$({sub})')
         assert len(subst) == 1
         result = subst[0]
-        assert isinstance(result, TextSubstitution)
-        assert result.text == log_dir
-
-        with pytest.raises(TypeError):
-            parse_substitution(f'$({sub} some_args)')
+        assert isinstance(result, LaunchLogDir)
