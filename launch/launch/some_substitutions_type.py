@@ -15,9 +15,7 @@
 """Module for SomeSubstitutionsType type."""
 
 import collections.abc
-from typing import Any
 from typing import Iterable
-from typing import Optional
 from typing import Text
 from typing import Union
 
