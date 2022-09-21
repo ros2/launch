@@ -16,11 +16,11 @@
 
 from launch import LaunchContext
 
+from launch.substitutions import AllSubstitution
 from launch.substitutions import AndSubstitution
+from launch.substitutions import AnySubstitution
 from launch.substitutions import NotSubstitution
 from launch.substitutions import OrSubstitution
-from launch.substitutions import AnySubstitution
-from launch.substitutions import AllSubstitution
 from launch.substitutions.substitution_failure import SubstitutionFailure
 
 import pytest

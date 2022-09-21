@@ -14,12 +14,12 @@
 
 """Tests for the EqualsSubstitution class."""
 
+import os
+
 from launch import LaunchContext
 
 from launch.substitutions import EqualsSubstitution
 from launch.substitutions import PathJoinSubstitution
-
-import os
 
 
 def test_equals_substitution():

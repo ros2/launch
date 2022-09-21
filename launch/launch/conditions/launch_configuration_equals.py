@@ -51,10 +51,10 @@ class LaunchConfigurationEquals(Condition):
         warnings.warn(
             "The 'LaunchConfigurationEquals' and 'LaunchConfigurationNotEquals' Conditions are "
             " deprecated. Use the 'EqualsSubstitution' and 'NotEqualsSubstitution' substitutions "
-            "instead! E.g.:\n"
-            "  IfCondition(\n  "
+            'instead! E.g.:\n'
+            '  IfCondition(\n  '
             "\tEqualsSubstitution(LaunchConfiguration('some_launch_arg'), \"some_equality_check\")"
-            "\n  )",
+            '\n  )',
             UserWarning
         )
 

@@ -27,21 +27,21 @@ from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
-from ..utilities.type_utils import perform_substitutions, is_substitution
+from ..utilities.type_utils import is_substitution, perform_substitutions
 
 
-def _str_is_bool(input: Text) -> bool:
+def _str_is_bool(input_str: Text) -> bool:
     """Check if string input is convertible to a boolean."""
-    if not isinstance(input, Text):
+    if not isinstance(input_str, Text):
         return False
     else:
-        return input.lower() in ('true', 'false', '1', '0')
+        return input_str.lower() in ('true', 'false', '1', '0')
 
 
-def _str_is_float(input: Text) -> bool:
+def _str_is_float(input_str: Text) -> bool:
     """Check if string input is convertible to a float."""
     try:
-        float(input)
+        float(input_str)
         return True
     except ValueError:
         return False

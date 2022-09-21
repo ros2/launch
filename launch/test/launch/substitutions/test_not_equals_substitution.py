@@ -14,12 +14,12 @@
 
 """Tests for the NotEqualsSubstitution class."""
 
+import os
+
 from launch import LaunchContext
 
 from launch.substitutions import NotEqualsSubstitution
 from launch.substitutions import PathJoinSubstitution
-
-import os
 
 
 def test_not_equals_substitution():
@@ -31,43 +31,43 @@ def test_not_equals_substitution():
 
     # NoneType
     _permute_assertion(None, None, lc, 'false')
-    _permute_assertion(None, "", lc, 'false')
-    _permute_assertion(None, "something", lc, 'true')
+    _permute_assertion(None, '', lc, 'false')
+    _permute_assertion(None, 'something', lc, 'true')
 
     # Booleans
     _permute_assertion(True, True, lc, 'false')
     _permute_assertion(False, False, lc, 'false')
     _permute_assertion(True, False, lc, 'true')
 
-    _permute_assertion(True, "true", lc, 'false')
-    _permute_assertion(True, "True", lc, 'false')
-    _permute_assertion(False, "false", lc, 'false')
-    _permute_assertion(False, "False", lc, 'false')
-    _permute_assertion(True, "False", lc, 'true')
+    _permute_assertion(True, 'true', lc, 'false')
+    _permute_assertion(True, 'True', lc, 'false')
+    _permute_assertion(False, 'false', lc, 'false')
+    _permute_assertion(False, 'False', lc, 'false')
+    _permute_assertion(True, 'False', lc, 'true')
 
     _permute_assertion(True, 1, lc, 'false')
-    _permute_assertion(True, "1", lc, 'false')
+    _permute_assertion(True, '1', lc, 'false')
     _permute_assertion(True, 0, lc, 'true')
-    _permute_assertion(True, "0", lc, 'true')
-    _permute_assertion(True, "10", lc, 'true')
-    _permute_assertion(True, "-1", lc, 'true')
+    _permute_assertion(True, '0', lc, 'true')
+    _permute_assertion(True, '10', lc, 'true')
+    _permute_assertion(True, '-1', lc, 'true')
 
     _permute_assertion(False, 1, lc, 'true')
-    _permute_assertion(False, "1", lc, 'true')
+    _permute_assertion(False, '1', lc, 'true')
     _permute_assertion(False, 0, lc, 'false')
-    _permute_assertion(False, "0", lc, 'false')
-    _permute_assertion(False, "10", lc, 'true')
-    _permute_assertion(False, "-1", lc, 'true')
+    _permute_assertion(False, '0', lc, 'false')
+    _permute_assertion(False, '10', lc, 'true')
+    _permute_assertion(False, '-1', lc, 'true')
 
     _permute_assertion('true', 1, lc, 'false')
-    _permute_assertion('true', "1", lc, 'false')
-    _permute_assertion('true', "0", lc, 'true')
-    _permute_assertion('true', "true", lc, 'false')
+    _permute_assertion('true', '1', lc, 'false')
+    _permute_assertion('true', '0', lc, 'true')
+    _permute_assertion('true', 'true', lc, 'false')
     _permute_assertion('false', 1, lc, 'true')
-    _permute_assertion('false', "1", lc, 'true')
-    _permute_assertion('false', "0", lc, 'false')
-    _permute_assertion('false', "false", lc, 'false')
-    _permute_assertion('true', "false", lc, 'true')
+    _permute_assertion('false', '1', lc, 'true')
+    _permute_assertion('false', '0', lc, 'false')
+    _permute_assertion('false', 'false', lc, 'false')
+    _permute_assertion('true', 'false', lc, 'true')
 
     # Numerics
     _permute_assertion(1, 1, lc, 'false')
@@ -95,11 +95,11 @@ def test_not_equals_substitution():
     _permute_assertion('-inf', '-inf', lc, 'false')
 
     # Strings
-    _permute_assertion("wow", "wow", lc, 'false')
-    _permute_assertion("wow", True, lc, 'true')
-    _permute_assertion("wow", 1, lc, 'true')
-    _permute_assertion("wow", 0, lc, 'true')
-    _permute_assertion("wow", 10, lc, 'true')
+    _permute_assertion('wow', 'wow', lc, 'false')
+    _permute_assertion('wow', True, lc, 'true')
+    _permute_assertion('wow', 1, lc, 'true')
+    _permute_assertion('wow', 0, lc, 'true')
+    _permute_assertion('wow', 10, lc, 'true')
 
     # Substitutions
     path = ['asd', 'bsd', 'cds']
