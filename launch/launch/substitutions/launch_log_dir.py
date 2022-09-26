@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2022 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,47 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the ThisLaunchFileDir substitution."""
+"""Module for the LaunchLogDir substitution."""
 
 from typing import Iterable
 from typing import Text
 
-from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
+from ..logging import launch_config as launch_logging_config
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
 
-@expose_substitution('dirname')
-class ThisLaunchFileDir(Substitution):
-    """Substitution that returns the absolute path to the current launch file."""
+@expose_substitution('launch_log_dir')
+@expose_substitution('log_dir')
+class LaunchLogDir(Substitution):
+    """Substitution that returns the absolute path to the current launch log directory."""
 
     def __init__(self) -> None:
-        """Create a ThisLaunchFileDir substitution."""
+        """Create a LaunchLogDir substitution."""
         super().__init__()
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
-        """Parse `ThisLaunchFileDir` substitution."""
+        """Parse `LaunchLogDir` substitution."""
         if len(data) != 0:
-            raise TypeError("dirname substitution doesn't expect arguments")
+            raise TypeError("launch_log_dir/log_dir substitution doesn't expect arguments")
         return cls, {}
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return 'ThisLaunchFileDir()'
+        return 'LaunchLogDir()'
 
     def perform(self, context: LaunchContext) -> Text:
-        """
-        Perform the substitution by returning the path to the current launch file.
-
-        If there is no current launch file, i.e. if run from a script, then an
-        error is raised.
-
-        :raises: SubstitutionFailure if not in a launch file
-        """
-        if 'current_launch_file_directory' not in context.get_locals_as_dict():
-            raise SubstitutionFailure(
-                'ThisLaunchFileDir used outside of a launch file (in a script)')
-        return context.locals.current_launch_file_directory
+        """Perform the substitution by returning the path to the current launch log directory."""
+        return launch_logging_config.log_dir
