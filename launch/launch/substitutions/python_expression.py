@@ -37,7 +37,7 @@ class PythonExpression(Substitution):
     It also may contain math symbols and functions.
     """
 
-    def __init__(self, expression: SomeSubstitutionsType, locals: dict=math.__dict__) -> None:
+    def __init__(self, expression: SomeSubstitutionsType, locals: dict = math.__dict__) -> None:
         """Create a PythonExpression substitution."""
         super().__init__()
 
