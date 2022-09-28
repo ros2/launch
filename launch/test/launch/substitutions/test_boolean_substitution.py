@@ -16,7 +16,9 @@
 
 from launch import LaunchContext
 
+from launch.substitutions import AllSubstitution
 from launch.substitutions import AndSubstitution
+from launch.substitutions import AnySubstitution
 from launch.substitutions import NotSubstitution
 from launch.substitutions import OrSubstitution
 from launch.substitutions.substitution_failure import SubstitutionFailure
@@ -88,3 +90,63 @@ def test_or_substitution():
         OrSubstitution('not-condition-expression', 'true').perform(lc)
     with pytest.raises(SubstitutionFailure):
         OrSubstitution('true', 'not-condition-expression').perform(lc)
+
+
+def test_any_substitution():
+    lc = LaunchContext()
+    assert AnySubstitution().perform(lc) == 'false'
+    assert AnySubstitution('true').perform(lc) == 'true'
+    assert AnySubstitution('false').perform(lc) == 'false'
+    assert AnySubstitution('true', 'true').perform(lc) == 'true'
+    assert AnySubstitution('true', 'false').perform(lc) == 'true'
+    assert AnySubstitution('false', 'true').perform(lc) == 'true'
+    assert AnySubstitution('false', 'false').perform(lc) == 'false'
+    assert AnySubstitution('true', 'true', 'true').perform(lc) == 'true'
+    assert AnySubstitution('true', 'true', 'false').perform(lc) == 'true'
+    assert AnySubstitution('false', 'false', 'false').perform(lc) == 'false'
+
+    assert AnySubstitution('1').perform(lc) == 'true'
+    assert AnySubstitution('0').perform(lc) == 'false'
+    assert AnySubstitution('1', 'true').perform(lc) == 'true'
+    assert AnySubstitution('1', 'false').perform(lc) == 'true'
+    assert AnySubstitution('0', 'true').perform(lc) == 'true'
+    assert AnySubstitution('0', 'false').perform(lc) == 'false'
+    assert AnySubstitution('1', 'true', 'true').perform(lc) == 'true'
+    assert AnySubstitution('1', 'true', 'false').perform(lc) == 'true'
+    assert AnySubstitution('true', 'true', '0').perform(lc) == 'true'
+    assert AnySubstitution('0', 'false', 'false').perform(lc) == 'false'
+
+    with pytest.raises(SubstitutionFailure):
+        AnySubstitution('not-condition-expression', 'true').perform(lc)
+    with pytest.raises(SubstitutionFailure):
+        AnySubstitution('true', 'not-condition-expression').perform(lc)
+
+
+def test_all_substitution():
+    lc = LaunchContext()
+    assert AllSubstitution().perform(lc) == 'true'
+    assert AllSubstitution('true').perform(lc) == 'true'
+    assert AllSubstitution('false').perform(lc) == 'false'
+    assert AllSubstitution('true', 'true').perform(lc) == 'true'
+    assert AllSubstitution('true', 'false').perform(lc) == 'false'
+    assert AllSubstitution('false', 'true').perform(lc) == 'false'
+    assert AllSubstitution('false', 'false').perform(lc) == 'false'
+    assert AllSubstitution('true', 'true', 'true').perform(lc) == 'true'
+    assert AllSubstitution('true', 'true', 'false').perform(lc) == 'false'
+    assert AllSubstitution('false', 'false', 'false').perform(lc) == 'false'
+
+    assert AllSubstitution('1').perform(lc) == 'true'
+    assert AllSubstitution('0').perform(lc) == 'false'
+    assert AllSubstitution('1', 'true').perform(lc) == 'true'
+    assert AllSubstitution('1', 'false').perform(lc) == 'false'
+    assert AllSubstitution('0', 'true').perform(lc) == 'false'
+    assert AllSubstitution('0', 'false').perform(lc) == 'false'
+    assert AllSubstitution('1', 'true', 'true').perform(lc) == 'true'
+    assert AllSubstitution('1', 'true', 'false').perform(lc) == 'false'
+    assert AllSubstitution('true', 'true', '0').perform(lc) == 'false'
+    assert AllSubstitution('0', 'false', 'false').perform(lc) == 'false'
+
+    with pytest.raises(SubstitutionFailure):
+        AllSubstitution('not-condition-expression', 'true').perform(lc)
+    with pytest.raises(SubstitutionFailure):
+        AllSubstitution('true', 'not-condition-expression').perform(lc)

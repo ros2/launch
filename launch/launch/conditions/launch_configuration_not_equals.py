@@ -34,6 +34,10 @@ class LaunchConfigurationNotEquals(LaunchConfigurationEquals):
 
     If ``None`` is provided instead of a string expression, then the condition
     evaluates to ``True`` if the launch configuration is set.
+
+    .. deprecated:: 1.1.0
+       Replaced by the more universally usable substitutions:
+       'EqualsSubstitution' and 'NotEqualsSubstitution'
     """
 
     def __init__(
@@ -41,6 +45,7 @@ class LaunchConfigurationNotEquals(LaunchConfigurationEquals):
         launch_configuration_name: Text,
         expected_value: Optional[SomeSubstitutionsType]
     ) -> None:
+        # This is deprecated! Use `NotEqualsSubstitution` instead!
         super().__init__(launch_configuration_name, expected_value)
 
     def _predicate_func(self, context: LaunchContext) -> bool:

@@ -16,6 +16,7 @@
 
 from typing import Optional
 from typing import Text
+import warnings
 
 from ..condition import Condition
 from ..launch_context import LaunchContext
@@ -36,6 +37,10 @@ class LaunchConfigurationEquals(Condition):
 
     If ``None`` is provided instead of a string expression, then the condition
     evaluates to ``True`` if the launch configuration is not set.
+
+    .. deprecated:: 1.1.0
+       Replaced by the more universally usable substitutions:
+       'EqualsSubstitution' and 'NotEqualsSubstitution'
     """
 
     def __init__(
@@ -43,6 +48,16 @@ class LaunchConfigurationEquals(Condition):
         launch_configuration_name: Text,
         expected_value: Optional[SomeSubstitutionsType]
     ) -> None:
+        warnings.warn(
+            "The 'LaunchConfigurationEquals' and 'LaunchConfigurationNotEquals' Conditions are "
+            " deprecated. Use the 'EqualsSubstitution' and 'NotEqualsSubstitution' substitutions "
+            'instead! E.g.:\n'
+            '  IfCondition(\n  '
+            "\tEqualsSubstitution(LaunchConfiguration('some_launch_arg'), \"some_equality_check\")"
+            '\n  )',
+            UserWarning
+        )
+
         self.__launch_configuration_name = launch_configuration_name
         if expected_value is not None:
             self.__expected_value = normalize_to_list_of_substitutions(expected_value)
