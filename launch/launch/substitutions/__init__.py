@@ -15,15 +15,19 @@
 """Package for substitutions."""
 
 from .anon_name import AnonName
+from .boolean_substitution import AllSubstitution
 from .boolean_substitution import AndSubstitution
+from .boolean_substitution import AnySubstitution
 from .boolean_substitution import NotSubstitution
 from .boolean_substitution import OrSubstitution
 from .command import Command
 from .environment_variable import EnvironmentVariable
+from .equals_substitution import EqualsSubstitution
 from .find_executable import FindExecutable
 from .launch_configuration import LaunchConfiguration
 from .launch_log_dir import LaunchLogDir
 from .local_substitution import LocalSubstitution
+from .not_equals_substitution import NotEqualsSubstitution
 from .path_join_substitution import PathJoinSubstitution
 from .python_expression import PythonExpression
 from .substitution_failure import SubstitutionFailure
@@ -32,15 +36,19 @@ from .this_launch_file import ThisLaunchFile
 from .this_launch_file_dir import ThisLaunchFileDir
 
 __all__ = [
+    'AllSubstitution',
     'AndSubstitution',
+    'AnySubstitution',
     'AnonName',
     'Command',
+    'EqualsSubstitution',
     'EnvironmentVariable',
     'FindExecutable',
     'LaunchConfiguration',
     'LaunchLogDir',
     'LocalSubstitution',
     'NotSubstitution',
+    'NotEqualsSubstitution',
     'OrSubstitution',
     'PathJoinSubstitution',
     'PythonExpression',
