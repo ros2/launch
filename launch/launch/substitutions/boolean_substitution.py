@@ -184,7 +184,7 @@ class AnySubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'AndSubstitution({" ".join(self.args)})'
+        return f'AnySubstitution({" ".join(self.args)})'
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
