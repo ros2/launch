@@ -186,9 +186,8 @@ class LaunchContext:
     def _reset_environment(self):
         # See the comment in _pop_environment for why we do this dance.
 
-        old_env = self.__environment_reset.copy()
         os.environ.clear()
-        for k, v in old_env.items():
+        for k, v in self.__environment_reset.items():
             os.environ[k] = v
 
     def _push_launch_configurations(self):
