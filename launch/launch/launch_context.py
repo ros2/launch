@@ -169,10 +169,23 @@ class LaunchContext:
     def _pop_environment(self):
         if not self.__environment_stack:
             raise RuntimeError('environment stack unexpectedly empty')
-        os.environ = self.__environment_stack.pop()
+
+        # Note that we cannot just assign os.environ to the copy of the
+        # environment that we saved during _push_environment() above.
+        # That's because os.environ.copy() returns a dict, while os.environ
+        # is a os._Environ object.  They act the same in many, but not all
+        # circumstances.  Instead, when we go to pop the environment, we
+        # clear out the current environment and push the values from the
+        # copy one-by-one into os.environ.
+
+        old_env = self.__environment_stack.pop()
+        os.environ.clear()
+        os.environ.update(old_env)
 
     def _reset_environment(self):
-        os.environ = self.__environment_reset.copy()
+        # See the comment in _pop_environment for why we do this dance.
+        os.environ.clear()
+        os.environ.update(self.__environment_reset)
 
     def _push_launch_configurations(self):
         self.__launch_configurations_stack.append(self.__launch_configurations.copy())
