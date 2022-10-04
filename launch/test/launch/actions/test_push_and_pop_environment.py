@@ -14,6 +14,8 @@
 
 """Tests for the PopEnvironment and PushEnvironment action classes."""
 
+import os
+
 from launch import LaunchContext
 from launch.actions import PopEnvironment
 from launch.actions import PushEnvironment
@@ -27,6 +29,8 @@ def test_push_and_pop_environment_constructors():
 
 def test_push_and_pop_environment_execute():
     """Test the execute() of the PopEnvironment and PushEnvironment classes."""
+    assert(type(os.environ) == os._Environ)
+
     context = LaunchContext()
 
     # does not change empty state
@@ -79,3 +83,6 @@ def test_push_and_pop_environment_execute():
     assert len(context.environment) == 1
     assert 'foo' in context.environment
     assert context.environment['foo'] == 'FOO'
+
+    # Pushing and popping the environment should not change the type of os.environ
+    assert(type(os.environ) == os._Environ)
