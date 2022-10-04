@@ -21,10 +21,14 @@ from typing import Tuple
 
 from ..action import Action
 from ..event_handler import BaseEventHandler
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser  # noqa: F401
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
 
 
+@expose_action('register_event_handler')
 class RegisterEventHandler(Action):
     """
     Action that registers an event handler.
@@ -42,6 +46,13 @@ class RegisterEventHandler(Action):
         """Create a RegisterEventHandler action."""
         super().__init__(**kwargs)
         self.__event_handler = event_handler
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Return `RegisterEventHandler` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+
+        return cls, kwargs
 
     @property
     def event_handler(self) -> BaseEventHandler:
