@@ -650,8 +650,7 @@ class ExecuteLocal(Action):
                     timeout=self.__respawn_delay
                 )
             if not self.__shutdown_future.done():
-                context.asyncio_loop.create_task(
-                    self.__execute_process(context))
+                context.asyncio_loop.create_task(self.__execute_process(context))
                 return
         if self.__signal_lingering_subprocesses_value:
             await self._signal_subprocesses(context)
