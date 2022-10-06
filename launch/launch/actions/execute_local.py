@@ -493,11 +493,7 @@ class ExecuteLocal(Action):
         )
         self.__children = psutil.Process(
             self._subprocess_transport.get_pid()).children(recursive=True)
-        # process_name = context.locals.process_name
-        # process_pid = context.locals.process_pid
-        # log_prefix_format = f'subprocess[pid={{}}] of process[{process_name}, pid={process_pid}]: '
 
-        # context.asyncio_loop.create_task(_signal_subprocesses())
         return [
             cast(Action, self.__sigterm_timer),
             cast(Action, self.__sigkill_timer),
