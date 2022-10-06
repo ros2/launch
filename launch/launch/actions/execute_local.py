@@ -31,12 +31,12 @@ from typing import Text
 from typing import Tuple  # noqa: F401
 from typing import Union
 
-import psutil
-
 import launch.logging
 
 from osrf_pycommon.process_utils import async_execute_process
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
+
+import psutil
 
 from .emit_event import EmitEvent
 from .opaque_function import OpaqueFunction
@@ -66,9 +66,7 @@ from ..launch_description import LaunchDescription
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_actions_type import SomeActionsType
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution  # noqa: F401
 from ..substitutions import LaunchConfiguration
-from ..substitutions import PythonExpression
 from ..utilities import create_future
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
@@ -736,8 +734,10 @@ class ExecuteLocal(Action):
         ]
         for event_handler in event_handlers:
             context.register_event_handler(event_handler)
-        self.__sigterm_timeout_value = perform_typed_substitution(context, self.__sigterm_timeout, float)
-        self.__sigkill_timeout_value = perform_typed_substitution(context, self.__sigkill_timeout, float)
+        self.__sigterm_timeout_value = perform_typed_substitution(
+            context, self.__sigterm_timeout, float)
+        self.__sigkill_timeout_value = perform_typed_substitution(
+            context, self.__sigkill_timeout, float)
         self.__signal_lingering_subprocesses_value = perform_typed_substitution(
             context, self.__signal_lingering_subprocesses, bool)
 
