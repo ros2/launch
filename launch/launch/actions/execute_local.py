@@ -489,8 +489,11 @@ class ExecuteLocal(Action):
             ],
             cancel_on_shutdown=False,
         )
-        self.__children = psutil.Process(
-            self._subprocess_transport.get_pid()).children(recursive=True)
+        try:
+            self.__children = psutil.Process(
+                self._subprocess_transport.get_pid()).children(recursive=True)
+        except psutil.NoSuchProcess:
+            self.__children = []
 
         return [
             cast(Action, self.__sigterm_timer),
