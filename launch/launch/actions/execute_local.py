@@ -162,13 +162,11 @@ class ExecuteLocal(Action):
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
             'sigkill_timeout'
-        :param: signal_subprocesses_timeout time until subprocesses start to be signaled directly,
-            as a string or a list of strings and Substitutions to be resolved
-            at runtime, defaults to the LaunchConfiguration called
-            'signal_subprocesses_timeout'.
-            The timer will start to count after the process being executed finishes.
-            Subprocesses will be killed using the same SIGINT/SIGTERM/SIGKILL sequence
-            used to kill the executed process.
+        :param: signal_lingering_subprocesses if `True`, all subprocesses spawned by the process
+            will be signaled to make sure they finish.
+            The sequence of signals used is the same SIGINT/SIGTERM/SIGKILL sequence
+            used to kill the main process.
+            Subprocesses start being signaled when the main process completes.
         :param: emulate_tty emulate a tty (terminal), defaults to False, but can
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
