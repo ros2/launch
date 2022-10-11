@@ -19,14 +19,17 @@ import os
 from launch import LaunchContext
 from launch.actions import PopEnvironment
 from launch.actions import PushEnvironment
+from temporary_environment import sandbox_environment_variables
 
 
+@sandbox_environment_variables
 def test_push_and_pop_environment_constructors():
     """Test the constructors for PopEnvironment and PushEnvironment classes."""
     PopEnvironment()
     PushEnvironment()
 
 
+@sandbox_environment_variables
 def test_push_and_pop_environment_execute():
     """Test the execute() of the PopEnvironment and PushEnvironment classes."""
     assert(type(os.environ) == os._Environ)
