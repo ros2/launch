@@ -14,7 +14,6 @@
 
 """Module for the SetEnvironmentVariable action."""
 
-import os
 from typing import List
 
 from ..action import Action
@@ -67,6 +66,6 @@ class SetEnvironmentVariable(Action):
 
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
-        os.environ[perform_substitutions(context, self.name)] = \
+        context.environment[perform_substitutions(context, self.name)] = \
             perform_substitutions(context, self.value)
         return None

@@ -16,10 +16,12 @@
 
 import asyncio
 import collections
+import os
 from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List  # noqa: F401
+from typing import Mapping
 from typing import Optional
 from typing import Text
 
@@ -60,6 +62,10 @@ class LaunchContext:
 
         self.__launch_configurations_stack = []  # type: List[Dict[Text, Text]]
         self.__launch_configurations = {}  # type: Dict[Text, Text]
+
+        self.__environment_stack = []  # type: List[Mapping[Text, Text]]
+        # We will reset to this copy when "reset_environment" is called
+        self.__environment_reset = os.environ.copy()  # type: Mapping[Text, Text]
 
         self.__is_shutdown = False
         self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
@@ -157,8 +163,32 @@ class LaunchContext:
 
         return AttributeDict(self._get_combined_locals())
 
+    def _push_environment(self):
+        self.__environment_stack.append(os.environ.copy())
+
+    def _pop_environment(self):
+        if not self.__environment_stack:
+            raise RuntimeError('environment stack unexpectedly empty')
+
+        # Note that we cannot just assign os.environ to the copy of the
+        # environment that we saved during _push_environment() above.
+        # That's because os.environ.copy() returns a dict, while os.environ
+        # is a os._Environ object.  They act the same in many, but not all
+        # circumstances.  Instead, when we go to pop the environment, we
+        # clear out the current environment and push the values from the
+        # copy one-by-one into os.environ.
+
+        old_env = self.__environment_stack.pop()
+        os.environ.clear()
+        os.environ.update(old_env)
+
+    def _reset_environment(self):
+        # See the comment in _pop_environment for why we do this dance.
+        os.environ.clear()
+        os.environ.update(self.__environment_reset)
+
     def _push_launch_configurations(self):
-        self.__launch_configurations_stack.append(dict(self.__launch_configurations))
+        self.__launch_configurations_stack.append(self.__launch_configurations.copy())
 
     def _pop_launch_configurations(self):
         if not self.__launch_configurations_stack:
@@ -169,6 +199,11 @@ class LaunchContext:
     def launch_configurations(self) -> Dict[Text, Text]:
         """Getter for launch_configurations dictionary."""
         return self.__launch_configurations
+
+    @property
+    def environment(self) -> Mapping[Text, Text]:
+        """Getter for environment variables dictionary."""
+        return os.environ
 
     def would_handle_event(self, event: Event) -> bool:
         """Check whether an event would be handled or not."""
