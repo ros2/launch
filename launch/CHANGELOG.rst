@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix bug in test_push_and_pop_environment.py
+  Sandbox the environment so the tests do not affect other tests.
+  This is a partial backport of (`#652 <https://github.com/ros2/launch/issues/652>`_)
+* Sandbox environment in tests to fix repeated job failures (`#609 <https://github.com/ros2/launch/issues/609>`_)
+* Fix the restoring of os.environ to maintain its type. (`#656 <https://github.com/ros2/launch/issues/656>`_)
+* Contributors: Chris Lalancette, Shane Loretz
+
 0.10.9 (2022-09-12)
 -------------------
 * Support scoping environment variables (`#601 <https://github.com/ros2/launch/issues/601>`_) (`#630 <https://github.com/ros2/launch/issues/630>`_)
