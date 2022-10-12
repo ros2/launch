@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.10.10 (2022-10-12)
+--------------------
 * Fix bug in test_push_and_pop_environment.py
   Sandbox the environment so the tests do not affect other tests.
   This is a partial backport of (`#652 <https://github.com/ros2/launch/issues/652>`_)
