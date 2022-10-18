@@ -2,6 +2,13 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix bug in test_push_and_pop_environment.py
+* Fix the restoring of os.environ to maintain type. (`#656 <https://github.com/ros2/launch/issues/656>`_)
+* Addresses issue `#588 <https://github.com/ros2/launch/issues/588>`_, allowing dict for 'output' (backport `#640 <https://github.com/ros2/launch/issues/640>`_) (`#647 <https://github.com/ros2/launch/issues/647>`_)
+* Contributors: Chris Lalancette, mergify[bot]
+
 1.0.2 (2022-05-10)
 ------------------
 * Expose shutdown action to xml frontend (`#611 <https://github.com/ros2/launch/issues/611>`_)

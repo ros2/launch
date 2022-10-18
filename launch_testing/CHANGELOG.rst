@@ -2,6 +2,12 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix Typo (`#641 <https://github.com/ros2/launch/issues/641>`_) (`#644 <https://github.com/ros2/launch/issues/644>`_)
+* Switch to using a comprehension for process_names. (`#614 <https://github.com/ros2/launch/issues/614>`_) (`#615 <https://github.com/ros2/launch/issues/615>`_)
+* Contributors: mergify[bot]
+
 1.0.2 (2022-05-10)
 ------------------
 
