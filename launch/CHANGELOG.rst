@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.3 (2022-10-18)
+------------------
 * Fix bug in test_push_and_pop_environment.py
 * Fix the restoring of os.environ to maintain type. (`#656 <https://github.com/ros2/launch/issues/656>`_)
 * Addresses issue `#588 <https://github.com/ros2/launch/issues/588>`_, allowing dict for 'output' (backport `#640 <https://github.com/ros2/launch/issues/640>`_) (`#647 <https://github.com/ros2/launch/issues/647>`_)
