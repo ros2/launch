@@ -224,12 +224,12 @@ class ExecuteLocal(Action):
 
     @property
     def sigkill_timeout(self):
-        """Getter for sigkill timeout"""
+        """Getter for sigkill timeout."""
         return self.__sigkill_timeout
 
     @property
     def sigterm_timeout(self):
-        """Getter for sigterm timeout"""
+        """Getter for sigterm timeout."""
         return self.__sigterm_timeout
 
     @property
