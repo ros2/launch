@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.2.0 (2022-09-13)
 ------------------
 * Fix Typo (`#641 <https://github.com/ros2/launch/issues/641>`_)

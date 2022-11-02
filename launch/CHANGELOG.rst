@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Expect deprecation warnings in tests (`#657 <https://github.com/ros2/launch/issues/657>`_)
+* Fix the restoring of os.environ to maintain type. (`#656 <https://github.com/ros2/launch/issues/656>`_)
+* Implement Any, All, Equals, and NotEquals substitutions (`#649 <https://github.com/ros2/launch/issues/649>`_)
+* add LaunchLogDir substitution, replacing log_dir frontend only substitution (`#652 <https://github.com/ros2/launch/issues/652>`_)
+* Add special cases to coerce "1" and "0" to bool when using bool coercion only (`#651 <https://github.com/ros2/launch/issues/651>`_)
+* Contributors: Chris Lalancette, Jacob Perron, William Woodall, methylDragon
+
 1.2.0 (2022-09-13)
 ------------------
 * Update launch/test/launch/test_execute_local.py
