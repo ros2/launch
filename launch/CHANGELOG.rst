@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2022-11-02)
+------------------
 * Expect deprecation warnings in tests (`#657 <https://github.com/ros2/launch/issues/657>`_)
 * Fix the restoring of os.environ to maintain type. (`#656 <https://github.com/ros2/launch/issues/656>`_)
 * Implement Any, All, Equals, and NotEquals substitutions (`#649 <https://github.com/ros2/launch/issues/649>`_)
