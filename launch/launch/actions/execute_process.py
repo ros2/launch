@@ -357,6 +357,11 @@ class ExecuteProcess(ExecuteLocal):
             if shell is not None:
                 kwargs['shell'] = shell
 
+        if 'emulate_tty' not in ignore:
+            emulate_tty = entity.get_attr('emulate_tty', data_type=bool, optional=True)
+            if emulate_tty is not None:
+                kwargs['emulate_tty'] = emulate_tty
+
         if 'additional_env' not in ignore:
             # Conditions won't be allowed in the `env` tag.
             # If that feature is needed, `set_enviroment_variable` and

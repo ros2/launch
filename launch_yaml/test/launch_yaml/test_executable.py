@@ -31,6 +31,7 @@ def test_executable():
                 cwd: '/'
                 name: my_ls
                 shell: true
+                emulate_tty: true
                 output: log
                 'launch-prefix': $(env LAUNCH_PREFIX '')
                 env:
@@ -47,6 +48,7 @@ def test_executable():
     assert(executable.cwd[0].perform(None) == '/')
     assert(executable.name[0].perform(None) == 'my_ls')
     assert(executable.shell is True)
+    assert(executable.emulate_tty is True)
     assert(executable.output[0].perform(None) == 'log')
     key, value = executable.additional_env[0]
     key = key[0].perform(None)
