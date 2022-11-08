@@ -17,8 +17,8 @@ setup(
     zip_safe=True,
     author='Dirk Thomas',
     author_email='dthomas@osrfoundation.org',
-    maintainer='Aditya Pande, Michel Hidalgo',
-    maintainer_email='aditya.pande@openrobotics.org, michel@ekumenlabs.com',
+    maintainer='Aditya Pande, Brandon Ong, William Woodall',
+    maintainer_email='aditya.pande@openrobotics.org, brandon@openrobotics.org, william@openrobotics.org',  # noqa: E501
     url='https://github.com/ros2/launch',
     download_url='https://github.com/ros2/launch/releases',
     keywords=['ROS'],

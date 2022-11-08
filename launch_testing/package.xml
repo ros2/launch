@@ -6,12 +6,14 @@
   <description>A package to create tests which involve launch files and multiple processes.</description>
 
   <maintainer email="aditya.pande@openrobotics.org">Aditya Pande</maintainer>
-  <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
+  <maintainer email="brandon@openrobotics.org">Brandon Ong</maintainer>
+  <maintainer email="william@openrobotics.org">William Woodall</maintainer>
 
   <license>Apache License 2.0</license>
 
   <author email="dthomas@osrfoundation.org">Dirk Thomas</author>
   <author>Esteve Fernandez</author>
+  <author email="michel@ekumenlabs.com">Michel Hidalgo</author>
   <author email="pete.baughman@apex.ai">Pete Baughman</author>
   <author email="william@osrfoundation.org">William Woodall</author>
 
