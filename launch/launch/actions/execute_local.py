@@ -226,7 +226,7 @@ class ExecuteLocal(Action):
     def emulate_tty(self):
         """Getter for emulate_tty."""
         return self.__emulate_tty
-      
+
     @property
     def sigkill_timeout(self):
         """Getter for sigkill timeout."""
