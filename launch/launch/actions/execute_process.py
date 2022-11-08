@@ -360,7 +360,7 @@ class ExecuteProcess(ExecuteLocal):
                         'Attribute sigkill_timeout of Entity node expected to be '
                         'a non-negative value but got `{}`'.format(sigkill_timeout)
                     )
-                kwargs['sigkill_timeout'] = parser.parse_substitution(str(sigkill_timeout))
+                kwargs['sigkill_timeout'] = str(sigkill_timeout)
 
         if 'sigterm_timeout' not in ignore:
             sigterm_timeout = entity.get_attr('sigterm_timeout', data_type=float, optional=True)
@@ -370,7 +370,7 @@ class ExecuteProcess(ExecuteLocal):
                         'Attribute sigterm_timeout of Entity node expected to be '
                         'a non-negative value but got `{}`'.format(sigterm_timeout)
                     )
-                kwargs['sigterm_timeout'] = parser.parse_substitution(str(sigterm_timeout))
+                kwargs['sigterm_timeout'] = str(sigterm_timeout)
 
         if 'shell' not in ignore:
             shell = entity.get_attr('shell', data_type=bool, optional=True)
