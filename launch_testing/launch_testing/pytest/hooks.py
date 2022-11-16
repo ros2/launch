@@ -216,9 +216,14 @@ def pytest_launch_collect_makemodule(path, parent, entrypoint):
     if marks and any(m.name == 'launch_test' for m in marks):
         if _pytest_version_ge(7):
             path = pathlib.Path(path)
-            return LaunchTestModule.from_parent(parent=parent, path=path)
+            module = LaunchTestModule.from_parent(parent=parent, path=path)
         else:
-            return LaunchTestModule.from_parent(parent=parent, fspath=path)
+            module = LaunchTestModule.from_parent(parent=parent, fspath=path)
+        for mark in marks:
+            decorator = getattr(pytest.mark, mark.name)
+            decorator = decorator.with_args(*mark.args, **mark.kwargs)
+            module.add_marker(decorator)
+        return module
 
 
 def pytest_addhooks(pluginmanager):
