@@ -14,18 +14,22 @@
 
 """conditions Module."""
 
+from .and_condition import AndCondition
 from .evaluate_condition_expression_impl import evaluate_condition_expression
 from .if_condition import IfCondition
 from .invalid_condition_expression_error import InvalidConditionExpressionError
 from .launch_configuration_equals import LaunchConfigurationEquals
 from .launch_configuration_not_equals import LaunchConfigurationNotEquals
+from .or_condition import OrCondition
 from .unless_condition import UnlessCondition
 
 __all__ = [
+    'AndCondition',
     'evaluate_condition_expression',
     'IfCondition',
     'InvalidConditionExpressionError',
     'LaunchConfigurationEquals',
     'LaunchConfigurationNotEquals',
+    'OrCondition',
     'UnlessCondition',
 ]
