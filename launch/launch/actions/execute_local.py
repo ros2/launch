@@ -294,7 +294,7 @@ class ExecuteLocal(Action):
                 'process_name': self.process_details['name'],
                 'process_pid': self.process_details['pid'],
             })
-        actions_to_return = self.__get_shutdown_timer_actions(context)
+        actions_to_return = self.__get_shutdown_timer_actions()
         if send_sigint:
             actions_to_return.append(self.__get_sigint_event())
         return actions_to_return
@@ -450,7 +450,7 @@ class ExecuteLocal(Action):
             send_sigint=not due_to_sigint or context.noninteractive,
         )
 
-    def __get_shutdown_timer_actions(self, context) -> List[Action]:
+    def __get_shutdown_timer_actions(self)-> List[Action]:
         base_msg = \
             "process[{}] failed to terminate '{}' seconds after receiving '{}', escalating to '{}'"
 
