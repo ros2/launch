@@ -200,6 +200,7 @@ def is_instance_of(
     """
     if data_type is None:
         return is_instance_of_valid_type(value, can_be_str=can_be_str)
+    type_obj: Union[Tuple[Type[str], AllowedTypesType], AllowedTypesType]
     type_obj, is_list = extract_type(data_type)
     if can_be_str:
         type_obj = (str, type_obj)
@@ -342,10 +343,9 @@ def get_typed_value(
                     f"Cannot convert input '{value}' of type '{type(value)}' to"
                     f" '{data_type}'"
                 )
-        output: AllowedValueType = coerce_list(value, data_type, can_be_str=can_be_str)
+        return coerce_list(value, data_type, can_be_str=can_be_str)
     else:
-        output = coerce_to_type(value, data_type, can_be_str=can_be_str)
-    return output
+        return coerce_to_type(value, data_type, can_be_str=can_be_str)
 
 
 def is_substitution(x):
@@ -517,7 +517,7 @@ def perform_typed_substitution(
     context: LaunchContext,
     value: NormalizedValueType,
     data_type: Optional[AllowedTypesType]
-) -> AllowedValueType:
+) -> StrSomeValueType:
     """
     Perform a normalized typed substitution.
 
