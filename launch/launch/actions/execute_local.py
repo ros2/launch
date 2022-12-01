@@ -557,8 +557,6 @@ class ExecuteLocal(Action):
         log_prefix_format = (
             'subprocess[pid={}] of process['
             f'{process_name}, pid={process_pid}]: ')
-        # signal_subprocesses_timeout_v = perform_substitutions(
-        #     context, signal_subprocesses_timeout)
         next_signals = iter(((signal.SIGTERM, sigterm_timeout), (signal.SIGKILL, sigkill_timeout)))
         while True:
             for p in to_signal:
@@ -575,13 +573,15 @@ class ExecuteLocal(Action):
                 sig, timeout = next(next_signals)
             except StopIteration:
                 return
-            while context.asyncio_loop.time() < start_time + timeout:
-                await asyncio.sleep(0.5)
+            current_time = context.asyncio_loop.time()
+            while current_time < start_time + timeout:
+                await asyncio.sleep(min(0.5, start_time + timeout - current_time))
                 for p in list(signaled):
-                    log_prefix = log_prefix_format.format(p.pid)
                     if not p.is_running():
-                        self.__logger.info(f'{log_prefix} exited')
+                        log_prefix = log_prefix_format.format(p.pid)
+                        self.__logger.info(f'{log_prefix}exited')
                         signaled.remove(p)
+                current_time = context.asyncio_loop.time()
             to_signal = signaled
             signaled = []
 
