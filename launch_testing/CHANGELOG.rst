@@ -2,6 +2,15 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.17.2 (2022-12-02)
+-------------------
+* Inherit markers from generate_test_description (`#675 <https://github.com/ros2/launch/issues/675>`_)
+* Fix Typo (`#643 <https://github.com/ros2/launch/issues/643>`_)
+* Add compatitibility with pytest 7 (`#629 <https://github.com/ros2/launch/issues/629>`_)
+* Mention that ready_fn in generate_test_description is deprecated (`#623 <https://github.com/ros2/launch/issues/623>`_)
+* Switch to using a comprehension for process_names. (`#616 <https://github.com/ros2/launch/issues/616>`_)
+* Contributors: Bi0T1N, Chris Lalancette, Kenji Brameld, Scott K Logan, Shane Loretz
+
 0.17.1 (2022-04-28)
 -------------------
 * Fix launch_testing README.md proc keyword to process. (`#554 <https://github.com/ros2/launch/issues/554>`_) (`#561 <https://github.com/ros2/launch/issues/561>`_)

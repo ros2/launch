@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.17.2 (2022-12-02)
+-------------------
+* Add missing exec dependency on PyYAML (`#682 <https://github.com/ros2/launch/issues/682>`_)
+* Support scoping environment variables (`#631 <https://github.com/ros2/launch/issues/631>`_)
+* Contributors: Jacob Perron, Scott K Logan
+
 0.17.1 (2022-04-28)
 -------------------
 * Evaluate math symbols and functions in python expression (`#557 <https://github.com/ros2/launch/issues/557>`_) (`#563 <https://github.com/ros2/launch/issues/563>`_)
