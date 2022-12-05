@@ -17,8 +17,12 @@
 
 """Tests for the ExecuteLocal Action."""
 
+import asyncio
 import os
+import psutil
+import signal
 import sys
+import time
 
 from launch import LaunchDescription
 from launch import LaunchService
@@ -27,6 +31,8 @@ from launch.actions import OpaqueFunction
 from launch.actions import Shutdown
 from launch.actions import TimerAction
 from launch.descriptions import Executable
+
+import osrf_pycommon.process_utils
 
 import pytest
 
@@ -138,3 +144,38 @@ def test_execute_process_with_output_dictionary():
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+
+
+PYTHON_SCRIPT="""\
+import time
+
+while 1:
+    time.sleep(0.5)
+"""
+
+
+def test_kill_subprocesses():
+    """Test launching a process with an environment variable."""
+    executable = ExecuteLocal(
+        process_description=Executable(
+            cmd=['python3', '-c', f'"{PYTHON_SCRIPT}"'],
+        ),
+        shell=True,
+        output='screen',
+    )
+    ld = LaunchDescription([executable])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    run_async_task = loop.create_task(ls.run_async())
+    async def wait_for_subprocesses():
+        start = time.time()
+        while len(psutil.Process().children(recursive=True)) != 2:
+            await asyncio.sleep(0.5)
+            assert time.time() < start + 5., 'timed out waiting for processes to setup'
+    wait_for_subprocesses_task = loop.create_task(wait_for_subprocesses())
+    loop.run_until_complete(wait_for_subprocesses_task)
+    os.kill(executable.process_details['pid'], signal.SIGTERM)
+    loop.run_until_complete(run_async_task)
+    assert len(psutil.Process().children(recursive=True)) == 0
