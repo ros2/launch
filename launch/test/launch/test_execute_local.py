@@ -32,8 +32,6 @@ from launch.actions import Shutdown
 from launch.actions import TimerAction
 from launch.descriptions import Executable
 
-import osrf_pycommon.process_utils
-
 import pytest
 
 
@@ -146,7 +144,7 @@ def test_execute_process_with_output_dictionary():
     assert 0 == ls.run()
 
 
-PYTHON_SCRIPT="""\
+PYTHON_SCRIPT = """\
 import time
 
 while 1:
@@ -169,6 +167,7 @@ def test_kill_subprocesses():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     run_async_task = loop.create_task(ls.run_async())
+
     async def wait_for_subprocesses():
         start = time.time()
         while len(psutil.Process().children(recursive=True)) != 2:
