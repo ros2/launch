@@ -19,7 +19,6 @@
 
 import asyncio
 import os
-import psutil
 import signal
 import sys
 import time
@@ -31,6 +30,8 @@ from launch.actions import OpaqueFunction
 from launch.actions import Shutdown
 from launch.actions import TimerAction
 from launch.descriptions import Executable
+
+import psutil
 
 import pytest
 
