@@ -51,8 +51,10 @@ class PythonExpression(Substitution):
         self.__expression = normalize_to_list_of_substitutions(expression)
 
         self.__locals = {}
+        self.__modules = []
         for x in modules:
             self.__locals.update(vars(x))
+            self.__modules.append(x.__name__)
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
@@ -73,7 +75,13 @@ class PythonExpression(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return 'PythonExpr({})'.format(' + '.join([sub.describe() for sub in self.expression]))
+        if self.__modules:
+            return 'PythonExpr({}, {})'.format(
+                ' + '.join([sub.describe() for sub in self.expression]),
+                self.__modules)
+        else:
+            return 'PythonExpr({})'.format(
+                ' + '.join([sub.describe() for sub in self.expression]))
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by evaluating the expression."""

@@ -23,7 +23,7 @@ from launch.substitutions import PythonExpression
 from launch.substitutions import SubstitutionFailure
 
 
-def test_python_substitution_fail():
+def test_python_substitution_missing_module():
     """Check that evaluation fails if we do not pass a needed module (sys)."""
     lc = LaunchContext()
     expr = 'getrefcount(str("hello world!"))'
@@ -33,6 +33,38 @@ def test_python_substitution_fail():
     # Should raise a NameError since it doesn't see the sys module
     with pytest.raises(NameError):
         subst.perform(lc)
+
+    # Test the describe() method
+    assert subst.describe() == "PythonExpr('getrefcount(str(\"hello world!\"))', ['math'])"
+
+
+def test_python_substitution_no_module():
+    """Check that PythonExpression has the math module by default."""
+    lc = LaunchContext()
+    expr = 'ceil(1.6)'
+
+    subst = PythonExpression([expr])
+    result = subst.perform(lc)
+
+    assert result == '2'
+
+    # Test the describe() method
+    assert subst.describe() == "PythonExpr('ceil(1.6)', ['math'])"
+
+
+def test_python_substitution_empty_module_list():
+    """Case where user provides empty module list."""
+    lc = LaunchContext()
+    expr = 'ceil(1.6)'
+
+    subst = PythonExpression([expr], [])
+
+    # Should raise a NameError since it doesn't have the math module
+    with pytest.raises(NameError):
+        subst.perform(lc)
+
+    # Test the describe() method
+    assert subst.describe() == "PythonExpr('ceil(1.6)')"
 
 
 def test_python_substitution_one_module():
@@ -49,13 +81,16 @@ def test_python_substitution_one_module():
     # A refcount should be some positive number
     assert int(result) > 0
 
+    # Test the describe() method
+    assert subst.describe() == "PythonExpr('getrefcount(str(\"hello world!\"))', ['sys'])"
+
 
 def test_python_substitution_two_modules():
     """Evaluation while passing two modules."""
     lc = LaunchContext()
     expr = 'isfinite(getrefcount(str("hello world!")))'
 
-    subst = PythonExpression([expr], [math, sys])
+    subst = PythonExpression([expr], [sys, math])
     try:
         result = subst.perform(lc)
     except SubstitutionFailure:
@@ -63,3 +98,7 @@ def test_python_substitution_two_modules():
 
     # The expression should evaluate to True - the refcount is finite
     assert result
+
+    # Test the describe() method
+    assert subst.describe() ==\
+        "PythonExpr('isfinite(getrefcount(str(\"hello world!\")))', ['sys', 'math'])"
