@@ -14,9 +14,7 @@
 
 """Tests for the PythonExpression substitution class."""
 
-import math
 import pytest
-import sys
 
 from launch import LaunchContext
 from launch.substitutions import PythonExpression
@@ -64,7 +62,7 @@ def test_python_substitution_empty_module_list():
         subst.perform(lc)
 
     # Test the describe() method
-    assert subst.describe() == "PythonExpr('ceil(1.6)')"
+    assert subst.describe() == "PythonExpr('ceil(1.6)', [])"
 
 
 def test_python_substitution_one_module():
@@ -72,7 +70,7 @@ def test_python_substitution_one_module():
     lc = LaunchContext()
     expr = 'getrefcount(str("hello world!"))'
 
-    subst = PythonExpression([expr], [sys])
+    subst = PythonExpression([expr], ['sys'])
     try:
         result = subst.perform(lc)
     except SubstitutionFailure:
@@ -90,7 +88,7 @@ def test_python_substitution_two_modules():
     lc = LaunchContext()
     expr = 'isfinite(getrefcount(str("hello world!")))'
 
-    subst = PythonExpression([expr], [sys, math])
+    subst = PythonExpression([expr], ['sys', 'math'])
     try:
         result = subst.perform(lc)
     except SubstitutionFailure:
