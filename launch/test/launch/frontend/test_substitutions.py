@@ -259,6 +259,16 @@ def test_eval_subst_multiple_modules():
     assert expr.perform(LaunchContext())
 
 
+def test_eval_subst_multiple_modules_alt_syntax():
+    # Case where the module names are listed with irregular spacing
+    subst = parse_substitution(
+        r'$(eval "math.isfinite(sys.getrefcount(str(\'hello world!\')))" " math,sys ")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert expr.perform(LaunchContext())
+
+
 def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):
     return [perform_substitutions_without_context(x) for x in cmd_subs]
 

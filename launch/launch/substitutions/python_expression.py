@@ -72,7 +72,7 @@ class PythonExpression(Substitution):
             # Check if we got empty list from XML
             if len(data[1]) > 0:
                 modules_str = data[1][0].perform(None)
-                kwargs['python_modules'] = modules_str.split(', ')
+                kwargs['python_modules'] = [module.strip() for module in modules_str.split(',')]
         return cls, kwargs
 
     @property
