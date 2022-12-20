@@ -507,12 +507,15 @@ class ExecuteLocal(Action):
             process_matcher=matches_action(self),
         ))
 
-    def __cleanup(self):
-        # Cancel any pending timers we started.
+    def __cleanup_timers(self):
         if self.__sigterm_timer is not None:
             self.__sigterm_timer.cancel()
         if self.__sigkill_timer is not None:
             self.__sigkill_timer.cancel()
+
+    def __cleanup(self):
+        # Cancel any pending timers we started.
+        self.__cleanup_timers()
         # Close subprocess transport if any.
         if self._subprocess_transport is not None:
             self._subprocess_transport.close()
@@ -656,9 +659,10 @@ class ExecuteLocal(Action):
                     await self._signal_subprocesses(context)
                 context.asyncio_loop.create_task(self.__execute_process(context))
                 return
-        self.__cleanup()
+        self.__cleanup_timers()
         if self.__signal_lingering_subprocesses_value:
             await self._signal_subprocesses(context)
+        self.__cleanup()
 
     def prepare(self, context: LaunchContext):
         """Prepare the action for execution."""
