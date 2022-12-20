@@ -566,7 +566,7 @@ class ExecuteLocal(Action):
                 try:
                     p.send_signal(sig)
                 except psutil.NoSuchProcess:
-                    pass
+                    continue
                 log_prefix = log_prefix_format.format(p.pid)
                 self.__logger.info(
                     f'{log_prefix}sending {sig.name} to subprocess directly.'
@@ -584,6 +584,8 @@ class ExecuteLocal(Action):
                         log_prefix = log_prefix_format.format(p.pid)
                         self.__logger.info(f'{log_prefix}exited')
                         signaled.remove(p)
+                if not signaled:
+                    return
                 current_time = context.asyncio_loop.time()
             to_signal = signaled
             signaled = []
