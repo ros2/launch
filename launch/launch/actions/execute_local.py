@@ -656,9 +656,9 @@ class ExecuteLocal(Action):
                     await self._signal_subprocesses(context)
                 context.asyncio_loop.create_task(self.__execute_process(context))
                 return
+        self.__cleanup()
         if self.__signal_lingering_subprocesses_value:
             await self._signal_subprocesses(context)
-        self.__cleanup()
 
     def prepare(self, context: LaunchContext):
         """Prepare the action for execution."""
