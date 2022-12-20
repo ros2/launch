@@ -24,7 +24,7 @@ from launch.substitutions import SubstitutionFailure
 def test_python_substitution_missing_module():
     """Check that evaluation fails if we do not pass a needed module (sys)."""
     lc = LaunchContext()
-    expr = 'getrefcount(str("hello world!"))'
+    expr = 'sys.getrefcount(str("hello world!"))'
 
     subst = PythonExpression([expr])
 
@@ -33,11 +33,25 @@ def test_python_substitution_missing_module():
         subst.perform(lc)
 
     # Test the describe() method
-    assert subst.describe() == "PythonExpr('getrefcount(str(\"hello world!\"))', ['math'])"
+    assert subst.describe() == "PythonExpr('sys.getrefcount(str(\"hello world!\"))', ['math'])"
 
 
 def test_python_substitution_no_module():
     """Check that PythonExpression has the math module by default."""
+    lc = LaunchContext()
+    expr = 'math.ceil(1.6)'
+
+    subst = PythonExpression([expr])
+    result = subst.perform(lc)
+
+    assert result == '2'
+
+    # Test the describe() method
+    assert subst.describe() == "PythonExpr('math.ceil(1.6)', ['math'])"
+
+
+def test_python_substitution_implicit_math():
+    """Check that PythonExpression will accept math definitions implicitly."""
     lc = LaunchContext()
     expr = 'ceil(1.6)'
 
@@ -53,7 +67,7 @@ def test_python_substitution_no_module():
 def test_python_substitution_empty_module_list():
     """Case where user provides empty module list."""
     lc = LaunchContext()
-    expr = 'ceil(1.6)'
+    expr = 'math.ceil(1.6)'
 
     subst = PythonExpression([expr], [])
 
@@ -62,13 +76,13 @@ def test_python_substitution_empty_module_list():
         subst.perform(lc)
 
     # Test the describe() method
-    assert subst.describe() == "PythonExpr('ceil(1.6)', [])"
+    assert subst.describe() == "PythonExpr('math.ceil(1.6)', [])"
 
 
 def test_python_substitution_one_module():
     """Evaluation while passing one module."""
     lc = LaunchContext()
-    expr = 'getrefcount(str("hello world!"))'
+    expr = 'sys.getrefcount(str("hello world!"))'
 
     subst = PythonExpression([expr], ['sys'])
     try:
@@ -80,13 +94,13 @@ def test_python_substitution_one_module():
     assert int(result) > 0
 
     # Test the describe() method
-    assert subst.describe() == "PythonExpr('getrefcount(str(\"hello world!\"))', ['sys'])"
+    assert subst.describe() == "PythonExpr('sys.getrefcount(str(\"hello world!\"))', ['sys'])"
 
 
 def test_python_substitution_two_modules():
     """Evaluation while passing two modules."""
     lc = LaunchContext()
-    expr = 'isfinite(getrefcount(str("hello world!")))'
+    expr = 'math.isfinite(sys.getrefcount(str("hello world!")))'
 
     subst = PythonExpression([expr], ['sys', 'math'])
     try:
@@ -99,4 +113,4 @@ def test_python_substitution_two_modules():
 
     # Test the describe() method
     assert subst.describe() ==\
-        "PythonExpr('isfinite(getrefcount(str(\"hello world!\")))', ['sys', 'math'])"
+        "PythonExpr('math.isfinite(sys.getrefcount(str(\"hello world!\")))', ['sys', 'math'])"
