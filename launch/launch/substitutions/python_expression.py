@@ -38,7 +38,7 @@ class PythonExpression(Substitution):
     """
 
     def __init__(self, expression: SomeSubstitutionsType,
-                 modules: SomeSubstitutionsType = ['math']) -> None:
+                 python_modules: SomeSubstitutionsType = ['math']) -> None:
         """Create a PythonExpression substitution."""
         super().__init__()
 
@@ -49,14 +49,14 @@ class PythonExpression(Substitution):
             'PythonExpression')
 
         ensure_argument_type(
-            modules,
+            python_modules,
             (str, Substitution, collections.abc.Iterable),
-            'modules',
+            'python_modules',
             'PythonExpression')
 
         from ..utilities import normalize_to_list_of_substitutions
         self.__expression = normalize_to_list_of_substitutions(expression)
-        self.__modules = normalize_to_list_of_substitutions(modules)
+        self.__python_modules = normalize_to_list_of_substitutions(python_modules)
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
@@ -68,11 +68,11 @@ class PythonExpression(Substitution):
         if len(data) == 2:
             # We get a text subsitution from XML,
             # whose contents are comma-separated module names
-            kwargs['modules'] = []
+            kwargs['python_modules'] = []
             # Check if we got empty list from XML
             if len(data[1]) > 0:
                 modules_str = data[1][0].perform(None)
-                kwargs['modules'] = modules_str.split(', ')
+                kwargs['python_modules'] = modules_str.split(', ')
         return cls, kwargs
 
     @property
@@ -81,20 +81,20 @@ class PythonExpression(Substitution):
         return self.__expression
 
     @property
-    def modules(self) -> List[Substitution]:
+    def python_modules(self) -> List[Substitution]:
         """Getter for expression."""
-        return self.__modules
+        return self.__python_modules
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
         return 'PythonExpr({}, [{}])'.format(
             ' + '.join([sub.describe() for sub in self.expression]),
-            ', '.join([sub.describe() for sub in self.modules]))
+            ', '.join([sub.describe() for sub in self.python_modules]))
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by evaluating the expression."""
         from ..utilities import perform_substitutions
-        module_names = [context.perform_substitution(sub) for sub in self.modules]
+        module_names = [context.perform_substitution(sub) for sub in self.python_modules]
         module_objects = [importlib.import_module(name) for name in module_names]
         locals = {}
         for module in module_objects:
