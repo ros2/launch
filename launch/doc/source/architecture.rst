@@ -125,6 +125,7 @@ There are many possible variations of a substitution, but here are some of the c
 - :class:`launch.substitutions.PythonExpression`
 
   - This substitution will evaluate a python expression and get the result as a string.
+  - You may pass a list of Python modules to the constructor to allow the use of those modules in the evaluated expression.
 
 - :class:`launch.substitutions.LaunchConfiguration`
 
