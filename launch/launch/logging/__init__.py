@@ -85,7 +85,8 @@ def _renew_latest_log_dir(*, log_dir):
     """
     Renew the symbolic link to the latest logging directory.
 
-    :param log_dir: the current logging directory 
+    :param log_dir: the current logging directory
+    :return True if the link was successfully created/updated, False otherwise
     """
     base_dir = os.path.dirname(log_dir)
     latest_dir = os.path.join(base_dir, 'latest')

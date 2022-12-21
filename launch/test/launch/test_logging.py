@@ -264,7 +264,10 @@ def fake_renew_latest_log_dir(*, log_dir):
 
 
 @mock.patch('launch.logging._make_unique_log_dir', mock.MagicMock(wraps=fake_make_unique_log_dir))
-@mock.patch("launch.logging._renew_latest_log_dir", mock.MagicMock(wraps=fake_renew_latest_log_dir))
+@mock.patch(
+    'launch.logging._renew_latest_log_dir',
+    mock.MagicMock(wraps=fake_renew_latest_log_dir)
+)
 def test_get_logging_directory():
     launch.logging.launch_config.reset()
     os.environ.pop('ROS_LOG_DIR', None)
