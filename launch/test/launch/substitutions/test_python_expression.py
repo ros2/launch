@@ -14,11 +14,11 @@
 
 """Tests for the PythonExpression substitution class."""
 
-import pytest
-
 from launch import LaunchContext
 from launch.substitutions import PythonExpression
 from launch.substitutions import SubstitutionFailure
+
+import pytest
 
 
 def test_python_substitution_missing_module():
@@ -88,7 +88,7 @@ def test_python_substitution_one_module():
     try:
         result = subst.perform(lc)
     except SubstitutionFailure:
-        pytest.fail("Failed to evaluate PythonExpression containing sys module.")
+        pytest.fail('Failed to evaluate PythonExpression containing sys module.')
 
     # A refcount should be some positive number
     assert int(result) > 0
@@ -106,7 +106,7 @@ def test_python_substitution_two_modules():
     try:
         result = subst.perform(lc)
     except SubstitutionFailure:
-        pytest.fail("Failed to evaluate PythonExpression containing sys module.")
+        pytest.fail('Failed to evaluate PythonExpression containing sys module.')
 
     # The expression should evaluate to True - the refcount is finite
     assert result

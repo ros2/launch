@@ -96,13 +96,13 @@ class PythonExpression(Substitution):
         from ..utilities import perform_substitutions
         module_names = [context.perform_substitution(sub) for sub in self.python_modules]
         module_objects = [importlib.import_module(name) for name in module_names]
-        locals = {}
+        expression_locals = {}
         for module in module_objects:
             # For backwards compatility, we allow math definitions to be implicitly
             # referenced in expressions, without prepending the math module name
             # TODO: This may be removed in a future release.
             if module.__name__ == 'math':
-                locals.update(vars(module))
+                expression_locals.update(vars(module))
 
-            locals[module.__name__] = module
-        return str(eval(perform_substitutions(context, self.expression), {}, locals))
+            expression_locals[module.__name__] = module
+        return str(eval(perform_substitutions(context, self.expression), {}, expression_locals))
