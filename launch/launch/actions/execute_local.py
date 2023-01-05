@@ -189,9 +189,14 @@ class ExecuteLocal(Action):
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
         self.__emulate_tty = emulate_tty
-        self.__output = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
-        if not isinstance(self.__output, dict):
+        # Note: we need to use a temporary here so that we don't assign values with different types
+        # to the same variable
+        tmp_output: SomeSubstitutionsType = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
+        self.__output: Union[dict, List[Substitution]]
+        if not isinstance(tmp_output, dict):
             self.__output = normalize_to_list_of_substitutions(self.__output)
+        else:
+            self.__output = tmp_output
         self.__output_format = output_format
 
         self.__log_cmd = log_cmd
@@ -351,12 +356,12 @@ class ExecuteLocal(Action):
 
     def __on_process_output(
         self, event: ProcessIO, buffer: io.TextIOBase, logger: logging.Logger
-    ) -> Optional[SomeActionsType]:
+    ) -> None:
         to_write = event.text.decode(errors='replace')
         if buffer.closed:
             # buffer was probably closed by __flush_buffers on shutdown.  Output without
             # buffering.
-            buffer.info(
+            logger.info(
                 self.__output_format.format(line=to_write, this=self)
             )
         else:
@@ -402,7 +407,7 @@ class ExecuteLocal(Action):
 
     def __on_process_output_cached(
         self, event: ProcessIO, buffer, logger
-    ) -> Optional[SomeActionsType]:
+    ) -> None:
         to_write = event.text.decode(errors='replace')
         last_cursor = buffer.tell()
         buffer.seek(0, os.SEEK_END)  # go to end of buffer
@@ -586,7 +591,7 @@ class ExecuteLocal(Action):
             ))
         await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
         # respawn the process if necessary
-        if not context.is_shutdown and not self.__shutdown_future.done() and self.__respawn:
+        if not context.is_shutdown and self.__shutdown_future is not None and not self.__shutdown_future.done() and self.__respawn:
             if self.__respawn_delay is not None and self.__respawn_delay > 0.0:
                 # wait for a timeout(`self.__respawn_delay`) to respawn the process
                 # and handle shutdown event with future(`self.__shutdown_future`)
@@ -614,7 +619,7 @@ class ExecuteLocal(Action):
             # pid is added to the dictionary in the connection_made() method of the protocol.
         }
 
-        self.__respawn = perform_typed_substitution(context, self.__respawn, bool)
+        self.__respawn = cast(bool, perform_typed_substitution(context, self.__respawn, bool))
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
@@ -669,7 +674,9 @@ class ExecuteLocal(Action):
             ),
             OnProcessExit(
                 target_action=self,
-                on_exit=self.__on_exit,
+                # TODO: This is also a little strange, OnProcessExit shouldn't ever be able to
+                # take a None for the callable, but this seems to be the default case?
+                on_exit=self.__on_exit,  # type: ignore
             ),
             OnProcessExit(
                 target_action=self,
@@ -684,9 +691,11 @@ class ExecuteLocal(Action):
             self.__shutdown_future = create_future(context.asyncio_loop)
             self.__logger = launch.logging.get_logger(name)
             if not isinstance(self.__output, dict):
-                self.__output = perform_substitutions(context, self.__output)
-            self.__stdout_logger, self.__stderr_logger = \
-                launch.logging.get_output_loggers(name, self.__output)
+                self.__stdout_logger, self.__stderr_logger = \
+                    launch.logging.get_output_loggers(name, perform_substitutions(context, self.__output))
+            else:
+                self.__stdout_logger, self.__stderr_logger = \
+                    launch.logging.get_output_loggers(name, self.__output)
             context.asyncio_loop.create_task(self.__execute_process(context))
         except Exception:
             for event_handler in event_handlers:
