@@ -99,6 +99,7 @@ class BaseEventHandler:
         context.extend_locals({'event': event})
         if self.handle_once:
             context.unregister_event_handler(self)
+        return None
 
 
 class EventHandler(BaseEventHandler):

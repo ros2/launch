@@ -17,6 +17,7 @@
 import os
 from typing import List
 from typing import Union
+from typing import cast
 
 from ..action import Action
 from ..frontend import Entity
@@ -75,14 +76,14 @@ class AppendEnvironmentVariable(Action):
     ):
         """Parse an 'append_env' entity."""
         _, kwargs = super().parse(entity, parser)
-        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
-        kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
+        kwargs['name'] = parser.parse_substitution(cast(str, entity.get_attr('name')))
+        kwargs['value'] = parser.parse_substitution(cast(str, entity.get_attr('value')))
         prepend = entity.get_attr('prepend', optional=True, data_type=bool, can_be_str=True)
         if prepend is not None:
-            kwargs['prepend'] = parser.parse_if_substitutions(prepend)
+            kwargs['prepend'] = parser.parse_if_substitutions(cast(Union[str, bool], prepend))
         separator = entity.get_attr('separator', optional=True)
         if separator is not None:
-            kwargs['separator'] = parser.parse_substitution(separator)
+            kwargs['separator'] = parser.parse_substitution(cast(str, separator))
         return cls, kwargs
 
     @property
