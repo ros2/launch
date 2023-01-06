@@ -17,7 +17,6 @@
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import cast
 
 import launch.logging
 
@@ -166,19 +165,17 @@ class DeclareLaunchArgument(Action):
     ):
         """Parse `arg` tag."""
         _, kwargs = super().parse(entity, parser)
-        kwargs['name'] = parser.escape_characters(cast(str, entity.get_attr('name')))
+        kwargs['name'] = parser.escape_characters(entity.get_attr('name'))
         default_value = entity.get_attr('default', optional=True)
         if default_value is not None:
-            kwargs['default_value'] = parser.parse_substitution(cast(str, default_value))
+            kwargs['default_value'] = parser.parse_substitution(default_value)
         description = entity.get_attr('description', optional=True)
         if description is not None:
-            kwargs['description'] = parser.escape_characters(cast(str, description))
-        # TODO: What to do here? get_attr is supposed to parse scalar / list of scalars, but in
-        # this case asks for a list of entities?
-        choices = cast(List[Entity], entity.get_attr('choice', data_type=List[Entity], optional=True))  # type: ignore
+            kwargs['description'] = parser.escape_characters(description)
+        choices = entity.get_attr('choice', data_type=List[Entity], optional=True)
         if choices is not None:
             kwargs['choices'] = [
-                parser.escape_characters(cast(str, choice.get_attr('value'))) for choice in choices
+                parser.escape_characters(choice.get_attr('value')) for choice in choices
             ]
         return cls, kwargs
 

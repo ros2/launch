@@ -15,13 +15,19 @@
 """Module for Entity class."""
 
 from typing import List
+from typing import Literal
 from typing import Optional
 from typing import Text
+from typing import Type
 from typing import Union
+from typing import TypeVar
+from typing import overload
 
 from launch.utilities.type_utils import AllowedTypesType
 from launch.utilities.type_utils import AllowedValueType
 
+
+TargetType = TypeVar("TargetType")
 
 class Entity:
     """Single item in the intermediate front_end representation."""
@@ -41,17 +47,46 @@ class Entity:
         """Get the Entity's children."""
         raise NotImplementedError()
 
+    # We need a few overloads for type checking:
+    # - Depending on optional, the return value is either T or Optional[T].
+    # Unfortunately, if the optional is not present, we need another overload to denote the
+    # default, so this has three values: true, false and not present.
+    # - If no data type is passed, the return type is str. Similar to the above, it has two
+    # possibilities: present or not present.
+    # => 6 overloads to cover every combination
+    @overload
+    def get_attr(self, name: Text, *, data_type: Type[TargetType], optional: Literal[False], can_be_str: bool = True) -> TargetType:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, data_type: Type[TargetType], optional: Literal[True], can_be_str: bool = True) -> Optional[TargetType]:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, data_type: Type[TargetType], can_be_str: bool = True) -> TargetType:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, optional: Literal[False], can_be_str: bool = True) -> str:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, optional: Literal[True], can_be_str: bool = True) -> Optional[str]:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, can_be_str: bool = True) -> str:
+        ...
+
+
     def get_attr(
         self,
-        name: Text,
+        name,
         *,
-        data_type: AllowedTypesType = str,
-        optional: bool = False,
-        can_be_str: bool = True,
-    ) -> Optional[Union[
-        AllowedValueType,
-        List['Entity'],
-    ]]:
+        data_type=str,
+        optional=False,
+        can_be_str=True,
+    ):
         """
         Access an attribute of the entity.
 

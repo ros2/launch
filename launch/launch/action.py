@@ -20,7 +20,6 @@ from typing import Optional
 from typing import Text
 from typing import Tuple
 from typing import Dict
-from typing import cast
 
 from .condition import Condition
 from .launch_context import LaunchContext
@@ -62,8 +61,8 @@ class Action(LaunchDescriptionEntity):
         # Import here for avoiding cyclic imports.
         from .conditions import IfCondition
         from .conditions import UnlessCondition
-        if_cond = cast(str, entity.get_attr('if', optional=True))
-        unless_cond = cast(str, entity.get_attr('unless', optional=True))
+        if_cond = entity.get_attr('if', optional=True)
+        unless_cond = entity.get_attr('unless', optional=True)
         kwargs: Dict[str, Condition] = {}
         if if_cond is not None and unless_cond is not None:
             raise RuntimeError("if and unless conditions can't be used simultaneously")
