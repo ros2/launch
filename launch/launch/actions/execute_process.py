@@ -20,6 +20,7 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import cast
 
 from .execute_local import ExecuteLocal
 
@@ -28,6 +29,8 @@ from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
+
+from ..substitution import Substitution
 from ..substitutions import TextSubstitution
 
 
@@ -250,7 +253,7 @@ class ExecuteProcess(ExecuteLocal):
         :returns: a list of command line arguments.
         """
         result_args = []
-        arg = []
+        arg: List[Substitution] = []
 
         def _append_arg():
             nonlocal arg
@@ -315,35 +318,35 @@ class ExecuteProcess(ExecuteLocal):
             ignore = []
 
         if 'cmd' not in ignore:
-            kwargs['cmd'] = cls._parse_cmdline(entity.get_attr('cmd'), parser)
+            kwargs['cmd'] = cls._parse_cmdline(cast(str, entity.get_attr('cmd')), parser)
 
         if 'cwd' not in ignore:
-            cwd = entity.get_attr('cwd', optional=True)
+            cwd = cast(Optional[str], entity.get_attr('cwd', optional=True))
             if cwd is not None:
                 kwargs['cwd'] = parser.parse_substitution(cwd)
 
         if 'name' not in ignore:
-            name = entity.get_attr('name', optional=True)
+            name = cast(Optional[str], entity.get_attr('name', optional=True))
             if name is not None:
                 kwargs['name'] = parser.parse_substitution(name)
 
         if 'prefix' not in ignore:
-            prefix = entity.get_attr('launch-prefix', optional=True)
+            prefix = cast(Optional[str], entity.get_attr('launch-prefix', optional=True))
             if prefix is not None:
                 kwargs['prefix'] = parser.parse_substitution(prefix)
 
         if 'output' not in ignore:
-            output = entity.get_attr('output', optional=True)
+            output = cast(Optional[str], entity.get_attr('output', optional=True))
             if output is not None:
                 kwargs['output'] = parser.parse_substitution(output)
 
         if 'respawn' not in ignore:
-            respawn = entity.get_attr('respawn', optional=True)
+            respawn = cast(Optional[str], entity.get_attr('respawn', optional=True))
             if respawn is not None:
                 kwargs['respawn'] = parser.parse_substitution(respawn)
 
         if 'respawn_delay' not in ignore:
-            respawn_delay = entity.get_attr('respawn_delay', data_type=float, optional=True)
+            respawn_delay = cast(Optional[float], entity.get_attr('respawn_delay', data_type=float, optional=True))
             if respawn_delay is not None:
                 if respawn_delay < 0.0:
                     raise ValueError(
@@ -353,7 +356,7 @@ class ExecuteProcess(ExecuteLocal):
                 kwargs['respawn_delay'] = respawn_delay
 
         if 'sigkill_timeout' not in ignore:
-            sigkill_timeout = entity.get_attr('sigkill_timeout', data_type=float, optional=True)
+            sigkill_timeout = cast(Optional[float], entity.get_attr('sigkill_timeout', data_type=float, optional=True))
             if sigkill_timeout is not None:
                 if sigkill_timeout < 0.0:
                     raise ValueError(
@@ -363,7 +366,7 @@ class ExecuteProcess(ExecuteLocal):
                 kwargs['sigkill_timeout'] = str(sigkill_timeout)
 
         if 'sigterm_timeout' not in ignore:
-            sigterm_timeout = entity.get_attr('sigterm_timeout', data_type=float, optional=True)
+            sigterm_timeout = cast(Optional[float], entity.get_attr('sigterm_timeout', data_type=float, optional=True))
             if sigterm_timeout is not None:
                 if sigterm_timeout < 0.0:
                     raise ValueError(
@@ -373,12 +376,12 @@ class ExecuteProcess(ExecuteLocal):
                 kwargs['sigterm_timeout'] = str(sigterm_timeout)
 
         if 'shell' not in ignore:
-            shell = entity.get_attr('shell', data_type=bool, optional=True)
+            shell = cast(Optional[bool], entity.get_attr('shell', data_type=bool, optional=True))
             if shell is not None:
                 kwargs['shell'] = shell
 
         if 'emulate_tty' not in ignore:
-            emulate_tty = entity.get_attr('emulate_tty', data_type=bool, optional=True)
+            emulate_tty = cast(Optional[bool], entity.get_attr('emulate_tty', data_type=bool, optional=True))
             if emulate_tty is not None:
                 kwargs['emulate_tty'] = emulate_tty
 
@@ -386,11 +389,12 @@ class ExecuteProcess(ExecuteLocal):
             # Conditions won't be allowed in the `env` tag.
             # If that feature is needed, `set_enviroment_variable` and
             # `unset_enviroment_variable` actions should be used.
-            env = entity.get_attr('env', data_type=List[Entity], optional=True)
+            # TODO: Fixup the data_type annotation
+            env = cast(Optional[List[Entity]], entity.get_attr('env', data_type=List[Entity], optional=True))  # type: ignore
             if env is not None:
                 kwargs['additional_env'] = {
-                    tuple(parser.parse_substitution(e.get_attr('name'))):
-                    parser.parse_substitution(e.get_attr('value')) for e in env
+                    tuple(parser.parse_substitution(cast(str, e.get_attr('name')))):
+                    parser.parse_substitution(cast(str, e.get_attr('value'))) for e in env
                 }
                 for e in env:
                     e.assert_entity_completely_parsed()
