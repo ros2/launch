@@ -14,7 +14,7 @@
 
 """Module for the anonymous name substitution."""
 
-from typing import Iterable
+from typing import Sequence
 from typing import List
 from typing import Text
 
@@ -41,7 +41,7 @@ class AnonName(Substitution):
         self.__name = normalize_to_list_of_substitutions(name)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `AnonName` substitution."""
         if len(data) != 1:
             raise TypeError('anon substitution expects 1 argument')

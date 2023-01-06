@@ -27,7 +27,7 @@ from ..launch_context import LaunchContext
 from ..some_actions_type import SomeActionsType
 
 if TYPE_CHECKING:
-    from ..actions import Action  # noqa: F401
+    from ..action import Action  # noqa: F401
     from ..actions import ExecuteProcess  # noqa: F401
 
 

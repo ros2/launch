@@ -201,7 +201,7 @@ class LaunchContext:
         return self.__launch_configurations
 
     @property
-    def environment(self) -> Mapping[Text, Text]:
+    def environment(self) -> Dict[Text, Text]:
         """Getter for environment variables dictionary."""
         return os.environ
 
