@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.4 (2023-01-10)
+------------------
+* Allow ReadyToTest() usage in event handler (`#681 <https://github.com/ros2/launch/issues/681>`_)
+* Contributors: Nikolai Morin
+
 1.0.3 (2022-10-18)
 ------------------
 * Fix bug in test_push_and_pop_environment.py
