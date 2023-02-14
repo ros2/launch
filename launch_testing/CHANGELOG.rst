@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.0 (2023-02-14)
+------------------
 * Allow ReadyToTest() usage in event handler (`#665 <https://github.com/ros2/launch/issues/665>`_)
 * Inherit markers from generate_test_description (`#670 <https://github.com/ros2/launch/issues/670>`_)
 * [rolling] Update maintainers - 2022-11-07 (`#671 <https://github.com/ros2/launch/issues/671>`_)

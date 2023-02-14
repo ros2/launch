@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.0 (2023-02-14)
+------------------
 * Pass modules to PythonExpression (`#655 <https://github.com/ros2/launch/issues/655>`_)
 * Allow ReadyToTest() usage in event handler (`#665 <https://github.com/ros2/launch/issues/665>`_)
 * Expose emulate_tty to xml and yaml launch (`#669 <https://github.com/ros2/launch/issues/669>`_)
