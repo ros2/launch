@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for SomeActionsType type."""
+"""Module for SomeEntitiesType type."""
 
 import collections.abc
 from typing import Iterable
@@ -20,13 +20,12 @@ from typing import Union
 
 from .launch_description_entity import LaunchDescriptionEntity
 
-
-SomeActionsType = Union[
+SomeEntitiesType = Union[
     LaunchDescriptionEntity,
     Iterable[LaunchDescriptionEntity],
 ]
 
-SomeActionsType_types_tuple = (
+SomeEntitiesType_types_tuple = (
     LaunchDescriptionEntity,
     collections.abc.Iterable,
 )

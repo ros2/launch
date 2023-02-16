@@ -62,7 +62,7 @@ from ..events.process import SignalProcess
 from ..launch_context import LaunchContext
 from ..launch_description import LaunchDescription
 from ..launch_description_entity import LaunchDescriptionEntity
-from ..some_actions_type import SomeActionsType
+from ..some_entities_type import SomeEntitiesType
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution  # noqa: F401
 from ..substitutions import LaunchConfiguration
@@ -93,8 +93,8 @@ class ExecuteLocal(Action):
         cached_output: bool = False,
         log_cmd: bool = False,
         on_exit: Optional[Union[
-            SomeActionsType,
-            Callable[[ProcessExited, LaunchContext], Optional[SomeActionsType]]
+            SomeEntitiesType,
+            Callable[[ProcessExited, LaunchContext], Optional[SomeEntitiesType]]
         ]] = None,
         respawn: Union[bool, SomeSubstitutionsType] = False,
         respawn_delay: Optional[float] = None,
@@ -347,7 +347,7 @@ class ExecuteLocal(Action):
     def __on_process_stdin(
         self,
         event: ProcessIO
-    ) -> Optional[SomeActionsType]:
+    ) -> Optional[SomeEntitiesType]:
         self.__logger.warning(
             "in ExecuteProcess('{}').__on_process_stdin_event()".format(id(self)),
         )
@@ -434,7 +434,7 @@ class ExecuteLocal(Action):
                 self.__output_format.format(line=line, this=self)
             )
 
-    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
         due_to_sigint = cast(Shutdown, event).due_to_sigint
         return self._shutdown_process(
             context,
