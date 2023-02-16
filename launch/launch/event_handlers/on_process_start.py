@@ -43,7 +43,7 @@ class OnProcessStart(OnActionEventBase):
         self,
         *,
         target_action:
-            Optional[Union[Callable[['ExecuteProcess'], bool], 'ExecuteProcess']] = None,
+            Optional[Union[Callable[['Action'], bool], 'Action']] = None,
         on_start:
             Union[
                 SomeEntitiesType,
@@ -52,9 +52,6 @@ class OnProcessStart(OnActionEventBase):
     ) -> None:
         """Create an OnProcessStart event handler."""
         from ..actions import ExecuteProcess  # noqa: F811
-        target_action = cast(
-            Optional[Union[Callable[['Action'], bool], 'Action']],
-            target_action)
         on_start = cast(
             Union[
                 SomeEntitiesType,
