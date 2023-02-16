@@ -14,6 +14,7 @@
 
 """Module for the RegisterEventHandler action."""
 
+from typing import Iterable
 from typing import List
 from typing import Text
 from typing import Tuple
@@ -22,7 +23,7 @@ from ..action import Action
 from ..event_handler import BaseEventHandler
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
-from ..utilities import normalize_to_list_of_substitutions
+from ..utilities import normalize_to_list_of_entities
 
 
 class RegisterEventHandler(Action):
@@ -54,9 +55,10 @@ class RegisterEventHandler(Action):
 
     def describe_conditional_sub_entities(self) -> List[Tuple[
         Text,  # text description of the condition
-        List[LaunchDescriptionEntity],  # list of conditional sub-entities
+        Iterable[LaunchDescriptionEntity],  # list of conditional sub-entities
     ]]:
         event_handler_description = self.__event_handler.describe()
+
         return [
-            (event_handler_description[0], normalize_to_list_of_substitutions(event_handler_description[1]))
+            (event_handler_description[0], normalize_to_list_of_entities(event_handler_description[1]))
         ] if event_handler_description[1] else []
