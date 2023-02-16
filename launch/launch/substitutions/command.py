@@ -20,6 +20,7 @@ import subprocess
 from typing import Sequence
 from typing import List
 from typing import Text
+from typing import Union
 
 import launch.logging
 
@@ -92,6 +93,7 @@ class Command(Substitution):
         """Perform the substitution by running the command and capturing its output."""
         from ..utilities import perform_substitutions  # import here to avoid loop
         command_str = perform_substitutions(context, self.command)
+        command: Union[str, List[str]]
         if os.name != 'nt':
             command = shlex.split(command_str)
         else:
