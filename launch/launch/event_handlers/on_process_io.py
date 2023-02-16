@@ -40,7 +40,7 @@ class OnProcessIO(OnActionEventBase):
         self,
         *,
         target_action:
-            Optional[Union[Callable[['ExecuteLocal'], bool], 'ExecuteLocal']] = None,
+            Optional[Union[Callable[['Action'], bool], 'Action']] = None,
         on_stdin: Callable[[ProcessIO], Optional[SomeEntitiesType]] = None,
         on_stdout: Callable[[ProcessIO], Optional[SomeEntitiesType]] = None,
         on_stderr: Callable[[ProcessIO], Optional[SomeEntitiesType]] = None,
@@ -48,9 +48,6 @@ class OnProcessIO(OnActionEventBase):
     ) -> None:
         """Create an OnProcessIO event handler."""
         from ..actions import ExecuteLocal  # noqa: F811
-        target_action = cast(
-            Optional[Union[Callable[['Action'], bool], 'Action']],
-            target_action)
 
         def handle(event: Event, _: LaunchContext) -> Optional[SomeEntitiesType]:
             event = cast(ProcessIO, event)
