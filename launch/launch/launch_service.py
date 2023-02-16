@@ -32,7 +32,7 @@ from typing import Tuple  # noqa: F401
 
 import launch.logging
 
-import osrf_pycommon.process_utils
+import osrf_pycommon.process_utils  # type: ignore
 
 from .event import Event
 from .event_handlers import OnIncludeLaunchDescription
@@ -423,6 +423,7 @@ class LaunchService:
                     reason='LaunchService.shutdown() called',
                     due_to_sigint=False, force_sync=force_sync
                 )
+        return None
 
     @property
     def context(self):
