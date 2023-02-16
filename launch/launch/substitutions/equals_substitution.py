@@ -19,9 +19,11 @@ import math
 from typing import Any
 from typing import Sequence
 from typing import Iterable
+from typing import List
 from typing import Optional
 from typing import Text
 from typing import Union
+from typing import cast
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -80,8 +82,16 @@ class EqualsSubstitution(Substitution):
             else:
                 right = str(right)
 
-        self.__left = normalize_to_list_of_substitutions(left)
-        self.__right = normalize_to_list_of_substitutions(right)
+        # mypy is unable to understand that if we passed in the `else` branch
+        # above, left & right must be substitutions. Unfortunately due to the
+        # way is_substitution is written, it's hard to get mypy to typecheck
+        # it correctly, so cast here.
+        self.__left = normalize_to_list_of_substitutions(
+                cast(Union[str, Substitution, Sequence[Union[str, Substitution]]], left)
+                )
+        self.__right = normalize_to_list_of_substitutions(
+                cast(Union[str, Substitution, Sequence[Union[str, Substitution]]], right)
+                )
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]):
@@ -91,12 +101,12 @@ class EqualsSubstitution(Substitution):
         return cls, {'left': data[0], 'right': data[1]}
 
     @property
-    def left(self) -> Substitution:
+    def left(self) -> List[Substitution]:
         """Getter for left."""
         return self.__left
 
     @property
-    def right(self) -> Substitution:
+    def right(self) -> List[Substitution]:
         """Getter for right."""
         return self.__right
 
