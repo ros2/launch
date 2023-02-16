@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 from ...event import Event
 
 if TYPE_CHECKING:
-    from ...actions import ExecuteLocal  # noqa: F401
+    from ...actions import ExecuteProcess  # noqa: F401
 
 
 class ProcessTargetedEvent(Event):
@@ -28,7 +28,7 @@ class ProcessTargetedEvent(Event):
 
     name = 'launch.events.process.ProcessTargetedEvent'
 
-    def __init__(self, *, process_matcher: Callable[['ExecuteLocal'], bool]) -> None:
+    def __init__(self, *, process_matcher: Callable[['ExecuteProcess'], bool]) -> None:
         """
         Create a ProcessTargetedEvent.
 
@@ -46,6 +46,6 @@ class ProcessTargetedEvent(Event):
         self.__process_matcher = process_matcher
 
     @property
-    def process_matcher(self) -> Callable[['ExecuteLocal'], bool]:
+    def process_matcher(self) -> Callable[['ExecuteProcess'], bool]:
         """Getter for process_matcher."""
         return self.__process_matcher
