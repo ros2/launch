@@ -31,6 +31,12 @@ if TYPE_CHECKING:
     from ..launch_context import LaunchContext  # noqa: F401
 
 
+def gen_handler(entities: SomeEntitiesType) -> Callable[[Shutdown, 'LaunchContext'], SomeEntitiesType]:
+    def handler(event: Shutdown, context: 'LaunchContext') -> SomeEntitiesType:
+        return entities
+    return handler
+
+
 class OnShutdown(BaseEventHandler):
     """Convenience class for handling the launch shutdown event."""
 
@@ -48,9 +54,10 @@ class OnShutdown(BaseEventHandler):
         )
         # TODO(wjwwood) check that it is not only callable, but also a callable that matches
         # the correct signature for a handler in this case
-        self.__on_shutdown = on_shutdown
-        if not callable(on_shutdown):
-            self.__on_shutdown = (lambda event, context: on_shutdown)
+        if callable(on_shutdown):
+            self.__on_shutdown = on_shutdown
+        else:
+            self.__on_shutdown = gen_handler(on_shutdown)
 
     def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeEntitiesType]:
         """Handle the given event."""
