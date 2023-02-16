@@ -17,6 +17,7 @@
 import math
 
 from typing import Any
+from typing import Sequence
 from typing import Iterable
 from typing import Optional
 from typing import Text
@@ -83,7 +84,7 @@ class EqualsSubstitution(Substitution):
         self.__right = normalize_to_list_of_substitutions(right)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `EqualsSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')

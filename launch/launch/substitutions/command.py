@@ -17,7 +17,7 @@
 import os
 import shlex
 import subprocess
-from typing import Iterable
+from typing import Sequence
 from typing import List
 from typing import Text
 
@@ -65,7 +65,7 @@ class Command(Substitution):
         self.__on_stderr = normalize_to_list_of_substitutions(on_stderr)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `Command` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise ValueError('command substitution expects 1 or 2 arguments')

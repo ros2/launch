@@ -16,7 +16,7 @@
 
 import collections.abc
 import math
-from typing import Iterable
+from typing import Sequence
 from typing import List
 from typing import Text
 
@@ -51,7 +51,7 @@ class PythonExpression(Substitution):
         self.__expression = normalize_to_list_of_substitutions(expression)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `PythonExpression` substitution."""
         if len(data) != 1:
             raise TypeError('eval substitution expects 1 argument')
