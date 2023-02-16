@@ -33,7 +33,7 @@ from typing import Union
 
 import launch.logging
 
-from osrf_pycommon.process_utils import async_execute_process
+from osrf_pycommon.process_utils import async_execute_process  # type: ignore
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
 
 from .emit_event import EmitEvent

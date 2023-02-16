@@ -157,7 +157,7 @@ class TimerAction(Action):
             self._canceled_future.set_result(True)
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List['Action']]:
+    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
         Execute the action.
 
