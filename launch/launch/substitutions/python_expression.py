@@ -77,11 +77,11 @@ class PythonExpression(Substitution):
             modules = list(data[1])
             if len(modules) > 0:
                 # XXX: What is going on here: the type annotation says we should get
-                # a list of either strings or substitutions, but this says that we're
-                # getting a list of things?
+                # a either strings or substitutions, but this says that we're
+                # getting a substitution always?
                 # Moreover, `perform` is called with `None`, which is not acceptable
                 # for any substitution as far as I know (should be an empty launch context?)
-                modules_str = modules[1][0].perform(None)  # type: ignore
+                modules_str = modules[0].perform(None)  # type: ignore
                 kwargs['python_modules'] = [module.strip() for module in modules_str.split(',')]
         return cls, kwargs
 
