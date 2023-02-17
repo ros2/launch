@@ -111,7 +111,7 @@ class OnActionEventBase(BaseEventHandler):
             return self.__actions_on_event
         return self.__on_event(event, context)
 
-    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+    def describe(self) -> Tuple[Text, List[SomeEntitiesType]]:
         """Return a description tuple."""
         text, actions = super().describe()
         if self.__actions_on_event:

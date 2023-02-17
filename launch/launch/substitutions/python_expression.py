@@ -70,8 +70,18 @@ class PythonExpression(Substitution):
             # whose contents are comma-separated module names
             kwargs['python_modules'] = []
             # Check if we got empty list from XML
-            if len(data[1]) > 0:
-                modules_str = data[1][0].perform(None)
+            # Ensure that we got a list!
+            assert(not isinstance(data[1], str))
+            assert(not isinstance(data[1], Substitution))
+            # Modules
+            modules = list(data[1])
+            if len(modules) > 0:
+                # XXX: What is going on here: the type annotation says we should get
+                # a list of either strings or substitutions, but this says that we're
+                # getting a list of things?
+                # Moreover, `perform` is called with `None`, which is not acceptable
+                # for any substitution as far as I know (should be an empty launch context?)
+                modules_str = modules[1][0].perform(None)  # type: ignore
                 kwargs['python_modules'] = [module.strip() for module in modules_str.split(',')]
         return cls, kwargs
 
