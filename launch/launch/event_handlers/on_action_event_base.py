@@ -19,6 +19,7 @@ from typing import Callable
 from typing import List  # noqa
 from typing import Optional
 from typing import Text
+from typing import Tuple
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
@@ -109,6 +110,13 @@ class OnActionEventBase(BaseEventHandler):
         if self.__actions_on_event:
             return self.__actions_on_event
         return self.__on_event(event, context)
+
+    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+        """Return a description tuple."""
+        text, actions = super().describe()
+        if self.__actions_on_event:
+            actions.extend(self.__actions_on_event)
+        return (text, actions)
 
     @property
     def handler_description(self) -> Text:

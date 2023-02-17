@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import importlib
+import sys
 import unittest
 
 import launch
@@ -80,6 +81,25 @@ class TestNewStyleTestDescriptions(unittest.TestCase):
         def generate_test_description():
             return launch.LaunchDescription([
                 ReadyToTest()
+            ])
+
+        runs = make_test_run_for_dut(generate_test_description)
+        dut = LaunchTestRunner(
+            runs
+        )
+
+        dut.validate()  # Make sure this passes initial validation (probably redundant with above)
+        runs[0].normalized_test_description(ready_fn=lambda: None)
+
+    def test_event_triggered_launch_description(self):
+
+        def generate_test_description():
+            dummy = launch.actions.ExecuteProcess(cmd=[sys.executable, '-c', ''], output='screen')
+            return launch.LaunchDescription([
+                dummy,
+                launch.actions.RegisterEventHandler(
+                    launch.event_handlers.OnProcessExit(target_action=dummy, on_exit=ReadyToTest())
+                ),
             ])
 
         runs = make_test_run_for_dut(generate_test_description)

@@ -206,11 +206,67 @@ def test_eval_subst():
 
 
 def test_eval_subst_of_math_expr():
+    # Math module is included by default
     subst = parse_substitution(r'$(eval "ceil(1.3)")')
     assert len(subst) == 1
     expr = subst[0]
     assert isinstance(expr, PythonExpression)
     assert '2' == expr.perform(LaunchContext())
+
+    # Do it again, with the math module explicitly given
+    subst = parse_substitution(r'$(eval "ceil(1.3)" "math")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert '2' == expr.perform(LaunchContext())
+
+    # Do it again, with the math module explicitly given and referenced in the expression
+    subst = parse_substitution(r'$(eval "math.ceil(1.3)" "math")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert '2' == expr.perform(LaunchContext())
+
+
+def test_eval_missing_module():
+    # Test with implicit math definition
+    subst = parse_substitution(r'$(eval "ceil(1.3)" "")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+
+    # Should raise NameError since it does not have math module
+    with pytest.raises(NameError):
+        assert expr.perform(LaunchContext())
+
+    # Test with explicit math definition
+    subst = parse_substitution(r'$(eval "math.ceil(1.3)" "")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+
+    # Should raise NameError since it does not have math module
+    with pytest.raises(NameError):
+        assert expr.perform(LaunchContext())
+
+
+def test_eval_subst_multiple_modules():
+    subst = parse_substitution(
+        r'$(eval "math.isfinite(sys.getrefcount(str(\'hello world!\')))" "math, sys")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert expr.perform(LaunchContext())
+
+
+def test_eval_subst_multiple_modules_alt_syntax():
+    # Case where the module names are listed with irregular spacing
+    subst = parse_substitution(
+        r'$(eval "math.isfinite(sys.getrefcount(str(\'hello world!\')))" " math,sys ")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert expr.perform(LaunchContext())
 
 
 def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):

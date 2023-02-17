@@ -19,7 +19,7 @@ import os
 from launch.substitutions import PathJoinSubstitution
 
 
-def test_this_launch_file_path():
+def test_path_join():
     path = ['asd', 'bsd', 'cds']
     sub = PathJoinSubstitution(path)
     assert sub.perform(None) == os.path.join(*path)

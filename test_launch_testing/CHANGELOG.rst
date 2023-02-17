@@ -2,6 +2,11 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.4.0 (2023-02-14)
+------------------
+* [rolling] Update maintainers - 2022-11-07 (`#671 <https://github.com/ros2/launch/issues/671>`_)
+* Contributors: Audrow Nash
+
 1.3.0 (2022-11-02)
 ------------------
 

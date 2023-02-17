@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.4.0 (2023-02-14)
+------------------
+* Pass modules to PythonExpression (`#655 <https://github.com/ros2/launch/issues/655>`_)
+* Allow ReadyToTest() usage in event handler (`#665 <https://github.com/ros2/launch/issues/665>`_)
+* Expose emulate_tty to xml and yaml launch (`#669 <https://github.com/ros2/launch/issues/669>`_)
+* Expose sigterm_timeout and sigkill_timeout to xml frontend (`#667 <https://github.com/ros2/launch/issues/667>`_)
+* [rolling] Update maintainers - 2022-11-07 (`#671 <https://github.com/ros2/launch/issues/671>`_)
+* Contributors: Aditya Pande, Audrow Nash, Blake Anderson, Nikolai Morin
+
 1.3.0 (2022-11-02)
 ------------------
 * Expect deprecation warnings in tests (`#657 <https://github.com/ros2/launch/issues/657>`_)

@@ -9,11 +9,10 @@ package_name = 'launch_pytest'
 
 setup(
     name=package_name,
-    version='1.3.0',
+    version='1.4.0',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages', [f'resource/{package_name}']),
-        (f'lib/{package_name}', glob.glob('example_processes/**')),
         (f'share/{package_name}', ['package.xml']),
         (
             f'share/{package_name}/examples',

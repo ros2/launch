@@ -40,7 +40,6 @@ class TemporaryEnvironment:
 
 def sandbox_environment_variables(func):
     """Decorate a function to give it a temporary environment."""
-
     @functools.wraps(func)
     def wrapper_func(*args, **kwargs):
         with TemporaryEnvironment():
