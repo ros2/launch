@@ -47,7 +47,10 @@ def cap_signals(*signals):
 if platform.system() == 'Windows':
     # NOTE(hidmic): this is risky, but we have few options.
     SIGNAL = signal.SIGINT
-    ANOTHER_SIGNAL = signal.SIGBREAK
+    # We need to ignore this as mypy does not recognize `platform.system`
+    # The other option would be to switch this check to `sys.platform`
+    # which is correctly recognized by mypy.
+    ANOTHER_SIGNAL = signal.SIGBREAK  # type: ignore
 else:
     SIGNAL = signal.SIGUSR1
     ANOTHER_SIGNAL = signal.SIGUSR2
