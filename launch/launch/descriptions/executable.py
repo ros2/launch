@@ -198,7 +198,7 @@ class Executable:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])
         else:
-            env = copy.deepcopy(context.environment)
+            env = dict(context.environment)
         if self.__additional_env is not None:
             for key, value in self.__additional_env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
