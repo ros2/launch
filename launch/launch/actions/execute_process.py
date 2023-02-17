@@ -20,7 +20,6 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import cast
 
 from .execute_local import ExecuteLocal
 
