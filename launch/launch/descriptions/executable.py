@@ -17,7 +17,6 @@
 
 """Module for a description of an Executable."""
 
-import copy
 import os
 import re
 import shlex

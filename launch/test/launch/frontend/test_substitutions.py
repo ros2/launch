@@ -272,7 +272,10 @@ def test_eval_subst_multiple_modules_alt_syntax():
 
 
 def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):
-    return [perform_substitutions_without_context(normalize_to_list_of_substitutions(x)) for x in cmd_subs]
+    return [
+      perform_substitutions_without_context(normalize_to_list_of_substitutions(x))
+      for x in cmd_subs
+    ]
 
 
 def test_parse_if_substitutions():

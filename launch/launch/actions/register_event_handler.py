@@ -60,5 +60,6 @@ class RegisterEventHandler(Action):
         event_handler_description = self.__event_handler.describe()
 
         return [
-            (event_handler_description[0], normalize_to_list_of_entities(event_handler_description[1]))
+            (event_handler_description[0],
+                normalize_to_list_of_entities(event_handler_description[1]))
         ] if event_handler_description[1] else []

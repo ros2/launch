@@ -30,11 +30,6 @@ from typing import Union
 import warnings
 import sys
 
-if sys.version_info >= (3, 8):
-    import importlib.metadata as importlib_metadata
-else:
-    import importlib_metadata
-
 from .entity import Entity
 from .expose import instantiate_action
 from .parse_substitution import parse_if_substitutions
@@ -46,6 +41,11 @@ from ..substitution import Substitution
 from ..utilities.type_utils import NormalizedValueType
 from ..utilities.type_utils import StrSomeValueType
 from ..utilities.typing_file_path import FilePath
+
+if sys.version_info >= (3, 8):
+    import importlib.metadata as importlib_metadata
+else:
+    import importlib_metadata
 
 if TYPE_CHECKING:
     from ..launch_description import LaunchDescription

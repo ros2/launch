@@ -92,7 +92,9 @@ def format_event_handler(event_handler: BaseEventHandler) -> List[Text]:
         else:
             # Note due to a bug in mypy ( https://github.com/python/mypy/issues/13709 ),
             # the variable is not correctly narrowed to Iterable[...] in this branch...
-            result.extend(indent(format_entities(cast(Iterable[LaunchDescriptionEntity], entities))))
+            result.extend(
+              indent(format_entities(cast(Iterable[LaunchDescriptionEntity], entities)))
+            )
         return result
     else:
         return ["EventHandler('{}')".format(hex(id(event_handler)))]

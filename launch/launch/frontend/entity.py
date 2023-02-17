@@ -19,15 +19,12 @@ from typing import Literal
 from typing import Optional
 from typing import Text
 from typing import Type
-from typing import Union
 from typing import TypeVar
 from typing import overload
 
-from launch.utilities.type_utils import AllowedTypesType
-from launch.utilities.type_utils import AllowedValueType
-
 
 TargetType = TypeVar("TargetType")
+
 
 class Entity:
     """Single item in the intermediate front_end representation."""
@@ -55,31 +52,35 @@ class Entity:
     # possibilities: present or not present.
     # => 6 overloads to cover every combination
     @overload
-    def get_attr(self, name: Text, *, data_type: Type[TargetType], optional: Literal[False], can_be_str: bool = True) -> TargetType:
+    def get_attr(self, name: Text, *, data_type: Type[TargetType],
+                 optional: Literal[False], can_be_str: bool = True) -> TargetType:
         ...
 
     @overload
-    def get_attr(self, name: Text, *, data_type: Type[TargetType], optional: Literal[True], can_be_str: bool = True) -> Optional[TargetType]:
+    def get_attr(self, name: Text, *, data_type: Type[TargetType],  # noqa: F811
+                 optional: Literal[True], can_be_str: bool = True) -> Optional[TargetType]:
         ...
 
     @overload
-    def get_attr(self, name: Text, *, data_type: Type[TargetType], can_be_str: bool = True) -> TargetType:
+    def get_attr(self, name: Text, *, data_type: Type[TargetType],  # noqa: F811
+                 can_be_str: bool = True) -> TargetType:
         ...
 
     @overload
-    def get_attr(self, name: Text, *, optional: Literal[False], can_be_str: bool = True) -> str:
+    def get_attr(self, name: Text, *, optional: Literal[False],  # noqa: F811
+                 can_be_str: bool = True) -> str:
         ...
 
     @overload
-    def get_attr(self, name: Text, *, optional: Literal[True], can_be_str: bool = True) -> Optional[str]:
+    def get_attr(self, name: Text, *, optional: Literal[True],  # noqa: F811
+                 can_be_str: bool = True) -> Optional[str]:
         ...
 
     @overload
-    def get_attr(self, name: Text, *, can_be_str: bool = True) -> str:
+    def get_attr(self, name: Text, *, can_be_str: bool = True) -> str:  # noqa: F811
         ...
 
-
-    def get_attr(
+    def get_attr(  # noqa: F811
         self,
         name,
         *,

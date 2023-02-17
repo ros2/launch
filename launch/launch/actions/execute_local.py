@@ -191,7 +191,9 @@ class ExecuteLocal(Action):
         self.__emulate_tty = emulate_tty
         # Note: we need to use a temporary here so that we don't assign values with different types
         # to the same variable
-        tmp_output: SomeSubstitutionsType = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
+        tmp_output: SomeSubstitutionsType = os.environ.get(
+                'OVERRIDE_LAUNCH_PROCESS_OUTPUT', output
+                )
         self.__output: Union[dict, List[Substitution]]
         if not isinstance(tmp_output, dict):
             self.__output = normalize_to_list_of_substitutions(tmp_output)
@@ -589,9 +591,14 @@ class ExecuteLocal(Action):
             self.__logger.error("process has died [pid {}, exit code {}, cmd '{}'].".format(
                 pid, returncode, ' '.join(filter(lambda part: part.strip(), cmd))
             ))
-        await context.emit_event(ProcessExited(returncode=returncode, **process_event_args))
+        await context.emit_event(
+                ProcessExited(returncode=returncode, **process_event_args)
+                )
         # respawn the process if necessary
-        if not context.is_shutdown and self.__shutdown_future is not None and not self.__shutdown_future.done() and self.__respawn:
+        if not context.is_shutdown\
+                and self.__shutdown_future is not None\
+                and not self.__shutdown_future.done()\
+                and self.__respawn:
             if self.__respawn_delay is not None and self.__respawn_delay > 0.0:
                 # wait for a timeout(`self.__respawn_delay`) to respawn the process
                 # and handle shutdown event with future(`self.__shutdown_future`)
@@ -692,7 +699,9 @@ class ExecuteLocal(Action):
             self.__logger = launch.logging.get_logger(name)
             if not isinstance(self.__output, dict):
                 self.__stdout_logger, self.__stderr_logger = \
-                    launch.logging.get_output_loggers(name, perform_substitutions(context, self.__output))
+                    launch.logging.get_output_loggers(
+                            name, perform_substitutions(context, self.__output)
+                            )
             else:
                 self.__stdout_logger, self.__stderr_logger = \
                     launch.logging.get_output_loggers(name, self.__output)

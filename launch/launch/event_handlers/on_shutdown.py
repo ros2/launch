@@ -31,7 +31,9 @@ if TYPE_CHECKING:
     from ..launch_context import LaunchContext  # noqa: F401
 
 
-def gen_handler(entities: SomeEntitiesType) -> Callable[[Shutdown, 'LaunchContext'], SomeEntitiesType]:
+def gen_handler(
+        entities: SomeEntitiesType
+        ) -> Callable[[Shutdown, 'LaunchContext'], SomeEntitiesType]:
     def handler(event: Shutdown, context: 'LaunchContext') -> SomeEntitiesType:
         return entities
     return handler

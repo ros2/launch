@@ -55,8 +55,14 @@ class OnProcessExit(OnActionEventBase):
         """Create an OnProcessExit event handler."""
         from ..actions import ExecuteLocal  # noqa: F811
         super().__init__(
-            action_matcher=cast(Optional[Union[Callable[['Action'], bool], 'Action']], target_action),
-            on_event=cast(Union[SomeEntitiesType, Callable[[Event, LaunchContext], Optional[SomeEntitiesType]]], on_exit),
+            action_matcher=cast(
+                Optional[Union[Callable[['Action'], bool], 'Action']], target_action
+                ),
+            on_event=cast(
+                Union[SomeEntitiesType,
+                      Callable[[Event, LaunchContext], Optional[SomeEntitiesType]]],
+                on_exit
+                ),
             target_event_cls=ProcessExited,
             target_action_cls=ExecuteLocal,
             **kwargs,

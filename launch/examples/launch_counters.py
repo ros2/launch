@@ -24,7 +24,6 @@ For an example of expected output, see the file next to this one called
 import os
 import platform
 import sys
-from typing import cast
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # noqa
 
 import launch  # noqa: E402

@@ -17,6 +17,7 @@
 import sys
 import types
 
+
 def with_per_logger_formatting(cls):
     """Add per logger formatting capabilities to the given logging.Handler."""
     class _trait(cls):
