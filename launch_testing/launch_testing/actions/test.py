@@ -56,7 +56,9 @@ class Test(ExecuteProcess):
         """Getter for timeout."""
         return self.__timeout
 
-    def __on_process_exit(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
+    def __on_process_exit(
+            self, event: Event, context: LaunchContext
+            ) -> Optional[SomeEntitiesType]:
         """On shutdown event."""
         if self.__timer:
             self.__timer.cancel()
