@@ -26,7 +26,9 @@ from typing import Tuple
 from typing import Type
 from typing import Union
 
-import yaml
+# yaml has type annotations in typeshed, but those cannot be installed via rosdep
+# since there is no definition for types-PyYAML
+import yaml  # type: ignore
 
 from .ensure_argument_type_impl import ensure_argument_type
 from .normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
