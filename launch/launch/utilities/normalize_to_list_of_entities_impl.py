@@ -23,7 +23,6 @@ from ..launch_description_entity import LaunchDescriptionEntity
 
 def normalize_to_list_of_entities(entities: Iterable[SomeEntitiesType]) -> List[LaunchDescriptionEntity]:
     """Return a list of Substitutions given a variety of starting inputs."""
-
     flattened: List[LaunchDescriptionEntity] = []
     for entity in entities:
         if isinstance(entity, LaunchDescriptionEntity):
