@@ -340,8 +340,14 @@ def test_coercing_list_using_yaml_rules(coerce_list_impl):
     'coerce_list_impl',
     (
         coerce_list,
+        # There is a bit of confusion here, since we pass in a type value
+        # but then attempt to use it as a type variable in the annotation
+        # List[data_type]. In general mypy does not support very well this
+        # sort of dynamic typing, so ignore for now. The better way to type
+        # this is probably to use TypeVars and / or overloads but I couldn't
+        # quite figure it out.
         lambda value, data_type=None, can_be_str=False: get_typed_value(
-            value, List[data_type], can_be_str=can_be_str),
+            value, List[data_type], can_be_str=can_be_str),  # type: ignore
     ),
     ids=[
         'testing coerce_list implementation',
