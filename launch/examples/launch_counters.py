@@ -55,10 +55,9 @@ def main(argv=sys.argv[1:]):
 
     # Setup a custom event handler for all stdout/stderr from processes.
     # Later, this will be a configurable, but always present, extension to the LaunchService.
-    def on_output(event: launch.Event) -> None:
+    def on_output(event: launch.events.process.ProcessIO) -> None:
         for line in event.text.decode().splitlines():
-            print('[{}] {}'.format(
-                cast(launch.events.process.ProcessIO, event).process_name, line))
+            print('[{}] {}'.format(event.process_name, line))
 
     ld.add_action(launch.actions.RegisterEventHandler(launch.event_handlers.OnProcessIO(
         # this is the action     ^              and this, the event handler ^

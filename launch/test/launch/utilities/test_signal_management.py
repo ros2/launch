@@ -18,6 +18,7 @@ import asyncio
 import functools
 import platform
 import signal
+import sys
 
 from launch.utilities import AsyncSafeSignalManager
 
@@ -51,7 +52,7 @@ else:
     SIGNAL = signal.SIGUSR1
     ANOTHER_SIGNAL = signal.SIGUSR2
 
-if not hasattr(signal, 'raise_signal'):
+if sys.version_info < (3, 8):
     # Only available for Python 3.8+
     def raise_signal(signum):
         import os
