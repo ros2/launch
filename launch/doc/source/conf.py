@@ -32,6 +32,7 @@
 
 
 # -- Project information -----------------------------------------------------
+# type: ignore
 
 project = 'launch'
 copyright = '2018, Open Source Robotics Foundation, Inc.'  # noqa
