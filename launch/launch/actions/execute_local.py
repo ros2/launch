@@ -194,7 +194,7 @@ class ExecuteLocal(Action):
         tmp_output: SomeSubstitutionsType = os.environ.get('OVERRIDE_LAUNCH_PROCESS_OUTPUT', output)
         self.__output: Union[dict, List[Substitution]]
         if not isinstance(tmp_output, dict):
-            self.__output = normalize_to_list_of_substitutions(self.__output)
+            self.__output = normalize_to_list_of_substitutions(tmp_output)
         else:
             self.__output = tmp_output
         self.__output_format = output_format
