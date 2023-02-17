@@ -27,10 +27,11 @@ from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
 import warnings
+import sys
 
-try:
+if sys.version_info >= (3, 8):
     import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:
+else:
     import importlib_metadata
 
 from .entity import Entity
