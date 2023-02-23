@@ -36,7 +36,7 @@ class Entity(BaseEntity):
         *,
         parent: 'Entity' = None
     ) -> Text:
-        """Constructor."""
+        """Construct the Entity."""
         self.__xml_element = xml_element
         self.__parent = parent
         self.__read_attributes = set()
