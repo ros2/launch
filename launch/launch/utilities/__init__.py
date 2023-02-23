@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Package for utilties."""
+"""Package for utilities."""
 
 from .class_tools_impl import is_a, is_a_subclass, isclassinstance
 from .create_future_impl import create_future

@@ -45,7 +45,7 @@ class EnvironmentVariable(Substitution):
         default_value: Optional[SomeSubstitutionsType] = None
     ) -> None:
         """
-        Construct an enviroment variable substitution.
+        Construct an environment variable substitution.
 
         :param name: name of the environment variable.
         :param default_value: used when the environment variable doesn't exist.

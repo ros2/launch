@@ -32,7 +32,7 @@ def test_valid_argument_types():
     mock_class_obj = MockClass()
     ensure_argument_type(mock_class_obj, MockClass, 'MockClass')
 
-    # With inheritence
+    # With inheritance
     class MockChildClass(MockClass):
         pass
 
