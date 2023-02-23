@@ -206,7 +206,7 @@ class ExecuteProcess(ExecuteLocal):
             :py:func:`evaluate_condition_expression`.
             Throws :py:exception:`InvalidConditionExpressionError` if the
             'emulate_tty' configuration does not represent a boolean.
-        :param: prefix a set of commands/arguments to preceed the cmd, used for
+        :param: prefix a set of commands/arguments to precede the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'. Note that a non-default prefix provided in
             a launch file will override the prefix provided via the `launch-prefix`
@@ -260,7 +260,7 @@ class ExecuteProcess(ExecuteLocal):
             if isinstance(sub, TextSubstitution):
                 tokens = shlex.split(sub.text)
                 if not tokens:
-                    # Sting with just spaces.
+                    # String with just spaces.
                     # Appending args allow splitting two substitutions
                     # separated by a space.
                     # e.g.: `$(subst1 asd) $(subst2 bsd)` will be two separate arguments.

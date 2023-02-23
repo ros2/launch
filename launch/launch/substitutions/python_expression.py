@@ -66,7 +66,7 @@ class PythonExpression(Substitution):
         kwargs = {}
         kwargs['expression'] = data[0]
         if len(data) == 2:
-            # We get a text subsitution from XML,
+            # We get a text substitution from XML,
             # whose contents are comma-separated module names
             kwargs['python_modules'] = []
             # Check if we got empty list from XML
