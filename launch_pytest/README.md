@@ -87,7 +87,7 @@ Neither of the three things above automatically generates an error in the curren
 
 #### Active Tests and shutdown tests
 
-Test cases marked with `@pytest.mark.launch` will be run concurrently with the launch service or after launch shutdown, depending on the object being marked and the mark arguements.
+Test cases marked with `@pytest.mark.launch` will be run concurrently with the launch service or after launch shutdown, depending on the object being marked and the mark arguments.
 
 - functions: Functions marked with `@pytest.mark.launch` will run concurrently with the launch service, except when `shutdown=True` is passed as an argument to the decorator.
 
