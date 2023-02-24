@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed typos (`#692 <https://github.com/ros2/launch/issues/692>`_)
+* Contributors: Alejandro Hernández Cordero
+
 1.4.0 (2023-02-14)
 ------------------
 * Allow ReadyToTest() usage in event handler (`#665 <https://github.com/ros2/launch/issues/665>`_)

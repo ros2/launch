@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed typos (`#692 <https://github.com/ros2/launch/issues/692>`_)
+* Contributors: Alejandro Hernández Cordero
+
 1.4.0 (2023-02-14)
 ------------------
 * Expose emulate_tty to xml and yaml launch (`#669 <https://github.com/ros2/launch/issues/669>`_)

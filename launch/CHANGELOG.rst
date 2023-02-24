@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed typos (`#692 <https://github.com/ros2/launch/issues/692>`_)
+* Contributors: Alejandro Hernández Cordero
+
 1.4.0 (2023-02-14)
 ------------------
 * Pass modules to PythonExpression (`#655 <https://github.com/ros2/launch/issues/655>`_)

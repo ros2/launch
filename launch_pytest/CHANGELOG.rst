@@ -2,6 +2,11 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed typos (`#692 <https://github.com/ros2/launch/issues/692>`_)
+* Contributors: Alejandro Hernández Cordero
+
 1.4.0 (2023-02-14)
 ------------------
 * Drop unused data_files entry for example_processes (`#680 <https://github.com/ros2/launch/issues/680>`_)
