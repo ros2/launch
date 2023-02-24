@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.4.1 (2023-02-24)
+------------------
 * Fixed typos (`#692 <https://github.com/ros2/launch/issues/692>`_)
 * Contributors: Alejandro Hernández Cordero
 
