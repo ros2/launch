@@ -21,6 +21,7 @@ from typing import Optional
 from typing import Text
 
 from ..action import Action
+from ..event_handler import EventHandler
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
@@ -29,6 +30,7 @@ if False:
     from .parser import Parser  # noqa: F401
 
 action_parse_methods = {}
+event_handler_parse_methods = {}
 substitution_parse_methods = {}
 
 
@@ -38,6 +40,14 @@ def instantiate_action(entity: 'Entity', parser: 'Parser') -> Action:
         raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
     action_type, kwargs = action_parse_methods[entity.type_name](entity, parser)
     return action_type(**kwargs)
+
+
+def instantiate_event_handler(entity: 'Entity', parser: 'Parser') -> EventHandler:
+    """Call the registered parsing method for the `Entity`."""
+    if entity.type_name not in event_handler_parse_methods:
+        raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
+    event_handler_type, kwargs = event_handler_parse_methods[entity.type_name](entity, parser)
+    return event_handler_type(**kwargs)
 
 
 def instantiate_substitution(
@@ -128,3 +138,12 @@ def expose_action(name: Text):
     Read __expose_impl documentation.
     """
     return __expose_impl(name, action_parse_methods, 'action')
+
+
+def expose_event_handler(name: Text):
+    """
+    Return a decorator for exposing an event handler.
+
+    Read __expose_impl documentation.
+    """
+    return __expose_impl(name, event_handler_parse_methods, 'event_handler')
