@@ -17,8 +17,8 @@
 from typing import Iterable
 from typing import List
 
-from ..some_entities_type import SomeEntitiesType
 from ..launch_description_entity import LaunchDescriptionEntity
+from ..some_entities_type import SomeEntitiesType
 
 
 def normalize_to_list_of_entities(entities: Iterable[SomeEntitiesType]) ->\

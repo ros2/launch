@@ -17,13 +17,13 @@
 import asyncio
 import collections.abc
 from typing import Any
+from typing import Awaitable
+from typing import Callable
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
-from typing import Callable
-from typing import Awaitable
 
 from ..action import Action
 from ..event import Event

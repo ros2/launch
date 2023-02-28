@@ -17,6 +17,7 @@
 
 import itertools
 import os.path
+import sys
 import traceback
 from typing import List
 from typing import Optional
@@ -28,7 +29,6 @@ from typing import Type
 from typing import TYPE_CHECKING
 from typing import Union
 import warnings
-import sys
 
 from .entity import Entity
 from .expose import instantiate_action

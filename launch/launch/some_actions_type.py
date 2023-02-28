@@ -25,7 +25,7 @@ from .some_entities_type import SomeEntitiesType, SomeEntitiesType_types_tuple
 
 warnings.warn(
     "The 'SomeActionsType' type is deprecated. Use 'SomeEntitiesType' in your type"
-    " annotations instead!",
+    ' annotations instead!',
     UserWarning,
 )
 

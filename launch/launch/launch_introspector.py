@@ -15,8 +15,8 @@
 """Module for the LaunchIntrospector class."""
 
 from typing import cast
-from typing import List
 from typing import Iterable
+from typing import List
 from typing import Text
 
 from .action import Action

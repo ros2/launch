@@ -14,8 +14,8 @@
 
 """Module for the FindExecutable substitution."""
 
-from typing import Sequence
 from typing import List
+from typing import Sequence
 from typing import Text
 
 from osrf_pycommon.process_utils import which  # type: ignore

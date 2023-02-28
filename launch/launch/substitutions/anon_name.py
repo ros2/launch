@@ -14,8 +14,8 @@
 
 """Module for the anonymous name substitution."""
 
-from typing import Sequence
 from typing import List
+from typing import Sequence
 from typing import Text
 
 from ..frontend import expose_substitution

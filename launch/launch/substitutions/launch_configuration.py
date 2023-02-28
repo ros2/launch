@@ -19,9 +19,9 @@ from typing import Any
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 from typing import Union
-from typing import Sequence
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution

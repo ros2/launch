@@ -14,12 +14,12 @@
 
 """Module for Action class."""
 
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
 from typing import Tuple
-from typing import Dict
 
 from .condition import Condition
 from .launch_context import LaunchContext

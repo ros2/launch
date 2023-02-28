@@ -14,9 +14,9 @@
 
 """Module for the EnvironmentVariable substitution."""
 
-from typing import Sequence
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 
 from .substitution_failure import SubstitutionFailure

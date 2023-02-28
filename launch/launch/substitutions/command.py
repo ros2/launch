@@ -17,8 +17,8 @@
 import os
 import shlex
 import subprocess
-from typing import Sequence
 from typing import List
+from typing import Sequence
 from typing import Text
 from typing import Union
 

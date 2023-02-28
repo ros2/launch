@@ -17,13 +17,13 @@
 import math
 
 from typing import Any
-from typing import Sequence
+from typing import cast
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 from typing import Union
-from typing import cast
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext

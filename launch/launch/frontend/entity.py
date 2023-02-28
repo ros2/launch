@@ -17,10 +17,10 @@
 from typing import List
 from typing import Literal
 from typing import Optional
+from typing import overload
 from typing import Text
 from typing import Type
 from typing import TypeVar
-from typing import overload
 
 
 TargetType = TypeVar("TargetType")

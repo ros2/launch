@@ -17,8 +17,8 @@
 from .class_tools_impl import is_a, is_a_subclass, isclassinstance
 from .create_future_impl import create_future
 from .ensure_argument_type_impl import ensure_argument_type
-from .normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
 from .normalize_to_list_of_entities_impl import normalize_to_list_of_entities
+from .normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
 from .perform_substitutions_impl import perform_substitutions
 from .signal_management import AsyncSafeSignalManager
 from .visit_all_entities_and_collect_futures_impl import visit_all_entities_and_collect_futures

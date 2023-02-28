@@ -14,9 +14,9 @@
 
 """Module for LaunchConfigurationEquals class."""
 
+from typing import List
 from typing import Optional
 from typing import Text
-from typing import List
 import warnings
 
 from ..condition import Condition
