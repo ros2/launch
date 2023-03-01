@@ -23,7 +23,7 @@ from typing import Type
 from typing import TypeVar
 
 
-TargetType = TypeVar("TargetType")
+TargetType = TypeVar('TargetType')
 
 
 class Entity:

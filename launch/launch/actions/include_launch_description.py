@@ -78,7 +78,7 @@ class IncludeLaunchDescription(Action):
         if not isinstance(launch_description_source, LaunchDescriptionSource):
             launch_description_source = AnyLaunchDescriptionSource(launch_description_source)
         self.__launch_description_source = launch_description_source
-        self.__launch_arguments = tuple() if launch_arguments is None else tuple(launch_arguments)
+        self.__launch_arguments = () if launch_arguments is None else tuple(launch_arguments)
         self.__logger = launch.logging.get_logger(__name__)
 
     @classmethod
