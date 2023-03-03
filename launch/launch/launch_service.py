@@ -32,7 +32,7 @@ from typing import Tuple  # noqa: F401
 
 import launch.logging
 
-import osrf_pycommon.process_utils
+import osrf_pycommon.process_utils  # type: ignore
 
 from .event import Event
 from .event_handlers import OnIncludeLaunchDescription
@@ -42,7 +42,7 @@ from .events import Shutdown
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
-from .some_actions_type import SomeActionsType
+from .some_entities_type import SomeEntitiesType
 from .utilities import AsyncSafeSignalManager
 from .utilities import visit_all_entities_and_collect_futures
 
@@ -376,7 +376,7 @@ class LaunchService:
             except KeyboardInterrupt:
                 continue
 
-    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
         self.__shutting_down = True
         self.__context._set_is_shutdown(True)
         return None
@@ -423,6 +423,7 @@ class LaunchService:
                     reason='LaunchService.shutdown() called',
                     due_to_sigint=False, force_sync=force_sync
                 )
+        return None
 
     @property
     def context(self):

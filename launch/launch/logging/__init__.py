@@ -24,7 +24,11 @@ import os
 import socket
 import sys
 
+<<<<<<< HEAD
 from typing import Iterable
+=======
+from typing import Any
+>>>>>>> 06dc66b (Improve type checking (#679))
 from typing import List
 
 from . import handlers
@@ -293,7 +297,7 @@ def log_launch_config(*, logger=logging.root):
     )))
 
 
-def get_logger(name=None):
+def get_logger(name=None) -> logging.Logger:
     """Get named logger, configured to output to screen and launch main log file."""
     logger = logging.getLogger(name)
     screen_handler = launch_config.get_screen_handler()
@@ -468,8 +472,13 @@ def get_output_loggers(process_name, output_config):
     )
 
 
+# Mypy does not support dynamic base classes, so workaround by typing the base
+# class as Any
+_Base = logging.getLoggerClass()  # type: Any
+
+
 # Track all loggers to support module resets
-class LaunchLogger(logging.getLoggerClass()):
+class LaunchLogger(_Base):
     all_loggers: List[logging.Logger] = []
 
     def __new__(cls, *args, **kwargs):

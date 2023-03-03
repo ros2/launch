@@ -18,9 +18,9 @@ import os
 from typing import Iterable
 from typing import List
 from typing import Text
+from typing import Union
 
 from ..launch_context import LaunchContext
-from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
@@ -59,7 +59,7 @@ class PathJoinSubstitution(Substitution):
         '/home/user/dir/cfg/config_my_map.yml'
     """
 
-    def __init__(self, substitutions: Iterable[SomeSubstitutionsType]) -> None:
+    def __init__(self, substitutions: Iterable[Union[Text, Substitution]]) -> None:
         """Create a PathJoinSubstitution."""
         from ..utilities import normalize_to_list_of_substitutions
         self.__substitutions = [

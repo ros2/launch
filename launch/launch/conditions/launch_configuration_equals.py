@@ -14,12 +14,14 @@
 
 """Module for LaunchConfigurationEquals class."""
 
+from typing import List
 from typing import Optional
 from typing import Text
 
 from ..condition import Condition
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
@@ -44,6 +46,7 @@ class LaunchConfigurationEquals(Condition):
         expected_value: Optional[SomeSubstitutionsType]
     ) -> None:
         self.__launch_configuration_name = launch_configuration_name
+        self.__expected_value: Optional[List[Substitution]]
         if expected_value is not None:
             self.__expected_value = normalize_to_list_of_substitutions(expected_value)
         else:

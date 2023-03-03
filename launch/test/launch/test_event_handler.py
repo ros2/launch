@@ -17,7 +17,7 @@
 from launch import EventHandler
 from launch import LaunchContext
 from launch import LaunchDescriptionEntity
-from launch import SomeActionsType_types_tuple
+from launch import SomeEntitiesType_types_tuple
 
 import pytest
 
@@ -40,7 +40,7 @@ def test_event_handler_matches_and_handle():
     mock_event = MockEvent()
     context = LaunchContext()
     entities = eh.handle(mock_event, context)
-    assert isinstance(entities, SomeActionsType_types_tuple)
+    assert isinstance(entities, SomeEntitiesType_types_tuple)
     assert len(entities) == 1
     assert context.locals.event == mock_event
 

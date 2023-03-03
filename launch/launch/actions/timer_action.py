@@ -40,7 +40,7 @@ from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
-from ..some_actions_type import SomeActionsType
+from ..some_entities_type import SomeEntitiesType
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..some_substitutions_type import SomeSubstitutionsType_types_tuple
 from ..utilities import create_future
@@ -137,7 +137,7 @@ class TimerAction(Action):
         """Return the actions that will result when the timer expires, but was not canceled."""
         return [('{} seconds pass without being canceled'.format(self.__period), self.__actions)]
 
-    def handle(self, context: LaunchContext) -> Optional[SomeActionsType]:
+    def handle(self, context: LaunchContext) -> Optional[SomeEntitiesType]:
         """Handle firing of timer."""
         context.extend_locals(self.__context_locals)
         return self.__actions
@@ -157,7 +157,7 @@ class TimerAction(Action):
             self._canceled_future.set_result(True)
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List['Action']]:
+    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """
         Execute the action.
 

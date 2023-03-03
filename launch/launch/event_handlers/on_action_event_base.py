@@ -28,7 +28,7 @@ from ..event import Event
 from ..event_handler import BaseEventHandler
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
-from ..some_actions_type import SomeActionsType
+from ..some_entities_type import SomeEntitiesType
 
 if TYPE_CHECKING:
     from ..action import Action  # noqa: F401
@@ -42,8 +42,8 @@ class OnActionEventBase(BaseEventHandler):
         *,
         action_matcher: Optional[Union[Callable[['Action'], bool], 'Action']],
         on_event: Union[
-            SomeActionsType,
-            Callable[[Event, LaunchContext], Optional[SomeActionsType]]
+            SomeEntitiesType,
+            Callable[[Event, LaunchContext], Optional[SomeEntitiesType]]
         ],
         target_event_cls: Type[Event],
         target_action_cls: Type['Action'],
@@ -103,7 +103,7 @@ class OnActionEventBase(BaseEventHandler):
             else:
                 self.__actions_on_event = [on_event]
 
-    def handle(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def handle(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
         """Handle the given event."""
         super().handle(event, context)
 
@@ -111,7 +111,7 @@ class OnActionEventBase(BaseEventHandler):
             return self.__actions_on_event
         return self.__on_event(event, context)
 
-    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+    def describe(self) -> Tuple[Text, List[SomeEntitiesType]]:
         """Return a description tuple."""
         text, actions = super().describe()
         if self.__actions_on_event:
