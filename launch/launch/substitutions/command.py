@@ -17,9 +17,10 @@
 import os
 import shlex
 import subprocess
-from typing import Iterable
 from typing import List
+from typing import Sequence
 from typing import Text
+from typing import Union
 
 import launch.logging
 
@@ -65,7 +66,7 @@ class Command(Substitution):
         self.__on_stderr = normalize_to_list_of_substitutions(on_stderr)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `Command` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise ValueError('command substitution expects 1 or 2 arguments')
@@ -92,6 +93,7 @@ class Command(Substitution):
         """Perform the substitution by running the command and capturing its output."""
         from ..utilities import perform_substitutions  # import here to avoid loop
         command_str = perform_substitutions(context, self.command)
+        command: Union[str, List[str]]
         if os.name != 'nt':
             command = shlex.split(command_str)
         else:

@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 from ...event import Event
 
 if TYPE_CHECKING:
-    from ...actions import ExecuteProcess  # noqa: F401
+    from ...actions import ExecuteLocal  # noqa: F401
 
 
 class ProcessTargetedEvent(Event):
@@ -28,7 +28,7 @@ class ProcessTargetedEvent(Event):
 
     name = 'launch.events.process.ProcessTargetedEvent'
 
-    def __init__(self, *, process_matcher: Callable[['ExecuteProcess'], bool]) -> None:
+    def __init__(self, *, process_matcher: Callable[['ExecuteLocal'], bool]) -> None:
         """
         Create a ProcessTargetedEvent.
 
@@ -40,12 +40,12 @@ class ProcessTargetedEvent(Event):
         - :func:`launch.events.process.matches_executable()`
 
         :param: process_matcher is a predicate which can determine if an
-            ExecuteProcess action matches this event or not
+            ExecuteLocal action matches this event or not
         """
         super().__init__()
         self.__process_matcher = process_matcher
 
     @property
-    def process_matcher(self) -> Callable[['ExecuteProcess'], bool]:
+    def process_matcher(self) -> Callable[['ExecuteLocal'], bool]:
         """Getter for process_matcher."""
         return self.__process_matcher

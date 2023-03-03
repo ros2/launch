@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Module for SomeActionsType type.
+"""Module for SomeEntitiesType type."""
 
-.. deprecated:: 1.4.2
-   Replaced by the more aptly named 'SomeEntitiesType'
-"""
+import collections.abc
+from typing import Iterable
+from typing import Union
 
-import warnings
+from .launch_description_entity import LaunchDescriptionEntity
 
-from .some_entities_type import SomeEntitiesType, SomeEntitiesType_types_tuple
+SomeEntitiesType = Union[
+    LaunchDescriptionEntity,
+    Iterable[LaunchDescriptionEntity],
+]
 
-warnings.warn(
-    "The 'SomeActionsType' type is deprecated. Use 'SomeEntitiesType' in your type"
-    ' annotations instead!',
-    UserWarning,
+SomeEntitiesType_types_tuple = (
+    LaunchDescriptionEntity,
+    collections.abc.Iterable,
 )
-
-SomeActionsType = SomeEntitiesType
-SomeActionsType_types_tuple = SomeEntitiesType_types_tuple

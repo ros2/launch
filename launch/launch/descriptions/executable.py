@@ -17,7 +17,6 @@
 
 """Module for a description of an Executable."""
 
-import copy
 import os
 import re
 import shlex
@@ -101,10 +100,10 @@ class Executable:
                     normalize_to_list_of_substitutions(key),
                     normalize_to_list_of_substitutions(value)))
         self.__arguments = arguments
-        self.__final_cmd = None
-        self.__final_cwd = None
-        self.__final_env = None
-        self.__final_name = None
+        self.__final_cmd: Optional[List[str]] = None
+        self.__final_cwd: Optional[str] = None
+        self.__final_env: Optional[Dict[str, str]] = None
+        self.__final_name: Optional[str] = None
 
     @property
     def name(self):
@@ -178,7 +177,7 @@ class Executable:
         if self.__prefix_filter is not None:  # no prefix given on construction
             prefix_filter = perform_substitutions(context, self.__prefix_filter)
             # Apply if filter regex matches (empty regex matches all strings)
-            should_apply_prefix = re.match(prefix_filter, os.path.basename(cmd[0]))
+            should_apply_prefix = re.match(prefix_filter, os.path.basename(cmd[0])) is not None
         if should_apply_prefix:
             cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
         self.__final_cmd = cmd
@@ -198,7 +197,7 @@ class Executable:
                 env[''.join([context.perform_substitution(x) for x in key])] = \
                     ''.join([context.perform_substitution(x) for x in value])
         else:
-            env = copy.deepcopy(context.environment)
+            env = dict(context.environment)
         if self.__additional_env is not None:
             for key, value in self.__additional_env:
                 env[''.join([context.perform_substitution(x) for x in key])] = \

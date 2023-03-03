@@ -73,11 +73,11 @@ class AsyncSafeSignalManager:
 
         :param loop: event loop that will handle the signals.
         """
-        self.__parent = None  # type: AsyncSafeSignalManager
-        self.__loop = loop  # type: asyncio.AbstractEventLoop
-        self.__background_loop = None  # type: Optional[asyncio.AbstractEventLoop]
-        self.__handlers = {}  # type: dict
-        self.__prev_wakeup_handle = -1  # type: Union[int, socket.socket]
+        self.__parent: Optional[AsyncSafeSignalManager] = None
+        self.__loop: asyncio.AbstractEventLoop = loop
+        self.__background_loop: Optional[asyncio.AbstractEventLoop] = None
+        self.__handlers: dict = {}
+        self.__prev_wakeup_handle: Union[int, socket.socket] = -1
         self.__wsock = None
         self.__rsock = None
         self.__close_sockets = None

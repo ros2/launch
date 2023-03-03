@@ -31,5 +31,5 @@ def get_launch_description_from_frontend_launch_file(
     parser: Type[Parser] = Parser
 ) -> LaunchDescription:
     """Load a `LaunchDescription` from a declarative (markup based) launch file."""
-    root_entity, parser = parser.load(frontend_launch_file_path)
-    return parser.parse_description(root_entity)
+    root_entity, parser_instance = parser.load(frontend_launch_file_path)
+    return parser_instance.parse_description(root_entity)

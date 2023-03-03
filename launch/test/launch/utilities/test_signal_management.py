@@ -16,8 +16,8 @@
 
 import asyncio
 import functools
-import platform
 import signal
+import sys
 
 from launch.utilities import AsyncSafeSignalManager
 
@@ -43,7 +43,7 @@ def cap_signals(*signals):
     return _decorator
 
 
-if platform.system() == 'Windows':
+if sys.platform == 'win32':
     # NOTE(hidmic): this is risky, but we have few options.
     SIGNAL = signal.SIGINT
     ANOTHER_SIGNAL = signal.SIGBREAK
@@ -51,7 +51,7 @@ else:
     SIGNAL = signal.SIGUSR1
     ANOTHER_SIGNAL = signal.SIGUSR2
 
-if not hasattr(signal, 'raise_signal'):
+if sys.version_info < (3, 8):
     # Only available for Python 3.8+
     def raise_signal(signum):
         import os

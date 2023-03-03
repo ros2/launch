@@ -17,7 +17,8 @@
 import asyncio
 import collections.abc
 from typing import Any
-from typing import Coroutine
+from typing import Awaitable
+from typing import Callable
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -29,19 +30,19 @@ from ..event import Event
 from ..event_handlers import OnShutdown
 from ..launch_context import LaunchContext
 from ..launch_description_entity import LaunchDescriptionEntity
-from ..some_actions_type import SomeActionsType
+from ..some_entities_type import SomeEntitiesType
 from ..utilities import ensure_argument_type
 
 
 class OpaqueCoroutine(Action):
     """
-    Action that adds a Python coroutine to the launch run loop.
+    Action that adds a Python coroutine function to the launch run loop.
 
-    The signature of a coroutine should be:
+    The signature of the coroutine function should be:
 
     .. code-block:: python
 
-        async def coroutine(
+        async def coroutine_func(
             context: LaunchContext,
             *args,
             **kwargs
@@ -52,7 +53,7 @@ class OpaqueCoroutine(Action):
 
     .. code-block:: python
 
-        async def coroutine(
+        async def coroutine_func(
             *args,
             **kwargs
         ):
@@ -63,7 +64,7 @@ class OpaqueCoroutine(Action):
 
     def __init__(
         self, *,
-        coroutine: Coroutine,
+        coroutine: Callable[..., Awaitable[None]],
         args: Optional[Iterable[Any]] = None,
         kwargs: Optional[Dict[Text, Any]] = None,
         ignore_context: bool = False,
@@ -73,7 +74,7 @@ class OpaqueCoroutine(Action):
         super().__init__(**left_over_kwargs)
         if not asyncio.iscoroutinefunction(coroutine):
             raise TypeError(
-                "OpaqueCoroutine expected a coroutine for 'coroutine', got '{}'".format(
+                "OpaqueCoroutine expected a coroutine function for 'coroutine', got '{}'".format(
                     type(coroutine)
                 )
             )
@@ -92,7 +93,7 @@ class OpaqueCoroutine(Action):
         self.__ignore_context = ignore_context  # type: bool
         self.__future = None  # type: Optional[asyncio.Future]
 
-    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
         """Cancel ongoing coroutine upon shutdown."""
         if self.__future is not None:
             self.__future.cancel()

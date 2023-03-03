@@ -28,6 +28,8 @@ from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
+
+from ..substitution import Substitution
 from ..substitutions import TextSubstitution
 
 
@@ -250,7 +252,7 @@ class ExecuteProcess(ExecuteLocal):
         :returns: a list of command line arguments.
         """
         result_args = []
-        arg = []
+        arg: List[Substitution] = []
 
         def _append_arg():
             nonlocal arg

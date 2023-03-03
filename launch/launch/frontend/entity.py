@@ -15,12 +15,15 @@
 """Module for Entity class."""
 
 from typing import List
+from typing import Literal
 from typing import Optional
+from typing import overload
 from typing import Text
-from typing import Union
+from typing import Type
+from typing import TypeVar
 
-from launch.utilities.type_utils import AllowedTypesType
-from launch.utilities.type_utils import AllowedValueType
+
+TargetType = TypeVar('TargetType')
 
 
 class Entity:
@@ -41,17 +44,50 @@ class Entity:
         """Get the Entity's children."""
         raise NotImplementedError()
 
-    def get_attr(
+    # We need a few overloads for type checking:
+    # - Depending on optional, the return value is either T or Optional[T].
+    # Unfortunately, if the optional is not present, we need another overload to denote the
+    # default, so this has three values: true, false and not present.
+    # - If no data type is passed, the return type is str. Similar to the above, it has two
+    # possibilities: present or not present.
+    # => 6 overloads to cover every combination
+    @overload
+    def get_attr(self, name: Text, *, data_type: Type[TargetType],
+                 optional: Literal[False], can_be_str: bool = True) -> TargetType:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, data_type: Type[TargetType],  # noqa: F811
+                 optional: Literal[True], can_be_str: bool = True) -> Optional[TargetType]:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, data_type: Type[TargetType],  # noqa: F811
+                 can_be_str: bool = True) -> TargetType:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, optional: Literal[False],  # noqa: F811
+                 can_be_str: bool = True) -> str:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, optional: Literal[True],  # noqa: F811
+                 can_be_str: bool = True) -> Optional[str]:
+        ...
+
+    @overload
+    def get_attr(self, name: Text, *, can_be_str: bool = True) -> str:  # noqa: F811
+        ...
+
+    def get_attr(  # noqa: F811
         self,
-        name: Text,
+        name,
         *,
-        data_type: AllowedTypesType = str,
-        optional: bool = False,
-        can_be_str: bool = True,
-    ) -> Optional[Union[
-        AllowedValueType,
-        List['Entity'],
-    ]]:
+        data_type=str,
+        optional=False,
+        can_be_str=True,
+    ):
         """
         Access an attribute of the entity.
 

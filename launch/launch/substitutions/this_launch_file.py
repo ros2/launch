@@ -14,7 +14,7 @@
 
 """Module for the ThisLaunchFile substitution."""
 
-from typing import Iterable
+from typing import Sequence
 from typing import Text
 
 from .substitution_failure import SubstitutionFailure
@@ -33,7 +33,7 @@ class ThisLaunchFile(Substitution):
         super().__init__()
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `ThisLaunchFile` substitution."""
         if len(data) != 0:
             raise TypeError("filename substitution doesn't expect arguments")

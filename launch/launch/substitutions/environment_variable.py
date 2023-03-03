@@ -14,9 +14,9 @@
 
 """Module for the EnvironmentVariable substitution."""
 
-from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 
 from .substitution_failure import SubstitutionFailure
@@ -62,7 +62,7 @@ class EnvironmentVariable(Substitution):
         self.__default_value = default_value
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `EnviromentVariable` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('env substitution expects 1 or 2 arguments')
@@ -77,7 +77,7 @@ class EnvironmentVariable(Substitution):
         return self.__name
 
     @property
-    def default_value(self) -> List[Substitution]:
+    def default_value(self) -> Optional[List[Substitution]]:
         """Getter for default_value."""
         return self.__default_value
 
@@ -88,8 +88,8 @@ class EnvironmentVariable(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by looking up the environment variable."""
         from ..utilities import perform_substitutions  # import here to avoid loop
-        default_value = self.default_value
-        if default_value is not None:
+        default_value: Optional[str] = None
+        if self.default_value is not None:
             default_value = perform_substitutions(context, self.default_value)
         name = perform_substitutions(context, self.name)
         value = context.environment.get(

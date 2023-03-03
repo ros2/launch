@@ -22,7 +22,7 @@ from typing import Tuple
 from typing import TYPE_CHECKING
 
 from .event import Event
-from .some_actions_type import SomeActionsType
+from .some_entities_type import SomeEntitiesType
 
 if TYPE_CHECKING:
     from .launch_context import LaunchContext  # noqa: F401
@@ -77,7 +77,7 @@ class BaseEventHandler:
         """Return True if the given event should be handled by this event handler."""
         return self.__matcher(event)
 
-    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+    def describe(self) -> Tuple[Text, List[SomeEntitiesType]]:
         """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         return (
             "{}(matcher='{}', handler='{}', handle_once={})".format(
@@ -89,7 +89,7 @@ class BaseEventHandler:
             []
         )
 
-    def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
+    def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeEntitiesType]:
         """
         Handle the given event.
 
@@ -99,6 +99,7 @@ class BaseEventHandler:
         context.extend_locals({'event': event})
         if self.handle_once:
             context.unregister_event_handler(self)
+        return None
 
 
 class EventHandler(BaseEventHandler):
@@ -106,7 +107,7 @@ class EventHandler(BaseEventHandler):
         self,
         *,
         matcher: Callable[[Event], bool],
-        entities: Optional[SomeActionsType] = None,
+        entities: Optional[SomeEntitiesType] = None,
         handle_once: bool = False
     ) -> None:
         """
@@ -128,14 +129,14 @@ class EventHandler(BaseEventHandler):
         """Getter for entities."""
         return self.__entities
 
-    def describe(self) -> Tuple[Text, List[SomeActionsType]]:
+    def describe(self) -> Tuple[Text, List[SomeEntitiesType]]:
         """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         text, actions = super().describe()
         if self.entities:
             actions.extend(self.entities)
         return (text, actions)
 
-    def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeActionsType]:
+    def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeEntitiesType]:
         """Handle the given event."""
         super().handle(event, context)
         return self.entities

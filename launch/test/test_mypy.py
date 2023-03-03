@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2022 Toyota Motor Corporation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Module for SomeActionsType type.
+from ament_mypy.main import main
+import pytest
 
-.. deprecated:: 1.4.2
-   Replaced by the more aptly named 'SomeEntitiesType'
-"""
 
-import warnings
-
-from .some_entities_type import SomeEntitiesType, SomeEntitiesType_types_tuple
-
-warnings.warn(
-    "The 'SomeActionsType' type is deprecated. Use 'SomeEntitiesType' in your type"
-    ' annotations instead!',
-    UserWarning,
-)
-
-SomeActionsType = SomeEntitiesType
-SomeActionsType_types_tuple = SomeEntitiesType_types_tuple
+@pytest.mark.mypy
+@pytest.mark.linter
+def test_mypy():
+    rc = main(argv=[])
+    assert rc == 0, 'Found type errors!'

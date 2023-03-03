@@ -28,6 +28,7 @@ from launch.substitutions import EnvironmentVariable
 from launch.substitutions import PythonExpression
 from launch.substitutions import TextSubstitution
 from launch.substitutions import ThisLaunchFileDir
+from launch.utilities import normalize_to_list_of_substitutions
 
 import pytest
 
@@ -57,7 +58,8 @@ def test_text_only():
 
 
 def perform_substitutions_without_context(subs: List[Substitution]):
-    return ''.join([sub.perform(None) for sub in subs])
+    # XXX : Why is it possible to pass `None` to perform?
+    return ''.join([sub.perform(None) for sub in subs])  # type: ignore
 
 
 class CustomSubstitution(Substitution):
@@ -270,7 +272,10 @@ def test_eval_subst_multiple_modules_alt_syntax():
 
 
 def expand_cmd_subs(cmd_subs: List[SomeSubstitutionsType]):
-    return [perform_substitutions_without_context(x) for x in cmd_subs]
+    return [
+      perform_substitutions_without_context(normalize_to_list_of_substitutions(x))
+      for x in cmd_subs
+    ]
 
 
 def test_parse_if_substitutions():
