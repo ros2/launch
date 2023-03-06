@@ -98,6 +98,7 @@ class ExecuteLocal(Action):
         ]] = None,
         respawn: Union[bool, SomeSubstitutionsType] = False,
         respawn_delay: Optional[float] = None,
+        respawn_amount: Optional[int] = None,
         **kwargs
     ) -> None:
         """
@@ -182,6 +183,7 @@ class ExecuteLocal(Action):
         :param: respawn if 'True', relaunch the process that abnormally died.
             Either a boolean or a Substitution to be resolved at runtime. Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
+        :param: respawn_amount number of times to respawn the process. Defaults to infinite times.
         """
         super().__init__(**kwargs)
         self.__process_description = process_description
@@ -206,6 +208,17 @@ class ExecuteLocal(Action):
         self.__on_exit = on_exit
         self.__respawn = normalize_typed_substitution(respawn, bool)
         self.__respawn_delay = respawn_delay
+
+        if not respawn_amount:
+            # a negative value for self.__respawn_amount means infinite respawns
+            self.__respawn_amount = -1
+        else:
+            if respawn_amount >= 0:
+                self.__respawn_amount = respawn_amount
+            else:
+                self.__logger.warning("respawn_amount should be a positive integer.\
+                    Setting respawn_amount to infinite as default")
+                self.__respawn_amount = -1
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
@@ -598,7 +611,12 @@ class ExecuteLocal(Action):
         if not context.is_shutdown\
                 and self.__shutdown_future is not None\
                 and not self.__shutdown_future.done()\
-                and self.__respawn:
+                and self.__respawn and abs(self.__respawn_amount) > 0:
+            # if self.__respawn_amount == None, we respawn the process infinite times
+            # by using abs(self.__respawn_amount) we can track the 
+            # total amount of respawns using negative values.
+            # discount 1 to self.__respawn_amount
+            self.__respawn_amount -= 1 
             if self.__respawn_delay is not None and self.__respawn_delay > 0.0:
                 # wait for a timeout(`self.__respawn_delay`) to respawn the process
                 # and handle shutdown event with future(`self.__shutdown_future`)
