@@ -258,7 +258,16 @@ def fake_make_unique_log_dir(*, base_path):
     return base_path
 
 
+def fake_renew_latest_log_dir(*, log_dir):
+    # Passthrough; do not create the symlink
+    return True
+
+
 @mock.patch('launch.logging._make_unique_log_dir', mock.MagicMock(wraps=fake_make_unique_log_dir))
+@mock.patch(
+    'launch.logging._renew_latest_log_dir',
+    mock.MagicMock(wraps=fake_renew_latest_log_dir)
+)
 def test_get_logging_directory():
     launch.logging.launch_config.reset()
     os.environ.pop('ROS_LOG_DIR', None)
