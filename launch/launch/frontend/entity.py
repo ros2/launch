@@ -15,7 +15,6 @@
 """Module for Entity class."""
 
 from typing import List
-from typing import Literal
 from typing import Optional
 from typing import overload
 from typing import Text
@@ -52,13 +51,8 @@ class Entity:
     # possibilities: present or not present.
     # => 6 overloads to cover every combination
     @overload
-    def get_attr(self, name: Text, *, data_type: Type[TargetType],
-                 optional: Literal[False], can_be_str: bool = True) -> TargetType:
-        ...
-
-    @overload
     def get_attr(self, name: Text, *, data_type: Type[TargetType],  # noqa: F811
-                 optional: Literal[True], can_be_str: bool = True) -> Optional[TargetType]:
+                 optional: bool, can_be_str: bool = True) -> Optional[TargetType]:
         ...
 
     @overload
@@ -67,12 +61,7 @@ class Entity:
         ...
 
     @overload
-    def get_attr(self, name: Text, *, optional: Literal[False],  # noqa: F811
-                 can_be_str: bool = True) -> str:
-        ...
-
-    @overload
-    def get_attr(self, name: Text, *, optional: Literal[True],  # noqa: F811
+    def get_attr(self, name: Text, *, optional: bool,  # noqa: F811
                  can_be_str: bool = True) -> Optional[str]:
         ...
 
