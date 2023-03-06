@@ -142,12 +142,12 @@ class LaunchConfig:
                 if not success:
                     import warnings
                     warnings.warn(
-                        "Cannot create a symlink to latest log directory")
+                        'Cannot create a symlink to latest log directory')
 
             except OSError as e:
                 import warnings
                 warnings.warn(
-                    ("Cannot create a symlink to latest log directory: {}\n")
+                    ('Cannot create a symlink to latest log directory: {}\n')
                     .format(e))
 
         return self._log_dir
