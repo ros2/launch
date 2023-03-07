@@ -183,7 +183,8 @@ class ExecuteLocal(Action):
         :param: respawn if 'True', relaunch the process that abnormally died.
             Either a boolean or a Substitution to be resolved at runtime. Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
-        :param: respawn_max_retries number of times to respawn the process. Defaults to infinite times.
+        :param: respawn_max_retries number of times to respawn the process.
+            Defaults to infinite times.
         """
         super().__init__(**kwargs)
         self.__process_description = process_description
