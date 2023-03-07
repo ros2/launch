@@ -217,9 +217,11 @@ class ExecuteLocal(Action):
                 self.__respawn_max_retries = respawn_max_retries
             else:
                 self.__logger = launch.logging.get_logger(
-                                self.__process_description.final_name)
-                self.__logger.warning("respawn_max_retries should be a positive integer.\
-                    Setting respawn_max_retries to infinite as default")
+                                    self.__process_description.final_name)
+                self.__logger.warning(
+                    "respawn_max_retries should be a positive integer.\
+                    Setting respawn_max_retries to infinite as default."
+                    )
                 self.__respawn_max_retries = -1
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
