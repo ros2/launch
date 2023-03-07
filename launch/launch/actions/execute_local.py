@@ -618,10 +618,10 @@ class ExecuteLocal(Action):
                 and not self.__shutdown_future.done()\
                 and self.__respawn and abs(self.__respawn_max_retries) > 0:
             # if self.__respawn_max_retries == None, we respawn the process infinite times
-            # by using abs(self.__respawn_max_retries) we can track the 
+            # by using abs(self.__respawn_max_retries) we can track the
             # total amount of respawns using negative values.
             # discount 1 to self.__respawn_max_retries
-            self.__respawn_max_retries -= 1 
+            self.__respawn_max_retries -= 1
             if self.__respawn_delay is not None and self.__respawn_delay > 0.0:
                 # wait for a timeout(`self.__respawn_delay`) to respawn the process
                 # and handle shutdown event with future(`self.__shutdown_future`)
