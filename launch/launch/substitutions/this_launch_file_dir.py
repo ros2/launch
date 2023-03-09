@@ -50,7 +50,7 @@ class ThisLaunchFileDir(Substitution):
         If there is no current launch file, i.e. if run from a script, then an
         error is raised.
 
-        :raises: SubstitutionFailure if not in a launch file
+        :raises `launch.substitutions.substitution_failure.SubstitutionFailure`: if not in a launch file
         """
         if 'current_launch_file_directory' not in context.get_locals_as_dict():
             raise SubstitutionFailure(
