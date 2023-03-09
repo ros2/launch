@@ -384,17 +384,17 @@ def normalize_typed_substitution(
     specific type.
 
     Example:
-    --------
-    ```python3
-    class MyAction(Action):
-        def __init__(self, my_int: Union[int, SomeSubstitutionsType]):
-            self.__my_int_normalized = normalize_typed_substitution(some_int, int)
-            ...
 
-        def execute(self, context):
-            my_int = perform_typed_substitution(context, self.__my_int_normalized, int)
-            ...
-    ```
+    .. code-block:: python
+
+        class MyAction(Action):
+            def __init__(self, my_int: Union[int, SomeSubstitutionsType]):
+                self.__my_int_normalized = normalize_typed_substitution(some_int, int)
+                ...
+
+            def execute(self, context):
+                my_int = perform_typed_substitution(context, self.__my_int_normalized, int)
+                ...
 
     List of substitutions coerced a list to strings can be confused with a single substitution
     that is coerced to a list of strings.
