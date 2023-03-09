@@ -162,7 +162,7 @@ class ExecuteLocal(Action):
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
             :py:func:`evaluate_condition_expression`.
-            Throws :py:exception:`InvalidConditionExpressionError` if the
+            Throws :py:exc:`InvalidConditionExpressionError` if the
             'emulate_tty' configuration does not represent a boolean.
         :param: output configuration for process output logging. Defaults to 'log'
             i.e. log both stdout and stderr to launch main log file and stderr to

@@ -149,8 +149,8 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
         `type_obj` is the object representing that type in Python. In the case of a list,
         it's the type of the items.
         e.g.:
-            `data_type = List[int]` -> `(int, True)`
-            `data_type = bool` -> `(bool, False)`
+        `data_type = List[int]` -> `(int, True)`
+        `data_type = bool` -> `(bool, False)`
     """
     is_list = False
     scalar_type: ScalarTypesType = cast(ScalarTypesType, data_type)
@@ -361,7 +361,7 @@ def is_substitution(x):
     This can be:
     - A :py:class:`launch.Substitution` instance.
     - A list of mixed `launch.Substitution` and `str` instances,
-        with at least one instance of the former.
+    with at least one instance of the former.
     """
     return (
         isinstance(x, Substitution) or
@@ -384,7 +384,7 @@ def normalize_typed_substitution(
     specific type.
 
     Example:
-    -------
+    --------
     ```python3
     class MyAction(Action):
         def __init__(self, my_int: Union[int, SomeSubstitutionsType]):
