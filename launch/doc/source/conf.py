@@ -28,6 +28,13 @@
 #
 import os
 import sys
+# The python interpreter that executes this conf.py file will not have this
+# package's modules in the system path which will lead to import failures when
+# running sphinx-autodoc. As a workaround, the sphinx_builder.py script in
+# rosdoc2 will copy this package's modules along with this conf.py into a folder
+# with the same name of this package within the docs_build directory.
+# Hence we add the parent folder to the system path so that the modules from
+# this package can be imported.
 sys.path.insert(0, os.path.abspath('..'))
 
 
