@@ -108,13 +108,13 @@ def is_typing_list(data_type: Any) -> bool:
     """
     Return `True` if data_type is `typing.List` or a subscription of it.
 
-    Examples
+    Examples:
     --------
-    ```python3
-    assert is_typing_list(typing.List)
-    assert is_typing_list(typing.List[int])
-    assert not is_typing_list(int)
-    ```
+    .. code-block:: python
+
+        assert is_typing_list(typing.List)
+        assert is_typing_list(typing.List[int])
+        assert not is_typing_list(int)
 
     """
     return data_type is List or (
