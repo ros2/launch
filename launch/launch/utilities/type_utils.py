@@ -384,7 +384,7 @@ def normalize_typed_substitution(
     specific type.
 
     Example:
-    --------
+    -------
     .. code-block:: python
 
         class MyAction(Action):
