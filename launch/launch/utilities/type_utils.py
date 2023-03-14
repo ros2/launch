@@ -108,7 +108,7 @@ def is_typing_list(data_type: Any) -> bool:
     """
     Return `True` if data_type is `typing.List` or a subscription of it.
 
-    Examples:
+    Examples
     --------
     .. code-block:: python
 
