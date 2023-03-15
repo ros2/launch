@@ -145,7 +145,7 @@ htmlhelp_basename = 'launchdoc'
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements: dict[str, str] = {
+# latex_elements: dict[str, str] = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
@@ -161,7 +161,7 @@ latex_elements: dict[str, str] = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-}
+# }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
