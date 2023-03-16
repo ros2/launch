@@ -11,7 +11,7 @@ Welcome to launch's documentation!
    :caption: Contents:
 
    architecture
-
+   modules
 
 
 Indices and tables

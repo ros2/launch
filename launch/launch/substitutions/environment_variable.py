@@ -50,7 +50,7 @@ class EnvironmentVariable(Substitution):
         :param name: name of the environment variable.
         :param default_value: used when the environment variable doesn't exist.
             If `None`, the substitution is not optional.
-        :raise `SubstitutionFailure`:
+        :raises `launch.substitutions.substitution_failure.SubstitutionFailure`:
             If the environment variable doesn't exist and `default_value` is `None`.
         """
         super().__init__()

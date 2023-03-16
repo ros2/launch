@@ -206,7 +206,7 @@ class ExecuteProcess(ExecuteLocal):
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
             :py:func:`evaluate_condition_expression`.
-            Throws :py:exception:`InvalidConditionExpressionError` if the
+            Throws :py:exc:`InvalidConditionExpressionError` if the
             'emulate_tty' configuration does not represent a boolean.
         :param: prefix a set of commands/arguments to precede the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration

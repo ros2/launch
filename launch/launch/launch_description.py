@@ -81,7 +81,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         """
         Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
 
-        See :py:method:`get_launch_arguments_with_include_launch_description_actions()`
+        See :py:meth:`get_launch_arguments_with_include_launch_description_actions()`
         for more details.
         """
         return [

@@ -110,11 +110,11 @@ def is_typing_list(data_type: Any) -> bool:
 
     Examples
     --------
-    ```python3
-    assert is_typing_list(typing.List)
-    assert is_typing_list(typing.List[int])
-    assert not is_typing_list(int)
-    ```
+    .. code-block:: python
+
+        assert is_typing_list(typing.List)
+        assert is_typing_list(typing.List[int])
+        assert not is_typing_list(int)
 
     """
     return data_type is List or (
@@ -149,8 +149,8 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
         `type_obj` is the object representing that type in Python. In the case of a list,
         it's the type of the items.
         e.g.:
-            `data_type = List[int]` -> `(int, True)`
-            `data_type = bool` -> `(bool, False)`
+        `data_type = List[int]` -> `(int, True)`
+        `data_type = bool` -> `(bool, False)`
     """
     is_list = False
     scalar_type: ScalarTypesType = cast(ScalarTypesType, data_type)
@@ -361,7 +361,7 @@ def is_substitution(x):
     This can be:
     - A :py:class:`launch.Substitution` instance.
     - A list of mixed `launch.Substitution` and `str` instances,
-        with at least one instance of the former.
+    with at least one instance of the former.
     """
     return (
         isinstance(x, Substitution) or
@@ -385,16 +385,16 @@ def normalize_typed_substitution(
 
     Example:
     -------
-    ```python3
-    class MyAction(Action):
-        def __init__(self, my_int: Union[int, SomeSubstitutionsType]):
-            self.__my_int_normalized = normalize_typed_substitution(some_int, int)
-            ...
+    .. code-block:: python
 
-        def execute(self, context):
-            my_int = perform_typed_substitution(context, self.__my_int_normalized, int)
-            ...
-    ```
+        class MyAction(Action):
+            def __init__(self, my_int: Union[int, SomeSubstitutionsType]):
+                self.__my_int_normalized = normalize_typed_substitution(some_int, int)
+                ...
+
+            def execute(self, context):
+                my_int = perform_typed_substitution(context, self.__my_int_normalized, int)
+                ...
 
     List of substitutions coerced a list to strings can be confused with a single substitution
     that is coerced to a list of strings.
