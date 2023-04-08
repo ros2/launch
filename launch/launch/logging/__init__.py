@@ -26,6 +26,7 @@ import sys
 
 from typing import Any
 from typing import List
+from typing import Text
 
 from . import handlers
 
@@ -340,7 +341,7 @@ def _normalize_output_configuration(config):
     normalized_config = {
         'both': set(), 'stdout': set(), 'stderr': set()
     }
-    if isinstance(config, str):
+    if isinstance(config, Text):
         if config == 'screen':
             normalized_config.update({
                 'both': {'screen'}
@@ -366,10 +367,12 @@ def _normalize_output_configuration(config):
                 'stdout': {'own_log'},
                 'stderr': {'own_log'}
             })
+        elif config == 'none':
+            pass  # disable launch specific logging
         else:
             raise ValueError((
                 '{} is not a valid standard output config '
-                'i.e. "screen", "log" or "both"'
+                'i.e. "screen", "log", "both", "own_log", "full" or "none". '
             ).format(config))
     elif isinstance(config, dict):
         for source, destinations in config.items():
