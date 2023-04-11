@@ -264,6 +264,7 @@ class LaunchService:
         asynchronous runs.
 
         :param: shutdown_when_idle if True (default), the service will shutdown when idle.
+        :return: the return code (non-zero if there are any errors)
         """
         # Make sure this has not been called from any thread but the main thread.
         if threading.current_thread() is not threading.main_thread():
@@ -365,6 +366,7 @@ class LaunchService:
         After the run ends, this behavior is undone.
 
         :param: shutdown_when_idle if True (default), the service will shutdown when idle
+        :return: the return code (non-zero if there are any errors)
         """
         loop = osrf_pycommon.process_utils.get_loop()
         run_async_task = loop.create_task(self.run_async(
