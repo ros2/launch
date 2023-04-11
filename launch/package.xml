@@ -17,6 +17,11 @@
 
   <depend>osrf_pycommon</depend>
 
+  <!-- The rosdep key for python3 lark module is python3-lark-parser.
+  rosdoc2 will mock "lark-parser" however the module is imported as "lark".
+  Hence, to mock the import of the lark module, we add this doc depend. -->
+  <doc_depend>lark</doc_depend>
+
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>python3-importlib-metadata</exec_depend>
   <exec_depend>python3-lark-parser</exec_depend>
