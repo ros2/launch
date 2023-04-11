@@ -2,6 +2,16 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [rosdoc2] Fix document generation on buildfarm (`#701 <https://github.com/ros2/launch/issues/701>`_)
+* Enable document generation using rosdoc2 for ament_python pkgs (`#697 <https://github.com/ros2/launch/issues/697>`_)
+* Remove the import of Literal from entity.py. (`#694 <https://github.com/ros2/launch/issues/694>`_)
+* Fix flake8 errors. (`#695 <https://github.com/ros2/launch/issues/695>`_)
+* add symlink to latest log directory (`#686 <https://github.com/ros2/launch/issues/686>`_)
+* Improve type checking (`#679 <https://github.com/ros2/launch/issues/679>`_)
+* Contributors: Chris Lalancette, Hervé Audren, Welte, Yadu
+
 1.4.1 (2023-02-24)
 ------------------
 * Fixed typos (`#692 <https://github.com/ros2/launch/issues/692>`_)
