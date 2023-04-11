@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2023-04-11)
+------------------
 * [rosdoc2] Fix document generation on buildfarm (`#701 <https://github.com/ros2/launch/issues/701>`_)
 * Enable document generation using rosdoc2 for ament_python pkgs (`#697 <https://github.com/ros2/launch/issues/697>`_)
 * Remove the import of Literal from entity.py. (`#694 <https://github.com/ros2/launch/issues/694>`_)
