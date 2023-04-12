@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Document LaunchService.{run,run_async}() return value (`#702 <https://github.com/ros2/launch/issues/702>`_)
+* Contributors: Christophe Bedard
+
 2.0.0 (2023-04-11)
 ------------------
 * [rosdoc2] Fix document generation on buildfarm (`#701 <https://github.com/ros2/launch/issues/701>`_)
