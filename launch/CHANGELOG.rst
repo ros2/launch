@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.1 (2023-04-12)
+------------------
 * Document LaunchService.{run,run_async}() return value (`#702 <https://github.com/ros2/launch/issues/702>`_)
 * Contributors: Christophe Bedard
 
