@@ -23,6 +23,7 @@ from .boolean_substitution import OrSubstitution
 from .command import Command
 from .environment_variable import EnvironmentVariable
 from .equals_substitution import EqualsSubstitution
+from .file_content import FileContent
 from .find_executable import FindExecutable
 from .launch_configuration import LaunchConfiguration
 from .launch_log_dir import LaunchLogDir
@@ -43,6 +44,7 @@ __all__ = [
     'Command',
     'EqualsSubstitution',
     'EnvironmentVariable',
+    'FileContent',
     'FindExecutable',
     'LaunchConfiguration',
     'LaunchLogDir',
