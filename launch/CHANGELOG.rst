@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2023-06-07)
+------------------
 * Add file-content launch substitution (`#708 <https://github.com/ros2/launch/issues/708>`_)
 * Contributors: Scott K Logan
 
