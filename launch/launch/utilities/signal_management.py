@@ -235,6 +235,7 @@ class AsyncSafeSignalManager:
         :return: previous handler if any, otherwise None
         """
         signum = signal.Signals(signum)
+        signal.signal(signum, signal.default_int_handler)
         if handler is not None:
             if not callable(handler):
                 raise ValueError('signal handler must be a callable')
