@@ -185,7 +185,7 @@ class LaunchService:
                 this_task = asyncio.Task.current_task(this_loop)
 
             self.__this_task = this_task
-            # Setup custom signal handlers for SIGINT, SIGTERM and maybe SIGQUIT.
+            # Setup custom signal handlers for SIGINT & SIGTERM
             sigint_received = False
 
             def _on_sigint(signum):
@@ -214,8 +214,6 @@ class LaunchService:
                 # Setup signal handlers
                 manager.handle(signal.SIGINT, _on_sigint)
                 manager.handle(signal.SIGTERM, _on_sigterm)
-                if platform.system() != 'Windows':
-                    manager.handle(signal.SIGQUIT, _on_sigterm)
                 # Yield asyncio loop and current task.
                 yield this_loop, this_task
         finally:
