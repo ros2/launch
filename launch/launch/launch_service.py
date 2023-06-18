@@ -18,7 +18,6 @@ import asyncio
 import collections.abc
 import contextlib
 import logging
-import platform
 import signal
 import threading
 import traceback
