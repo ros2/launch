@@ -74,6 +74,8 @@ from ..utilities import perform_substitutions
 from ..utilities.type_utils import normalize_typed_substitution
 from ..utilities.type_utils import perform_typed_substitution
 
+DEFAULT_OUTPUT_FORMAT = '[{this.process_description.final_name}] {line}'
+
 
 class ExecuteLocal(Action):
     """Action that begins executing a process on the local system and sets up event handlers."""
@@ -89,7 +91,7 @@ class ExecuteLocal(Action):
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
         output: SomeSubstitutionsType = 'log',
-        output_format: Text = '[{this.process_description.final_name}] {line}',
+        output_format: Text = DEFAULT_OUTPUT_FORMAT,
         cached_output: bool = False,
         log_cmd: bool = False,
         on_exit: Optional[Union[
@@ -199,7 +201,14 @@ class ExecuteLocal(Action):
             self.__output = normalize_to_list_of_substitutions(tmp_output)
         else:
             self.__output = tmp_output
-        self.__output_format = output_format
+
+        # Check if an environment variable is set and use this as a default
+        self.__output_format = os.environ.get(
+            'LAUNCH_OUTPUT_FORMAT', output_format
+        )
+        # Setting it locally in the launch file still overwrites the default
+        if output_format != DEFAULT_OUTPUT_FORMAT:
+            self.__output_format = output_format
 
         self.__log_cmd = log_cmd
         self.__cached_output = cached_output
