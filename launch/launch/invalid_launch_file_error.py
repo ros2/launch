@@ -30,7 +30,7 @@ class InvalidLaunchFileError(Exception):
             self._error_message = (
                 'Caught {} when trying to load file of format [{}]:'
             ).format('multiple exceptions' if len(self._likely_errors) > 1 else 'exception',
-                      self._extension)
+                     self._extension)
             for error in self._likely_errors:
                 self._error_message += '\n - {}'.format(error)
 
