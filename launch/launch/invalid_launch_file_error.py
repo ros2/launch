@@ -28,8 +28,12 @@ class InvalidLaunchFileError(Exception):
             )
         else:
             self._error_message = (
-                'Caught exception when trying to load file of format [{}]: {}'
-            ).format(self._extension, self._likely_errors[0])
+                'Caught {} when trying to load file of format [{}]:'
+            ).format('multiple exceptions' if len(self._likely_errors) > 1 else 'exception',
+                     self._extension)
+            for error in self._likely_errors:
+                self._error_message += '\n - {}'.format(error)
+
             self.__cause__ = self._likely_errors[0]
 
     def __str__(self):
