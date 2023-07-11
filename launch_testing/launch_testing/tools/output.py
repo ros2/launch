@@ -14,6 +14,7 @@
 
 import os
 import re
+from typing import Optional
 
 from osrf_pycommon.terminal_color import remove_ansi_escape_sequences
 
@@ -64,7 +65,7 @@ def basic_output_filter(
     return _filter
 
 
-def expected_output_from_file(path):
+def expected_output_from_file(path, encoding: Optional[str] = None):
     """
     Get expected output lines from a file.
 
@@ -73,12 +74,12 @@ def expected_output_from_file(path):
     """
     literal_file = path + '.txt'
     if os.path.isfile(literal_file):
-        with open(literal_file, 'r') as f:
+        with open(literal_file, 'r', encoding=encoding) as f:
             return f.read().splitlines()
 
     regex_file = path + '.regex'
     if os.path.isfile(regex_file):
-        with open(regex_file, 'r', encoding='unicode_escape') as f:
+        with open(regex_file, 'r', encoding=encoding) as f:
             return [re.compile(regex) for regex in f.read().splitlines()]
 
     raise RuntimeError('could not find output check file: {}'.format(path))
