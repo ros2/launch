@@ -78,7 +78,7 @@ def expected_output_from_file(path):
 
     regex_file = path + '.regex'
     if os.path.isfile(regex_file):
-        with open(regex_file, 'r') as f:
+        with open(regex_file, 'r', encoding='unicode_escape') as f:
             return [re.compile(regex) for regex in f.read().splitlines()]
 
     raise RuntimeError('could not find output check file: {}'.format(path))
