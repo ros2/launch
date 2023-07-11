@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Improve launch file parsing error messages (`#626 <https://github.com/ros2/launch/issues/626>`_)
+* Contributors: Timon Engelke
+
 2.2.0 (2023-06-07)
 ------------------
 

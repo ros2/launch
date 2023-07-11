@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Improve launch file parsing error messages (`#626 <https://github.com/ros2/launch/issues/626>`_)
+* Contributors: Timon Engelke
+
 2.2.0 (2023-06-07)
 ------------------
 * Add file-content launch substitution (`#708 <https://github.com/ros2/launch/issues/708>`_)
