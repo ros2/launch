@@ -67,7 +67,6 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution  # noqa: F401
 from ..substitutions import LaunchConfiguration
 from ..substitutions import PythonExpression
-from ..utilities import create_future
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
@@ -694,8 +693,8 @@ class ExecuteLocal(Action):
             context.register_event_handler(event_handler)
 
         try:
-            self.__completed_future = create_future(context.asyncio_loop)
-            self.__shutdown_future = create_future(context.asyncio_loop)
+            self.__completed_future = context.asyncio_loop.create_future()
+            self.__shutdown_future = context.asyncio_loop.create_future()
             self.__logger = launch.logging.get_logger(name)
             if not isinstance(self.__output, dict):
                 self.__stdout_logger, self.__stderr_logger = \
