@@ -18,10 +18,12 @@ import asyncio
 
 from launch.utilities import create_future
 
+import osrf_pycommon
+
 
 def test_create_future():
     """Test the create_future() function."""
     future_none_result = create_future(None)
     assert isinstance(future_none_result, asyncio.Future)
-    future_event_loop_result = create_future(asyncio.get_event_loop())
+    future_event_loop_result = create_future(osrf_pycommon.process_utils.get_loop())
     assert isinstance(future_event_loop_result, asyncio.Future)

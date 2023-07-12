@@ -15,6 +15,7 @@
 """Module for the create_future() utility function."""
 
 import asyncio
+import warnings
 
 
 def create_future(loop: asyncio.AbstractEventLoop) -> asyncio.Future:
@@ -27,4 +28,10 @@ def create_future(loop: asyncio.AbstractEventLoop) -> asyncio.Future:
     """
     if hasattr(loop, 'create_future'):
         return loop.create_future()
-    return asyncio.Future(loop=loop)
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            'ignore',
+            'There is no current event loop',
+            DeprecationWarning)
+        return asyncio.Future(loop=loop)
