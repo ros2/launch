@@ -98,30 +98,30 @@ def test_expect_output():
 
 
 def test_expected_output_from_file():
+    # to test txt file
     output_text = 'test\btest'
     name = 'test_tools_expected_output_from_txt_file'
+    # use the default encoding parameter
     expected_output = expected_output_from_file(
                         path=os.path.join(os.path.dirname(__file__), name)
                     )
     assert not expect_output(expected_lines=expected_output, text=output_text)
-
-    output_text = 'test\btest'
-    name = 'test_tools_expected_output_from_txt_file'
+    # use the encoding parameter with 'unicode_escape'
     expected_output = expected_output_from_file(
                         path=os.path.join(os.path.dirname(__file__), name),
                         encoding='unicode_escape'
                     )
     assert expect_output(expected_lines=expected_output, text=output_text)
 
+    # to test regex file
     output_text = 'test\btestaaaaa'
     name = 'test_tools_expected_output_from_regex_file'
+    # use the default encoding parameter
     expected_output = expected_output_from_file(
                         path=os.path.join(os.path.dirname(__file__), name)
                     )
     assert not expect_output(expected_lines=expected_output, text=output_text)
-
-    output_text = 'test\btestaaaaa'
-    name = 'test_tools_expected_output_from_regex_file'
+    # use the encoding parameter with 'unicode_escape'
     expected_output = expected_output_from_file(
                         path=os.path.join(os.path.dirname(__file__), name),
                         encoding='unicode_escape'
