@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add file-content launch substitution (`#709 <https://github.com/ros2/launch/issues/709>`_)
+* Contributors: Scott K Logan
+
 2.0.1 (2023-04-12)
 ------------------
 * Document LaunchService.{run,run_async}() return value (`#702 <https://github.com/ros2/launch/issues/702>`_)
