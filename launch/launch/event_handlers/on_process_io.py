@@ -41,9 +41,9 @@ class OnProcessIO(OnActionEventBase):
         *,
         target_action:
             Optional[Union[Callable[['Action'], bool], 'Action']] = None,
-        on_stdin: Callable[[ProcessIO], Optional[SomeEntitiesType]] = None,
-        on_stdout: Callable[[ProcessIO], Optional[SomeEntitiesType]] = None,
-        on_stderr: Callable[[ProcessIO], Optional[SomeEntitiesType]] = None,
+        on_stdin: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
+        on_stdout: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
+        on_stderr: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
         **kwargs
     ) -> None:
         """Create an OnProcessIO event handler."""

@@ -71,8 +71,8 @@ class PythonExpression(Substitution):
             kwargs['python_modules'] = []
             # Check if we got empty list from XML
             # Ensure that we got a list!
-            assert(not isinstance(data[1], str))
-            assert(not isinstance(data[1], Substitution))
+            assert not isinstance(data[1], str)
+            assert not isinstance(data[1], Substitution)
             # Modules
             modules = list(data[1])
             if len(modules) > 0:
