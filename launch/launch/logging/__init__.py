@@ -206,10 +206,21 @@ class LaunchConfig:
         :param screen_format: format specification used when logging to the screen,
             as expected by the `logging.Formatter` constructor.
             Alternatively, aliases for common formats are available, see above.
+            This format can also be overridden by the environment variable
+            'OVERRIDE_LAUNCH_SCREEN_FORMAT'.
         :param screen_style: the screen style used if no alias is used for
             screen_format.
             No style can be provided if a format alias is given.
         """
+        # Check if the environment variable is set
+        screen_format_env = os.environ.get('OVERRIDE_LAUNCH_SCREEN_FORMAT')
+        # If the environment variable is set override the given format
+        if screen_format_env not in [None, '']:
+            # encoded escape characters correctly
+            screen_format = screen_format_env.encode(
+                'latin1').decode('unicode_escape')
+            # Set the style correspondingly
+            screen_style = '{'
         if screen_format is not None:
             if screen_format == 'default':
                 screen_format = '[{levelname}] [{name}]: {msg}'
@@ -258,9 +269,20 @@ class LaunchConfig:
             as expected by the `logging.Formatter` constructor.
             Alternatively, the 'default' alias can be given to log verbosity level,
             logger name and logged message.
+            This format can also be overridden by the environment variable
+            'OVERRIDE_LAUNCH_LOG_FORMAT'.
         :param log_style: the log style used if no alias is given for log_format.
             No style can be provided if a format alias is given.
         """
+        # Check if the environment variable is set
+        log_format_env = os.environ.get('OVERRIDE_LAUNCH_LOG_FORMAT')
+        # If the environment variable is set override the given format
+        if log_format_env not in [None, '']:
+            # encoded escape characters correctly
+            log_format = log_format_env.encode(
+                'latin1').decode('unicode_escape')
+            # Set the style correspondingly
+            log_style = '{'
         if log_format is not None:
             if log_format == 'default':
                 log_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
