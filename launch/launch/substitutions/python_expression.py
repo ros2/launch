@@ -53,25 +53,9 @@ class PythonExpression(Substitution):
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `PythonExpression` substitution."""
-<<<<<<< HEAD
         if len(data) != 1:
             raise TypeError('eval substitution expects 1 argument')
         return cls, {'expression': data[0]}
-=======
-        if len(data) < 1 or len(data) > 2:
-            raise TypeError('eval substitution expects 1 or 2 arguments')
-        kwargs = {}
-        kwargs['expression'] = data[0]
-        if len(data) == 2:
-            # We get a text substitution from XML,
-            # whose contents are comma-separated module names
-            kwargs['python_modules'] = []
-            # Check if we got empty list from XML
-            if len(data[1]) > 0:
-                modules_str = data[1][0].perform(None)
-                kwargs['python_modules'] = [module.strip() for module in modules_str.split(',')]
-        return cls, kwargs
->>>>>>> 2a84352 (Fixed typos (#692))
 
     @property
     def expression(self) -> List[Substitution]:
