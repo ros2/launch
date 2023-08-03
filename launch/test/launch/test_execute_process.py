@@ -14,7 +14,6 @@
 
 """Tests for the ExecuteProcess Action."""
 
-import asyncio
 import os
 import platform
 import signal
@@ -33,6 +32,8 @@ from launch.actions.timer_action import TimerAction
 from launch.event_handlers.on_process_start import OnProcessStart
 from launch.events.shutdown import Shutdown as ShutdownEvent
 from launch.substitutions.launch_configuration import LaunchConfiguration
+
+import osrf_pycommon
 
 import pytest
 
@@ -221,7 +222,8 @@ def test_execute_process_with_respawn_substitution():
 
 def test_execute_process_prefix_filter_match():
     lc = LaunchContext()
-    lc._set_asyncio_loop(asyncio.get_event_loop())
+    lc._set_asyncio_loop(osrf_pycommon.process_utils.get_loop())
+
     SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
     assert len(lc.launch_configurations) == 1
     SetLaunchConfiguration(
@@ -240,7 +242,8 @@ def test_execute_process_prefix_filter_match():
 
 def test_execute_process_prefix_filter_no_match():
     lc = LaunchContext()
-    lc._set_asyncio_loop(asyncio.get_event_loop())
+    lc._set_asyncio_loop(osrf_pycommon.process_utils.get_loop())
+
     SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
     assert len(lc.launch_configurations) == 1
     SetLaunchConfiguration(
@@ -258,7 +261,7 @@ def test_execute_process_prefix_filter_no_match():
 
 def test_execute_process_prefix_filter_override_in_launch_file():
     lc = LaunchContext()
-    lc._set_asyncio_loop(asyncio.get_event_loop())
+    lc._set_asyncio_loop(osrf_pycommon.process_utils.get_loop())
     SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
     assert len(lc.launch_configurations) == 1
     SetLaunchConfiguration(
