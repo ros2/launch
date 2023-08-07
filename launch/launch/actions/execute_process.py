@@ -346,6 +346,12 @@ class ExecuteProcess(ExecuteLocal):
             if respawn is not None:
                 kwargs['respawn'] = parser.parse_substitution(respawn)
 
+        if 'respawn_max_retries' not in ignore:
+            respawn_max_retries = entity.get_attr('respawn_max_retries', data_type=int,
+                                                  optional=True)
+            if respawn_max_retries is not None:
+                kwargs['respawn_max_retries'] = respawn_max_retries
+
         if 'respawn_delay' not in ignore:
             respawn_delay = entity.get_attr('respawn_delay', data_type=float, optional=True)
             if respawn_delay is not None:
