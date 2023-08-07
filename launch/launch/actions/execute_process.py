@@ -232,8 +232,8 @@ class ExecuteProcess(ExecuteLocal):
         :param: respawn if 'True', relaunch the process that abnormally died.
             Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
-        :param: respawn_max_retries number of times to respawn the process. A negative value
-            will respawn an infinite number of times (this is the default behavior).
+        :param: respawn_max_retries number of times to respawn the process if respawn is 'True'.
+                A negative value will respawn an infinite number of times (default behavior).
         """
         executable = Executable(cmd=cmd, prefix=prefix, name=name, cwd=cwd, env=env,
                                 additional_env=additional_env)
