@@ -139,7 +139,7 @@ class Parser:
     def get_available_extensions(cls) -> List[Text]:
         """Return the registered extensions."""
         cls.load_parser_implementations()
-        assert(cls.frontend_parsers is not None)
+        assert cls.frontend_parsers is not None
         return cls.frontend_parsers.keys()
 
     @classmethod
@@ -151,7 +151,7 @@ class Parser:
         warnings.warn(
             'Parser.is_extension_valid is deprecated, use Parser.is_filename_valid instead')
         cls.load_parser_implementations()
-        assert(cls.frontend_parsers is not None)
+        assert cls.frontend_parsers is not None
         return extension in cls.frontend_parsers
 
     @classmethod
@@ -164,7 +164,7 @@ class Parser:
             'Parser.get_parser_from_extension is deprecated, '
             'use Parser.get_parsers_from_filename instead')
         cls.load_parser_implementations()
-        assert(cls.frontend_parsers is not None)
+        assert cls.frontend_parsers is not None
         try:
             return cls.frontend_parsers[extension]
         except KeyError:
@@ -185,7 +185,7 @@ class Parser:
     ) -> bool:
         """Return `True` if the filename is valid for any parser."""
         cls.load_parser_implementations()
-        assert(cls.frontend_parsers is not None)
+        assert cls.frontend_parsers is not None
         return any(
             parser.may_parse(filename)
             for parser in cls.frontend_parsers.values()
@@ -198,7 +198,7 @@ class Parser:
     ) -> List[Type['Parser']]:
         """Return a list of parsers which entity loaded with a markup file."""
         cls.load_parser_implementations()
-        assert(cls.frontend_parsers is not None)
+        assert cls.frontend_parsers is not None
         return [
             parser for parser in cls.frontend_parsers.values()
             if parser.may_parse(filename)
@@ -208,7 +208,7 @@ class Parser:
     def get_file_extensions_from_parsers(cls) -> Set[Type['Parser']]:
         """Return a set of file extensions known to the parser implementations."""
         cls.load_parser_implementations()
-        assert(cls.frontend_parsers is not None)
+        assert cls.frontend_parsers is not None
         return set(itertools.chain.from_iterable(
             parser_extension.get_file_extensions()
             for parser_extension in cls.frontend_parsers.values()
@@ -241,7 +241,7 @@ class Parser:
         try:
             filename = getattr(fileobj, 'name', '')
             implementations = cls.get_parsers_from_filename(filename)
-            assert(cls.frontend_parsers is not None)
+            assert cls.frontend_parsers is not None
             implementations += [
                 parser for parser in cls.frontend_parsers.values()
                 if parser not in implementations

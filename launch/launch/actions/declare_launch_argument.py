@@ -108,7 +108,7 @@ class DeclareLaunchArgument(Action):
         *,
         default_value: Optional[SomeSubstitutionsType] = None,
         description: Optional[Text] = None,
-        choices: List[Text] = None,
+        choices: Optional[List[Text]] = None,
         **kwargs
     ) -> None:
         """Create a DeclareLaunchArgument action."""
@@ -137,6 +137,7 @@ class DeclareLaunchArgument(Action):
                         'Provided default_value "{}" is not in provided choices "{}".'.format(
                             default_value, choices))
 
+        self.__description = ''
         if description is None:
             if choices is None:
                 self.__description = 'no description given'

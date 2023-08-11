@@ -39,7 +39,7 @@ class ExtractSubstitution(Transformer):
     """Extract a substitution."""
 
     def part(self, content):
-        assert(len(content) == 1)
+        assert len(content) == 1
         content = content[0]
         if isinstance(content, Token):
             assert content.type.endswith('_RSTRING')
