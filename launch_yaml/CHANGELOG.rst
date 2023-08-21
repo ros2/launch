@@ -2,6 +2,9 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.2.1 (2023-07-11)
 ------------------
 * Improve launch file parsing error messages (`#626 <https://github.com/ros2/launch/issues/626>`_)
