@@ -219,6 +219,39 @@ def test_execute_process_with_respawn_substitution():
     assert expected_called_count == on_exit_callback.called_count
 
 
+def test_execute_process_with_respawn_max_retries():
+    """Test launching a process with respaw_max_retries attribute."""
+    def on_exit_callback(event, context):
+        on_exit_callback.called_count = on_exit_callback.called_count + 1
+    on_exit_callback.called_count = 0
+
+    respawn_max_retries = 2 # we want the process to respawn this amount of times
+    shutdown_time = 10.0   # leave enough time to actually test the respawn_max_retries
+    expected_called_count = 3   # normal exit + respawn_max_retries exits
+
+    def generate_launch_description():
+        return LaunchDescription([
+
+            ExecuteProcess(
+                cmd=[sys.executable, '-c', "print('action')"],
+                respawn=True, respawn_max_retries=respawn_max_retries,
+                on_exit=on_exit_callback
+            ),
+
+            TimerAction(
+                period=shutdown_time,
+                actions=[
+                    Shutdown(reason='Timer expired')
+                ]
+            )
+        ])
+
+    ls = LaunchService()
+    ls.include_launch_description(generate_launch_description())
+    assert 0 == ls.run()
+    assert expected_called_count == on_exit_callback.called_count
+
+
 def test_execute_process_prefix_filter_match():
     lc = LaunchContext()
     lc._set_asyncio_loop(asyncio.get_event_loop())
