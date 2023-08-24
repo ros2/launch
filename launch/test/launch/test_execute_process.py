@@ -225,7 +225,7 @@ def test_execute_process_with_respawn_max_retries():
         on_exit_callback.called_count = on_exit_callback.called_count + 1
     on_exit_callback.called_count = 0
 
-    respawn_max_retries = 2 # we want the process to respawn this amount of times
+    respawn_max_retries = 2   # we want the process to respawn this amount of times
     shutdown_time = 10.0   # leave enough time to actually test the respawn_max_retries
     expected_called_count = 3   # normal exit + respawn_max_retries exits
 
