@@ -65,12 +65,13 @@ def basic_output_filter(
     return _filter
 
 
-def expected_output_from_file(path, encoding: Optional[str] = None):
+def expected_output_from_file(path: str, encoding: Optional[str] = None):
     """
     Get expected output lines from a file.
 
     :param path: path w/o extension of either a .txt file containing the lines
     to be matched or a .regex file containing patterns to be searched for.
+    :param encoding: the character encoding to be used when opening the file.
     """
     literal_file = path + '.txt'
     if os.path.isfile(literal_file):
