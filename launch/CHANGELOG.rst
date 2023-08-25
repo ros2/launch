@@ -2,6 +2,13 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.0 (2023-08-21)
+------------------
+* Fix remaining occurrences of "There is no current event loop" (`#723 <https://github.com/ros2/launch/issues/723>`_)
+* Update the launch code for newer flake8 and mypy. (`#719 <https://github.com/ros2/launch/issues/719>`_)
+* Remove the deprecated some_actions_type.py (`#718 <https://github.com/ros2/launch/issues/718>`_)
+* Contributors: Chris Lalancette
+
 2.2.1 (2023-07-11)
 ------------------
 * Improve launch file parsing error messages (`#626 <https://github.com/ros2/launch/issues/626>`_)
