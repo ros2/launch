@@ -127,14 +127,23 @@ def test_execute_process_with_respawn():
 
 
 def test_execute_process_with_respawn_max_retries():
-    """Test launching a process with respaw_max_retries attribute."""
+    """Test launching a process with respawn_max_retries attribute."""
     def on_exit_callback(event, context):
-        on_exit_callback.called_count = on_exit_callback.called_count + 1
+        on_exit_callback.called_count += 1        
+        if on_exit_callback.called_count == expected_called_count:
+            timer = TimerAction(
+                period=2.,   # wait to verify if the process continues to respawn itself
+                actions=[
+                    Shutdown(reason='Timer expired')
+                ]
+            )
+            timer.execute(context)
+            
     on_exit_callback.called_count = 0
 
     respawn_max_retries = 2   # we want the process to respawn this amount of times
-    shutdown_time = 10.0   # leave enough time to actually test the respawn_max_retries
     expected_called_count = 3   # normal exit + respawn_max_retries exits
+    shutdown_time = 10.0   # security timer to kill the process
 
     def generate_launch_description():
         return LaunchDescription([
