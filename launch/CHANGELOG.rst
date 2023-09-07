@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add in a timeout for launch pytests. (`#725 <https://github.com/ros2/launch/issues/725>`_)
+* Contributors: Chris Lalancette
+
 3.0.0 (2023-08-21)
 ------------------
 * Fix remaining occurrences of "There is no current event loop" (`#723 <https://github.com/ros2/launch/issues/723>`_)
