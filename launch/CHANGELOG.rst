@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.0.1 (2023-09-07)
+------------------
 * Add in a timeout for launch pytests. (`#725 <https://github.com/ros2/launch/issues/725>`_)
 * Contributors: Chris Lalancette
 
