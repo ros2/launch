@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add maximum times for a process to respawn (`#696 <https://github.com/ros2/launch/issues/696>`_)
+* Contributors: Santti4go
+
 3.0.1 (2023-09-07)
 ------------------
 * Add in a timeout for launch pytests. (`#725 <https://github.com/ros2/launch/issues/725>`_)
