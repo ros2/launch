@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.1.0 (2023-09-08)
+------------------
 * Add maximum times for a process to respawn (`#696 <https://github.com/ros2/launch/issues/696>`_)
 * Contributors: Santti4go
 
