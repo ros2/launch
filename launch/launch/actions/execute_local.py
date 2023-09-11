@@ -173,7 +173,7 @@ class ExecuteLocal(Action):
         :param: output_format for logging each output line, supporting `str.format()`
             substitutions with the following keys in scope: `line` to reference the raw
             output line and `this` to reference this action instance.
-            Overridden externally by the OVERRIDE_LAUNCH_OUTPUT_FORMAT envvar value.
+            The default format can be set externally by the ROS_LAUNCH_OUTPUT_FORMAT envvar.
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
@@ -201,11 +201,16 @@ class ExecuteLocal(Action):
         else:
             self.__output = tmp_output
 
-        self.__output_format = output_format
-        # Check if an environment variable is set and override anything given as argument
-        self.__output_format = os.environ.get(
-            'OVERRIDE_LAUNCH_OUTPUT_FORMAT', self.__output_format
-        )
+        # We use the following priorities to determine the output_format:
+        # 1. Passed value to the function
+        # 2. Environment variable
+        # 3. Default value
+        if output_format != "[{this.process_description.final_name}] {line}":
+            self.__output_format = output_format
+        else:
+            self.__output_format = os.environ.get(
+                "ROS_LAUNCH_OUTPUT_FORMAT", output_format
+            )
 
         self.__log_cmd = log_cmd
         self.__cached_output = cached_output
