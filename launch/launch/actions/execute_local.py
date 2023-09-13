@@ -97,6 +97,7 @@ class ExecuteLocal(Action):
         ]] = None,
         respawn: Union[bool, SomeSubstitutionsType] = False,
         respawn_delay: Optional[float] = None,
+        respawn_max_retries: int = -1,
         **kwargs
     ) -> None:
         """
@@ -181,6 +182,8 @@ class ExecuteLocal(Action):
         :param: respawn if 'True', relaunch the process that abnormally died.
             Either a boolean or a Substitution to be resolved at runtime. Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
+        :param: respawn_max_retries number of times to respawn the process if respawn is 'True'.
+                A negative value will respawn an infinite number of times (default behavior).
         """
         super().__init__(**kwargs)
         self.__process_description = process_description
@@ -205,6 +208,9 @@ class ExecuteLocal(Action):
         self.__on_exit = on_exit
         self.__respawn = normalize_typed_substitution(respawn, bool)
         self.__respawn_delay = respawn_delay
+
+        self.__respawn_max_retries = respawn_max_retries
+        self.__respawn_retries = 0
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
@@ -597,7 +603,11 @@ class ExecuteLocal(Action):
         if not context.is_shutdown\
                 and self.__shutdown_future is not None\
                 and not self.__shutdown_future.done()\
-                and self.__respawn:
+                and self.__respawn and \
+                (self.__respawn_max_retries < 0 or
+                 self.__respawn_retries < self.__respawn_max_retries):
+            # Increase the respawn_retries counter
+            self.__respawn_retries += 1
             if self.__respawn_delay is not None and self.__respawn_delay > 0.0:
                 # wait for a timeout(`self.__respawn_delay`) to respawn the process
                 # and handle shutdown event with future(`self.__shutdown_future`)

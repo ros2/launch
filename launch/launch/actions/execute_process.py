@@ -232,6 +232,8 @@ class ExecuteProcess(ExecuteLocal):
         :param: respawn if 'True', relaunch the process that abnormally died.
             Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
+        :param: respawn_max_retries number of times to respawn the process if respawn is 'True'.
+                A negative value will respawn an infinite number of times (default behavior).
         """
         executable = Executable(cmd=cmd, prefix=prefix, name=name, cwd=cwd, env=env,
                                 additional_env=additional_env)
@@ -343,6 +345,12 @@ class ExecuteProcess(ExecuteLocal):
             respawn = entity.get_attr('respawn', optional=True)
             if respawn is not None:
                 kwargs['respawn'] = parser.parse_substitution(respawn)
+
+        if 'respawn_max_retries' not in ignore:
+            respawn_max_retries = entity.get_attr('respawn_max_retries', data_type=int,
+                                                  optional=True)
+            if respawn_max_retries is not None:
+                kwargs['respawn_max_retries'] = respawn_max_retries
 
         if 'respawn_delay' not in ignore:
             respawn_delay = entity.get_attr('respawn_delay', data_type=float, optional=True)
