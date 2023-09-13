@@ -24,8 +24,8 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-from ..utilities.type_utils import perform_typed_substitution
 from .substitution_failure import SubstitutionFailure
+from ..utilities.type_utils import perform_typed_substitution
 
 
 @expose_substitution('if')

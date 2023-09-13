@@ -24,49 +24,49 @@ def test_if_else_substitution_no_values():
     """Check that construction fails if no values are specified."""
     # Should raise an error since neither the if value nor the else value is given
     with pytest.raises(RuntimeError):
-        IfElseSubstitution("true")
+        IfElseSubstitution('true')
 
 
 def test_if_else_substitution_both_values():
     """Check that the right value is returned when both values are given."""
     # Condition is true case
-    subst = IfElseSubstitution("true", "ivalue", "evalue")
+    subst = IfElseSubstitution('true', 'ivalue', 'evalue')
     result = subst.perform(LaunchContext())
-    assert result == "ivalue"
-    subst = IfElseSubstitution("true", if_value="ivalue", else_value="evalue")
+    assert result == 'ivalue'
+    subst = IfElseSubstitution('true', if_value='ivalue', else_value='evalue')
     result = subst.perform(LaunchContext())
-    assert result == "ivalue"
+    assert result == 'ivalue'
 
     # Condition is false case
-    subst = IfElseSubstitution("false", "ivalue", "evalue")
+    subst = IfElseSubstitution('false', 'ivalue', 'evalue')
     result = subst.perform(LaunchContext())
-    assert result == "evalue"
+    assert result == 'evalue'
 
 
 def test_if_else_substitution_if_value():
     """Check that the right value is returned when only the if value is given."""
     # Condition is true case
-    subst = IfElseSubstitution("1", "ivalue")
+    subst = IfElseSubstitution('1', 'ivalue')
     result = subst.perform(LaunchContext())
-    assert result == "ivalue"
-    subst = IfElseSubstitution("1", if_value="ivalue")
+    assert result == 'ivalue'
+    subst = IfElseSubstitution('1', if_value='ivalue')
     result = subst.perform(LaunchContext())
-    assert result == "ivalue"
+    assert result == 'ivalue'
 
     # Condition is false case
-    subst = IfElseSubstitution("0", "ivalue")
+    subst = IfElseSubstitution('0', 'ivalue')
     result = subst.perform(LaunchContext())
-    assert result == ""
+    assert result == ''
 
 
 def test_if_else_substitution_else_value():
     """Check that the right value is returned when only the else value is given."""
     # Condition is true case
-    subst = IfElseSubstitution("on", else_value="evalue")
+    subst = IfElseSubstitution('on', else_value='evalue')
     result = subst.perform(LaunchContext())
-    assert result == ""
+    assert result == ''
 
     # Condition is false case
-    subst = IfElseSubstitution("off", else_value="evalue")
+    subst = IfElseSubstitution('off', else_value='evalue')
     result = subst.perform(LaunchContext())
-    assert result == "evalue"
+    assert result == 'evalue'
