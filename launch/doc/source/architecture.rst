@@ -131,6 +131,10 @@ There are many possible variations of a substitution, but here are some of the c
 
   - This substitution gets a launch configuration value, as a string, by name.
 
+- :class:`launch.substitutions.IfElseSubstitution`
+
+  - This substitution takes a substitution, and if it evaluates to true, then the result is the if_value, else the result is the else_value.
+
 - :class:`launch.substitutions.LaunchDescriptionArgument`
 
   - This substitution gets the value of a launch description argument, as a string, by name.

@@ -24,6 +24,7 @@ from .command import Command
 from .environment_variable import EnvironmentVariable
 from .equals_substitution import EqualsSubstitution
 from .find_executable import FindExecutable
+from .if_else_substitution import IfElseSubstitution
 from .launch_configuration import LaunchConfiguration
 from .local_substitution import LocalSubstitution
 from .not_equals_substitution import NotEqualsSubstitution
@@ -44,6 +45,7 @@ __all__ = [
     'EqualsSubstitution',
     'EnvironmentVariable',
     'FindExecutable',
+    'IfElseSubstitution',
     'LaunchConfiguration',
     'LocalSubstitution',
     'NotSubstitution',
