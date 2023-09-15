@@ -82,10 +82,10 @@ class ExecuteLocal(Action):
         *,
         process_description: Executable,
         shell: bool = False,
-        sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration(
-            'sigterm_timeout', default=5),
-        sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
-            'sigkill_timeout', default=5),
+        sigterm_timeout: SomeSubstitutionsType =
+            LaunchConfiguration('sigterm_timeout', default=5),
+        sigkill_timeout: SomeSubstitutionsType =
+            LaunchConfiguration('sigkill_timeout', default=5),
         emulate_tty: bool = False,
         output: SomeSubstitutionsType = 'log',
         output_format: Text = '[{this.process_description.final_name}] {line}',
@@ -591,13 +591,15 @@ class ExecuteLocal(Action):
                 pid, returncode, ' '.join(filter(lambda part: part.strip(), cmd))
             ))
         await context.emit_event(
-                ProcessExited(returncode=returncode, **process_event_args)
-                )
+            ProcessExited(returncode=returncode, **process_event_args)
+        )
         # respawn the process if necessary
-        if not context.is_shutdown\
-                and self.__shutdown_future is not None\
-                and not self.__shutdown_future.done()\
-                and self.__respawn:
+        if (
+            not context.is_shutdown
+            and self.__shutdown_future is not None
+            and not self.__shutdown_future.done()
+            and self.__respawn
+        ):
             if self.__respawn_delay is not None and self.__respawn_delay > 0.0:
                 # wait for a timeout(`self.__respawn_delay`) to respawn the process
                 # and handle shutdown event with future(`self.__shutdown_future`)

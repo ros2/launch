@@ -256,7 +256,12 @@ class LaunchService:
                 #     'launch.LaunchService',
                 #     "processing event: '{}' x '{}'".format(event, event_handler))
 
-    async def run_async(self, *, shutdown_when_idle=True) -> int:
+    async def run_async(
+        self,
+        *,
+        shutdown_when_idle=True,
+        consider_non_zero_process_exit_an_error=False,
+    ) -> int:
         """
         Visit all entities of all included LaunchDescription instances asynchronously.
 
@@ -264,13 +269,12 @@ class LaunchService:
         asynchronous runs.
 
         :param: shutdown_when_idle if True (default), the service will shutdown when idle.
+        :param: consider_non_zero_process_exit_an_error see documentation in run().
         :return: the return code (non-zero if there are any errors)
         """
         # Make sure this has not been called from any thread but the main thread.
         if threading.current_thread() is not threading.main_thread():
-            raise RuntimeError(
-                'LaunchService can only be run in the main thread.'
-            )
+            raise RuntimeError('LaunchService can only be run in the main thread.')
 
         return_code = 0
         with self._prepare_run_loop() as (this_loop, this_task):
@@ -355,7 +359,7 @@ class LaunchService:
                     continue
             return return_code
 
-    def run(self, *, shutdown_when_idle=True) -> int:
+    def run(self, *, shutdown_when_idle=True, consider_non_zero_process_exit_an_error=False) -> int:
         """
         Run an event loop and visit all entities of all included LaunchDescription instances.
 
@@ -366,11 +370,20 @@ class LaunchService:
         After the run ends, this behavior is undone.
 
         :param: shutdown_when_idle if True (default), the service will shutdown when idle
+        :param: consider_non_zero_process_exit_an_error if False (default), non-zero process exit
+            codes will not be considered an error and therefore will not affect the return of this
+            function.
+            If True, then if a process returns a non-zero exit code, it will result in a 1
+            being returned from this function.
+            Other errors may cause other non-zero values to be returned.
+            The exact values of exit codes from individual processes are not returned.
+            Process that are restarted automatically are not considered.
         :return: the return code (non-zero if there are any errors)
         """
         loop = osrf_pycommon.process_utils.get_loop()
         run_async_task = loop.create_task(self.run_async(
-            shutdown_when_idle=shutdown_when_idle
+            shutdown_when_idle=shutdown_when_idle,
+            consider_non_zero_process_exit_an_error=consider_non_zero_process_exit_an_error,
         ))
         while True:
             try:
@@ -423,7 +436,8 @@ class LaunchService:
             if self.__loop_from_run_thread is not None:
                 return self._shutdown(
                     reason='LaunchService.shutdown() called',
-                    due_to_sigint=False, force_sync=force_sync
+                    due_to_sigint=False,
+                    force_sync=force_sync,
                 )
         return None
 
