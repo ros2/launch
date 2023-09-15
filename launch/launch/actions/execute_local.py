@@ -19,6 +19,7 @@ import io
 import logging
 import os
 import platform
+import shlex
 import signal
 import traceback
 from typing import Any  # noqa: F401
@@ -82,6 +83,8 @@ class ExecuteLocal(Action):
         *,
         process_description: Executable,
         shell: bool = False,
+        split_arguments: SomeSubstitutionsType = LaunchConfiguration(
+            'split_arguments', default=False),
         sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
@@ -150,6 +153,24 @@ class ExecuteLocal(Action):
         :param: process_description the `launch.descriptions.Executable` to execute
             as a local process
         :param: shell if True, a shell is used to execute the cmd
+        :param: split_arguments if True, and shell=False, the arguments are
+            split by whitespace as if parsed by a shell, e.g. like shlex.split()
+            from Python's standard library.
+            Useful if the arguments need to be split, e.g. if a substitution
+            evaluates to multiple whitespace separated arguments but shell=True
+            cannot be used.
+            Usually it does not make sense to split the arguments if shell=True
+            because the shell will split them again, e.g. the single
+            substitution '--opt1 --opt2 "Hello world"' would become ['--opt1',
+            '--opt2', '"Hello World"'] if split_arguments=True, and then become
+            ['--opt1', '--opt2', 'Hello', 'World'] because of shell=True, which
+            is likely not what was originally intended.
+            Therefore, when both shell=True and split_arguments=True, the
+            arguments will not be split before executing, depending on the
+            shell to split the arguments instead.
+            If not explicitly passed, the LaunchConfiguration called
+            'split_arguments' will be used as the default, and if that
+            LaunchConfiguration is not set, the default will be False.
         :param: sigterm_timeout time until shutdown should escalate to SIGTERM,
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
@@ -188,6 +209,7 @@ class ExecuteLocal(Action):
         super().__init__(**kwargs)
         self.__process_description = process_description
         self.__shell = shell
+        self.__split_arguments = normalize_to_list_of_substitutions(split_arguments)
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
         self.__emulate_tty = emulate_tty
@@ -233,6 +255,11 @@ class ExecuteLocal(Action):
     def shell(self):
         """Getter for shell."""
         return self.__shell
+
+    @property
+    def split_arguments(self):
+        """Getter for split_arguments."""
+        return self.__split_arguments
 
     @property
     def emulate_tty(self):
@@ -547,14 +574,27 @@ class ExecuteLocal(Action):
             raise RuntimeError('process_event_args unexpectedly None')
 
         cmd = process_event_args['cmd']
+        if evaluate_condition_expression(context, self.__split_arguments):
+            if self.__shell:
+                self.__logger.debug(
+                    "Ignoring 'split_arguments=True' because 'shell=True'."
+                )
+            else:
+                expanded_cmd = []
+                for token in cmd:
+                    expanded_cmd.extend(shlex.split(token))
+                cmd = expanded_cmd
         cwd = process_event_args['cwd']
         env = process_event_args['env']
         if self.__log_cmd:
-            self.__logger.info("process details: cmd='{}', cwd='{}', custom_env?={}".format(
-                ' '.join(filter(lambda part: part.strip(), cmd)),
-                cwd,
-                'True' if env is not None else 'False'
-            ))
+            self.__logger.info(
+                "process details: cmd=['{}'], cwd='{}', shell='{}', custom_env?={}".format(
+                    "', ' ".join(cmd),
+                    cwd,
+                    'True' if self.__shell else 'False',
+                    'True' if env is not None else 'False',
+                )
+            )
 
         emulate_tty = self.__emulate_tty
         if 'emulate_tty' in context.launch_configurations:
