@@ -15,6 +15,8 @@
 """Test parsing an executable action."""
 
 import io
+import os
+import sys
 import textwrap
 
 from launch import LaunchService
@@ -80,6 +82,33 @@ def test_executable_on_exit():
     sub_entities = executable.get_sub_entities()
     assert len(sub_entities) == 1
     assert isinstance(sub_entities[0], Shutdown)
+
+
+split_arguments_example1 = f"""
+launch:
+- let:
+    name: args
+    value: '--some-arg "some string"'
+- executable:
+        cmd: {sys.executable} {os.path.join(os.path.dirname(__file__), 'arg_echo.py')} $(var args)
+        log_cmd: True
+        shell: False
+        split_arguments: True
+        output: screen
+"""
+
+
+def test_executable_with_split_arguments():
+    """Parse node xml example."""
+    root_entity, parser = Parser.load(io.StringIO(split_arguments_example1))
+    ld = parser.parse_description(root_entity)
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+
+    executable = ld.entities[-1]
+    # expect a return code that matches the number of arguments after the executable
+    assert executable.return_code == 3
 
 
 if __name__ == '__main__':

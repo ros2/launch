@@ -15,6 +15,7 @@
 """Test parsing an executable action."""
 
 import io
+import os
 from pathlib import Path
 import sys
 import textwrap
@@ -68,24 +69,27 @@ def test_executable_wrong_subtag():
     assert '`executable`' in str(excinfo.value)
     assert 'whats_this' in str(excinfo.value)
 
-    # <let name="script" value="print('hello world')" />
-split_arguments_example = f"""
+
+split_arguments_example1 = f"""
 <launch>
-    <executable cmd="{sys.executable} -c 'print(0)'" log_cmd="True" split_arguments="True" />
+    <let name="args" value="--some-arg 'some string'" />
+    <executable
+        cmd="{sys.executable} {os.path.join(os.path.dirname(__file__), 'arg_echo.py')} $(var args)"
+        log_cmd="True"
+        split_arguments="True"
+        output="screen"
+    />
 </launch>
 """
 
 
 def test_executable_with_split_arguments():
     """Parse node xml example."""
-    root_entity, parser = Parser.load(io.StringIO(split_arguments_example))
+    root_entity, parser = Parser.load(io.StringIO(split_arguments_example1))
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
-
-    executable = ld.entities[0]
-    assert False, executable.get_stdout()
 
 
 def test_executable_on_exit():
