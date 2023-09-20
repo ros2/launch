@@ -16,6 +16,7 @@
 
 import io
 from pathlib import Path
+import sys
 import textwrap
 
 from launch import LaunchService
@@ -66,6 +67,25 @@ def test_executable_wrong_subtag():
         parser.parse_description(root_entity)
     assert '`executable`' in str(excinfo.value)
     assert 'whats_this' in str(excinfo.value)
+
+    # <let name="script" value="print('hello world')" />
+split_arguments_example = f"""
+<launch>
+    <executable cmd="{sys.executable} -c 'print(0)'" log_cmd="True" split_arguments="True" />
+</launch>
+"""
+
+
+def test_executable_with_split_arguments():
+    """Parse node xml example."""
+    root_entity, parser = Parser.load(io.StringIO(split_arguments_example))
+    ld = parser.parse_description(root_entity)
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+
+    executable = ld.entities[0]
+    assert False, executable.get_stdout()
 
 
 def test_executable_on_exit():

@@ -29,6 +29,7 @@ from launch.actions.opaque_function import OpaqueFunction
 from launch.actions.register_event_handler import RegisterEventHandler
 from launch.actions.shutdown_action import Shutdown
 from launch.actions.timer_action import TimerAction
+from launch.conditions import evaluate_condition_expression
 from launch.event_handlers.on_process_start import OnProcessStart
 from launch.events.shutdown import Shutdown as ShutdownEvent
 from launch.substitutions.launch_configuration import LaunchConfiguration
@@ -377,11 +378,34 @@ def test_execute_process_split_arguments(test_parameters):
         split_arguments=test_parameters['split_arguments'],
     )
 
-    ld = LaunchDescription([
-        execute_process_action,
-    ])
+    ld = LaunchDescription([execute_process_action])
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run(shutdown_when_idle=True)
     assert execute_process_action.return_code == test_parameters['expected_number_of_args'], \
         execute_process_action.process_details['cmd']
+
+
+def test_execute_process_split_arguments_override_in_launch_file():
+    execute_process_args = {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'output': 'screen',
+        'shell': False,
+        'log_cmd': True,
+    }
+    execute_process_action1 = ExecuteProcess(**execute_process_args)
+    execute_process_action2 = ExecuteProcess(**execute_process_args)
+
+    ld = LaunchDescription([
+        # Control to test the default.
+        execute_process_action1,
+        # Change default with LaunchConfiguration, test again.
+        SetLaunchConfiguration('split_arguments', 'True'),
+        execute_process_action2,
+    ])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run(shutdown_when_idle=True)
+
+    assert execute_process_action1.return_code == 2, execute_process_action1.process_details['cmd']
+    assert execute_process_action2.return_code == 3, execute_process_action2.process_details['cmd']

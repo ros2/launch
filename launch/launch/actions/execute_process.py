@@ -21,6 +21,8 @@ from typing import List
 from typing import Optional
 from typing import Text
 
+import launch.logging
+
 from .execute_local import ExecuteLocal
 from .shutdown_action import Shutdown
 from ..descriptions import Executable
@@ -262,7 +264,12 @@ class ExecuteProcess(ExecuteLocal):
             arg = []
         for sub in parser.parse_substitution(cmd):
             if isinstance(sub, TextSubstitution):
-                tokens = shlex.split(sub.text)
+                try:
+                    tokens = shlex.split(sub.text)
+                except:
+                    logger = launch.logging.get_logger(cls.__name__)
+                    logger.error(f"Failed to parse token '{sub.text}' of cmd '{cmd}'")
+                    raise
                 if not tokens:
                     # String with just spaces.
                     # Appending args allow splitting two substitutions
@@ -397,10 +404,20 @@ class ExecuteProcess(ExecuteLocal):
             if shell is not None:
                 kwargs['shell'] = shell
 
+        if 'split_arguments' not in ignore:
+            split_arguments = entity.get_attr('split_arguments', data_type=bool, optional=True)
+            if split_arguments is not None:
+                kwargs['split_arguments'] = split_arguments
+
         if 'emulate_tty' not in ignore:
             emulate_tty = entity.get_attr('emulate_tty', data_type=bool, optional=True)
             if emulate_tty is not None:
                 kwargs['emulate_tty'] = emulate_tty
+
+        if 'log_cmd' not in ignore:
+            log_cmd = entity.get_attr('log_cmd', data_type=bool, optional=True)
+            if log_cmd is not None:
+                kwargs['log_cmd'] = log_cmd
 
         if 'additional_env' not in ignore:
             # Conditions won't be allowed in the `env` tag.
