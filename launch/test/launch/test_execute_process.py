@@ -29,7 +29,6 @@ from launch.actions.opaque_function import OpaqueFunction
 from launch.actions.register_event_handler import RegisterEventHandler
 from launch.actions.shutdown_action import Shutdown
 from launch.actions.timer_action import TimerAction
-from launch.conditions import evaluate_condition_expression
 from launch.event_handlers.on_process_start import OnProcessStart
 from launch.events.shutdown import Shutdown as ShutdownEvent
 from launch.substitutions.launch_configuration import LaunchConfiguration

@@ -262,19 +262,21 @@ class ExecuteProcess(ExecuteLocal):
             nonlocal arg
             result_args.append(arg)
             arg = []
+
         for sub in parser.parse_substitution(cmd):
             if isinstance(sub, TextSubstitution):
                 try:
                     tokens = shlex.split(sub.text)
-                except:
+                except Exception:
                     logger = launch.logging.get_logger(cls.__name__)
                     logger.error(f"Failed to parse token '{sub.text}' of cmd '{cmd}'")
                     raise
-                if not tokens:
-                    # String with just spaces.
+                if len(tokens) == 0:
+                    # String with just spaces produces an empty list.
                     # Appending args allow splitting two substitutions
-                    # separated by a space.
-                    # e.g.: `$(subst1 asd) $(subst2 bsd)` will be two separate arguments.
+                    # separated by some amount of whitespace.
+                    # e.g.: `$(subst1 asd) $(subst2 bsd)` will be two separate arguments,
+                    # first `$(subst1 asd)`, then this case ` `, then the `$(subst2 bsd)`.
                     _append_arg()
                     continue
                 if sub.text[0].isspace():

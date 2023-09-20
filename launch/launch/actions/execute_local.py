@@ -578,17 +578,6 @@ class ExecuteLocal(Action):
             raise RuntimeError('process_event_args unexpectedly None')
 
         cmd = process_event_args['cmd']
-        if evaluate_condition_expression(context, self.__split_arguments):
-            if self.__shell:
-                self.__logger.debug("Ignoring 'split_arguments=True' because 'shell=True'.")
-            else:
-                self.__logger.debug("Splitting arguments because 'split_arguments=True'.")
-                expanded_cmd = []
-                for token in cmd:
-                    expanded_cmd.extend(shlex.split(token))
-                cmd = expanded_cmd
-                # Also update process_event_args so they reflect the splitting.
-                process_event_args['cmd'] = cmd
         cwd = process_event_args['cwd']
         env = process_event_args['env']
         if self.__log_cmd:
@@ -759,6 +748,18 @@ class ExecuteLocal(Action):
             else:
                 self.__stdout_logger, self.__stderr_logger = \
                     launch.logging.get_output_loggers(name, self.__output)
+            # Update the cmd to respect split_arguments option.
+            if evaluate_condition_expression(context, self.__split_arguments):
+                if self.__shell:
+                    self.__logger.debug("Ignoring 'split_arguments=True' because 'shell=True'.")
+                else:
+                    self.__logger.debug("Splitting arguments because 'split_arguments=True'.")
+                    expanded_cmd = []
+                    assert self.__process_event_args is not None
+                    for token in self.__process_event_args['cmd']:
+                        expanded_cmd.extend(shlex.split(token))
+                    # Also update self.__process_event_args['cmd'] so it reflects the splitting.
+                    self.__process_event_args['cmd'] = expanded_cmd
             context.asyncio_loop.create_task(self.__execute_process(context))
         except Exception:
             for event_handler in event_handlers:
