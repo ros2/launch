@@ -84,10 +84,9 @@ class ExecuteLocal(Action):
         process_description: Executable,
         shell: bool = False,
         split_arguments: Union[
-            SomeSubstitutionsType,
-            bool
-        ] = LaunchConfiguration(
-            'split_arguments', default='False'),
+            bool,
+            SomeSubstitutionsType
+        ] = LaunchConfiguration('split_arguments', default='False'),
         sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
@@ -581,20 +580,21 @@ class ExecuteLocal(Action):
         cmd = process_event_args['cmd']
         if evaluate_condition_expression(context, self.__split_arguments):
             if self.__shell:
-                self.__logger.debug(
-                    "Ignoring 'split_arguments=True' because 'shell=True'."
-                )
+                self.__logger.debug("Ignoring 'split_arguments=True' because 'shell=True'.")
             else:
+                self.__logger.debug("Splitting arguments because 'split_arguments=True'.")
                 expanded_cmd = []
                 for token in cmd:
                     expanded_cmd.extend(shlex.split(token))
                 cmd = expanded_cmd
+                # Also update process_event_args so they reflect the splitting.
+                process_event_args['cmd'] = cmd
         cwd = process_event_args['cwd']
         env = process_event_args['env']
         if self.__log_cmd:
             self.__logger.info(
                 "process details: cmd=['{}'], cwd='{}', shell='{}', custom_env?={}".format(
-                    "', ' ".join(cmd),
+                    "', '".join(cmd),
                     cwd,
                     'True' if self.__shell else 'False',
                     'True' if env is not None else 'False',
