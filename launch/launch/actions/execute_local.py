@@ -83,8 +83,11 @@ class ExecuteLocal(Action):
         *,
         process_description: Executable,
         shell: bool = False,
-        split_arguments: SomeSubstitutionsType = LaunchConfiguration(
-            'split_arguments', default=False),
+        split_arguments: Union[
+            SomeSubstitutionsType,
+            bool
+        ] = LaunchConfiguration(
+            'split_arguments', default='False'),
         sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
@@ -209,6 +212,8 @@ class ExecuteLocal(Action):
         super().__init__(**kwargs)
         self.__process_description = process_description
         self.__shell = shell
+        if isinstance(split_arguments, bool):
+            split_arguments = 'True' if split_arguments else 'False'
         self.__split_arguments = normalize_to_list_of_substitutions(split_arguments)
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
@@ -633,8 +638,8 @@ class ExecuteLocal(Action):
         if returncode == 0:
             self.__logger.info('process has finished cleanly [pid {}]'.format(pid))
         else:
-            self.__logger.error("process has died [pid {}, exit code {}, cmd '{}'].".format(
-                pid, returncode, ' '.join(filter(lambda part: part.strip(), cmd))
+            self.__logger.error("process has died [pid {}, exit code {}, cmd ['{}']].".format(
+                pid, returncode, "', '".join(cmd)
             ))
         await context.emit_event(
                 ProcessExited(returncode=returncode, **process_event_args)

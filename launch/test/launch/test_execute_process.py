@@ -318,3 +318,70 @@ def test_execute_process_prefix_filter_override_in_launch_file():
     test_process.execute(lc)
     assert 'echo' in test_process.process_details['cmd'] and \
         'time' not in test_process.process_details['cmd']
+
+
+preamble = [sys.executable, os.path.join(os.path.dirname(__file__), 'argv_echo.py')]
+
+
+@pytest.mark.parametrize('test_parameters', [
+    # This case will result in 2 arguments, keeping the --some-arg and "some string" together.
+    {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'shell': False,
+        'split_arguments': False,
+        'expected_number_of_args': 2,
+    },
+    # This case will split the --some-arg and "some string" up, resulting in 3 args.
+    {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'shell': False,
+        'split_arguments': True,
+        'expected_number_of_args': 3,
+    },
+    # This case the split_arguments is ignored, due to shell=True,
+    # and produces again 3 arguments, not 4.
+    {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'shell': True,
+        'split_arguments': True,
+        'expected_number_of_args': 3,
+    },
+    # This is the "normal" shell=True behavior.
+    {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'shell': True,
+        'split_arguments': False,
+        'expected_number_of_args': 3,
+    },
+    # Test single argument for cmd (still a list), which will require shell=True.
+    {
+        'cmd': [' '.join(preamble + ['--some-arg "some string"'])],
+        'shell': True,
+        'split_arguments': False,
+        'expected_number_of_args': 3,
+    },
+    # This case also ignores split_arguments.
+    {
+        'cmd': [' '.join(preamble + ['--some-arg "some string"'])],
+        'shell': True,
+        'split_arguments': True,
+        'expected_number_of_args': 3,
+    },
+])
+def test_execute_process_split_arguments(test_parameters):
+    """Test the use of the split_arguments option."""
+    execute_process_action = ExecuteProcess(
+        cmd=test_parameters['cmd'],
+        output='screen',
+        shell=test_parameters['shell'],
+        split_arguments=test_parameters['split_arguments'],
+    )
+
+    ld = LaunchDescription([
+        execute_process_action,
+    ])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run(shutdown_when_idle=True)
+    assert execute_process_action.return_code == test_parameters['expected_number_of_args'], \
+        execute_process_action.process_details['cmd']
