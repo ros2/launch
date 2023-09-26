@@ -74,6 +74,8 @@ from ..utilities import perform_substitutions
 from ..utilities.type_utils import normalize_typed_substitution
 from ..utilities.type_utils import perform_typed_substitution
 
+g_is_windows = 'win' in platform.system().lower()
+
 
 class ExecuteLocal(Action):
     """Action that begins executing a process on the local system and sets up event handlers."""
@@ -357,7 +359,7 @@ class ExecuteLocal(Action):
                     typed_event.signal_name, self.process_details['name']),
             )
             return None
-        if platform.system() == 'Windows' and typed_event.signal_name == 'SIGINT':
+        if g_is_windows and typed_event.signal_name == 'SIGINT':
             # TODO(wjwwood): remove this when/if SIGINT is fixed on Windows
             self.__logger.warning(
                 "'SIGINT' sent to process[{}] not supported on Windows, escalating to 'SIGTERM'"
@@ -757,7 +759,7 @@ class ExecuteLocal(Action):
                     expanded_cmd = []
                     assert self.__process_event_args is not None
                     for token in self.__process_event_args['cmd']:
-                        expanded_cmd.extend(shlex.split(token))
+                        expanded_cmd.extend(shlex.split(token), posix=g_is_windows)
                     # Also update self.__process_event_args['cmd'] so it reflects the splitting.
                     self.__process_event_args['cmd'] = expanded_cmd
             context.asyncio_loop.create_task(self.__execute_process(context))
