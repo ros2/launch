@@ -759,7 +759,7 @@ class ExecuteLocal(Action):
                     expanded_cmd = []
                     assert self.__process_event_args is not None
                     for token in self.__process_event_args['cmd']:
-                        expanded_cmd.extend(shlex.split(token, posix=g_is_windows))
+                        expanded_cmd.extend(shlex.split(token, posix=(not g_is_windows)))
                     # Also update self.__process_event_args['cmd'] so it reflects the splitting.
                     self.__process_event_args['cmd'] = expanded_cmd
             context.asyncio_loop.create_task(self.__execute_process(context))

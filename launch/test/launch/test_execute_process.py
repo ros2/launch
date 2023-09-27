@@ -24,12 +24,15 @@ from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import SetLaunchConfiguration
 from launch.actions.emit_event import EmitEvent
+from launch.actions.execute_local import g_is_windows
 from launch.actions.execute_process import ExecuteProcess
 from launch.actions.opaque_function import OpaqueFunction
 from launch.actions.register_event_handler import RegisterEventHandler
 from launch.actions.shutdown_action import Shutdown
 from launch.actions.timer_action import TimerAction
+from launch.event_handlers.on_process_io import OnProcessIO
 from launch.event_handlers.on_process_start import OnProcessStart
+from launch.events.process import ProcessIO
 from launch.events.shutdown import Shutdown as ShutdownEvent
 from launch.substitutions.launch_configuration import LaunchConfiguration
 
@@ -408,3 +411,39 @@ def test_execute_process_split_arguments_override_in_launch_file():
 
     assert execute_process_action1.return_code == 2, execute_process_action1.process_details['cmd']
     assert execute_process_action2.return_code == 3, execute_process_action2.process_details['cmd']
+
+
+def test_execute_process_split_arguments_with_windows_like_pathsep():
+    # On POSIX platforms the `\` will be removed, but not on windows.
+    path = b'C:\\some\\path'
+    execute_process_args = {
+        'cmd': preamble + [f'--some-arg {path.decode()}'],
+        'output': 'screen',
+        'shell': False,
+        'split_arguments': True,
+        'log_cmd': True,
+    }
+    execute_process_action1 = ExecuteProcess(**execute_process_args)
+
+    did_see_path = False
+
+    def on_stdout(event: ProcessIO):
+        nonlocal did_see_path
+        if event.from_stdout and path in event.text:
+            did_see_path = True
+
+    event_handler = OnProcessIO(
+        target_action=execute_process_action1,
+        on_stdout=on_stdout,
+    )
+
+    ld = LaunchDescription([
+        RegisterEventHandler(event_handler),
+        execute_process_action1,
+    ])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run(shutdown_when_idle=True)
+
+    assert execute_process_action1.return_code == 3, execute_process_action1.process_details['cmd']
+    assert did_see_path == g_is_windows
