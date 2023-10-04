@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.2.0 (2023-10-04)
+------------------
 * Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_)
 * Contributors: Nick Lamprianidis
 
