@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_)
+* Contributors: Nick Lamprianidis
+
 3.1.0 (2023-09-08)
 ------------------
 * Add maximum times for a process to respawn (`#696 <https://github.com/ros2/launch/issues/696>`_)

@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* to open expected outpout file with an encoding parameter (`#717 <https://github.com/ros2/launch/issues/717>`_)
+* Contributors: Chen Lihui
+
 3.1.0 (2023-09-08)
 ------------------
 
