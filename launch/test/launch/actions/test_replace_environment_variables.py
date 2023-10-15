@@ -1,4 +1,4 @@
-# Copyright 2022 Open Source Robotics Foundation, Inc.
+# Copyright 2023 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,6 +61,19 @@ def test_replace_environment_execute():
     assert context.environment['foo'] == 'bar'
     assert 'spam' in context.environment
     assert context.environment['spam'] == 'eggs'
+
+    # replaces existing environment variable
+    context = LaunchContext()
+    context.environment.clear()
+    assert len(context.environment) == 0
+    context.environment['quux'] = 'quuux'
+    assert len(context.environment) == 1
+    assert 'quux' in context.environment
+    assert context.environment['quux'] == 'quuux'
+    ReplaceEnvironmentVariables([('quux', 'eggs')]).visit(context)
+    assert len(context.environment) == 1
+    assert 'quux' in context.environment
+    assert context.environment['quux'] == 'eggs'
 
     # Replacing the environment should not change the type of os.environ
     assert isinstance(os.environ, os._Environ)
