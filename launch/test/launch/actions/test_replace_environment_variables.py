@@ -27,8 +27,8 @@ from temporary_environment import sandbox_environment_variables
 @sandbox_environment_variables
 def test_replace_environment_constructors():
     """Test the constructors for ReplaceEnvironmentVariables class."""
-    ReplaceEnvironmentVariables([])
-    ReplaceEnvironmentVariables([('foo', 'bar'), ('spam', 'eggs')])
+    ReplaceEnvironmentVariables({})
+    ReplaceEnvironmentVariables({'foo': 'bar', 'spam': 'eggs'})
 
 
 @sandbox_environment_variables
@@ -40,7 +40,7 @@ def test_replace_environment_execute():
     context = LaunchContext()
     context.environment.clear()
     assert len(context.environment) == 0
-    ReplaceEnvironmentVariables([('foo', 'bar'), ('spam', 'eggs')]).visit(context)
+    ReplaceEnvironmentVariables({'foo': 'bar', 'spam': 'eggs'}).visit(context)
     assert len(context.environment) == 2
     assert 'foo' in context.environment
     assert context.environment['foo'] == 'bar'
@@ -55,7 +55,7 @@ def test_replace_environment_execute():
     assert len(context.environment) == 1
     assert 'quux' in context.environment
     assert context.environment['quux'] == 'quuux'
-    ReplaceEnvironmentVariables([('foo', 'bar'), ('spam', 'eggs')]).visit(context)
+    ReplaceEnvironmentVariables({'foo': 'bar', 'spam': 'eggs'}).visit(context)
     assert len(context.environment) == 2
     assert 'foo' in context.environment
     assert context.environment['foo'] == 'bar'
@@ -70,7 +70,7 @@ def test_replace_environment_execute():
     assert len(context.environment) == 1
     assert 'quux' in context.environment
     assert context.environment['quux'] == 'quuux'
-    ReplaceEnvironmentVariables([('quux', 'eggs')]).visit(context)
+    ReplaceEnvironmentVariables({'quux': 'eggs'}).visit(context)
     assert len(context.environment) == 1
     assert 'quux' in context.environment
     assert context.environment['quux'] == 'eggs'
@@ -86,7 +86,7 @@ def test_replace_environment_execute():
     assert 'quux' in context.environment
     assert context.environment['quux'] == 'quuux'
     PushEnvironment().visit(context)
-    ReplaceEnvironmentVariables([('foo', 'bar'), ('spam', 'eggs')]).visit(context)
+    ReplaceEnvironmentVariables({'foo': 'bar', 'spam': 'eggs'}).visit(context)
     PopEnvironment().visit(context)
     assert len(context.environment) == 1
     assert 'quux' in context.environment

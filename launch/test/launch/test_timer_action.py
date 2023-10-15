@@ -24,8 +24,8 @@ from launch.actions import RegisterEventHandler
 from launch.actions import SetEnvironmentVariable
 from launch.actions import Shutdown
 from launch.actions import TimerAction
-from launch.event_handlers import OnShutdown
 from launch.conditions import IfCondition
+from launch.event_handlers import OnShutdown
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import NotSubstitution
 from launch.substitutions import PythonExpression
