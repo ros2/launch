@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests the utility function shutdown_on_process_exit"""
+"""Tests the utility function shutdown_on_process_exit."""
 
 import sys
 import time

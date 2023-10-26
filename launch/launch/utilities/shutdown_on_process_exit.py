@@ -16,9 +16,9 @@
 
 from typing import Optional
 
-from ..actions import ExecuteProcess, RegisterEventHandler, LogInfo, EmitEvent
-from ..events import Shutdown
+from ..actions import EmitEvent, ExecuteProcess, LogInfo, RegisterEventHandler
 from ..event_handlers import OnProcessExit
+from ..events import Shutdown
 from ..some_substitutions_type import SomeSubstitutionsType
 
 
