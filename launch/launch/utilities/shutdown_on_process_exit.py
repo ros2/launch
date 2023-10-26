@@ -25,7 +25,7 @@ from ..some_substitutions_type import SomeSubstitutionsType
 
 def shutdown_on_process_exit(process: ExecuteProcess,
                              msg: Optional[SomeSubstitutionsType] = None) -> RegisterEventHandler:
-    exit_actions : List[Action] = []
+    exit_actions: List[Action] = []
     if msg is not None:
         exit_actions.append(LogInfo(msg=msg))
     exit_actions.append(EmitEvent(event=Shutdown()))
