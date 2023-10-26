@@ -14,8 +14,9 @@
 
 """Module for quickly making a required process."""
 
-from typing import Optional
+from typing import List, Optional
 
+from .. import Action
 from ..actions import EmitEvent, ExecuteProcess, LogInfo, RegisterEventHandler
 from ..event_handlers import OnProcessExit
 from ..events import Shutdown
@@ -24,7 +25,7 @@ from ..some_substitutions_type import SomeSubstitutionsType
 
 def shutdown_on_process_exit(process: ExecuteProcess,
                              msg: Optional[SomeSubstitutionsType] = None) -> RegisterEventHandler:
-    exit_actions = []
+    exit_actions : List[Action] = []
     if msg is not None:
         exit_actions.append(LogInfo(msg=msg))
     exit_actions.append(EmitEvent(event=Shutdown()))
