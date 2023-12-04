@@ -160,21 +160,23 @@ class IncludeLaunchDescription(Action):
             perform_substitutions(context, normalize_to_list_of_substitutions(arg_name))
             for arg_name, arg_value in self.launch_arguments
         ]
-        declared_launch_arguments = (
-            launch_description.get_launch_arguments_with_include_launch_description_actions())
-        for argument, ild_actions in declared_launch_arguments:
-            if argument._conditionally_included or argument.default_value is not None:
-                continue
-            argument_names = my_argument_names
-            if ild_actions is not None:
-                for ild_action in ild_actions:
-                    argument_names.extend(ild_action._try_get_arguments_names_without_context())
-            if argument.name not in argument_names:
-                raise RuntimeError(
-                    "Included launch description missing required argument '{}' "
-                    "(description: '{}'), given: [{}]"
-                    .format(argument.name, argument.description, ', '.join(argument_names))
-                )
+        if 'flag_argument_checked' not in context.get_locals_as_dict():
+            declared_launch_arguments = (
+                launch_description.get_launch_arguments_with_include_launch_description_actions())
+            for argument, ild_actions in declared_launch_arguments:
+                if argument._conditionally_included or argument.default_value is not None:
+                    continue
+                argument_names = my_argument_names
+                if ild_actions is not None:
+                    for ild_action in ild_actions:
+                        argument_names.extend(ild_action._try_get_arguments_names_without_context())
+                if argument.name not in argument_names:
+                    raise RuntimeError(
+                        "Included launch description missing required argument '{}' "
+                        "(description: '{}'), given: [{}]"
+                        .format(argument.name, argument.description, ', '.join(argument_names))
+                    )
+            context.extend_locals({'flag_argument_checked': True})
 
         # Create actions to set the launch arguments into the launch configurations.
         set_launch_configuration_actions = []
