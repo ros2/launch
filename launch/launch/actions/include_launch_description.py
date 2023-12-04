@@ -169,7 +169,9 @@ class IncludeLaunchDescription(Action):
                 argument_names = my_argument_names
                 if ild_actions is not None:
                     for ild_action in ild_actions:
-                        argument_names.extend(ild_action._try_get_arguments_names_without_context())
+                        argument_names.extend(
+                            ild_action._try_get_arguments_names_without_context()
+                        )
                 if argument.name not in argument_names:
                     raise RuntimeError(
                         "Included launch description missing required argument '{}' "
