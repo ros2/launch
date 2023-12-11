@@ -2,6 +2,28 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.2.0 (2023-10-04)
+------------------
+* Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_)
+* Contributors: Nick Lamprianidis
+
+3.1.0 (2023-09-08)
+------------------
+* Add maximum times for a process to respawn (`#696 <https://github.com/ros2/launch/issues/696>`_)
+* Contributors: Santti4go
+
+3.0.1 (2023-09-07)
+------------------
+* Add in a timeout for launch pytests. (`#725 <https://github.com/ros2/launch/issues/725>`_)
+* Contributors: Chris Lalancette
+
+3.0.0 (2023-08-21)
+------------------
+* Fix remaining occurrences of "There is no current event loop" (`#723 <https://github.com/ros2/launch/issues/723>`_)
+* Update the launch code for newer flake8 and mypy. (`#719 <https://github.com/ros2/launch/issues/719>`_)
+* Remove the deprecated some_actions_type.py (`#718 <https://github.com/ros2/launch/issues/718>`_)
+* Contributors: Chris Lalancette
+
 2.2.1 (2023-07-11)
 ------------------
 * Improve launch file parsing error messages (`#626 <https://github.com/ros2/launch/issues/626>`_)

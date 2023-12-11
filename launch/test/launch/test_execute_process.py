@@ -14,7 +14,6 @@
 
 """Tests for the ExecuteProcess Action."""
 
-import asyncio
 import os
 import platform
 import signal
@@ -33,6 +32,8 @@ from launch.actions.timer_action import TimerAction
 from launch.event_handlers.on_process_start import OnProcessStart
 from launch.events.shutdown import Shutdown as ShutdownEvent
 from launch.substitutions.launch_configuration import LaunchConfiguration
+
+import osrf_pycommon
 
 import pytest
 
@@ -219,9 +220,51 @@ def test_execute_process_with_respawn_substitution():
     assert expected_called_count == on_exit_callback.called_count
 
 
+def test_execute_process_with_respawn_max_retries():
+    """Test launching a process with respawn_max_retries attribute."""
+    def on_exit_callback(event, context):
+        on_exit_callback.called_count += 1
+        if on_exit_callback.called_count == expected_called_count:
+            timer = TimerAction(
+                period=2.,   # wait to verify if the process continues to respawn itself
+                actions=[
+                    Shutdown(reason='Timer expired')
+                ]
+            )
+            timer.execute(context)
+    on_exit_callback.called_count = 0
+
+    respawn_max_retries = 2   # we want the process to respawn this amount of times
+    expected_called_count = 3   # normal exit + respawn_max_retries exits
+    shutdown_time = 10.0   # security timer to kill the process
+
+    def generate_launch_description():
+        return LaunchDescription([
+
+            ExecuteProcess(
+                cmd=[sys.executable, '-c', "print('action')"],
+                respawn=True, respawn_max_retries=respawn_max_retries,
+                on_exit=on_exit_callback
+            ),
+
+            TimerAction(
+                period=shutdown_time,
+                actions=[
+                    Shutdown(reason='Timer expired')
+                ]
+            )
+        ])
+
+    ls = LaunchService()
+    ls.include_launch_description(generate_launch_description())
+    assert 0 == ls.run()
+    assert expected_called_count == on_exit_callback.called_count
+
+
 def test_execute_process_prefix_filter_match():
     lc = LaunchContext()
-    lc._set_asyncio_loop(asyncio.get_event_loop())
+    lc._set_asyncio_loop(osrf_pycommon.process_utils.get_loop())
+
     SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
     assert len(lc.launch_configurations) == 1
     SetLaunchConfiguration(
@@ -240,7 +283,8 @@ def test_execute_process_prefix_filter_match():
 
 def test_execute_process_prefix_filter_no_match():
     lc = LaunchContext()
-    lc._set_asyncio_loop(asyncio.get_event_loop())
+    lc._set_asyncio_loop(osrf_pycommon.process_utils.get_loop())
+
     SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
     assert len(lc.launch_configurations) == 1
     SetLaunchConfiguration(
@@ -258,7 +302,7 @@ def test_execute_process_prefix_filter_no_match():
 
 def test_execute_process_prefix_filter_override_in_launch_file():
     lc = LaunchContext()
-    lc._set_asyncio_loop(asyncio.get_event_loop())
+    lc._set_asyncio_loop(osrf_pycommon.process_utils.get_loop())
     SetLaunchConfiguration('launch-prefix', 'time').visit(lc)
     assert len(lc.launch_configurations) == 1
     SetLaunchConfiguration(

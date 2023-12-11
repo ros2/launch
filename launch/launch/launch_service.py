@@ -32,7 +32,7 @@ from typing import Tuple  # noqa: F401
 
 import launch.logging
 
-import osrf_pycommon.process_utils  # type: ignore
+import osrf_pycommon
 
 from .event import Event
 from .event_handlers import OnIncludeLaunchDescription
@@ -159,7 +159,7 @@ class LaunchService:
                     raise RuntimeError(
                         'LaunchService cannot be run multiple times concurrently.'
                     )
-                this_loop = asyncio.get_event_loop()
+                this_loop = osrf_pycommon.process_utils.get_loop()
 
                 if self.__debug:
                     this_loop.set_debug(True)
@@ -390,7 +390,7 @@ class LaunchService:
             shutdown_event = Shutdown(reason=reason, due_to_sigint=due_to_sigint)
             asyncio_event_loop = None
             try:
-                asyncio_event_loop = asyncio.get_event_loop()
+                asyncio_event_loop = osrf_pycommon.process_utils.get_loop()
             except (RuntimeError, AssertionError):
                 # If no event loop is set for this thread, asyncio will raise an exception.
                 # The exception type depends on the version of Python, so just catch both.
