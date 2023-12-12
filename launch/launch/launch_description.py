@@ -155,12 +155,14 @@ class LaunchDescription(LaunchDescriptionEntity):
                     process_entities(
                         entity.describe_sub_entities(),
                         _conditional_inclusion=False,
-                        nested_ild_actions=next_nested_ild_actions)
+                        nested_ild_actions=next_nested_ild_actions,
+                        only_search_local=only_search_local)
                     for conditional_sub_entity in entity.describe_conditional_sub_entities():
                         process_entities(
                             conditional_sub_entity[1],
                             _conditional_inclusion=True,
-                            nested_ild_actions=next_nested_ild_actions)
+                            nested_ild_actions=next_nested_ild_actions,
+                            only_search_local=only_search_local)
 
         process_entities(self.entities, _conditional_inclusion=conditional_inclusion,
                          only_search_local=only_search_local)
