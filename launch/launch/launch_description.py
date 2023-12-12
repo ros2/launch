@@ -139,6 +139,8 @@ class LaunchDescription(LaunchDescriptionEntity):
                     entity._conditionally_included = _conditional_inclusion
                     entity._conditionally_included |= entity.condition is not None
                     declared_launch_arguments.append((entity, nested_ild_actions))
+                if isinstance(entity, IncludeLaunchDescription):
+                    continue
                 if isinstance(entity, ResetLaunchConfigurations):
                     # Launch arguments after this cannot be set directly by top level arguments
                     return
