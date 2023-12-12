@@ -129,7 +129,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         from .actions import ResetLaunchConfigurations
 
         def process_entities(entities, *, _conditional_inclusion, nested_ild_actions=None,
-                            only_search_local=False):
+                             only_search_local=False):
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
@@ -163,7 +163,7 @@ class LaunchDescription(LaunchDescriptionEntity):
                             nested_ild_actions=next_nested_ild_actions)
 
         process_entities(self.entities, _conditional_inclusion=conditional_inclusion,
-                          only_search_local=only_search_local)
+                         only_search_local=only_search_local)
 
         return declared_launch_arguments
 
