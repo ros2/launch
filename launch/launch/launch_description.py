@@ -91,7 +91,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         ]
 
     def get_launch_arguments_with_include_launch_description_actions(
-        self, conditional_inclusion=False
+        self, conditional_inclusion=False, only_search_local=False
     ) -> List[Tuple[DeclareLaunchArgument, List['IncludeLaunchDescription']]]:
         """
         Return a list of launch arguments with its associated include launch descriptions actions.
@@ -128,7 +128,7 @@ class LaunchDescription(LaunchDescriptionEntity):
             Tuple[DeclareLaunchArgument, List[IncludeLaunchDescription]]] = []
         from .actions import ResetLaunchConfigurations
 
-        def process_entities(entities, *, _conditional_inclusion, nested_ild_actions=None):
+        def process_entities(entities, *, _conditional_inclusion, nested_ild_actions=None, only_search_local=False):
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
@@ -139,8 +139,9 @@ class LaunchDescription(LaunchDescriptionEntity):
                     entity._conditionally_included = _conditional_inclusion
                     entity._conditionally_included |= entity.condition is not None
                     declared_launch_arguments.append((entity, nested_ild_actions))
-                if isinstance(entity, IncludeLaunchDescription):
-                    continue
+                if only_search_local:
+                    if isinstance(entity, IncludeLaunchDescription):
+                        continue
                 if isinstance(entity, ResetLaunchConfigurations):
                     # Launch arguments after this cannot be set directly by top level arguments
                     return
@@ -160,7 +161,7 @@ class LaunchDescription(LaunchDescriptionEntity):
                             _conditional_inclusion=True,
                             nested_ild_actions=next_nested_ild_actions)
 
-        process_entities(self.entities, _conditional_inclusion=conditional_inclusion)
+        process_entities(self.entities, _conditional_inclusion=conditional_inclusion, only_search_local=only_search_local)
 
         return declared_launch_arguments
 
