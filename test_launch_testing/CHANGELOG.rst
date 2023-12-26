@@ -2,6 +2,11 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update to C++17 (`#742 <https://github.com/ros2/launch/issues/742>`_)
+* Contributors: Chris Lalancette
+
 3.2.0 (2023-10-04)
 ------------------
 
