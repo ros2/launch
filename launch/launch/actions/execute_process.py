@@ -334,7 +334,7 @@ class ExecuteProcess(ExecuteLocal):
         if 'on_exit' not in ignore:
             on_exit = entity.get_attr('on_exit', optional=True)
             if on_exit is not None:
-                if on_exit == "shutdown":
+                if on_exit == 'shutdown':
                     kwargs['on_exit'] = [Shutdown()]
                 else:
                     raise ValueError(
