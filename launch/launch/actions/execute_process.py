@@ -22,7 +22,7 @@ from typing import Optional
 from typing import Text
 
 from .execute_local import ExecuteLocal
-
+from .shutdown_action import Shutdown
 from ..descriptions import Executable
 from ..frontend import Entity
 from ..frontend import expose_action
@@ -330,6 +330,16 @@ class ExecuteProcess(ExecuteLocal):
             name = entity.get_attr('name', optional=True)
             if name is not None:
                 kwargs['name'] = parser.parse_substitution(name)
+
+        if 'on_exit' not in ignore:
+            on_exit = entity.get_attr('on_exit', optional=True)
+            if on_exit is not None:
+                if on_exit == 'shutdown':
+                    kwargs['on_exit'] = [Shutdown()]
+                else:
+                    raise ValueError(
+                        'Attribute on_exit of Entity node expected to be shutdown but got `{}`'
+                        'Other on_exit actions not yet supported'.format(on_exit))
 
         if 'prefix' not in ignore:
             prefix = entity.get_attr('launch-prefix', optional=True)
