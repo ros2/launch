@@ -89,7 +89,7 @@ class ExecuteLocal(Action):
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
         output: SomeSubstitutionsType = 'log',
-        output_format: Text = '[{this.process_description.final_name}] {line}',
+        output_format: Text = None,
         cached_output: bool = False,
         log_cmd: bool = False,
         on_exit: Optional[Union[
@@ -205,11 +205,11 @@ class ExecuteLocal(Action):
         # 1. Passed value to the function
         # 2. Environment variable
         # 3. Default value
-        if output_format != "[{this.process_description.final_name}] {line}":
+        if output_format is not None:
             self.__output_format = output_format
         else:
             self.__output_format = os.environ.get(
-                "ROS_LAUNCH_OUTPUT_FORMAT", output_format
+                'ROS_LAUNCH_OUTPUT_FORMAT', '[{this.process_description.final_name}] {line}'
             )
 
         self.__log_cmd = log_cmd
