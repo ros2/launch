@@ -14,6 +14,7 @@
 
 """Module for the ExecuteProcess action."""
 
+import platform
 import shlex
 from typing import Dict
 from typing import Iterable
@@ -33,6 +34,8 @@ from ..some_substitutions_type import SomeSubstitutionsType
 
 from ..substitution import Substitution
 from ..substitutions import TextSubstitution
+
+g_is_windows = 'win' in platform.system().lower()
 
 
 @expose_action('executable')
@@ -266,7 +269,7 @@ class ExecuteProcess(ExecuteLocal):
         for sub in parser.parse_substitution(cmd):
             if isinstance(sub, TextSubstitution):
                 try:
-                    tokens = shlex.split(sub.text)
+                    tokens = shlex.split(sub.text, posix=(not g_is_windows))
                 except Exception:
                     logger = launch.logging.get_logger(cls.__name__)
                     logger.error(f"Failed to parse token '{sub.text}' of cmd '{cmd}'")

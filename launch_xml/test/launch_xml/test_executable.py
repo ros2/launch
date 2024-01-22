@@ -16,9 +16,7 @@
 
 import io
 import os
-from pathlib import Path
 import sys
-import textwrap
 
 from launch import LaunchService
 from launch.actions import Shutdown
@@ -26,15 +24,27 @@ from launch.frontend import Parser
 
 import pytest
 
+test_executable_xml = f"""
+<launch>
+    <executable
+        cmd="{sys.executable} --version"
+        cwd="/" name="my_ls" shell="true" output="log"
+        emulate_tty="true" sigkill_timeout="4.0" sigterm_timeout="7.0"
+        launch-prefix="$(env LAUNCH_PREFIX '')"
+    >
+        <env name="var" value="1"/>
+    </executable>
+</launch>
+"""
+
 
 def test_executable():
     """Parse node xml example."""
-    xml_file = str(Path(__file__).parent / 'executable.xml')
-    root_entity, parser = Parser.load(xml_file)
+    root_entity, parser = Parser.load(io.StringIO(test_executable_xml))
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
-    assert cmd == ['ls', '-l', '-a', '-s']
+    assert cmd == [sys.executable, '--version']
     assert executable.cwd[0].perform(None) == '/'
     assert executable.name[0].perform(None) == 'my_ls'
     assert executable.shell is True
@@ -50,20 +60,21 @@ def test_executable():
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+    assert executable.return_code == 0
+
+
+test_executable_wrong_subtag_xml = """
+<launch>
+    <executable cmd="some_command --that-does-not-matter">
+        <env name="var" value="1"/>
+        <whats_this/>
+    </executable>
+</launch>
+"""
 
 
 def test_executable_wrong_subtag():
-    xml_file = \
-        """\
-        <launch>
-            <executable cmd="ls -l -a -s" cwd="/" name="my_ls" shell="true" output="log" launch-prefix="$(env LAUNCH_PREFIX '')">
-                <env name="var" value="1"/>
-                <whats_this/>
-            </executable>
-        </launch>
-        """  # noqa, line too long
-    xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = Parser.load(io.StringIO(test_executable_wrong_subtag_xml))
     with pytest.raises(ValueError) as excinfo:
         parser.parse_description(root_entity)
     assert '`executable`' in str(excinfo.value)
