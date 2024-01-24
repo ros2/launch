@@ -2,8 +2,8 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.3.0 (2024-01-24)
+------------------
 * Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_)
   * Let XML nodes be "required"
   Essentially on_exit="shutdown" is equivalent to ROS 1 required="true".
