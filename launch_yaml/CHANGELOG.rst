@@ -2,6 +2,19 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_)
+  * Let XML nodes be "required"
+  Essentially on_exit="shutdown" is equivalent to ROS 1 required="true".
+  This feature is implemented using the python launchfile on_exit mechanism.
+  Right now "shutdown" is the only action accepted by on_exit,
+  but theoretically more "on_exit" actions could be added later.
+  Example:
+  <executable cmd="ls" on_exit="shutdown"/>
+  * Added tests for yaml
+* Contributors: Matthew Elwin
+
 3.2.1 (2023-12-26)
 ------------------
 
