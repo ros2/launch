@@ -32,7 +32,7 @@ class InvalidLaunchFileError(Exception):
             ).format('multiple exceptions' if len(self._likely_errors) > 1 else 'exception',
                      self._extension)
             for error in self._likely_errors:
-                self._error_message += '\n - {}'.format(error)
+                self._error_message += '\n - {}: {}'.format(type(error).__name__, error)
 
             self.__cause__ = self._likely_errors[0]
 
