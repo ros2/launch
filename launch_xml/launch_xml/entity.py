@@ -36,7 +36,7 @@ class Entity(BaseEntity):
         *,
         parent: 'Entity' = None
     ) -> Text:
-        """Construnctor."""
+        """Construct the Entity."""
         self.__xml_element = xml_element
         self.__parent = parent
         self.__read_attributes = set()
@@ -91,7 +91,7 @@ class Entity(BaseEntity):
         If coercion fails, `ValueError` will be raised.
         """
         attr_error = AttributeError(
-            'Attribute {} of type {} not found in Entity {}'.format(
+            "Attribute '{}' of type '{}' not found in Entity '{}'".format(
                 name, data_type, self.type_name
             )
         )
@@ -123,8 +123,8 @@ class Entity(BaseEntity):
             value = get_typed_value(value, data_type, can_be_str=can_be_str)
         except ValueError:
             raise TypeError(
-                'Attribute {} of Entity {} expected to be of type {}.'
-                '`{}` can not be converted to one of those types'.format(
+                "Attribute '{}' of Entity '{}' expected to be of type '{}'."
+                "'{}' can not be converted to one of those types".format(
                     name, self.type_name, data_type, value
                 )
             )
