@@ -46,23 +46,22 @@ def test_executable():
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
-    assert(
-        cmd == ['ls', '-l', '-a', '-s'])
-    assert(executable.cwd[0].perform(None) == '/')
-    assert(executable.name[0].perform(None) == 'my_ls')
-    assert(executable.shell is True)
-    assert(executable.emulate_tty is True)
-    assert(executable.output[0].perform(None) == 'log')
-    assert(executable.sigkill_timeout[0].perform(None) == '4.0')
-    assert(executable.sigterm_timeout[0].perform(None) == '7.0')
+    assert cmd == ['ls', '-l', '-a', '-s']
+    assert executable.cwd[0].perform(None) == '/'
+    assert executable.name[0].perform(None) == 'my_ls'
+    assert executable.shell is True
+    assert executable.emulate_tty is True
+    assert executable.output[0].perform(None) == 'log'
+    assert executable.sigkill_timeout[0].perform(None) == '4.0'
+    assert executable.sigterm_timeout[0].perform(None) == '7.0'
     key, value = executable.additional_env[0]
     key = key[0].perform(None)
     value = value[0].perform(None)
-    assert(key == 'var')
-    assert(value == '1')
+    assert key == 'var'
+    assert value == '1'
     ls = LaunchService()
     ls.include_launch_description(ld)
-    assert(0 == ls.run())
+    assert 0 == ls.run()
 
 
 def test_executable_on_exit():
