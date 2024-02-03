@@ -116,7 +116,7 @@ class Entity(BaseEntity):
         if name not in self.__element:
             if not optional:
                 raise AttributeError(
-                    'Can not find attribute {} in Entity {}'.format(
+                    "Can not find attribute '{}' in Entity '{}'".format(
                         name, self.type_name))
             else:
                 return None
@@ -126,13 +126,13 @@ class Entity(BaseEntity):
             if isinstance(data, list) and isinstance(data[0], dict):
                 return [Entity(child, name) for child in data]
             raise TypeError(
-                'Attribute {} of Entity {} expected to be a list of dictionaries.'.format(
+                "Attribute '{}' of Entity '{}' expected to be a list of dictionaries.".format(
                     name, self.type_name
                 )
             )
         if not is_instance_of(data, data_type, can_be_str=can_be_str):
             raise TypeError(
-                'Attribute {} of Entity {} expected to be of type {}, got {}'.format(
+                "Attribute '{}' of Entity '{}' expected to be of type '{}', got '{}'".format(
                     name, self.type_name, data_type, type(data)
                 )
             )
