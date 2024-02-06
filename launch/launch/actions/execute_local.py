@@ -89,7 +89,7 @@ class ExecuteLocal(Action):
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
         output: SomeSubstitutionsType = 'log',
-        output_format: Text = None,
+        output_format: Optional[Text] = None,
         cached_output: bool = False,
         log_cmd: bool = False,
         on_exit: Optional[Union[
