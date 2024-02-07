@@ -2,6 +2,13 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Rework task exceptions loop. (`#755 <https://github.com/ros2/launch/issues/755>`_)
+* add format overriding by environment variables (`#722 <https://github.com/ros2/launch/issues/722>`_)
+* Add exception type to error output (`#753 <https://github.com/ros2/launch/issues/753>`_)
+* Contributors: Chris Lalancette, David Yackzan, Marc Bestmann
+
 3.3.0 (2024-01-24)
 ------------------
 * Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_)
