@@ -180,7 +180,7 @@ def find_launch_test_entrypoint(path):
             # Assume we got legacy path in earlier versions of pytest
             module = path.pyimport()
         return getattr(module, 'generate_test_description', None)
-    except SyntaxError:
+    except (ModuleNotFoundError, SyntaxError):
         return None
 
 
