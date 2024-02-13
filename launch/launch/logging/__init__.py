@@ -511,7 +511,7 @@ def get_output_loggers(process_name, output_config):
 
 # Mypy does not support dynamic base classes, so workaround by typing the base
 # class as Any
-_Base = logging.getLoggerClass()  # type: Any
+_Base: Any = logging.getLoggerClass()
 
 
 # Track all loggers to support module resets
