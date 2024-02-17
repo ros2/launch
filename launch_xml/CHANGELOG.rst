@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.5 (2024-02-16)
+------------------
+* Backport error message improvements (`#754 <https://github.com/ros2/launch/issues/754>`_)
+* Contributors: David Yackzan
+
 1.0.4 (2023-01-10)
 ------------------
 

@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.5 (2024-02-16)
+------------------
+
 1.0.4 (2023-01-10)
 ------------------
 * Allow ReadyToTest() usage in event handler (`#681 <https://github.com/ros2/launch/issues/681>`_)
