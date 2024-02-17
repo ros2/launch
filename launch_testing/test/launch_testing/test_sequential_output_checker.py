@@ -98,7 +98,7 @@ class TestAssertSequentialStdout(unittest.TestCase):
     # two lines after
     # The test cases below check that the error message contains useful information for the
     # following test cases:
-    # 1. No matching has ocurred yet
+    # 1. No matching has occurred yet
     # 2. We just matched the first line of output so there are no lines before to print
     # 3. We just matched the last line of output so there are no lines after to print
     # 4. We just matched the second line of output so there is only one line before to print

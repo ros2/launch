@@ -53,7 +53,7 @@ class OnActionEventBase(BaseEventHandler):
         Construct a `OnActionEventBase` instance.
 
         :param action_matcher: `ExecuteProcess` instance or callable to filter events
-            from which proces/processes to handle.
+            from which process/processes to handle.
         :param on_event: Action to be done to handle the event.
         :param target_event_cls: A subclass of `Event`, indicating which events
             should be handled.

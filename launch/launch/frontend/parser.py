@@ -63,7 +63,7 @@ class Parser:
     They could also override the parse_substitution and/or get_file_extensions methods, or not.
     load_launch_extensions, parse_action, parse_description, get_available_extensions, may_parse,
     is_filename_valid, get_parsers_from_filename and get_file_extensions_from_parsers are not
-    supposed to be overriden.
+    supposed to be overridden.
     """
 
     extensions_loaded = False
