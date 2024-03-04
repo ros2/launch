@@ -124,7 +124,15 @@ class Entity(BaseEntity):
         data = self.__element[name]
         if check_is_list_entity(data_type):
             if isinstance(data, list) and isinstance(data[0], dict):
-                return [Entity(child, name) for child in data]
+                entities = []
+                for child in data:
+                    if len(child) != 1:
+                        raise RuntimeError(
+                            'Subentities must be a dictionary with only one key'
+                            ', which is the entity type')
+                    type_name = list(child.keys())[0]
+                    entities.append(Entity(child[type_name], type_name))
+                return entities
             raise TypeError(
                 "Attribute '{}' of Entity '{}' expected to be a list of dictionaries.".format(
                     name, self.type_name
