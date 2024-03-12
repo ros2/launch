@@ -160,7 +160,7 @@ class LaunchTestModule(pytest.File):
         if _pytest_version_ge(7):
             # self.path exists since 7
             from _pytest.pathlib import import_path
-            module = import_path(self.path, root=None)
+            module = import_path(self.path, root=None, consider_namespace_packages=False)
         else:
             module = self.fspath.pyimport()
         yield self.makeitem(
@@ -175,7 +175,7 @@ def find_launch_test_entrypoint(path):
     try:
         if _pytest_version_ge(7):
             from _pytest.pathlib import import_path
-            module = import_path(path, root=None)
+            module = import_path(path, root=None, consider_namespace_packages=False)
         else:
             # Assume we got legacy path in earlier versions of pytest
             module = path.pyimport()
