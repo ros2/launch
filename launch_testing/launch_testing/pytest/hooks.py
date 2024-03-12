@@ -157,10 +157,12 @@ class LaunchTestModule(pytest.File):
         return LaunchTestItem.from_parent(*args, **kwargs)
 
     def collect(self):
-        if _pytest_version_ge(7):
-            # self.path exists since 7
+        if _pytest_version_ge(8, 1, 0):
             from _pytest.pathlib import import_path
             module = import_path(self.path, root=None, consider_namespace_packages=False)
+        elif _pytest_version_ge(7, 0, 0):
+            from _pytest.pathlib import import_path
+            module = import_path(self.path, root=None)
         else:
             module = self.fspath.pyimport()
         yield self.makeitem(
@@ -173,9 +175,12 @@ class LaunchTestModule(pytest.File):
 
 def find_launch_test_entrypoint(path):
     try:
-        if _pytest_version_ge(7):
+        if _pytest_version_ge(8, 1, 0):
             from _pytest.pathlib import import_path
             module = import_path(path, root=None, consider_namespace_packages=False)
+        elif _pytest_version_ge(7, 0, 0):
+            from _pytest.pathlib import import_path
+            module = import_path(path, root=None)
         else:
             # Assume we got legacy path in earlier versions of pytest
             module = path.pyimport()
