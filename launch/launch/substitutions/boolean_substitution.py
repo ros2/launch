@@ -81,7 +81,7 @@ class LeftRightLogicalSubstitution(Substitution):
     def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `AndSubstitution` substitution."""
         if len(data) != 2:
-            raise TypeError(f'{self.__class__.__name__} expects 2 arguments')
+            raise TypeError(f'{cls.__name__} expects 2 arguments')
         return cls, {'left': data[0], 'right': data[1]}
 
     @property
@@ -106,11 +106,11 @@ class LeftRightLogicalSubstitution(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            left_condition: bool = perform_typed_substitution(context, self.left, bool)
+            left_condition = perform_typed_substitution(context, self.left, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
         try:
-            right_condition: bool = perform_typed_substitution(context, self.right, bool)
+            right_condition = perform_typed_substitution(context, self.right, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
 
