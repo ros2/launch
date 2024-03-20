@@ -78,7 +78,7 @@ class NotSubstitution(Substitution):
 class LeftRightLogicalSubstitution(Substitution):
     """Substitution that returns the result of logical evaluation of the input boolean values."""
 
-    def __init__(self, func: Callable[[bool, bool], bool], left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
+    def __init__(self, func: Callable[[StrSomeValueType, StrSomeValueType], bool], left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
         """Create an LeftRightLogicalSubstitution substitution."""
         super().__init__()
 
@@ -95,7 +95,7 @@ class LeftRightLogicalSubstitution(Substitution):
         return cls, {'left': data[0], 'right': data[1]}
 
     @property
-    def func(self) -> Callable[[bool, bool], bool]:
+    def func(self) -> Callable[[StrSomeValueType, StrSomeValueType], bool]:
         """Getter for the logical evaluation function."""
         return self.__func
 
