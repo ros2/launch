@@ -14,6 +14,7 @@
 
 """Module for boolean substitutions."""
 
+from typing import Callable
 from typing import Iterable
 from typing import List
 from typing import Sequence
@@ -25,6 +26,7 @@ from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
+from ..utilities.type_utils import StrSomeValueType
 from ..utilities.type_utils import perform_typed_substitution
 
 
@@ -64,14 +66,14 @@ class NotSubstitution(Substitution):
         return str(not condition).lower()
 
 
-@expose_substitution('and')
-class AndSubstitution(Substitution):
-    """Substitution that returns 'and' of the input boolean values."""
+class LeftRightLogicalSubstitution(Substitution):
+    """Substitution that returns the result of logical evaluation of the input boolean values."""
 
-    def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
-        """Create an AndSubstitution substitution."""
+    def __init__(self, func: Callable[[bool, bool], bool], left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
+        """Create an LeftRightLogicalSubstitution substitution."""
         super().__init__()
 
+        self.__func = func
         self.__left = normalize_to_list_of_substitutions(left)
         self.__right = normalize_to_list_of_substitutions(right)
 
@@ -79,9 +81,14 @@ class AndSubstitution(Substitution):
     def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse `AndSubstitution` substitution."""
         if len(data) != 2:
-            raise TypeError('and substitution expects 2 arguments')
+            raise TypeError(f'{self.__class__.__name__} expects 2 arguments')
         return cls, {'left': data[0], 'right': data[1]}
 
+    @property
+    def func(self) -> Callable[[bool, bool], bool]:
+        """Getter for the logical evaluation function."""
+        return self.__func
+    
     @property
     def left(self) -> List[Substitution]:
         """Getter for left."""
@@ -94,20 +101,29 @@ class AndSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'AndSubstitution({self.left} {self.right})'
+        return f'{self.__class__.__name__}({self.left} {self.right})'
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            left_condition = perform_typed_substitution(context, self.left, bool)
+            left_condition: bool = perform_typed_substitution(context, self.left, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
         try:
-            right_condition = perform_typed_substitution(context, self.right, bool)
+            right_condition: bool = perform_typed_substitution(context, self.right, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
 
-        return str(left_condition and right_condition).lower()
+        return str(self.func(left_condition, right_condition)).lower()
+
+
+@expose_substitution('and')
+class AndSubstitution(LeftRightLogicalSubstitution):
+    """Substitution that returns 'and' of the input boolean values."""
+
+    def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
+        """Create an AndSubstitution substitution."""
+        super().__init__(lambda l, r: l and r, left, right)
 
 
 @expose_substitution('or')
@@ -116,44 +132,7 @@ class OrSubstitution(Substitution):
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
         """Create an OrSubstitution substitution."""
-        super().__init__()
-
-        self.__left = normalize_to_list_of_substitutions(left)
-        self.__right = normalize_to_list_of_substitutions(right)
-
-    @classmethod
-    def parse(cls, data: Sequence[SomeSubstitutionsType]):
-        """Parse `OrSubstitution` substitution."""
-        if len(data) != 2:
-            raise TypeError('and substitution expects 2 arguments')
-        return cls, {'left': data[0], 'right': data[1]}
-
-    @property
-    def left(self) -> List[Substitution]:
-        """Getter for left."""
-        return self.__left
-
-    @property
-    def right(self) -> List[Substitution]:
-        """Getter for right."""
-        return self.__right
-
-    def describe(self) -> Text:
-        """Return a description of this substitution as a string."""
-        return f'AndSubstitution({self.left} {self.right})'
-
-    def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution."""
-        try:
-            left_condition = perform_typed_substitution(context, self.left, bool)
-        except (TypeError, ValueError) as e:
-            raise SubstitutionFailure(e)
-        try:
-            right_condition = perform_typed_substitution(context, self.right, bool)
-        except (TypeError, ValueError) as e:
-            raise SubstitutionFailure(e)
-
-        return str(left_condition or right_condition).lower()
+        super().__init__(lambda l, r: l or r, left, right)
 
 
 @expose_substitution('any')
