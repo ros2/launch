@@ -127,7 +127,7 @@ class AndSubstitution(LeftRightLogicalSubstitution):
 
 
 @expose_substitution('or')
-class OrSubstitution(Substitution):
+class OrSubstitution(LeftRightLogicalSubstitution):
     """Substitution that returns 'or' of the input boolean values."""
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
