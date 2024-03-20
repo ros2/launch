@@ -14,8 +14,11 @@
 
 """Module for boolean substitutions."""
 
+from __future__ import annotations
+
 from itertools import chain
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -47,7 +50,7 @@ class NotSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['NotSubstitution'], Dict[str, Any]]:
+              ) -> Tuple[Type[NotSubstitution], Dict[str, Any]]:
         """Parse `NotSubstitution` substitution."""
         if len(data) != 1:
             raise TypeError('not substitution expects 1 argument')
@@ -72,24 +75,29 @@ class NotSubstitution(Substitution):
         return str(not condition).lower()
 
 
-@expose_substitution('and')
-class AndSubstitution(Substitution):
-    """Substitution that returns 'and' of the input boolean values."""
+class LeftRightLogicalSubstitution(Substitution):
+    """Substitution that returns the result of logical evaluation of the input boolean values."""
 
-    def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
-        """Create an AndSubstitution substitution."""
+    def __init__(self, func: Callable[[bool, bool], bool], left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
+        """Create an LeftRightLogicalSubstitution substitution."""
         super().__init__()
 
+        self.__func = func
         self.__left = normalize_to_list_of_substitutions(left)
         self.__right = normalize_to_list_of_substitutions(right)
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['AndSubstitution'], Dict[str, Any]]:
+              ) -> Tuple[Type[LeftRightLogicalSubstitution], Dict[str, Any]]:
         """Parse `AndSubstitution` substitution."""
         if len(data) != 2:
-            raise TypeError('and substitution expects 2 arguments')
+            raise TypeError(f'{cls.__name__} expects 2 arguments')
         return cls, {'left': data[0], 'right': data[1]}
+
+    @property
+    def func(self) -> Callable[[bool, bool], bool]:
+        """Getter for the logical evaluation function."""
+        return self.__func
 
     @property
     def left(self) -> List[Substitution]:
@@ -103,20 +111,29 @@ class AndSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'AndSubstitution({self.left} {self.right})'
+        return f'{self.__class__.__name__}({self.left} {self.right})'
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         try:
-            left_condition = perform_typed_substitution(context, self.left, bool)
+            left_condition: bool = perform_typed_substitution(context, self.left, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
         try:
-            right_condition = perform_typed_substitution(context, self.right, bool)
+            right_condition: bool = perform_typed_substitution(context, self.right, bool)
         except (TypeError, ValueError) as e:
             raise SubstitutionFailure(e)
 
-        return str(left_condition and right_condition).lower()
+        return str(self.func(left_condition, right_condition)).lower()
+
+
+@expose_substitution('and')
+class AndSubstitution(LeftRightLogicalSubstitution):
+    """Substitution that returns 'and' of the input boolean values."""
+
+    def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
+        """Create an AndSubstitution substitution."""
+        super().__init__(lambda l, r: l and r, left, right)
 
 
 @expose_substitution('or')
@@ -125,45 +142,7 @@ class OrSubstitution(Substitution):
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
         """Create an OrSubstitution substitution."""
-        super().__init__()
-
-        self.__left = normalize_to_list_of_substitutions(left)
-        self.__right = normalize_to_list_of_substitutions(right)
-
-    @classmethod
-    def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['OrSubstitution'], Dict[str, Any]]:
-        """Parse `OrSubstitution` substitution."""
-        if len(data) != 2:
-            raise TypeError('and substitution expects 2 arguments')
-        return cls, {'left': data[0], 'right': data[1]}
-
-    @property
-    def left(self) -> List[Substitution]:
-        """Getter for left."""
-        return self.__left
-
-    @property
-    def right(self) -> List[Substitution]:
-        """Getter for right."""
-        return self.__right
-
-    def describe(self) -> Text:
-        """Return a description of this substitution as a string."""
-        return f'AndSubstitution({self.left} {self.right})'
-
-    def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution."""
-        try:
-            left_condition = perform_typed_substitution(context, self.left, bool)
-        except (TypeError, ValueError) as e:
-            raise SubstitutionFailure(e)
-        try:
-            right_condition = perform_typed_substitution(context, self.right, bool)
-        except (TypeError, ValueError) as e:
-            raise SubstitutionFailure(e)
-
-        return str(left_condition or right_condition).lower()
+        super().__init__(lambda l, r: l or r, left, right)
 
 
 @expose_substitution('any')
@@ -193,7 +172,7 @@ class AnySubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]
-              ) -> Tuple[Type['AnySubstitution'], Dict[str, Any]]:
+              ) -> Tuple[Type[AnySubstitution], Dict[str, Any]]:
         """Parse `AnySubstitution` substitution."""
         return cls, {'container': data}
 
@@ -247,7 +226,7 @@ class AllSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]
-              ) -> Tuple[Type['AllSubstitution'], Dict[str, Any]]:
+              ) -> Tuple[Type[AllSubstitution], Dict[str, Any]]:
         """Parse `AllSubstitution` substitution."""
         return cls, {'container': data}
 
