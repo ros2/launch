@@ -19,6 +19,7 @@ from pathlib import Path
 import textwrap
 
 from launch import LaunchService
+from launch.actions import Shutdown
 from launch.frontend import Parser
 
 import pytest
@@ -65,6 +66,22 @@ def test_executable_wrong_subtag():
         parser.parse_description(root_entity)
     assert '`executable`' in str(excinfo.value)
     assert 'whats_this' in str(excinfo.value)
+
+
+def test_executable_on_exit():
+    xml_file = \
+        """\
+        <launch>
+            <executable cmd="ls" on_exit="shutdown"/>
+        </launch>
+        """
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    ld = parser.parse_description(root_entity)
+    executable = ld.entities[0]
+    sub_entities = executable.get_sub_entities()
+    assert len(sub_entities) == 1
+    assert isinstance(sub_entities[0], Shutdown)
 
 
 if __name__ == '__main__':
