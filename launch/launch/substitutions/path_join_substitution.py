@@ -38,7 +38,7 @@ class PathJoinSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return "LocalVar('{}')".format(' + '.join([s.describe() for s in self.substitutions]))
+        return f"PathJoin('{' + '.join([s.describe() for s in self.substitutions])}')"
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by retrieving the local variable."""
