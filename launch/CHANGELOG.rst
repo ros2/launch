@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.4.1 (2024-03-28)
+------------------
 * Small fixes for modern flake8. (`#772 <https://github.com/ros2/launch/issues/772>`_)
 * Cleanup some type annotations.
 * Contributors: Chris Lalancette
