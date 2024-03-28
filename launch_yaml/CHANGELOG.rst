@@ -2,6 +2,9 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 3.4.0 (2024-02-07)
 ------------------
 * Fix flake8 warnings in launch_yaml. (`#756 <https://github.com/ros2/launch/issues/756>`_)

@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* launch_xml: fix xml syntax in README (`#770 <https://github.com/ros2/launch/issues/770>`_)
+* Contributors: Steve Peters
+
 3.4.0 (2024-02-07)
 ------------------
 
