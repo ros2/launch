@@ -29,6 +29,7 @@ from .pop_launch_configurations import PopLaunchConfigurations
 from .push_environment import PushEnvironment
 from .push_launch_configurations import PushLaunchConfigurations
 from .register_event_handler import RegisterEventHandler
+from .replace_environment_variables import ReplaceEnvironmentVariables
 from .reset_environment import ResetEnvironment
 from .reset_launch_configurations import ResetLaunchConfigurations
 from .set_environment_variable import SetEnvironmentVariable
@@ -57,6 +58,7 @@ __all__ = [
     'ResetEnvironment',
     'ResetLaunchConfigurations',
     'RegisterEventHandler',
+    'ReplaceEnvironmentVariables',
     'SetEnvironmentVariable',
     'SetLaunchConfiguration',
     'Shutdown',
