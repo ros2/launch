@@ -2,6 +2,20 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.1 (2024-03-28)
+------------------
+* Add consider_namespace_packages=False (`#766 <https://github.com/ros2/launch/issues/766>`_)
+* Contributors: Tony Najjar
+
+3.4.0 (2024-02-07)
+------------------
+
+3.3.0 (2024-01-24)
+------------------
+
+3.2.1 (2023-12-26)
+------------------
+
 3.2.0 (2023-10-04)
 ------------------
 * to open expected outpout file with an encoding parameter (`#717 <https://github.com/ros2/launch/issues/717>`_)

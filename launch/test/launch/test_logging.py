@@ -31,7 +31,13 @@ def log_dir(tmpdir_factory):
     return str(tmpdir_factory.mktemp('logs'))
 
 
-def test_bad_logging_launch_config():
+@pytest.fixture
+def mock_clean_env(monkeypatch):
+    monkeypatch.delenv('OVERRIDE_LAUNCH_SCREEN_FORMAT', raising=False)
+    monkeypatch.delenv('OVERRIDE_LAUNCH_LOG_FORMAT', raising=False)
+
+
+def test_bad_logging_launch_config(mock_clean_env):
     """Tests that setup throws at bad configuration."""
     launch.logging.reset()
 
@@ -83,7 +89,7 @@ def test_output_loggers_bad_configuration(log_dir):
         },
     )
 ])
-def test_output_loggers_configuration(capsys, log_dir, config, checks):
+def test_output_loggers_configuration(capsys, log_dir, config, checks, mock_clean_env):
     checks = {'stdout': set(), 'stderr': set(), 'both': set(), **checks}
     launch.logging.reset()
     launch.logging.launch_config.log_dir = log_dir
@@ -162,7 +168,7 @@ def test_output_loggers_configuration(capsys, log_dir, config, checks):
         assert (not os.path.exists(own_log_path) or 0 == os.stat(own_log_path).st_size)
 
 
-def test_screen_default_format_with_timestamps(capsys, log_dir):
+def test_screen_default_format_with_timestamps(capsys, log_dir, mock_clean_env):
     """Test screen logging when using the default logs format with timestamps."""
     launch.logging.reset()
     launch.logging.launch_config.level = logging.DEBUG
@@ -181,7 +187,7 @@ def test_screen_default_format_with_timestamps(capsys, log_dir):
     assert 0 == len(capture.err)
 
 
-def test_screen_default_format(capsys):
+def test_screen_default_format(capsys, mock_clean_env):
     """Test screen logging when using the default logs format."""
     launch.logging.reset()
 
@@ -216,6 +222,25 @@ def test_log_default_format(log_dir):
         lines = f.readlines()
         assert 1 == len(lines)
         assert re.match(r'[0-9]+\.[0-9]+ \[ERROR\] \[some-proc\]: baz', lines[0]) is not None
+
+
+def test_logging_env_var_format(capsys, monkeypatch):
+    monkeypatch.setenv('OVERRIDE_LAUNCH_SCREEN_FORMAT', 'TESTSCREEN {message} {name} TESTSCREEN')
+    monkeypatch.setenv('OVERRIDE_LAUNCH_LOG_FORMAT', 'TESTLOG {message} {name} TESTLOG')
+    launch.logging.reset()
+
+    logger = launch.logging.get_logger('some-proc')
+    logger.addHandler(launch.logging.launch_config.get_screen_handler())
+
+    logger.info('bar')
+    capture = capsys.readouterr()
+    lines = capture.out.splitlines()
+    assert 'TESTSCREEN bar some-proc TESTSCREEN' == lines.pop()
+
+    launch.logging.launch_config.get_log_file_handler().flush()
+    with open(launch.logging.launch_config.get_log_file_path(), 'r') as f:
+        lines = f.readlines()
+        assert 'TESTLOG bar some-proc TESTLOG\n' == lines[0]
 
 
 def test_log_handler_factory(log_dir):

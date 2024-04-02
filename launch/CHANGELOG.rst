@@ -2,6 +2,27 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.1 (2024-03-28)
+------------------
+* Small fixes for modern flake8. (`#772 <https://github.com/ros2/launch/issues/772>`_)
+* Cleanup some type annotations.
+* Contributors: Chris Lalancette
+
+3.4.0 (2024-02-07)
+------------------
+* Rework task exceptions loop. (`#755 <https://github.com/ros2/launch/issues/755>`_)
+* add format overriding by environment variables (`#722 <https://github.com/ros2/launch/issues/722>`_)
+* Add exception type to error output (`#753 <https://github.com/ros2/launch/issues/753>`_)
+* Contributors: Chris Lalancette, David Yackzan, Marc Bestmann
+
+3.3.0 (2024-01-24)
+------------------
+* Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_)
+* Contributors: Matthew Elwin
+
+3.2.1 (2023-12-26)
+------------------
+
 3.2.0 (2023-10-04)
 ------------------
 * Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_)

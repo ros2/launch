@@ -327,14 +327,20 @@ class LaunchService:
                         return_when=asyncio.FIRST_COMPLETED
                     )
                     # Propagate exception from completed tasks
-                    completed_tasks_exceptions = [task.exception() for task in completed_tasks]
-                    completed_tasks_exceptions = list(filter(None, completed_tasks_exceptions))
-                    if completed_tasks_exceptions:
-                        self.__logger.debug('An exception was raised in an async action/event')
-                        # in case there is more than one completed_task, log other exceptions
-                        for completed_tasks_exception in completed_tasks_exceptions[1:]:
-                            self.__logger.error(completed_tasks_exception)
-                        raise completed_tasks_exceptions[0]
+                    exception_to_raise = None
+                    for task in completed_tasks:
+                        exc = task.exception()
+                        if exc is None:
+                            continue
+
+                        if exception_to_raise is None:
+                            self.__logger.debug('An exception was raised in an async action/event')
+                            exception_to_raise = exc
+                        else:
+                            self.__logger.error(exc)
+
+                    if exception_to_raise is not None:
+                        raise exception_to_raise
 
                 except KeyboardInterrupt:
                     continue

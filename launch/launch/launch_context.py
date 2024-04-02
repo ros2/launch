@@ -52,24 +52,24 @@ class LaunchContext:
         self.__argv = argv if argv is not None else []
         self.__noninteractive = noninteractive
 
-        self._event_queue = asyncio.Queue()  # type: asyncio.Queue
-        self._event_handlers = collections.deque()  # type: collections.deque
-        self._completion_futures = []  # type: List[asyncio.Future]
+        self._event_queue: asyncio.Queue = asyncio.Queue()
+        self._event_handlers: collections.deque = collections.deque()
+        self._completion_futures: List[asyncio.Future] = []
 
-        self.__globals = {}  # type: Dict[Text, Any]
-        self.__locals_stack = []  # type: List[Dict[Text, Any]]
-        self.__locals = {}  # type: Dict[Text, Any]
-        self.__combined_locals_cache = None  # type: Optional[Dict[Text, Any]]
+        self.__globals: Dict[Text, Any] = {}
+        self.__locals_stack: List[Dict[Text, Any]] = []
+        self.__locals: Dict[Text, Any] = {}
+        self.__combined_locals_cache: Optional[Dict[Text, Any]] = None
 
-        self.__launch_configurations_stack = []  # type: List[Dict[Text, Text]]
-        self.__launch_configurations = {}  # type: Dict[Text, Text]
+        self.__launch_configurations_stack: List[Dict[Text, Text]] = []
+        self.__launch_configurations: Dict[Text, Text] = {}
 
-        self.__environment_stack = []  # type: List[Mapping[Text, Text]]
+        self.__environment_stack: List[Mapping[Text, Text]] = []
         # We will reset to this copy when "reset_environment" is called
-        self.__environment_reset = os.environ.copy()  # type: Mapping[Text, Text]
+        self.__environment_reset: Mapping[Text, Text] = os.environ.copy()
 
         self.__is_shutdown = False
-        self.__asyncio_loop = None  # type: Optional[asyncio.AbstractEventLoop]
+        self.__asyncio_loop: Optional[asyncio.AbstractEventLoop] = None
 
         self.__logger = launch.logging.get_logger(__name__)
 
