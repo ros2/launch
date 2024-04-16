@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.2 (2024-04-16)
+------------------
+* (launch) fix describe of PathJoinSubstitution (`#771 <https://github.com/ros2/launch/issues/771>`_)
+* Contributors: Matthijs van der Burgh
+
 3.4.1 (2024-03-28)
 ------------------
 * Small fixes for modern flake8. (`#772 <https://github.com/ros2/launch/issues/772>`_)
