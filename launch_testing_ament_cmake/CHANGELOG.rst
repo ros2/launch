@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.0.2 (2023-07-14)
 ------------------
 

@@ -2,6 +2,9 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.0.2 (2023-07-14)
 ------------------
 
