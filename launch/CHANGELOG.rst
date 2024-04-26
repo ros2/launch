@@ -2,6 +2,9 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 3.4.2 (2024-04-16)
 ------------------
 * (launch) fix describe of PathJoinSubstitution (`#771 <https://github.com/ros2/launch/issues/771>`_)
