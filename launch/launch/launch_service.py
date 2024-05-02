@@ -193,8 +193,9 @@ class LaunchService:
                 if signum not in signals_received or signals_received[signum] is not True:
                     signals_received[signum] = True
                     self.__logger.warning(base_msg)
+                    due_to_sigint = True if signal.Signals(signum).name == 'SIGINT' else False
                     ret = self._shutdown(
-                        reason=base_msg, due_to_sigint=True, force_sync=True
+                        reason=base_msg, due_to_sigint=due_to_sigint, force_sync=True
                     )
                     assert ret is None, ret
                 else:
