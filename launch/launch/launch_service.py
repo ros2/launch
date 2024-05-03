@@ -185,15 +185,16 @@ class LaunchService:
 
             self.__this_task = this_task
             # Setup custom signal handlers for SIGINT & SIGTERM
-            signals_received: dict = {}
+            signals_received = set()
 
             def _on_signal(signum):
                 nonlocal signals_received
-                base_msg = 'caught ' + signal.Signals(signum).name
-                if signum not in signals_received or signals_received[signum] is not True:
-                    signals_received[signum] = True
+                signal_name = signal.Signals(signum).name
+                base_msg = 'caught ' + signal_name
+                if signal_name not in signals_received:
+                    signals_received.add(signal_name)
+                    due_to_sigint = True if signal_name == 'SIGINT' else False
                     self.__logger.warning(base_msg)
-                    due_to_sigint = True if signal.Signals(signum).name == 'SIGINT' else False
                     ret = self._shutdown(
                         reason=base_msg, due_to_sigint=due_to_sigint, force_sync=True
                     )
