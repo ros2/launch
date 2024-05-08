@@ -92,7 +92,7 @@ class PythonExpression(Substitution):
 
     @property
     def python_modules(self) -> List[Substitution]:
-        """Getter for expression."""
+        """Getter for python modules."""
         return self.__python_modules
 
     def describe(self) -> Text:
@@ -108,7 +108,7 @@ class PythonExpression(Substitution):
         module_objects = [importlib.import_module(name) for name in module_names]
         expression_locals = {}
         for module in module_objects:
-            # For backwards compatility, we allow math definitions to be implicitly
+            # For backwards compatibility, we allow math definitions to be implicitly
             # referenced in expressions, without prepending the math module name
             # TODO: This may be removed in a future release.
             if module.__name__ == 'math':
