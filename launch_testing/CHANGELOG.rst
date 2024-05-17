@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.6 (2024-05-17)
+------------------
+* Add consider_namespace_packages=False (`#766 <https://github.com/ros2/launch/issues/766>`_) (`#777 <https://github.com/ros2/launch/issues/777>`_)
+* Contributors: mergify[bot]
+
 1.0.5 (2024-02-16)
 ------------------
 
