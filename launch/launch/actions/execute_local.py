@@ -303,7 +303,7 @@ class ExecuteLocal(Action):
     ) -> Optional[LaunchDescription]:
         typed_event = cast(ShutdownProcess, context.locals.event)
         if not typed_event.process_matcher(self):
-            # this event whas not intended for this process
+            # this event was not intended for this process
             return None
         return self._shutdown_process(context, send_sigint=True)
 
@@ -313,7 +313,7 @@ class ExecuteLocal(Action):
     ) -> Optional[LaunchDescription]:
         typed_event = cast(SignalProcess, context.locals.event)
         if not typed_event.process_matcher(self):
-            # this event whas not intended for this process
+            # this event was not intended for this process
             return None
         if self.process_details is None:
             raise RuntimeError('Signal event received before execution.')
