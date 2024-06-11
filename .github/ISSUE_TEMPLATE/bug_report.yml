@@ -57,7 +57,9 @@ body:
     id: repro
     attributes:
       label: "Steps to reproduce issue"
-      description: "How do you trigger this bug? Please walk us through it step by step."
+      description: |
+        How do you trigger this bug? Please walk us through it step by step.
+        Include all the commands you ran in the exact order you ran them so that anyone can reproduce the bug.
       placeholder: |
         1.
         2.
