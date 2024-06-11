@@ -49,7 +49,7 @@ body:
       label: "'ros2 doctor --report' output"
       description: |
         It can help us knowing the details of your ROS environment.
-        Please use the command `ros2 doctor --report` and copy paste it's output here.
+        Please use the command `ros2 doctor --report` and copy paste its output here.
       render: Formatted
     validations:
       required: false
