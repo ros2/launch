@@ -109,6 +109,7 @@ class Command(Substitution):
         try:
             result = subprocess.run(
                 command,
+                env=context.environment,
                 stdout=subprocess.PIPE,
                 stderr=stderr,
                 universal_newlines=True)
