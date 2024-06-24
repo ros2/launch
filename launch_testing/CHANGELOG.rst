@@ -2,6 +2,14 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.4 (2024-06-24)
+------------------
+* Add consider_namespace_packages=False (`#766 <https://github.com/ros2/launch/issues/766>`_) (`#778 <https://github.com/ros2/launch/issues/778>`_)
+  * Add consider_namespace_packages=False
+  (cherry picked from commit 07f43328054c03067b470d1c9bd707cb1e52d691)
+  Co-authored-by: Tony Najjar <tony.najjar.1997@gmail.com>
+* Contributors: mergify[bot]
+
 2.0.3 (2024-04-19)
 ------------------
 

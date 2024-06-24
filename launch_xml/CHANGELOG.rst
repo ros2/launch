@@ -2,6 +2,9 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.4 (2024-06-24)
+------------------
+
 2.0.3 (2024-04-19)
 ------------------
 * Backport Iron: Let XML executables/nodes be "required" (like in ROS 1) (`#764 <https://github.com/ros2/launch/issues/764>`_)

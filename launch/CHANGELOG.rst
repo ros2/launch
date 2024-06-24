@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.4 (2024-06-24)
+------------------
+* Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_) (`#776 <https://github.com/ros2/launch/issues/776>`_)
+  * Add conditional substitution
+  Closes: `#727 <https://github.com/ros2/launch/issues/727>`_
+  Co-authored-by: Nick Lamprianidis <info@nlamprian.me>
+* Contributors: Jonas Otto
+
 2.0.3 (2024-04-19)
 ------------------
 * Backport Iron: Let XML executables/nodes be "required" (like in ROS 1) (`#764 <https://github.com/ros2/launch/issues/764>`_)
