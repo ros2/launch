@@ -33,12 +33,12 @@ class PathSubstitution(Substitution):
                 "PathSubstitution expected Text object got '{}' instead.".format(type(path))
             )
 
-        self.__text = path
+        self.__path = path
 
     @property
     def path(self) -> Path:
-        """Getter for text."""
-        return self.__text
+        """Getter for path."""
+        return self.__path
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
