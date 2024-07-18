@@ -22,5 +22,5 @@ from launch.substitutions import PathSubstitution
 
 def test_path_join():
     path = Path('asd') / 'bsd' / 'cds'
-    sub = PathSubstitution(path)
+    sub = PathSubstitution(path=path)
     assert sub.perform(None) == os.path.join('asd', 'bsd', 'cds')
