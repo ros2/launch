@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,25 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for SomeSubstitutionsType type."""
+"""Tests for the PathJoinSubstitution substitution class."""
 
-import collections.abc
-from pathlib import Path
-from typing import Iterable
-from typing import Text
-from typing import Union
+import os
 
-from .substitution import Substitution
+from launch.substitutions import PathJoinSubstitution
 
-SomeSubstitutionsType = Union[
-    Text,
-    Substitution,
-    Iterable[Union[Text, Substitution]],
-    Path
-]
 
-SomeSubstitutionsType_types_tuple = (
-    str,
-    Substitution,
-    collections.abc.Iterable,
-)
+def test_path_join():
+    path = ['asd', 'bsd', 'cds']
+    sub = PathJoinSubstitution(path)
+    assert sub.perform(None) == os.path.join(*path)

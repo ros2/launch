@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the PathJoinSubstitution substitution class."""
+"""Tests for the PathSubstitution substitution class."""
 
 import os
+from pathlib import Path
 
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import PathSubstitution
 
 
 def test_path_join():
-    path = ['asd', 'bsd', 'cds']
-    sub = PathJoinSubstitution(path)
-    assert sub.perform(None) == os.path.join(*path)
+    path = Path('asd') / 'bsd' / 'cds'
+    sub = PathSubstitution(path)
+    assert sub.perform(None) == os.path.join('asd', 'bsd', 'cds')
