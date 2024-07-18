@@ -16,6 +16,7 @@
 
 import collections.abc
 import importlib
+from pathlib import Path
 from typing import List
 from typing import Sequence
 from typing import Text
@@ -73,6 +74,7 @@ class PythonExpression(Substitution):
             # Ensure that we got a list!
             assert not isinstance(data[1], str)
             assert not isinstance(data[1], Substitution)
+            assert not isinstance(data[1], Path)
             # Modules
             modules = list(data[1])
             if len(modules) > 0:
