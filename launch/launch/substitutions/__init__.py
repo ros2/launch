@@ -30,6 +30,7 @@ from .launch_configuration import LaunchConfiguration
 from .launch_log_dir import LaunchLogDir
 from .local_substitution import LocalSubstitution
 from .not_equals_substitution import NotEqualsSubstitution
+from .path_substitution import PathSubstitution
 from .path_join_substitution import PathJoinSubstitution
 from .python_expression import PythonExpression
 from .substitution_failure import SubstitutionFailure
