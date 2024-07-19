@@ -15,7 +15,7 @@
 """Module for the class tools utility functions."""
 
 import inspect
-from typing import Type, TYPE_CHECKING, TypeVar, Union
+from typing import overload, Type, TYPE_CHECKING, TypeVar
 
 T = TypeVar('T')
 
@@ -37,7 +37,15 @@ def is_a(obj: object, entity_type: Type[T]) -> 'TypeGuard[T]':
     return isinstance(obj, entity_type)
 
 
-def is_a_subclass(obj: Union[object, type], entity_type: Type[T]) -> 'TypeGuard[T]':
+@overload
+def is_a_subclass(obj: type, entity_type: Type[T]) -> 'TypeGuard[Type[T]]': ...
+
+
+@overload
+def is_a_subclass(obj: object, entity_type: Type[T]) -> 'TypeGuard[T]': ...
+
+
+def is_a_subclass(obj, entity_type):
     """Return True if obj is an instance of the entity_type class or one of its subclass types."""
     if is_a(obj, entity_type):
         return True

@@ -53,7 +53,7 @@ class LaunchContext:
         self.__noninteractive = noninteractive
 
         self._event_queue: asyncio.Queue = asyncio.Queue()
-        self._event_handlers: collections.deque = collections.deque()
+        self._event_handlers: collections.deque[BaseEventHandler] = collections.deque()
         self._completion_futures: List[asyncio.Future] = []
 
         self.__globals: Dict[Text, Any] = {}
