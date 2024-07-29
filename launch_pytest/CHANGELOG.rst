@@ -2,6 +2,11 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Switch to using an rclpy context manager. (`#787 <https://github.com/ros2/launch/issues/787>`_)
+* Contributors: Chris Lalancette
+
 3.6.0 (2024-06-25)
 ------------------
 

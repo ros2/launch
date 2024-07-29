@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 3.6.0 (2024-06-25)
 ------------------
 * Don't write Python bytecode when invoking launch tests (`#785 <https://github.com/ros2/launch/issues/785>`_)
