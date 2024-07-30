@@ -25,19 +25,19 @@ import osrf_pycommon.process_utils
 
 
 def cap_signals(*signals):
-    def _noop(*args):
-        pass
-
     def _decorator(func):
         @functools.wraps(func)
         def _wrapper(*args, **kwargs):
             handlers = {}
             try:
                 for s in signals:
-                    handlers[s] = signal.signal(s, _noop)
+                    handlers[s] = signal.signal(s, signal.default_int_handler)
                 return func(*args, **kwargs)
+            except KeyboardInterrupt:
+                pass
             finally:
-                assert all(signal.signal(s, h) is _noop for s, h in handlers.items())
+                assert all(signal.signal(s, h) is signal.default_int_handler
+                           for s, h in handlers.items())
         return _wrapper
 
     return _decorator
