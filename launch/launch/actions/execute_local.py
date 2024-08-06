@@ -19,6 +19,7 @@ import io
 import logging
 import os
 import platform
+import shlex
 import signal
 import traceback
 from typing import Any  # noqa: F401
@@ -73,6 +74,8 @@ from ..utilities import perform_substitutions
 from ..utilities.type_utils import normalize_typed_substitution
 from ..utilities.type_utils import perform_typed_substitution
 
+g_is_windows = 'win' in platform.system().lower()
+
 
 class ExecuteLocal(Action):
     """Action that begins executing a process on the local system and sets up event handlers."""
@@ -82,6 +85,10 @@ class ExecuteLocal(Action):
         *,
         process_description: Executable,
         shell: bool = False,
+        split_arguments: Union[
+            bool,
+            SomeSubstitutionsType
+        ] = LaunchConfiguration('split_arguments', default='False'),
         sigterm_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
@@ -150,6 +157,24 @@ class ExecuteLocal(Action):
         :param: process_description the `launch.descriptions.Executable` to execute
             as a local process
         :param: shell if True, a shell is used to execute the cmd
+        :param: split_arguments if True, and shell=False, the arguments are
+            split by whitespace as if parsed by a shell, e.g. like shlex.split()
+            from Python's standard library.
+            Useful if the arguments need to be split, e.g. if a substitution
+            evaluates to multiple whitespace separated arguments but shell=True
+            cannot be used.
+            Usually it does not make sense to split the arguments if shell=True
+            because the shell will split them again, e.g. the single
+            substitution '--opt1 --opt2 "Hello world"' would become ['--opt1',
+            '--opt2', '"Hello World"'] if split_arguments=True, and then become
+            ['--opt1', '--opt2', 'Hello', 'World'] because of shell=True, which
+            is likely not what was originally intended.
+            Therefore, when both shell=True and split_arguments=True, the
+            arguments will not be split before executing, depending on the
+            shell to split the arguments instead.
+            If not explicitly passed, the LaunchConfiguration called
+            'split_arguments' will be used as the default, and if that
+            LaunchConfiguration is not set, the default will be False.
         :param: sigterm_timeout time until shutdown should escalate to SIGTERM,
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
@@ -188,6 +213,9 @@ class ExecuteLocal(Action):
         super().__init__(**kwargs)
         self.__process_description = process_description
         self.__shell = shell
+        if isinstance(split_arguments, bool):
+            split_arguments = 'True' if split_arguments else 'False'
+        self.__split_arguments = normalize_to_list_of_substitutions(split_arguments)
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
         self.__emulate_tty = emulate_tty
@@ -233,6 +261,11 @@ class ExecuteLocal(Action):
     def shell(self):
         """Getter for shell."""
         return self.__shell
+
+    @property
+    def split_arguments(self):
+        """Getter for split_arguments."""
+        return self.__split_arguments
 
     @property
     def emulate_tty(self):
@@ -326,7 +359,7 @@ class ExecuteLocal(Action):
                     typed_event.signal_name, self.process_details['name']),
             )
             return None
-        if platform.system() == 'Windows' and typed_event.signal_name == 'SIGINT':
+        if g_is_windows and typed_event.signal_name == 'SIGINT':
             # TODO(wjwwood): remove this when/if SIGINT is fixed on Windows
             self.__logger.warning(
                 "'SIGINT' sent to process[{}] not supported on Windows, escalating to 'SIGTERM'"
@@ -550,11 +583,14 @@ class ExecuteLocal(Action):
         cwd = process_event_args['cwd']
         env = process_event_args['env']
         if self.__log_cmd:
-            self.__logger.info("process details: cmd='{}', cwd='{}', custom_env?={}".format(
-                ' '.join(filter(lambda part: part.strip(), cmd)),
-                cwd,
-                'True' if env is not None else 'False'
-            ))
+            self.__logger.info(
+                "process details: cmd=['{}'], cwd='{}', shell='{}', custom_env?={}".format(
+                    "', '".join(cmd),
+                    cwd,
+                    'True' if self.__shell else 'False',
+                    'True' if env is not None else 'False',
+                )
+            )
 
         emulate_tty = self.__emulate_tty
         if 'emulate_tty' in context.launch_configurations:
@@ -593,8 +629,8 @@ class ExecuteLocal(Action):
         if returncode == 0:
             self.__logger.info('process has finished cleanly [pid {}]'.format(pid))
         else:
-            self.__logger.error("process has died [pid {}, exit code {}, cmd '{}'].".format(
-                pid, returncode, ' '.join(filter(lambda part: part.strip(), cmd))
+            self.__logger.error("process has died [pid {}, exit code {}, cmd ['{}']].".format(
+                pid, returncode, "', '".join(cmd)
             ))
         await context.emit_event(
                 ProcessExited(returncode=returncode, **process_event_args)
@@ -714,6 +750,18 @@ class ExecuteLocal(Action):
             else:
                 self.__stdout_logger, self.__stderr_logger = \
                     launch.logging.get_output_loggers(name, self.__output)
+            # Update the cmd to respect split_arguments option.
+            if evaluate_condition_expression(context, self.__split_arguments):
+                if self.__shell:
+                    self.__logger.debug("Ignoring 'split_arguments=True' because 'shell=True'.")
+                else:
+                    self.__logger.debug("Splitting arguments because 'split_arguments=True'.")
+                    expanded_cmd = []
+                    assert self.__process_event_args is not None
+                    for token in self.__process_event_args['cmd']:
+                        expanded_cmd.extend(shlex.split(token, posix=(not g_is_windows)))
+                    # Also update self.__process_event_args['cmd'] so it reflects the splitting.
+                    self.__process_event_args['cmd'] = expanded_cmd
             context.asyncio_loop.create_task(self.__execute_process(context))
         except Exception:
             for event_handler in event_handlers:
