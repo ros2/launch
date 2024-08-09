@@ -237,17 +237,18 @@ class LaunchService:
                     "processing event: '{}' ✓ '{}'".format(event, event_handler))
                 self.__context._push_locals()
                 entities = event_handler.handle(event, self.__context)
-                entities = \
+                iterable_entities = \
                     entities if isinstance(entities, collections.abc.Iterable) else (entities,)
-                for entity in [e for e in entities if e is not None]:
+                for entity in [e for e in iterable_entities if e is not None]:
                     from .utilities import is_a_subclass
                     if not is_a_subclass(entity, LaunchDescriptionEntity):
                         raise RuntimeError(
                             "expected a LaunchDescriptionEntity from event_handler, got '{}'"
                             .format(entity)
                         )
-                    self._entity_future_pairs.extend(
-                        visit_all_entities_and_collect_futures(entity, self.__context))
+                    else:
+                        self._entity_future_pairs.extend(
+                            visit_all_entities_and_collect_futures(entity, self.__context))
                 self.__context._pop_locals()
             else:
                 pass
