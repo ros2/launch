@@ -116,7 +116,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         context available.
         This function may fail, e.g. if the path to the launch file to include
         uses the values of launch configurations that have not been set yet,
-        and in that case the failure is ignored and the arugments defined in
+        and in that case the failure is ignored and the arguments defined in
         those launch files will not be seen either.
 
         Duplicate declarations of an argument are ignored, therefore the
