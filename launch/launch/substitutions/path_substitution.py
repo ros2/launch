@@ -30,7 +30,7 @@ class PathSubstitution(Substitution):
 
         if not isinstance(path, Path):
             raise TypeError(
-                "PathSubstitution expected Text object got '{}' instead.".format(type(path))
+                "PathSubstitution expected Path object got '{}' instead.".format(type(path))
             )
 
         self.__path = path
