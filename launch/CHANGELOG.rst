@@ -2,6 +2,25 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.6.1 (2024-07-29)
+------------------
+
+3.6.0 (2024-06-25)
+------------------
+
+3.5.1 (2024-06-17)
+------------------
+* Fix typo in comment (`#783 <https://github.com/ros2/launch/issues/783>`_)
+* Contributors: Christophe Bedard
+
+3.5.0 (2024-04-26)
+------------------
+
+3.4.2 (2024-04-16)
+------------------
+* (launch) fix describe of PathJoinSubstitution (`#771 <https://github.com/ros2/launch/issues/771>`_)
+* Contributors: Matthijs van der Burgh
+
 3.4.1 (2024-03-28)
 ------------------
 * Small fixes for modern flake8. (`#772 <https://github.com/ros2/launch/issues/772>`_)

@@ -2,6 +2,29 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.6.1 (2024-07-29)
+------------------
+
+3.6.0 (2024-06-25)
+------------------
+
+3.5.1 (2024-06-17)
+------------------
+* Add mechanism to disable workaround for dependency groups (`#775 <https://github.com/ros2/launch/issues/775>`_)
+* Contributors: Scott K Logan
+
+3.5.0 (2024-04-26)
+------------------
+
+3.4.2 (2024-04-16)
+------------------
+* Fix a warning in modern unittest. (`#773 <https://github.com/ros2/launch/issues/773>`_)
+  Newer versions of unittest no longer store an errors
+  list; instead, they store a result, which then stores
+  an error list.  Update the code here to be able to deal
+  with either version.
+* Contributors: Chris Lalancette
+
 3.4.1 (2024-03-28)
 ------------------
 * Add consider_namespace_packages=False (`#766 <https://github.com/ros2/launch/issues/766>`_)

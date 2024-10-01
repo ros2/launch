@@ -133,6 +133,7 @@ function(add_launch_test filename)
     COMMAND ${cmd}
     OUTPUT_FILE "${CMAKE_BINARY_DIR}/launch_test/${_launch_test_TARGET}.txt"
     RESULT_FILE "${_launch_test_RESULT_FILE}"
+    ENV PYTHONDONTWRITEBYTECODE=1
     TIMEOUT "${_launch_test_TIMEOUT}"
     ${_launch_test_UNPARSED_ARGUMENTS}
   )
