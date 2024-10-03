@@ -13,8 +13,5 @@
 # limitations under the License.
 
 find_package(ament_cmake_test REQUIRED)
-# Provides PYTHON_EXECUTABLE_DEBUG
-find_package(python_cmake_module REQUIRED)
-find_package(PythonExtra REQUIRED)
 
 include("${launch_testing_ament_cmake_DIR}/add_launch_test.cmake")
