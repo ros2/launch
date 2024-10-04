@@ -88,7 +88,7 @@ class ExecuteLocal(Action):
             'sigkill_timeout', default=5),
         emulate_tty: bool = False,
         output: SomeSubstitutionsType = 'log',
-        output_format: Text = '[{this.process_description.final_name}] {line}',
+        output_format: Optional[Text] = None,
         cached_output: bool = False,
         log_cmd: bool = False,
         on_exit: Optional[Union[
@@ -173,6 +173,7 @@ class ExecuteLocal(Action):
         :param: output_format for logging each output line, supporting `str.format()`
             substitutions with the following keys in scope: `line` to reference the raw
             output line and `this` to reference this action instance.
+            The default format can be set externally by the ROS_LAUNCH_OUTPUT_FORMAT envvar.
         :param: log_cmd if True, prints the final cmd before executing the
             process, which is useful for debugging when substitutions are
             involved.
@@ -201,7 +202,17 @@ class ExecuteLocal(Action):
             self.__output = normalize_to_list_of_substitutions(tmp_output)
         else:
             self.__output = tmp_output
-        self.__output_format = output_format
+
+        # We use the following priorities to determine the output_format:
+        # 1. Passed value to the function
+        # 2. Environment variable
+        # 3. Default value
+        if output_format is not None:
+            self.__output_format = output_format
+        else:
+            self.__output_format = os.environ.get(
+                'ROS_LAUNCH_OUTPUT_FORMAT', '[{this.process_description.final_name}] {line}'
+            )
 
         self.__log_cmd = log_cmd
         self.__cached_output = cached_output
