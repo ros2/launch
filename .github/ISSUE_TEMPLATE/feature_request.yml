@@ -1,6 +1,6 @@
 name: Feature request
 description: File a feature request.
-labels: ["feature"]
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
