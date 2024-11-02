@@ -17,6 +17,7 @@
 from typing import cast
 from typing import Iterable
 from typing import List
+from pathlib import Path
 
 from .class_tools_impl import is_a_subclass
 from ..some_substitutions_type import SomeSubstitutionsType
@@ -37,6 +38,8 @@ def normalize_to_list_of_substitutions(subs: SomeSubstitutionsType) -> List[Subs
             "Failed to normalize given item of type '{}', when only "
             "'str' or 'launch.Substitution' were expected.".format(type(x)))
 
+    if isinstance(subs, Path):
+        return [TextSubstitution(text=str(subs.resolve()))]
     if isinstance(subs, str):
         return [TextSubstitution(text=subs)]
     if is_a_subclass(subs, Substitution):
