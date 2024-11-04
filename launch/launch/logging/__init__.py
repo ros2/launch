@@ -110,6 +110,7 @@ class LaunchConfig:
         self._log_dir = None
         self.file_handlers = {}
         self.screen_handler = None
+        self.syslog_handler = None
         self.screen_formatter = None
         self.file_formatter = None
         self._log_handler_factory = None
@@ -261,6 +262,17 @@ class LaunchConfig:
             self.screen_handler.setFormatter(self.screen_formatter)
         return self.screen_handler
 
+    def get_syslog_handler(self):
+        """
+        Get the one and only syslog handler
+        """
+        if self.syslog_handler is None:
+            self.syslog_handler = logging.handlers.SysLogHandler(address='/dev/log', facility='local1')
+
+            if self.file_formatter:
+                self.syslog_handler.setFormatter(self.file_formatter)
+        return self.syslog_handler
+
     def set_log_format(self, log_format, *, log_style=None):
         """
         Set up launch log file format.
@@ -297,6 +309,8 @@ class LaunchConfig:
             )
             for handler in self.file_handlers.values():
                 handler.setFormatter(self.file_formatter)
+            if self.syslog_handler:
+                self.syslog_handler.setFormatter(self.file_formatter)
         else:
             self.file_formatter = None
 
@@ -350,6 +364,10 @@ def get_logger(name=None) -> logging.Logger:
     launch_log_file_handler = launch_config.get_log_file_handler()
     if launch_log_file_handler not in logger.handlers:
         logger.addHandler(launch_log_file_handler)
+    syslog_handler = launch_config.get_syslog_handler()
+    if syslog_handler not in logger.handlers:
+        logger.addHandler(syslog_handler)
+
     return logger
 
 
