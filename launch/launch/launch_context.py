@@ -188,6 +188,10 @@ class LaunchContext:
         os.environ.clear()
         os.environ.update(self.__environment_reset)
 
+    def _replace_environment(self, environment: Mapping[Text, Text]):
+        os.environ.clear()
+        os.environ.update(environment)
+
     def _push_launch_configurations(self):
         self.__launch_configurations_stack.append(self.__launch_configurations.copy())
 
