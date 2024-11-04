@@ -122,6 +122,11 @@ There are many possible variations of a substitution, but here are some of the c
   - This substitution simply returns the given string when evaluated.
   - It is usually used to wrap literals in the launch description so they can be concatenated with other substitutions.
 
+- :class:`launch.substitutions.PathSubstitution`
+
+  - This substitution simply returns the given Path object in string form.
+  - It is usually used to support Python Path objects in substitutions.
+
 - :class:`launch.substitutions.PythonExpression`
 
   - This substitution will evaluate a python expression and get the result as a string.
