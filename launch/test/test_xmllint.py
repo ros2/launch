@@ -1,4 +1,4 @@
-# Copyright 2019 Apex.AI, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_package(ament_cmake_test REQUIRED)
+from ament_xmllint.main import main
+import pytest
 
-include("${launch_testing_ament_cmake_DIR}/add_launch_test.cmake")
+
+@pytest.mark.linter
+@pytest.mark.xmllint
+def test_xmllint():
+    rc = main(argv=[])
+    assert rc == 0, 'Found errors'

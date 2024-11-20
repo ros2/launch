@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.7.0 (2024-11-20)
+------------------
+* Add test_xmllint to all of the ament_python packages. (`#804 <https://github.com/ros2/launch/issues/804>`_)
+* Contributors: Chris Lalancette
+
 3.6.1 (2024-07-29)
 ------------------
 
