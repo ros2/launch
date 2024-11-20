@@ -2,6 +2,11 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add test_xmllint to all of the ament_python packages. (`#804 <https://github.com/ros2/launch/issues/804>`_)
+* Contributors: Chris Lalancette
+
 3.6.1 (2024-07-29)
 ------------------
 * Switch to using an rclpy context manager. (`#787 <https://github.com/ros2/launch/issues/787>`_)

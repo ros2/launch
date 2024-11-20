@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Stop using python_cmake_module. (`#760 <https://github.com/ros2/launch/issues/760>`_)
+* Contributors: Chris Lalancette
+
 3.6.1 (2024-07-29)
 ------------------
 

@@ -2,6 +2,9 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 3.6.1 (2024-07-29)
 ------------------
 
