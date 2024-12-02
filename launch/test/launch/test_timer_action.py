@@ -16,9 +16,72 @@
 """Tests for the TimerAction Action."""
 import sys
 
-import launch
-import launch.actions
-import launch.event_handlers
+from launch import LaunchDescription
+from launch import LaunchService
+from launch.actions import ExecuteProcess
+from launch.actions import GroupAction
+from launch.actions import RegisterEventHandler
+from launch.actions import SetEnvironmentVariable
+from launch.actions import Shutdown
+from launch.actions import TimerAction
+from launch.conditions import IfCondition
+from launch.event_handlers import OnShutdown
+from launch.substitutions import EnvironmentVariable
+from launch.substitutions import NotSubstitution
+from launch.substitutions import PythonExpression
+
+
+def test_timer_action_can_capture_the_environment():
+    """Test that timer actions capture the environment variables present when executed."""
+    # Regression test for https://github.com/ros2/launch_ros/issues/376
+    shutdown_reasons = []
+
+    variable_is_set = PythonExpression([
+        "'",
+        EnvironmentVariable('LAUNCH_TEST_ENV_VAR', default_value='BAR'),
+        "' == 'FOO'"
+    ])
+
+    ld = LaunchDescription([
+
+        ExecuteProcess(
+            cmd=[sys.executable, '-c', 'while True: pass'],
+        ),
+
+        GroupAction(
+            actions=[
+
+                SetEnvironmentVariable(
+                    name='LAUNCH_TEST_ENV_VAR',
+                    value='FOO'
+                ),
+
+                TimerAction(
+                    period=1.,
+                    actions=[
+
+                        Shutdown(
+                            condition=IfCondition(variable_is_set),
+                            reason='Test passing'
+                        ),
+
+                        Shutdown(
+                            condition=IfCondition(NotSubstitution(variable_is_set)),
+                            reason='Test failing'
+                        ),
+                    ]
+                ),
+            ]
+        ),
+
+        _shutdown_listener_factory(shutdown_reasons),
+    ])
+
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    assert len(shutdown_reasons) == 1
+    assert shutdown_reasons[0].reason == 'Test passing'
 
 
 def test_multiple_launch_with_timers():
@@ -27,33 +90,33 @@ def test_multiple_launch_with_timers():
     # ls.run
 
     def generate_launch_description():
-        return launch.LaunchDescription([
+        return LaunchDescription([
 
-            launch.actions.ExecuteProcess(
+            ExecuteProcess(
                 cmd=[sys.executable, '-c', 'while True: pass'],
             ),
 
-            launch.actions.TimerAction(
+            TimerAction(
                 period=1.,
                 actions=[
-                    launch.actions.Shutdown(reason='Timer expired')
+                    Shutdown(reason='Timer expired')
                 ]
             )
         ])
 
-    ls = launch.LaunchService()
+    ls = LaunchService()
     ls.include_launch_description(generate_launch_description())
     assert 0 == ls.run()  # Always works
 
-    ls = launch.LaunchService()
+    ls = LaunchService()
     ls.include_launch_description(generate_launch_description())
     # Next line hangs forever before https://github.com/ros2/launch/issues/183 was fixed.
     assert 0 == ls.run()
 
 
 def _shutdown_listener_factory(reasons_arr):
-    return launch.actions.RegisterEventHandler(
-        launch.event_handlers.OnShutdown(
+    return RegisterEventHandler(
+        OnShutdown(
             on_shutdown=lambda event, context: reasons_arr.append(event)
         )
     )
@@ -66,22 +129,22 @@ def test_timer_action_sanity_check():
     # and other launch related infrastructure works as expected
     shutdown_reasons = []
 
-    ld = launch.LaunchDescription([
-        launch.actions.ExecuteProcess(
+    ld = LaunchDescription([
+        ExecuteProcess(
             cmd=[sys.executable, '-c', 'while True: pass'],
         ),
 
-        launch.actions.TimerAction(
+        TimerAction(
             period=1.,
             actions=[
-                launch.actions.Shutdown(reason='One second timeout')
+                Shutdown(reason='One second timeout')
             ]
         ),
 
         _shutdown_listener_factory(shutdown_reasons),
     ])
 
-    ls = launch.LaunchService()
+    ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
     assert shutdown_reasons[0].reason == 'One second timeout'
@@ -90,30 +153,30 @@ def test_timer_action_sanity_check():
 def test_shutdown_preempts_timers():
     shutdown_reasons = []
 
-    ld = launch.LaunchDescription([
+    ld = LaunchDescription([
 
-        launch.actions.ExecuteProcess(
+        ExecuteProcess(
             cmd=[sys.executable, '-c', 'while True: pass'],
         ),
 
-        launch.actions.TimerAction(
+        TimerAction(
             period=1.,
             actions=[
-                launch.actions.Shutdown(reason='fast shutdown')
+                Shutdown(reason='fast shutdown')
             ]
         ),
 
-        launch.actions.TimerAction(
+        TimerAction(
             period=2.,
             actions=[
-                launch.actions.Shutdown(reason='slow shutdown')
+                Shutdown(reason='slow shutdown')
             ]
         ),
 
         _shutdown_listener_factory(shutdown_reasons),
     ])
 
-    ls = launch.LaunchService()
+    ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
     assert len(shutdown_reasons) == 1
@@ -123,23 +186,23 @@ def test_shutdown_preempts_timers():
 def test_timer_can_block_preemption():
     shutdown_reasons = []
 
-    ld = launch.LaunchDescription([
+    ld = LaunchDescription([
 
-        launch.actions.ExecuteProcess(
+        ExecuteProcess(
             cmd=[sys.executable, '-c', 'while True: pass'],
         ),
 
-        launch.actions.TimerAction(
+        TimerAction(
             period=1.,
             actions=[
-                launch.actions.Shutdown(reason='fast shutdown')
+                Shutdown(reason='fast shutdown')
             ]
         ),
 
-        launch.actions.TimerAction(
+        TimerAction(
             period=2.,
             actions=[
-                launch.actions.Shutdown(reason='slow shutdown')
+                Shutdown(reason='slow shutdown')
             ],
             cancel_on_shutdown=False  # Preempted in test_shutdown_preempts_timers, but not here
         ),
@@ -147,7 +210,7 @@ def test_timer_can_block_preemption():
         _shutdown_listener_factory(shutdown_reasons),
     ])
 
-    ls = launch.LaunchService()
+    ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
     assert len(shutdown_reasons) == 2  # Should see 'shutdown' event twice because

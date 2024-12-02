@@ -30,6 +30,9 @@ import warnings
 import launch.logging
 
 from .opaque_function import OpaqueFunction
+from .pop_environment import PopEnvironment
+from .push_environment import PushEnvironment
+from .replace_environment_variables import ReplaceEnvironmentVariables
 
 from ..action import Action
 from ..event_handler import EventHandler
@@ -84,6 +87,7 @@ class TimerAction(Action):
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals: Dict[Text, Any] = {}
+        self.__context_environment: Dict[Text, Text] = {}
         self._completed_future: Optional[asyncio.Future] = None
         self.__canceled = False
         self._canceled_future: Optional[asyncio.Future] = None
@@ -139,7 +143,12 @@ class TimerAction(Action):
     def handle(self, context: LaunchContext) -> Optional[SomeEntitiesType]:
         """Handle firing of timer."""
         context.extend_locals(self.__context_locals)
-        return self.__actions
+        return [
+            PushEnvironment(),
+            ReplaceEnvironmentVariables(self.__context_environment),
+            *self.__actions,
+            PopEnvironment(),
+        ]
 
     def cancel(self) -> None:
         """
@@ -191,6 +200,8 @@ class TimerAction(Action):
 
         # Capture the current context locals so the yielded actions can make use of them too.
         self.__context_locals = dict(context.get_locals_as_dict())  # Capture a copy
+        # Capture the current context environment so the yielded actions can make use of them too.
+        self.__context_environment = dict(context.environment)  # Capture a copy
         context.asyncio_loop.create_task(self._wait_to_fire_event(context))
 
         # By default, the 'shutdown' event will cause timers to cancel so they don't hold up the
