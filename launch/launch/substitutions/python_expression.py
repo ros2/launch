@@ -105,7 +105,12 @@ class PythonExpression(Substitution):
         """Perform the substitution by evaluating the expression."""
         from ..utilities import perform_substitutions
         module_names = [context.perform_substitution(sub) for sub in self.python_modules]
-        module_objects = [importlib.import_module(name) for name in module_names]
+        # Get names of package and all parents for modules in the list of python_modules
+        # For example, python module "a.b.c" has parents "a.b" and "a"
+        inherited_names = [".".join(p[0:n]) for n in range(1, len(p)) for p in
+                           [name.split('.') for name in module_names]]
+        all_module_names = list(set(module_names + inherited_names))
+        module_objects = [importlib.import_module(name) for name in all_module_names]
         expression_locals = {}
         for module in module_objects:
             # For backwards compatibility, we allow math definitions to be implicitly
