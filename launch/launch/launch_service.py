@@ -63,7 +63,7 @@ class LaunchService:
         :param: argv stored in the context for access by the entities, None results in []
         :param: noninteractive if True (not default), this service will assume it has
             no terminal associated e.g. it is being executed from a non interactive script
-        :param: debug if True (not default), asyncio the logger are seutp for debug
+        :param: debug if True (not default), asyncio and the logger are set up for debug
         """
         # Setup logging and debugging.
         launch.logging.launch_config.level = logging.DEBUG if debug else logging.INFO
