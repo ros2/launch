@@ -33,6 +33,7 @@ from .not_equals_substitution import NotEqualsSubstitution
 from .path_join_substitution import PathJoinSubstitution
 from .python_expression import PythonExpression
 from .substitution_failure import SubstitutionFailure
+from .text_join_substitution import TextJoinSubstitution
 from .text_substitution import TextSubstitution
 from .this_launch_file import ThisLaunchFile
 from .this_launch_file_dir import ThisLaunchFileDir
@@ -57,6 +58,7 @@ __all__ = [
     'PathJoinSubstitution',
     'PythonExpression',
     'SubstitutionFailure',
+    'TextJoinSubstitution',
     'TextSubstitution',
     'ThisLaunchFile',
     'ThisLaunchFileDir',
