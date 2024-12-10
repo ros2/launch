@@ -161,14 +161,18 @@ class IncludeLaunchDescription(Action):
             for arg_name, arg_value in self.launch_arguments
         ]
         declared_launch_arguments = (
-            launch_description.get_launch_arguments_with_include_launch_description_actions())
+            launch_description.get_launch_arguments_with_include_launch_description_actions(
+                only_search_local=True)
+            )
         for argument, ild_actions in declared_launch_arguments:
             if argument._conditionally_included or argument.default_value is not None:
                 continue
             argument_names = my_argument_names
             if ild_actions is not None:
                 for ild_action in ild_actions:
-                    argument_names.extend(ild_action._try_get_arguments_names_without_context())
+                    argument_names.extend(
+                        ild_action._try_get_arguments_names_without_context()
+                    )
             if argument.name not in argument_names:
                 raise RuntimeError(
                     "Included launch description missing required argument '{}' "
