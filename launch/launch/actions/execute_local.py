@@ -375,14 +375,14 @@ class ExecuteLocal(Action):
             buffer.write(to_write)
             buffer.seek(0)
             last_line = None
+            MAX_CHARACTER_KEPT_BEFORE_LOG = 4096
             for line in buffer:
-                if line.endswith(os.linesep):
+                if line.endswith('\n') or len(line) >= MAX_CHARACTER_KEPT_BEFORE_LOG:
                     logger.info(
-                        self.__output_format.format(line=line[:-len(os.linesep)], this=self)
+                        self.__output_format.format(line=line.rstrip(os.linesep), this=self)
                     )
                 else:
                     last_line = line
-                    break
             buffer.seek(0)
             buffer.truncate(0)
             if last_line is not None:
