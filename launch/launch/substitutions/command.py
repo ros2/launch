@@ -14,7 +14,7 @@
 
 """Module for the Command substitution."""
 
-import os
+import platform
 import shlex
 import subprocess
 from typing import List
@@ -29,6 +29,8 @@ from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
+
+g_is_windows = 'win' in platform.system().lower()
 
 
 @expose_substitution('command')
@@ -94,10 +96,7 @@ class Command(Substitution):
         from ..utilities import perform_substitutions  # import here to avoid loop
         command_str = perform_substitutions(context, self.command)
         command: Union[str, List[str]]
-        if os.name != 'nt':
-            command = shlex.split(command_str)
-        else:
-            command = command_str
+        command = shlex.split(command_str, posix=(not g_is_windows))
         on_stderr = perform_substitutions(context, self.on_stderr)
         if on_stderr not in ('fail', 'ignore', 'warn', 'capture'):
             raise SubstitutionFailure(

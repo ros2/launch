@@ -24,12 +24,15 @@ from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import SetLaunchConfiguration
 from launch.actions.emit_event import EmitEvent
+from launch.actions.execute_local import g_is_windows
 from launch.actions.execute_process import ExecuteProcess
 from launch.actions.opaque_function import OpaqueFunction
 from launch.actions.register_event_handler import RegisterEventHandler
 from launch.actions.shutdown_action import Shutdown
 from launch.actions.timer_action import TimerAction
+from launch.event_handlers.on_process_io import OnProcessIO
 from launch.event_handlers.on_process_start import OnProcessStart
+from launch.events.process import ProcessIO
 from launch.events.shutdown import Shutdown as ShutdownEvent
 from launch.substitutions.launch_configuration import LaunchConfiguration
 
@@ -318,3 +321,129 @@ def test_execute_process_prefix_filter_override_in_launch_file():
     test_process.execute(lc)
     assert 'echo' in test_process.process_details['cmd'] and \
         'time' not in test_process.process_details['cmd']
+
+
+preamble = [sys.executable, os.path.join(os.path.dirname(__file__), 'argv_echo.py')]
+
+
+@pytest.mark.parametrize('test_parameters', [
+    # This case will result in 2 arguments, keeping the --some-arg and "some string" together.
+    {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'shell': False,
+        'split_arguments': False,
+        'expected_number_of_args': 2,
+    },
+    # This case will split the --some-arg and "some string" up, resulting in 3 args.
+    {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'shell': False,
+        'split_arguments': True,
+        'expected_number_of_args': 3,
+    },
+    # This case the split_arguments is ignored, due to shell=True,
+    # and produces again 3 arguments, not 4.
+    {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'shell': True,
+        'split_arguments': True,
+        'expected_number_of_args': 3,
+    },
+    # This is the "normal" shell=True behavior.
+    {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'shell': True,
+        'split_arguments': False,
+        'expected_number_of_args': 3,
+    },
+    # Test single argument for cmd (still a list), which will require shell=True.
+    {
+        'cmd': [' '.join(preamble + ['--some-arg "some string"'])],
+        'shell': True,
+        'split_arguments': False,
+        'expected_number_of_args': 3,
+    },
+    # This case also ignores split_arguments.
+    {
+        'cmd': [' '.join(preamble + ['--some-arg "some string"'])],
+        'shell': True,
+        'split_arguments': True,
+        'expected_number_of_args': 3,
+    },
+])
+def test_execute_process_split_arguments(test_parameters):
+    """Test the use of the split_arguments option."""
+    execute_process_action = ExecuteProcess(
+        cmd=test_parameters['cmd'],
+        output='screen',
+        shell=test_parameters['shell'],
+        split_arguments=test_parameters['split_arguments'],
+    )
+
+    ld = LaunchDescription([execute_process_action])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run(shutdown_when_idle=True)
+    assert execute_process_action.return_code == test_parameters['expected_number_of_args'], \
+        execute_process_action.process_details['cmd']
+
+
+def test_execute_process_split_arguments_override_in_launch_file():
+    execute_process_args = {
+        'cmd': preamble + ['--some-arg "some string"'],
+        'output': 'screen',
+        'shell': False,
+        'log_cmd': True,
+    }
+    execute_process_action1 = ExecuteProcess(**execute_process_args)
+    execute_process_action2 = ExecuteProcess(**execute_process_args)
+
+    ld = LaunchDescription([
+        # Control to test the default.
+        execute_process_action1,
+        # Change default with LaunchConfiguration, test again.
+        SetLaunchConfiguration('split_arguments', 'True'),
+        execute_process_action2,
+    ])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run(shutdown_when_idle=True)
+
+    assert execute_process_action1.return_code == 2, execute_process_action1.process_details['cmd']
+    assert execute_process_action2.return_code == 3, execute_process_action2.process_details['cmd']
+
+
+def test_execute_process_split_arguments_with_windows_like_pathsep():
+    # On POSIX platforms the `\` will be removed, but not on windows.
+    path = b'C:\\some\\path'
+    execute_process_args = {
+        'cmd': preamble + [f'--some-arg {path.decode()}'],
+        'output': 'screen',
+        'shell': False,
+        'split_arguments': True,
+        'log_cmd': True,
+    }
+    execute_process_action1 = ExecuteProcess(**execute_process_args)
+
+    did_see_path = False
+
+    def on_stdout(event: ProcessIO):
+        nonlocal did_see_path
+        if event.from_stdout and path in event.text:
+            did_see_path = True
+
+    event_handler = OnProcessIO(
+        target_action=execute_process_action1,
+        on_stdout=on_stdout,
+    )
+
+    ld = LaunchDescription([
+        RegisterEventHandler(event_handler),
+        execute_process_action1,
+    ])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run(shutdown_when_idle=True)
+
+    assert execute_process_action1.return_code == 3, execute_process_action1.process_details['cmd']
+    assert did_see_path == g_is_windows
