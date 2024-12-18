@@ -2,6 +2,13 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix 'set up' typo (`#813 <https://github.com/ros2/launch/issues/813>`_) (`#814 <https://github.com/ros2/launch/issues/814>`_)
+  (cherry picked from commit fda41a218b990c8e3bcc6c3d61f2862704529257)
+  Co-authored-by: Christophe Bedard <christophe.bedard@apex.ai>
+* Contributors: mergify[bot]
+
 3.4.2 (2024-04-16)
 ------------------
 * (launch) fix describe of PathJoinSubstitution (`#771 <https://github.com/ros2/launch/issues/771>`_)
