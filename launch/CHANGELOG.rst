@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.7.1 (2024-12-20)
+------------------
 * Fix 'set up' typo (`#813 <https://github.com/ros2/launch/issues/813>`_)
 * Contributors: Christophe Bedard
 
