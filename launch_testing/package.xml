@@ -19,7 +19,7 @@
 
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>launch</exec_depend>
-  <exec_depend>osrf_pycommon</exec_depend>
+  <exec_depend>python3-osrf-pycommon</exec_depend>
   <exec_depend>python3-pytest</exec_depend>
 
   <!-- Explicit group resolution - see ros-infrastructure/catkin_pkg#369 -->
