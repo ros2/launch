@@ -15,7 +15,7 @@
   <author email="michel@ekumenlabs.com">Michel Hidalgo</author>
   <author email="william@osrfoundation.org">William Woodall</author>
 
-  <depend>osrf_pycommon</depend>
+  <depend>python3-osrf-pycommon</depend>
 
   <!-- The rosdep key for python3 lark module is python3-lark-parser.
   rosdoc2 will mock "lark-parser" however the module is imported as "lark".
