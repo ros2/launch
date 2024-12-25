@@ -14,12 +14,15 @@
 
 """Module for the ExecuteProcess action."""
 
+import platform
 import shlex
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+
+import launch.logging
 
 from .execute_local import ExecuteLocal
 from .shutdown_action import Shutdown
@@ -31,6 +34,8 @@ from ..some_substitutions_type import SomeSubstitutionsType
 
 from ..substitution import Substitution
 from ..substitutions import TextSubstitution
+
+g_is_windows = 'win' in platform.system().lower()
 
 
 @expose_action('executable')
@@ -260,14 +265,21 @@ class ExecuteProcess(ExecuteLocal):
             nonlocal arg
             result_args.append(arg)
             arg = []
+
         for sub in parser.parse_substitution(cmd):
             if isinstance(sub, TextSubstitution):
-                tokens = shlex.split(sub.text)
-                if not tokens:
-                    # String with just spaces.
+                try:
+                    tokens = shlex.split(sub.text, posix=(not g_is_windows))
+                except Exception:
+                    logger = launch.logging.get_logger(cls.__name__)
+                    logger.error(f"Failed to parse token '{sub.text}' of cmd '{cmd}'")
+                    raise
+                if len(tokens) == 0:
+                    # String with just spaces produces an empty list.
                     # Appending args allow splitting two substitutions
-                    # separated by a space.
-                    # e.g.: `$(subst1 asd) $(subst2 bsd)` will be two separate arguments.
+                    # separated by some amount of whitespace.
+                    # e.g.: `$(subst1 asd) $(subst2 bsd)` will be two separate arguments,
+                    # first `$(subst1 asd)`, then this case ` `, then the `$(subst2 bsd)`.
                     _append_arg()
                     continue
                 if sub.text[0].isspace():
@@ -397,10 +409,20 @@ class ExecuteProcess(ExecuteLocal):
             if shell is not None:
                 kwargs['shell'] = shell
 
+        if 'split_arguments' not in ignore:
+            split_arguments = entity.get_attr('split_arguments', data_type=bool, optional=True)
+            if split_arguments is not None:
+                kwargs['split_arguments'] = split_arguments
+
         if 'emulate_tty' not in ignore:
             emulate_tty = entity.get_attr('emulate_tty', data_type=bool, optional=True)
             if emulate_tty is not None:
                 kwargs['emulate_tty'] = emulate_tty
+
+        if 'log_cmd' not in ignore:
+            log_cmd = entity.get_attr('log_cmd', data_type=bool, optional=True)
+            if log_cmd is not None:
+                kwargs['log_cmd'] = log_cmd
 
         if 'additional_env' not in ignore:
             # Conditions won't be allowed in the `env` tag.

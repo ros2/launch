@@ -18,6 +18,7 @@
 """Module for a description of an Executable."""
 
 import os
+import platform
 import re
 import shlex
 import threading
@@ -37,6 +38,7 @@ from ..utilities import perform_substitutions
 
 _executable_process_counter_lock = threading.Lock()
 _executable_process_counter = 0  # in Python3, this number is unbounded (no rollover)
+g_is_windows = 'win' in platform.system().lower()
 
 
 class Executable:
@@ -179,7 +181,9 @@ class Executable:
             # Apply if filter regex matches (empty regex matches all strings)
             should_apply_prefix = re.match(prefix_filter, os.path.basename(cmd[0])) is not None
         if should_apply_prefix:
-            cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
+            cmd = shlex.split(
+                perform_substitutions(context, self.__prefix), posix=(not g_is_windows)
+            ) + cmd
         self.__final_cmd = cmd
         name = os.path.basename(cmd[0]) if self.__name is None \
             else perform_substitutions(context, self.__name)
