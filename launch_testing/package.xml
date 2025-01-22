@@ -30,7 +30,6 @@
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>ament_xmllint</test_depend>
-  <test_depend>launch</test_depend>
 
   <group_depend>launch_frontend_packages</group_depend>
 
