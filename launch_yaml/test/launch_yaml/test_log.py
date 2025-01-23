@@ -19,8 +19,9 @@ import textwrap
 
 from launch import LaunchContext
 from launch.actions import LogInfo
-from launch.frontend import Parser
 from launch.utilities import perform_substitutions
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_log():
@@ -32,7 +33,7 @@ def test_log():
                 message: Hello world!
         """
     yaml_file = textwrap.dedent(yaml_file)
-    root_entity, parser = Parser.load(io.StringIO(yaml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     launch_description = parser.parse_description(root_entity)
     log_info = launch_description.entities[0]
     assert isinstance(log_info, LogInfo)
