@@ -44,3 +44,6 @@ class PathJoinSubstitution(Substitution):
         """Perform the substitution by retrieving the local variable."""
         performed_substitutions = [sub.perform(context) for sub in self.__substitutions]
         return os.path.join(*performed_substitutions)
+
+    def __repr__(self):
+        return self.describe()
