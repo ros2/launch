@@ -154,7 +154,7 @@ class LaunchDescription(LaunchDescriptionEntity):
                             _conditional_inclusion=False,
                             nested_ild_actions=next_nested_ild_actions)
                     except Exception as e:
-                        e.add_note('entity: {}'.format(entity))
+                        e.add_note(f'processing sub-entities of entity: {entity}')
                         raise
                     for conditional_sub_entity in entity.describe_conditional_sub_entities():
                         process_entities(

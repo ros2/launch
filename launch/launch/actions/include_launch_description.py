@@ -165,7 +165,7 @@ class IncludeLaunchDescription(Action):
             declared_launch_arguments = (
                 launch_description.get_launch_arguments_with_include_launch_description_actions())
         except Exception as exc:
-            exc.add_note('while executing {}'.format(self.describe()))
+            exc.add_note(f'while executing {self.describe()}')
             raise
         for argument, ild_actions in declared_launch_arguments:
             if argument._conditionally_included or argument.default_value is not None:
@@ -190,5 +190,5 @@ class IncludeLaunchDescription(Action):
         return [*set_launch_configuration_actions, launch_description]
 
     def __repr__(self) -> Text:
-        """Return a description of this include as a string."""
-        return 'IncludeLaunchDescription({})'.format(self.__launch_description_source.location)
+        """Return a description of this IncludeLaunchDescription as a string."""
+        return f'IncludeLaunchDescription({self.__launch_description_source.location})'
