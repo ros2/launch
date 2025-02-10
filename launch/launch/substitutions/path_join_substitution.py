@@ -45,5 +45,5 @@ class PathJoinSubstitution(Substitution):
         performed_substitutions = [sub.perform(context) for sub in self.__substitutions]
         return os.path.join(*performed_substitutions)
 
-    def __repr__(self):
+    def __repr__(self) -> Text:
         return self.describe()
