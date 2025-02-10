@@ -36,7 +36,7 @@ class PathJoinSubstitution(Substitution):
         """Getter for variable_name."""
         return self.__substitutions
 
-    def describe(self) -> Text:
+    def __repr__(self) -> Text:
         """Return a description of this substitution as a string."""
         return f"PathJoin('{' + '.join([s.describe() for s in self.substitutions])}')"
 
@@ -44,6 +44,3 @@ class PathJoinSubstitution(Substitution):
         """Perform the substitution by retrieving the local variable."""
         performed_substitutions = [sub.perform(context) for sub in self.__substitutions]
         return os.path.join(*performed_substitutions)
-
-    def __repr__(self) -> Text:
-        return self.describe()
