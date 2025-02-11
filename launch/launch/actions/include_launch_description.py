@@ -165,7 +165,8 @@ class IncludeLaunchDescription(Action):
             declared_launch_arguments = (
                 launch_description.get_launch_arguments_with_include_launch_description_actions())
         except Exception as exc:
-            exc.add_note(f'while executing {self.describe()}')
+            if hasattr(exc, 'add_note'):
+                exc.add_note(f'while executing {self.describe()}')
             raise
         for argument, ild_actions in declared_launch_arguments:
             if argument._conditionally_included or argument.default_value is not None:
