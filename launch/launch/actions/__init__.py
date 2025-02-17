@@ -19,6 +19,7 @@ from .append_environment_variable import AppendEnvironmentVariable  # noqa: I100
 from .emit_event import EmitEvent
 from .execute_local import ExecuteLocal
 from .execute_process import ExecuteProcess
+from .for_loop import ForLoop
 from .group_action import GroupAction
 from .include_launch_description import IncludeLaunchDescription
 from .log_info import LogInfo
@@ -45,6 +46,7 @@ __all__ = [
     'EmitEvent',
     'ExecuteLocal',
     'ExecuteProcess',
+    'ForLoop',
     'GroupAction',
     'IncludeLaunchDescription',
     'LogInfo',
