@@ -1,4 +1,4 @@
-# Copyright 2024 Open Source Robotics Foundation, Inc.
+# Copyright 2025 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,18 +27,18 @@ from ..substitution import Substitution
 from ..utilities import perform_substitutions
 
 
-@expose_substitution('index')
-class ForLoopIndex(Substitution):
-    """Substitution for a ForLoop iteration index value."""
+@expose_substitution('for-var')
+class ForEachVar(Substitution):
+    """Substitution for a ForEach iteration variable value."""
 
     def __init__(
         self,
         name: SomeSubstitutionsType,
     ) -> None:
         """
-        Create a ForLoopIndex.
+        Create a ForEachVar.
 
-        :param name: the name of the ForLoop index which this substitution is part of
+        :param name: the name of the ForEach iteration variable
         """
         super().__init__()
 
@@ -51,20 +51,43 @@ class ForLoopIndex(Substitution):
         return self._name
 
     def describe(self) -> Text:
-        return f"ForLoopIndex(name={' + '.join([sub.describe() for sub in self._name])})"
+        return (
+            f"{self.__class__.__name__}(name={' + '.join([sub.describe() for sub in self._name])})"
+        )
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]):
         if len(data) != 1:
-            raise ValueError('ForLoopIndex substitution expects 1 argument')
+            raise ValueError(f'{cls.__name__} substitution expects 1 argument')
         kwargs = {}
         kwargs['name'] = data[0]
         return cls, kwargs
 
     def perform(self, context: LaunchContext) -> Text:
         name = perform_substitutions(context, self._name)
-        self._logger.debug('name=' + name)
-        index_substitution = LocalSubstitution(name)
-        index = perform_substitutions(context, [index_substitution])
-        self._logger.debug('index=' + index)
-        return index
+        self._logger.debug(f'name={name}')
+        variable_substitution = LocalSubstitution(self.get_local_arg_name(name))
+        value = perform_substitutions(context, [variable_substitution])
+        self._logger.debug(f'{name}={value}')
+        return value
+
+    @classmethod
+    def get_local_arg_name(cls, name: str) -> str:
+        # Prevent local variable collisions
+        return f'ForEachVar__{name}'
+
+
+@expose_substitution('index')
+class ForLoopIndex(ForEachVar):
+    """Substitution for a ForLoop iteration index value."""
+
+    def __init__(
+        self,
+        name: SomeSubstitutionsType,
+    ) -> None:
+        """
+        Create a ForLoopIndex.
+
+        :param name: the name of the ForLoop index which this substitution is part of
+        """
+        super().__init__(name)
