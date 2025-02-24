@@ -33,9 +33,12 @@ def test_for_each():
     xml_file = textwrap.dedent(
         """
         <launch>
-            <arg name="robots" default="{name: 'a', id: 1};{name: 'b', id: 2}" />
+            <arg
+                name="robots"
+                default="{name: 'a', id: 1};{name: 'b', id: 2};{name: 'c', opt: '*'}"
+            />
             <for_each values="$(var robots)" >
-                <log message="'$(for-var name)' id=$(for-var id)" />
+                <log message="'$(for-var name)' id=$(for-var id 0) ($(for-var opt 'none'))" />
             </for_each>
         </launch>
         """
@@ -55,7 +58,7 @@ def test_for_each():
     #   N user-defined entities
     #   1 OpaqueFunction
     # = 3 + N entitites/iteration
-    assert len(actions) == 2 * (3 + 1)
+    assert len(actions) == 3 * (3 + 1)
     assert isinstance(actions[0], OpaqueFunction)
     assert isinstance(actions[1], OpaqueFunction)
     assert isinstance(actions[2], LogInfo)
@@ -64,13 +67,18 @@ def test_for_each():
     assert isinstance(actions[5], OpaqueFunction)
     assert isinstance(actions[6], LogInfo)
     assert isinstance(actions[7], OpaqueFunction)
+    assert isinstance(actions[8], OpaqueFunction)
+    assert isinstance(actions[9], OpaqueFunction)
+    assert isinstance(actions[10], LogInfo)
+    assert isinstance(actions[11], OpaqueFunction)
     actions[0].visit(lc)
     actions[1].visit(lc)
     actions[2].visit(lc)
     assert isinstance(actions[2].msg[1], ForEachVar)
     assert perform_substitutions(lc, actions[2].msg[1].name) == 'name'
     assert perform_substitutions(lc, actions[2].msg[3].name) == 'id'
-    assert perform_substitutions(lc, actions[2].msg) == "'a' id=1"
+    assert perform_substitutions(lc, actions[2].msg[5].name) == 'opt'
+    assert perform_substitutions(lc, actions[2].msg) == "'a' id=1 (none)"
     actions[3].visit(lc)
     actions[4].visit(lc)
     actions[5].visit(lc)
@@ -78,8 +86,18 @@ def test_for_each():
     assert isinstance(actions[6].msg[1], ForEachVar)
     assert perform_substitutions(lc, actions[6].msg[1].name) == 'name'
     assert perform_substitutions(lc, actions[6].msg[3].name) == 'id'
-    assert perform_substitutions(lc, actions[6].msg) == "'b' id=2"
+    assert perform_substitutions(lc, actions[6].msg[5].name) == 'opt'
+    assert perform_substitutions(lc, actions[6].msg) == "'b' id=2 (none)"
     actions[7].visit(lc)
+    actions[8].visit(lc)
+    actions[9].visit(lc)
+    actions[10].visit(lc)
+    assert isinstance(actions[10].msg[1], ForEachVar)
+    assert perform_substitutions(lc, actions[10].msg[1].name) == 'name'
+    assert perform_substitutions(lc, actions[10].msg[3].name) == 'id'
+    assert perform_substitutions(lc, actions[10].msg[5].name) == 'opt'
+    assert perform_substitutions(lc, actions[10].msg) == "'c' id=0 (*)"
+    actions[11].visit(lc)
 
 
 def test_for_loop():

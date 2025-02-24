@@ -15,10 +15,10 @@
 """Module for the ForLoopIndex substitution."""
 
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Text
 
-from .local_substitution import LocalSubstitution
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
 from ..logging import get_logger
@@ -29,45 +29,73 @@ from ..utilities import perform_substitutions
 
 @expose_substitution('for-var')
 class ForEachVar(Substitution):
-    """Substitution for a ForEach iteration variable value."""
+    """Substitution for a :class:`launch.actions.ForEach` iteration variable value."""
 
     def __init__(
         self,
         name: SomeSubstitutionsType,
+        *,
+        default_value: Optional[SomeSubstitutionsType] = None,
     ) -> None:
         """
         Create a ForEachVar.
 
-        :param name: the name of the ForEach iteration variable
+        :param name: the name of the :class:`launch.actions.ForEach` iteration variable
+        :param default_value: a default value for the variable if a value is not available for a
+            given iteration
         """
         super().__init__()
 
         from ..utilities import normalize_to_list_of_substitutions  # import here to avoid loop
         self._name = normalize_to_list_of_substitutions(name)
+        self._default_value = (
+            normalize_to_list_of_substitutions(default_value)
+            if default_value is not None
+            else None
+        )
         self._logger = get_logger(__name__)
 
     @property
     def name(self) -> List[Substitution]:
         return self._name
 
+    @property
+    def default_value(self) -> Optional[List[Substitution]]:
+        return self._default_value
+
     def describe(self) -> Text:
         return (
-            f"{self.__class__.__name__}(name={' + '.join([sub.describe() for sub in self._name])})"
+            self.__class__.__name__ +
+            '(' +
+            f"name={' + '.join([sub.describe() for sub in self._name])}" +
+            ', ' +
+            f"default_value={' + '.join([sub.describe() for sub in self._default_value or []])}" +
+            ')'
         )
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]):
-        if len(data) != 1:
-            raise ValueError(f'{cls.__name__} substitution expects 1 argument')
+        if not any(len(data) == length for length in (1, 2)):
+            raise ValueError(f'{cls.__name__} substitution expects 1 or 2 arguments')
         kwargs = {}
         kwargs['name'] = data[0]
+        if len(data) == 2:
+            kwargs['default_value'] = data[1]
         return cls, kwargs
 
     def perform(self, context: LaunchContext) -> Text:
         name = perform_substitutions(context, self._name)
         self._logger.debug(f'name={name}')
-        variable_substitution = LocalSubstitution(self.get_local_arg_name(name))
-        value = perform_substitutions(context, [variable_substitution])
+        local_arg_name = self.get_local_arg_name(name)
+        if not hasattr(context.locals, local_arg_name):
+            if self._default_value is None:
+                raise RuntimeError(
+                    f'No value available for {self.__class__.__name__} '
+                    f"'{name}' and no default value provided"
+                )
+            value = perform_substitutions(context, self._default_value)
+        else:
+            value = getattr(context.locals, local_arg_name)
         self._logger.debug(f'{name}={value}')
         return value
 
@@ -79,15 +107,17 @@ class ForEachVar(Substitution):
 
 @expose_substitution('index')
 class ForLoopIndex(ForEachVar):
-    """Substitution for a ForLoop iteration index value."""
+    """Substitution for a :class:`launch.actions.ForLoop` iteration index value."""
 
     def __init__(
         self,
         name: SomeSubstitutionsType,
+        **kwargs,
     ) -> None:
         """
         Create a ForLoopIndex.
 
-        :param name: the name of the ForLoop index which this substitution is part of
+        :param name: the name of the :class:`launch.actions.ForLoop` index which this substitution
+            is part of
         """
         super().__init__(name)

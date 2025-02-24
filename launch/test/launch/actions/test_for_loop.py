@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the ForLoop action."""
+"""Tests for the ForEach and ForLoop actions."""
 
 from typing import Any
 from typing import Callable

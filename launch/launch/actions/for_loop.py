@@ -81,7 +81,8 @@ class ForEach(Action):
 
     When using this action through a frontend, provide entities to be instantiated for each loop
     iteration as child entities. Use a `$(for-var)` substitution (:class:`ForEachVar`) with the
-    name of the for-each variable.
+    name of the for-each variable, e.g., `$(for-var name)`. A default value can be provided for the
+    variable if it is not available for a given iteration, e.g., `$(for-var name default)`.
 
     Simple examples:
 
