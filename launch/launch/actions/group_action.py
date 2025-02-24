@@ -97,7 +97,7 @@ class GroupAction(Action):
             self.__launch_configurations = launch_configurations
         else:
             self.__launch_configurations = {}
-        self.__actions_to_return: Optional[List] = None
+        self.__actions_to_return: Optional[List[LaunchDescriptionEntity]] = None
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser

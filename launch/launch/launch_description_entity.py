@@ -134,7 +134,7 @@ class LaunchDescriptionEntity:
         """
         return None
 
-    def get_asyncio_future(self) -> Optional[asyncio.Future]:
+    def get_asyncio_future(self) -> Optional[asyncio.Future[None]]:
         """
         Return an asyncio Future, or None if there are no on-going tasks.
 

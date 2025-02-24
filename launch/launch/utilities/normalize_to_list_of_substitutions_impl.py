@@ -17,6 +17,7 @@
 from typing import cast
 from typing import Iterable
 from typing import List
+from typing import Text
 from typing import Union
 
 from .class_tools_impl import is_a_subclass
@@ -42,4 +43,4 @@ def normalize_to_list_of_substitutions(subs: SomeSubstitutionsType) -> List[Subs
         return [TextSubstitution(text=subs)]
     if is_a_subclass(subs, Substitution):
         return [cast(Substitution, subs)]
-    return [normalize(y) for y in cast(Iterable, subs)]
+    return [normalize(y) for y in cast(Iterable[Union[Text, Substitution]], subs)]

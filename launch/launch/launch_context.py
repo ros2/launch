@@ -23,6 +23,7 @@ from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Mapping
 from typing import MutableMapping
+from typing import NoReturn
 from typing import Optional
 from typing import Text
 from typing import Union
@@ -55,15 +56,15 @@ class LaunchContext:
 
         self._event_queue: asyncio.Queue[Event] = asyncio.Queue()
         self._event_handlers: collections.deque[BaseEventHandler] = collections.deque()
-        self._completion_futures: List[asyncio.Future] = []
+        self._completion_futures: List[asyncio.Future[Any]] = []
 
         self.__globals: Dict[Text, Any] = {}
         self.__locals_stack: List[Dict[Text, Any]] = []
         self.__locals: Dict[Text, Any] = {}
         self.__combined_locals_cache: Optional[Dict[Text, Any]] = None
 
-        self.__launch_configurations_stack: List[Dict[Text, Text]] = []
-        self.__launch_configurations: Dict[Text, Text] = {}
+        self.__launch_configurations_stack: List[Dict[Text, Any]] = []
+        self.__launch_configurations: Dict[Text, Any] = {}
 
         self.__environment_stack: List[Mapping[Text, Text]] = []
         # We will reset to this copy when "reset_environment" is called
@@ -92,7 +93,7 @@ class LaunchContext:
         """Getter for is_shutdown."""
         return self.__is_shutdown
 
-    def _set_asyncio_loop(self, loop: asyncio.AbstractEventLoop) -> None:
+    def _set_asyncio_loop(self, loop: Optional[asyncio.AbstractEventLoop]) -> None:
         self.__asyncio_loop = loop
 
     @property
@@ -100,7 +101,7 @@ class LaunchContext:
         """Getter for asyncio_loop."""
         return self.__asyncio_loop
 
-    def add_completion_future(self, completion_future: asyncio.Future) -> None:
+    def add_completion_future(self, completion_future: asyncio.Future[Any]) -> None:
         """Add an asyncio.Future to the list of futures that the LaunchService will wait on."""
         self._completion_futures.append(completion_future)
 
@@ -160,7 +161,7 @@ class LaunchContext:
                     )
                 return _dict[key]
 
-            def __setattr__(self, key, value):
+            def __setattr__(self, key: Text, value: Any) -> NoReturn:
                 raise AttributeError("can't set attribute '{}', locals are read-only".format(key))
 
         return AttributeDict(self._get_combined_locals())
@@ -198,7 +199,7 @@ class LaunchContext:
         self.__launch_configurations = self.__launch_configurations_stack.pop()
 
     @property
-    def launch_configurations(self) -> Dict[Text, Text]:
+    def launch_configurations(self) -> Dict[Text, Any]:
         """Getter for launch_configurations dictionary."""
         return self.__launch_configurations
 

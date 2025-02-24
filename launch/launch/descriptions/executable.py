@@ -141,7 +141,7 @@ class Executable:
         return self.__arguments
 
     @property
-    def final_name(self):
+    def final_name(self) -> Optional[str]:
         """Getter for final_name."""
         return self.__final_name
 

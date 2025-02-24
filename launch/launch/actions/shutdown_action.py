@@ -15,6 +15,7 @@
 """Module for the Shutdown action."""
 
 import logging
+from typing import Any
 from typing import List
 from typing import Text
 from typing import Tuple
@@ -44,7 +45,7 @@ class ShutdownParsedDict(ActionParsedDict, total=False):
 class Shutdown(EmitEvent):
     """Action that shuts down a launched system by emitting Shutdown when executed."""
 
-    def __init__(self, *, reason: Text = 'reason not given', **kwargs):
+    def __init__(self, *, reason: Text = 'reason not given', **kwargs: Any):
         super().__init__(event=ShutdownEvent(reason=reason), **kwargs)
 
     @classmethod

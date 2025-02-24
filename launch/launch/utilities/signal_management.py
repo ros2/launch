@@ -22,10 +22,12 @@ import signal
 import socket
 import threading
 
+from types import TracebackType
 from typing import Callable
 from typing import Dict
 from typing import Optional
 from typing import Tuple  # noqa: F401
+from typing import Type
 from typing import Union
 
 
@@ -81,7 +83,7 @@ class AsyncSafeSignalManager:
         self.__prev_wakeup_handle: Union[int, socket.socket] = -1
         self.__wsock: Optional[socket.socket] = None
         self.__rsock: Optional[socket.socket] = None
-        self.__close_sockets: Optional[Callable] = None
+        self.__close_sockets: Optional[Callable[[], None]] = None
 
     def __enter__(self) -> 'AsyncSafeSignalManager':
         pair = socket.socketpair()  # type: Tuple[socket.socket, socket.socket]  # noqa
@@ -108,7 +110,9 @@ class AsyncSafeSignalManager:
         self.__chain()
         return self
 
-    def __exit__(self, exc_type, exc_value, exc_traceback) -> None:
+    def __exit__(self, exc_type: Optional[Type[BaseException]],
+                 exc_value: Optional[BaseException],
+                 exc_traceback: Optional[TracebackType]) -> None:
         try:
             try:
                 self.__uninstall_signal_writers()
@@ -173,7 +177,7 @@ class AsyncSafeSignalManager:
         own_wakeup_handle = self.__set_wakeup_fd(prev_wakeup_handle)
         assert self.__wsock and self.__wsock.fileno() == own_wakeup_handle
 
-    def __chain(self):
+    def __chain(self) -> None:
         self.__parent = AsyncSafeSignalManager.__current
         AsyncSafeSignalManager.__current = self
         if self.__parent is None:

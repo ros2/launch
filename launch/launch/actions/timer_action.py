@@ -218,6 +218,6 @@ class TimerAction(Action):
 
         return None
 
-    def get_asyncio_future(self) -> Optional[asyncio.Future]:
+    def get_asyncio_future(self) -> Optional[asyncio.Future[None]]:
         """Return an asyncio Future, used to let the launch system know when we're done."""
         return self._completed_future

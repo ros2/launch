@@ -507,7 +507,7 @@ def normalize_typed_substitution(
     )
 
 
-def is_normalized_substitution(x):
+def is_normalized_substitution(x: object) -> bool:
     """
     Return `True` if `x` is a normalized substitution.
 

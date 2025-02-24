@@ -91,7 +91,7 @@ class OpaqueCoroutine(Action):
         if kwargs is not None:
             self.__kwargs = kwargs
         self.__ignore_context = ignore_context  # type: bool
-        self.__future = None  # type: Optional[asyncio.Future]
+        self.__future = None  # type: Optional[asyncio.Future[None]]
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
         """Cancel ongoing coroutine upon shutdown."""
@@ -112,6 +112,6 @@ class OpaqueCoroutine(Action):
         )
         return None
 
-    def get_asyncio_future(self) -> Optional[asyncio.Future]:
+    def get_asyncio_future(self) -> Optional[asyncio.Future[None]]:
         """Return an asyncio Future, used to let the launch system know when we're done."""
         return self.__future
