@@ -22,12 +22,19 @@ from typing import Mapping
 from typing import Optional
 from typing import Protocol
 from typing import Text
+from typing import Tuple
+from typing import Type
+
+from typing_extensions import NotRequired
+from typing_extensions import Self
+
 
 # yaml has type annotations in typeshed, but those cannot be installed via rosdep
 # since there is no definition for types-PyYAML
 import yaml  # type: ignore
 
 from ..action import Action
+from ..action import ActionParsedDict
 from ..actions.opaque_function import OpaqueFunction
 from ..frontend import Entity
 from ..frontend import expose_action
@@ -39,6 +46,11 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..substitutions import ForEachVar
 from ..utilities import perform_substitutions
+
+
+class ForEachParsedDict(ActionParsedDict):
+    input_values: NotRequired[List[Substitution]]
+    function: Callable[..., List[LaunchDescriptionEntity]]
 
 
 @expose_action('for_each')
@@ -169,18 +181,21 @@ class ForEach(Action):
         )
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser) -> Tuple[Type[Self], ForEachParsedDict]:
         """Return `ForEach` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        input_values = entity.get_attr('values')
-        if input_values is not None:
-            kwargs['input_values'] = parser.parse_substitution(input_values)
         parsed_children = [parser.parse_action(e) for e in entity.children]
 
         def for_each(**iteration_vars) -> List[LaunchDescriptionEntity]:
             return cls._get_iteration_entities(parsed_children, iteration_vars)
-        kwargs['function'] = for_each
-        return cls, kwargs
+        new_kwargs = ForEachParsedDict(
+            function=for_each,
+            **kwargs)
+
+        input_values = entity.get_attr('values')
+        if input_values is not None:
+            new_kwargs['input_values'] = parser.parse_substitution(input_values)
+        return cls, new_kwargs
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         # Get the for-each input values
@@ -244,6 +259,12 @@ class ForEach(Action):
         context.extend_locals(
             {ForEachVar.get_local_arg_name(name): str(value) for name, value in args.items()})
         return None
+
+
+class ForLoopParseDict(ActionParsedDict):
+    name: str
+    function: Callable[..., List[LaunchDescriptionEntity]]
+    length: NotRequired[List[Substitution]]
 
 
 @expose_action('for')
@@ -367,20 +388,25 @@ class ForLoop(Action):
         )
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser) -> Tuple[Type[Self], ForLoopParseDict]:
         """Return `ForLoop` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        length = entity.get_attr('len')
-        if length is not None:
-            kwargs['length'] = parser.parse_substitution(length)
         name = entity.get_attr('name')
-        kwargs['name'] = name
         parsed_children = [parser.parse_action(e) for e in entity.children]
 
         def for_i(i: int) -> List[LaunchDescriptionEntity]:
             return ForEach._get_iteration_entities(parsed_children, {name: i})
-        kwargs['function'] = for_i
-        return cls, kwargs
+        new_kwargs = ForLoopParseDict(
+            function=for_i,
+            name=name,
+            **kwargs
+            )
+
+        length = entity.get_attr('len')
+        if length is not None:
+            new_kwargs['length'] = parser.parse_substitution(length)
+
+        return cls, new_kwargs
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         # Get the for-loop length and convert to int
