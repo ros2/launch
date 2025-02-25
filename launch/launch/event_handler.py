@@ -63,7 +63,7 @@ class BaseEventHandler:
 
         This should be overridden.
         """
-        raise NotImplementedError()
+        return ''
 
     @property
     def matcher_description(self) -> Text:
@@ -72,7 +72,7 @@ class BaseEventHandler:
 
         This should be overridden.
         """
-        raise NotImplementedError()
+        return ''
 
     def matches(self, event: Event) -> bool:
         """Return True if the given event should be handled by this event handler."""
