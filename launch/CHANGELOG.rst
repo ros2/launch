@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.0 (2025-02-27)
+------------------
+* Add ForEach action to repeat entities using iteration-specific values (`#802 <https://github.com/ros2/launch/issues/802>`_)
+* Create py.typed (`#828 <https://github.com/ros2/launch/issues/828>`_)
+* Improve error reporting by adding file locations to exceptions (`#823 <https://github.com/ros2/launch/issues/823>`_)
+* add test coverage for substitution edgecases involving E notation (`#824 <https://github.com/ros2/launch/issues/824>`_)
+* Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)
+* Contributors: Chris Lalancette, Christophe Bedard, Michael Carlstrom, Roland Arsenault, danielcranston
+
 3.7.1 (2024-12-20)
 ------------------
 * Fix 'set up' typo (`#813 <https://github.com/ros2/launch/issues/813>`_)

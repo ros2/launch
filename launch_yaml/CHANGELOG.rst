@@ -2,6 +2,13 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.0 (2025-02-27)
+------------------
+* Add ForEach action to repeat entities using iteration-specific values (`#802 <https://github.com/ros2/launch/issues/802>`_)
+* Stop loading extensions during launch\_{xml,yaml} tests. (`#820 <https://github.com/ros2/launch/issues/820>`_)
+* Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)
+* Contributors: Chris Lalancette, Christophe Bedard
+
 3.7.1 (2024-12-20)
 ------------------
 
