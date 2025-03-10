@@ -124,15 +124,15 @@ class ExecuteProcess(ExecuteLocal):
     """
 
     def __init__(
-            self,
-            *,
-            cmd: Iterable[SomeSubstitutionsType],
-            prefix: Optional[SomeSubstitutionsType] = None,
-            name: Optional[SomeSubstitutionsType] = None,
-            cwd: Optional[SomeSubstitutionsType] = None,
-            env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-            additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-            **kwargs
+        self,
+        *,
+        cmd: Iterable[SomeSubstitutionsType],
+        prefix: Optional[SomeSubstitutionsType] = None,
+        name: Optional[SomeSubstitutionsType] = None,
+        cwd: Optional[SomeSubstitutionsType] = None,
+        env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        **kwargs
     ) -> None:
         """
         Construct an ExecuteProcess action.
