@@ -30,6 +30,9 @@ import warnings
 import launch.logging
 
 from .opaque_function import OpaqueFunction
+from .pop_launch_configurations import PopLaunchConfigurations
+from .push_launch_configurations import PushLaunchConfigurations
+from .reset_launch_configurations import ResetLaunchConfigurations
 
 from ..action import Action
 from ..event_handler import EventHandler
@@ -54,6 +57,11 @@ class TimerAction(Action):
     Action that defers other entities until a period of time has passed, unless canceled.
 
     All timers are "one-shot", in that they only fire one time and never again.
+
+    Entities executed after the given period of time can access the launch configurations that
+    exist at the time that the timer action executed, but changes made by them will not persist.
+    This is similar to grouping the entities in a :class:`launch.actions.GroupAction` with
+    ``scoped=True``.
     """
 
     def __init__(
@@ -84,6 +92,7 @@ class TimerAction(Action):
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals: Dict[Text, Any] = {}
+        self.__context_launch_configuration: Dict[Any, Any] = {}
         self._completed_future: Optional[asyncio.Future] = None
         self.__canceled = False
         self._canceled_future: Optional[asyncio.Future] = None
@@ -139,7 +148,14 @@ class TimerAction(Action):
     def handle(self, context: LaunchContext) -> Optional[SomeEntitiesType]:
         """Handle firing of timer."""
         context.extend_locals(self.__context_locals)
-        return self.__actions
+        # Reset the launch configurations to the state they were in when the timer action was
+        # executed, and make sure to push and pop them so that the changes don't persist and leak
+        return [
+            PushLaunchConfigurations(),
+            ResetLaunchConfigurations(self.__context_launch_configuration),
+            *self.__actions,
+            PopLaunchConfigurations(),
+        ]
 
     def cancel(self) -> None:
         """
@@ -189,8 +205,11 @@ class TimerAction(Action):
             ))
             setattr(context, '_TimerAction__event_handler_has_been_installed', True)
 
-        # Capture the current context locals so the yielded actions can make use of them too.
-        self.__context_locals = dict(context.get_locals_as_dict())  # Capture a copy
+        # Capture the current context locals and launch configuration so the yielded actions can
+        # make use of them too.
+        # Make sure to capture copies
+        self.__context_locals = dict(context.get_locals_as_dict())
+        self.__context_launch_configuration = context.launch_configurations.copy()
         context.asyncio_loop.create_task(self._wait_to_fire_event(context))
 
         # By default, the 'shutdown' event will cause timers to cancel so they don't hold up the
