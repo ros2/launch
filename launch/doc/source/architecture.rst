@@ -90,7 +90,7 @@ This is a non-exhaustive list of actions that `launch` may provide:
 
 - :class:`launch.actions.LogInfo`:
 
-  - This action will log a user defined message to the logger, other variants (e.g. `LogWarn`) could also exist.
+  - This action will log a user defined message to the logger, other variants (e.g. ``LogWarn``) could also exist.
 
 - :class:`launch.actions.RaiseError`
 
@@ -142,7 +142,7 @@ There are many possible variations of a substitution, but here are some of the c
 - :class:`launch.substitutions.LocalSubstitution`
 
   - This substitution gets a "local" variable out of the context. This is a mechanism that allows a "parent" action to pass information to sub actions.
-  - As an example, consider this pseudo code example `OnShutdown(actions=LogInfo(msg=["shutdown due to: ", LocalSubstitution(expression='event.reason')]))`, which assumes that `OnShutdown` will put the shutdown event in the locals before `LogInfo` is visited.
+  - As an example, consider this pseudo code example ``OnShutdown(actions=LogInfo(msg=["shutdown due to: ", LocalSubstitution(expression='event.reason')]))``, which assumes that ``OnShutdown`` will put the shutdown event in the locals before ``LogInfo`` is visited.
 
 - :class:`launch.substitutions.EnvironmentVariable`
 
@@ -191,7 +191,7 @@ Event handlers define two main methods, the :meth:`launch.EventHandler.matches` 
 The matches method gets the event as input and must return `True` if the event handler matches that event, or `False` otherwise.
 The handle method gets the event and launch context as input, and can optionally (in addition to any side effects) return a list of :class:`launch.LaunchDescriptionEntity` objects to be visited by the launch service.
 
-Event handlers do not inherit from :class:`launch.LaunchDescriptionEntity`, but can similarly be "visited" for each event processed by the launch service, seeing if `matches` returns `True` and if so following up with a call to `handle`, then visiting each of the actions returned by `handle`, depth-first.
+Event handlers do not inherit from :class:`launch.LaunchDescriptionEntity`, but can similarly be "visited" for each event processed by the launch service, seeing if ``matches`` returns ``True`` and if so following up with a call to ``handle``, then visiting each of the actions returned by ``handle``, depth-first.
 
 Extension Points
 ----------------
@@ -215,4 +215,4 @@ External Python packages, through extension points, may add:
 
   - must directly or indirectly inherit from :class:`launch.LaunchDescriptionEntity`
 
-In the future, more traditional extensions (like with `setuptools`' `entry_point` feature) may be available via the launch service, e.g. the ability to include some extra entities and event handlers before the launch description is included.
+In the future, more traditional extensions (like with ``setuptools``' ``entry_point`` feature) may be available via the launch service, e.g. the ability to include some extra entities and event handlers before the launch description is included.
