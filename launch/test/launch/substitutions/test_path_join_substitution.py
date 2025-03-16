@@ -16,10 +16,18 @@
 
 import os
 
+from launch import LaunchContext
 from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import TextSubstitution
 
 
 def test_path_join():
+    context = LaunchContext()
+
     path = ['asd', 'bsd', 'cds']
     sub = PathJoinSubstitution(path)
-    assert sub.perform(None) == os.path.join(*path)
+    assert sub.perform(context) == os.path.join(*path)
+
+    path = ['path', ['to'], ['my_', TextSubstitution(text='file'), '.yaml']]
+    sub = PathJoinSubstitution(path)
+    assert sub.perform(context) == os.path.join('path', 'to', 'my_file.yaml')
