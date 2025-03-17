@@ -23,6 +23,7 @@ from .for_loop import ForEach
 from .for_loop import ForLoop
 from .group_action import GroupAction
 from .include_launch_description import IncludeLaunchDescription
+from .include_scoped_launch_description import ScopedIncludeLaunchDescription
 from .log_info import LogInfo
 from .opaque_coroutine import OpaqueCoroutine
 from .opaque_function import OpaqueFunction
@@ -51,6 +52,7 @@ __all__ = [
     'ForLoop',
     'GroupAction',
     'IncludeLaunchDescription',
+    'ScopedIncludeLaunchDescription',
     'LogInfo',
     'OpaqueCoroutine',
     'OpaqueFunction',
