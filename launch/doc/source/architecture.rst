@@ -120,7 +120,8 @@ There are many possible variations of a substitution, but here are some of the c
 - :class:`launch.substitutions.Text`
 
   - This substitution simply returns the given string when evaluated.
-  - It is usually used to wrap literals in the launch description so they can be concatenated with other substitutions.
+  - It is usually used to normalize literals by wrapping them into substitutions in the launch description so they can be concatenated with other substitutions (see :func:`launch.utilities.normalize_to_list_of_substitutions`).
+  - An iterable of substitutions is concatenated into a single string (see :func:`launch.utilities.perform_substitutions`).
 
 - :class:`launch.substitutions.PythonExpression`
 
