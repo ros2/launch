@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.8 (2025-03-25)
+------------------
+* Document substitutions concatenation in architecture doc (`#845 <https://github.com/ros2/launch/issues/845>`_) (`#847 <https://github.com/ros2/launch/issues/847>`_)
+* Update docs to use proper RST literals (`#837 <https://github.com/ros2/launch/issues/837>`_) (`#840 <https://github.com/ros2/launch/issues/840>`_)
+* Contributors: mergify[bot]
+
 1.0.7 (2024-11-25)
 ------------------
 
