@@ -2,6 +2,20 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Document substitutions concatenation in architecture doc (`#845 <https://github.com/ros2/launch/issues/845>`_) (`#846 <https://github.com/ros2/launch/issues/846>`_)
+  (cherry picked from commit 6fcc79e38fa711e04be3d392a6691a36ea5de214)
+  Co-authored-by: Christophe Bedard <bedard.christophe@gmail.com>
+* Update docs to use proper RST literals (`#837 <https://github.com/ros2/launch/issues/837>`_) (`#839 <https://github.com/ros2/launch/issues/839>`_)
+  (cherry picked from commit 3694dc2a14fdf0dd5ccf9e950ab9d8b60bee8a79)
+  Co-authored-by: Christophe Bedard <bedard.christophe@gmail.com>
+* Merge pull request `#834 <https://github.com/ros2/launch/issues/834>`_ from ros2/mergify/bp/jazzy/pr-833
+  Fix function params indentation (backport `#833 <https://github.com/ros2/launch/issues/833>`_)
+* Fix function params indentation (`#833 <https://github.com/ros2/launch/issues/833>`_)
+  (cherry picked from commit 151b024a7cfac06f0d56798cbe87ab180b9ea3ab)
+* Contributors: Alejandro Hernández Cordero, Christophe Bedard, mergify[bot]
+
 3.4.3 (2024-12-18)
 ------------------
 * Fix 'set up' typo (`#813 <https://github.com/ros2/launch/issues/813>`_) (`#814 <https://github.com/ros2/launch/issues/814>`_)
