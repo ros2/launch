@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.4.4 (2025-04-02)
+------------------
 * Document substitutions concatenation in architecture doc (`#845 <https://github.com/ros2/launch/issues/845>`_) (`#846 <https://github.com/ros2/launch/issues/846>`_)
   (cherry picked from commit 6fcc79e38fa711e04be3d392a6691a36ea5de214)
   Co-authored-by: Christophe Bedard <bedard.christophe@gmail.com>
