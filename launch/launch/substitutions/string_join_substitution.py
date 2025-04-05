@@ -48,10 +48,12 @@ class StringJoinSubstitution(Substitution):
     """
 
     def __init__(
-        self, substitutions: Iterable[SomeSubstitutionsType], delimiter: str = ''
+        self,
+        substitutions: Iterable[SomeSubstitutionsType],
+        delimiter: SomeSubstitutionsType = "",
     ) -> None:
         """
-        Create a StringJointSubstitution.
+        Create a StringJoinSubstitution.
 
         :param substitutions: the list of string component substitutions to join
         :param delimiter: the text inbetween two consecutive components (default no text)
@@ -62,7 +64,7 @@ class StringJoinSubstitution(Substitution):
             normalize_to_list_of_substitutions(string_component_substitutions)
             for string_component_substitutions in substitutions
         ]
-        self.__delimiter = delimiter
+        self.__delimiter = normalize_to_list_of_substitutions(delimiter)
 
     @property
     def substitutions(self) -> List[List[Substitution]]:
@@ -80,9 +82,10 @@ class StringJoinSubstitution(Substitution):
             ' + '.join([s.describe() for s in component_substitutions])
             for component_substitutions in self.substitutions
         ]
+        delimiter_component = ' + '.join([d.describe() for d in self.delimiter])
         return (
             f'StringJoinSubstitution(['
-            f'{", ".join(string_components)}], delimiter={self.delimiter})'
+            f'{", ".join(string_components)}], delimiter={delimiter_component})'
         )
 
     def perform(self, context: LaunchContext) -> Text:
@@ -91,4 +94,5 @@ class StringJoinSubstitution(Substitution):
             perform_substitutions(context, component_substitutions)
             for component_substitutions in self.substitutions
         ]
-        return self.delimiter.join(string_components)
+        delimiter_component = perform_substitutions(context, self.delimiter)
+        return delimiter_component.join(string_components)
