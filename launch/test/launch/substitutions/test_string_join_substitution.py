@@ -42,6 +42,7 @@ def test_string_join_with_delimiter():
     sub_with_sub = StringJoinSubstitution(strings, delimiter='.')
     assert sub_with_sub.perform(context) == 'abc.def.ghijkl.mno'
 
+
 def test_string_join_with_substitution_delimiter():
     context = LaunchContext()
 
@@ -66,5 +67,5 @@ def test_string_join_with_substitution_delimiter():
     assert sub.perform(context) == '(^_^)'.join(strings)
 
     strings = ['abc', ['def'], [TextSubstitution(text='ghi'), 'jkl'], TextSubstitution(text='mno')]
-    sub_with_sub = StringJoinSubstitution(strings, delimiter=['(^', TextSubstitution(text='_'), '^)'])
+    sub_with_sub = StringJoinSubstitution(strings, delimiter=[TextSubstitution(text='(^_'), '^)'])
     assert sub_with_sub.perform(context) == 'abc(^_^)def(^_^)ghijkl(^_^)mno'

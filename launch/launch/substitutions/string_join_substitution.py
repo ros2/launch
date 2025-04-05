@@ -50,7 +50,7 @@ class StringJoinSubstitution(Substitution):
     def __init__(
         self,
         substitutions: Iterable[SomeSubstitutionsType],
-        delimiter: SomeSubstitutionsType = "",
+        delimiter: SomeSubstitutionsType = '',
     ) -> None:
         """
         Create a StringJoinSubstitution.
