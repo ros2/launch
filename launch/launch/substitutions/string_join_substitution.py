@@ -72,7 +72,7 @@ class StringJoinSubstitution(Substitution):
         return self.__substitutions
 
     @property
-    def delimiter(self) -> Text:
+    def delimiter(self) -> List[Substitution]:
         """Getter for delimiter."""
         return self.__delimiter
 
