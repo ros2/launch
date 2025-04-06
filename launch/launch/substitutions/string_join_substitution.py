@@ -35,7 +35,7 @@ class StringJoinSubstitution(Substitution):
     .. code-block:: python
 
         StringJoinSubstitution(
-            ['https://', LaunchConfiguration('subdomain')], 'ros', 'org'],
+            [['https', '://'], LaunchConfiguration('subdomain')], 'ros', 'org'],
             delimiter='.'
         )
 
