@@ -14,14 +14,16 @@
 
 """Module for the StringJoinSubstitution substitution."""
 
-from typing import Iterable, List, Text
+from typing import Iterable, List, Sequence, Text
 
+from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import perform_substitutions
 
 
+@expose_substitution('string-join')
 class StringJoinSubstitution(Substitution):
     """
     Substitution that joins strings and/or other substitutions.
@@ -75,6 +77,18 @@ class StringJoinSubstitution(Substitution):
     def delimiter(self) -> List[Substitution]:
         """Getter for delimiter."""
         return self.__delimiter
+
+    @classmethod
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
+        """Parse `StringJoinSubstitution` substitution."""
+        if len(data) < 2:
+            raise TypeError(
+                'string-join substitution expects at least 2 arguments (delimiter at first position)'
+            )
+        kwargs = {}
+        kwargs['delimiter'] = data[0]
+        kwargs['substitutions'] = data[1:]
+        return cls, kwargs
 
     def __repr__(self) -> Text:
         """Return a description of this substitution as a string."""
