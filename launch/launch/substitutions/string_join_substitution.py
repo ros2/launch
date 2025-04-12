@@ -16,6 +16,8 @@
 
 from typing import Iterable, List, Sequence, Text
 
+from launch.utilities.normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
+
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
@@ -83,11 +85,14 @@ class StringJoinSubstitution(Substitution):
         """Parse `StringJoinSubstitution` substitution."""
         if len(data) < 2:
             raise TypeError(
-                'string-join substitution expects at least 2 arguments (delimiter at first position)'
+                'string-join substitution expects at least 2 arguments'
             )
         kwargs = {}
         kwargs['delimiter'] = data[0]
-        kwargs['substitutions'] = data[1:]
+        kwargs['substitutions'] = [
+            normalize_to_list_of_substitutions(string_component_substitutions)
+            for string_component_substitutions in data[1:]
+        ]
         return cls, kwargs
 
     def __repr__(self) -> Text:
