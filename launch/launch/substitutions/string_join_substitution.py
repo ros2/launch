@@ -16,8 +16,6 @@
 
 from typing import Iterable, List, Sequence, Text
 
-from launch.utilities.normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
-
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
@@ -89,10 +87,7 @@ class StringJoinSubstitution(Substitution):
             )
         kwargs = {}
         kwargs['delimiter'] = data[0]
-        kwargs['substitutions'] = [
-            normalize_to_list_of_substitutions(string_component_substitutions)
-            for string_component_substitutions in data[1:]
-        ]
+        kwargs['substitutions'] = iter(data[1:])
         return cls, kwargs
 
     def __repr__(self) -> Text:
