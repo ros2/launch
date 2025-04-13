@@ -91,7 +91,7 @@ class ForEach(Action):
         <launch>
             <arg name="robots" default="{name: 'robotA', id: 1};{name: 'robotB', id: 2}" />
             <for_each values="$(var robots)" >
-                <log message="'$(for-var name)' id=$(for-var id)" />
+                <log_info message="'$(for-var name)' id=$(for-var id)" />
             </for_each>
         </launch>
 
@@ -104,7 +104,7 @@ class ForEach(Action):
             - for_each:
                 iter: $(var robots)
                 children:
-                    - log:
+                    - log_info:
                         message: "'$(for-var name)' id=$(for-var id)"
 
     The above examples would ouput the following log messages by default:
@@ -284,7 +284,7 @@ class ForLoop(Action):
         <launch>
             <arg name="num" default="2" />
             <for len="$(var num)" name="i" >
-                <log message="i=$(index i)" />
+                <log_info message="i=$(index i)" />
             </for>
         </launch>
 
@@ -298,7 +298,7 @@ class ForLoop(Action):
                 len: $(var num)
                 name: i
                 children:
-                    - log:
+                    - log_info:
                         message: i=$(index i)
 
     The above examples would ouput the following log messages by default:

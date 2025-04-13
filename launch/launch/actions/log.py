@@ -1,0 +1,127 @@
+# Copyright 2025 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Module for the Log action."""
+
+import logging
+from typing import List
+import warnings
+
+import launch.logging
+
+from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser  # noqa: F401
+from ..launch_context import LaunchContext
+from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitution import Substitution
+from ..utilities import normalize_to_list_of_substitutions
+
+
+@expose_action('log')
+class Log(Action):
+    """Action that logs a message when executed."""
+
+    def __init__(self, *, msg: SomeSubstitutionsType,
+                 level: SomeSubstitutionsType, **kwargs):
+        """Create a Log action."""
+        super().__init__(**kwargs)
+
+        self.__msg = normalize_to_list_of_substitutions(msg)
+        self.__level = normalize_to_list_of_substitutions(level)
+        self.__logger = launch.logging.get_logger('launch.user')
+
+    @classmethod
+    def parse(
+        cls,
+        entity: Entity,
+        parser: 'Parser'
+    ):
+        """Parse `log` tag."""
+        _, kwargs = super().parse(entity, parser)
+        kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
+
+        # Check if still using old log action
+        level = entity.get_attr('level', optional=True)
+        if level is None:
+            warnings.warn(
+                'The action log now expects a log level.'
+                ' Either provide one or switch to using the log_info action',
+                stacklevel=2)
+            level = 'INFO'
+
+        kwargs['level'] = parser.parse_substitution(level)
+        return cls, kwargs
+
+    @property
+    def msg(self) -> List[Substitution]:
+        """Getter for self.__msg."""
+        return self.__msg
+
+    @property
+    def level(self) -> List[Substitution]:
+        """Getter for self.__level."""
+        return self.__level
+
+    def execute(self, context: LaunchContext) -> None:
+        """Execute the action."""
+        level_sub = ''.join([context.perform_substitution(sub)
+                             for sub in self.level]).upper()
+
+        self.__logger.log(
+            logging.getLevelNamesMapping()[level_sub],
+            ''.join([context.perform_substitution(sub) for sub in self.msg])
+        )
+        return None
+
+
+@expose_action('log_info')
+class LogInfo(Log):
+    """Action that logs a message with level INFO when executed."""
+
+    def __init__(self, *, msg: SomeSubstitutionsType, **kwargs):
+        """Create a LogInfo action."""
+        kwargs.pop('level', None)
+        super().__init__(msg=msg, level='INFO', **kwargs)
+
+
+@expose_action('log_warning')
+class LogWarning(Log):
+    """Action that logs a message with level WARNING when executed."""
+
+    def __init__(self, *, msg: SomeSubstitutionsType, **kwargs):
+        """Create a LogWarning action."""
+        kwargs.pop('level', None)
+        super().__init__(msg=msg, level='WARNING', **kwargs)
+
+
+@expose_action('log_debug')
+class LogDebug(Log):
+    """Action that logs a message with level DEBUG when executed."""
+
+    def __init__(self, *, msg: SomeSubstitutionsType, **kwargs):
+        """Create a LogDebug action."""
+        kwargs.pop('level', None)
+        super().__init__(msg=msg, level='DEBUG', **kwargs)
+
+
+@expose_action('log_error')
+class LogError(Log):
+    """Action that logs a message with level ERROR when executed."""
+
+    def __init__(self, *, msg: SomeSubstitutionsType, **kwargs):
+        """Create a LogError action."""
+        kwargs.pop('level', None)
+        super().__init__(msg=msg, level='ERROR', **kwargs)
