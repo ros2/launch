@@ -51,7 +51,7 @@
 macro(parse_launch_test_arguments namespace filename)
   cmake_parse_arguments(${namespace}
     ""
-    "TARGET;TIMEOUT;PYTHON_EXECUTABLE"
+    "TARGET;TIMEOUT;PYTHON_EXECUTABLE;RUNNER_MODULE"
     "ARGS;LABELS"
     ${ARGN})
 
@@ -89,6 +89,10 @@ macro(parse_launch_test_arguments namespace filename)
   endif()
 
   set(${namespace}_RESULT_FILE "${AMENT_TEST_RESULTS_DIR}/${PROJECT_NAME}/${${namespace}_TARGET}.xunit.xml")
+
+  if(NOT ${namespace}_RUNNER_MODULE)
+    set(${namespace}_RUNNER_MODULE "launch_testing.launch_test")
+  endif()
 endmacro()
 
 
@@ -101,6 +105,8 @@ endmacro()
 # :type TARGET: string
 # :param PYTHON_EXECUTABLE: The python executable to use for the test
 # :type PYTHON_EXECUTABLE: string
+# :param RUNNER_MODULE: The runner python module to use for the test
+# :type RUNNER_MODULE: string
 # :param TIMEOUT: The test timeout in seconds
 # :type TIMEOUT: integer
 # :param LABELS: The test labels
@@ -116,7 +122,7 @@ function(add_launch_test filename)
   set(cmd
     "${_launch_test_PYTHON_EXECUTABLE}"
     "-m"
-    "launch_testing.launch_test"
+    "${_launch_test_RUNNER_MODULE}"
     "${_launch_test_FILE_NAME}"
     "${_launch_test_ARGS}"
     "--junit-xml=${_launch_test_RESULT_FILE}"
