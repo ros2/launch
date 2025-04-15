@@ -39,6 +39,8 @@ def test_include():
             arg:
                 - name: 'foo'
                   value: 'FOO'
+                - name: 'baz'
+                  value: 'overwritten'
             let:
                 - name: 'bar'
                   value: 'BAR'

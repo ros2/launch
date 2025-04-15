@@ -114,6 +114,12 @@ class IncludeLaunchDescription(Action):
                   value: '$(var arg1)'
                 - name: 'other_arg2'
                   value: 'value2'
+
+    .. note::
+
+        While frontends currently support both ``let`` and ``arg`` for launch arguments, they are
+        both converted into ``SetLaunchConfiguration`` actions (``let``). The same launch argument
+        should not be defined using both ``let`` and ``arg``.
     """
 
     def __init__(
@@ -141,12 +147,12 @@ class IncludeLaunchDescription(Action):
         file_path = parser.parse_substitution(entity.get_attr('file'))
         kwargs['launch_description_source'] = file_path
         args = []
-        args_let = entity.get_attr('let', data_type=List[Entity], optional=True)
-        if args_let is not None:
-            args.extend(args_let)
         args_arg = entity.get_attr('arg', data_type=List[Entity], optional=True)
         if args_arg is not None:
             args.extend(args_arg)
+        args_let = entity.get_attr('let', data_type=List[Entity], optional=True)
+        if args_let is not None:
+            args.extend(args_let)
         if args:
             kwargs['launch_arguments'] = [
                 (

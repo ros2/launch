@@ -34,6 +34,7 @@ def test_include():
             <let name="main_baz" value="BAZ" />
             <include file="{}">
                 <arg name="foo" value="FOO" />
+                <arg name="baz" value="overwritten" />
                 <let name="bar" value="BAR" />
                 <let name="baz" value="$(var main_baz)" />
             </include>
