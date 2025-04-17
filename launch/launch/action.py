@@ -22,6 +22,7 @@ from typing import Tuple
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import TypedDict
+from typing import Sequence
 from typing import Union
 
 from typing_extensions import Self
@@ -114,7 +115,7 @@ class Action(LaunchDescriptionEntity):
             ('Conditionally included by {}'.format(self.describe()), self.get_sub_entities())
         ] if self.condition is not None else []
 
-    def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def visit(self, context: LaunchContext) -> Optional[Sequence[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity so that it executes."""
         if self.__condition is None or self.__condition.evaluate(context):
             try:
@@ -132,7 +133,7 @@ class Action(LaunchDescriptionEntity):
                         context.emit_event_sync(event)
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> Optional[Sequence[LaunchDescriptionEntity]]:
         """
         Execute the action.
 

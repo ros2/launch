@@ -33,7 +33,7 @@ class ReadyToTest(Action):
     def _add_callback(self, callback):
         self._cb_list.append(callback)
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         for cb in self._cb_list:
             try:

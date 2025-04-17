@@ -197,7 +197,7 @@ class ForEach(Action):
             new_kwargs['input_values'] = parser.parse_substitution(input_values)
         return cls, new_kwargs
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         # Get the for-each input values
         input_values = perform_substitutions(context, self._input_values)
         self._logger.debug(f'input_values={input_values}')
@@ -408,7 +408,7 @@ class ForLoop(Action):
 
         return cls, new_kwargs
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> List[ForEach]:
         # Get the for-loop length and convert to int
         length = int(perform_substitutions(context, self._length))
         self._logger.debug(f'for-loop length={length}')

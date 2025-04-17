@@ -99,7 +99,7 @@ class OpaqueCoroutine(Action):
             self.__future.cancel()
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         args = self.__args
         if not self.__ignore_context:

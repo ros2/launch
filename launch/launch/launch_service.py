@@ -81,13 +81,13 @@ class LaunchService:
 
         # Setup storage for state.
         self._entity_future_pairs = \
-            []  # type: List[Tuple[LaunchDescriptionEntity, asyncio.Future]]
+            []  # type: List[Tuple[LaunchDescriptionEntity, asyncio.Future[None]]]
 
         # Used to allow asynchronous use of self.__loop_from_run_thread without
         # it being set to None by run() as it exits.
         self.__loop_from_run_thread_lock = threading.RLock()
         self.__loop_from_run_thread = None
-        self.__this_task: Optional[asyncio.Future] = None
+        self.__this_task: Optional[asyncio.Future[None]] = None
 
         # Used to indicate when shutdown() has been called.
         self.__shutting_down = False
@@ -154,7 +154,7 @@ class LaunchService:
     @contextlib.contextmanager
     def _prepare_run_loop(
         self
-    ) -> Generator[Tuple[asyncio.AbstractEventLoop, Optional[asyncio.Task]], None, None]:
+    ) -> Generator[Tuple[asyncio.AbstractEventLoop, Optional[asyncio.Task[None]]], None, None]:
         try:
             # Acquire the lock and initialize the loop.
             with self.__loop_from_run_thread_lock:
@@ -418,7 +418,7 @@ class LaunchService:
         self.__context._set_is_shutdown(True)
         return retval
 
-    def shutdown(self, force_sync: bool = False) -> Optional[Coroutine]:
+    def shutdown(self, force_sync: bool = False) -> Optional[Coroutine[None, None, None]]:
         """
         Shutdown all on-going activities and then stop the asyncio run loop.
 
@@ -449,6 +449,6 @@ class LaunchService:
         return self.__loop_from_run_thread
 
     @property
-    def task(self):
+    def task(self) -> Optional[asyncio.Future[None]]:
         """Return asyncio task associated with this launch service."""
         return self.__this_task

@@ -156,7 +156,8 @@ class IncludeLaunchDescription(Action):
             )
         return None
 
-    def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
+    def execute(self, context: LaunchContext) -> List[Union[SetLaunchConfiguration,
+                                                            LaunchDescriptionEntity]]:
         """Execute the action."""
         launch_description = self.__launch_description_source.get_launch_description(context)
         # If the location does not exist, then it's likely set to '<script>' or something.

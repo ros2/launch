@@ -639,7 +639,7 @@ class ExecuteLocal(Action):
 
         self.__respawn = cast(bool, perform_typed_substitution(context, self.__respawn, bool))
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> None:
         """
         Execute the action.
 
