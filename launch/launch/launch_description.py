@@ -60,7 +60,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         self.__entities = list(initial_entities) if initial_entities is not None else []
         self.__deprecated_reason = deprecated_reason
 
-    def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
         if self.__deprecated_reason is not None:
             if 'current_launch_file_path' in context.get_locals_as_dict():

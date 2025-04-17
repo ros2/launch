@@ -97,7 +97,7 @@ class GroupAction(Action):
             self.__launch_configurations = launch_configurations
         else:
             self.__launch_configurations = {}
-        self.__actions_to_return: Optional[List[LaunchDescriptionEntity]] = None
+        self.__actions_to_return: Optional[List[Action]] = None
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
@@ -123,7 +123,7 @@ class GroupAction(Action):
                                  if e.type_name != 'keep']
         return cls, new_kwargs
 
-    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
+    def get_sub_entities(self) -> List[Action]:
         """Return subentities."""
         if self.__actions_to_return is None:
             self.__actions_to_return = list(self.__actions)
@@ -157,6 +157,6 @@ class GroupAction(Action):
                 ]
         return self.__actions_to_return
 
-    def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
+    def execute(self, context: LaunchContext) -> List[Action]:
         """Execute the action."""
         return self.get_sub_entities()

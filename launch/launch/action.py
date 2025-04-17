@@ -98,11 +98,11 @@ class Action(LaunchDescriptionEntity):
         """Return a description of this Action."""
         return self.__repr__()
 
-    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
+    def get_sub_entities(self) -> Sequence[LaunchDescriptionEntity]:
         """Return subentities."""
         return []
 
-    def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
+    def describe_sub_entities(self) -> Sequence[LaunchDescriptionEntity]:
         """Override describe_sub_entities from LaunchDescriptionEntity."""
         return self.get_sub_entities() if self.condition is None else []
 

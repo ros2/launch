@@ -64,7 +64,7 @@ class LaunchDescriptionEntity:
         """
         raise NotImplementedError()
 
-    def describe_sub_entities(self) -> List['LaunchDescriptionEntity']:
+    def describe_sub_entities(self) -> Sequence['LaunchDescriptionEntity']:
         """
         Return a list of sub-entities which need to be described as well.
 

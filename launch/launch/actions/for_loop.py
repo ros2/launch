@@ -238,7 +238,7 @@ class ForEach(Action):
     def _push_locals(
         cls,
         context: LaunchContext,
-    ) -> Optional[List[LaunchDescriptionEntity]]:
+    ) -> None:
         context._push_locals()
         return None
 
@@ -246,7 +246,7 @@ class ForEach(Action):
     def _pop_locals(
         cls,
         context: LaunchContext,
-    ) -> Optional[List[LaunchDescriptionEntity]]:
+    ) -> None:
         context._pop_locals()
         return None
 
