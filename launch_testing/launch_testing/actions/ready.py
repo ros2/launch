@@ -13,12 +13,9 @@
 # limitations under the License.
 
 import logging
-from typing import List
-from typing import Optional
 
 from launch.action import Action
 from launch.launch_context import LaunchContext
-from launch.launch_description_entity import LaunchDescriptionEntity
 
 _logger_ = logging.getLogger(__name__)
 
