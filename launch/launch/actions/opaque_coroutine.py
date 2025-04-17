@@ -21,7 +21,6 @@ from typing import Awaitable
 from typing import Callable
 from typing import Dict
 from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Text
 
@@ -29,7 +28,6 @@ from ..action import Action
 from ..event import Event
 from ..event_handlers import OnShutdown
 from ..launch_context import LaunchContext
-from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_entities_type import SomeEntitiesType
 from ..utilities import ensure_argument_type
 

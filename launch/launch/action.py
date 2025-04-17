@@ -17,12 +17,12 @@
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 from typing import Tuple
 from typing import Type
 from typing import TYPE_CHECKING
 from typing import TypedDict
-from typing import Sequence
 from typing import Union
 
 from typing_extensions import Self

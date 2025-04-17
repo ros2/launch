@@ -37,7 +37,6 @@ from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
-from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
