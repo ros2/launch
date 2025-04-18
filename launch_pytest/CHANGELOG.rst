@@ -2,6 +2,9 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.1 (2025-04-18)
+------------------
+
 3.8.0 (2025-02-27)
 ------------------
 * Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)

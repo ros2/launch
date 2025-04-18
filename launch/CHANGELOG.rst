@@ -2,6 +2,17 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.1 (2025-04-18)
+------------------
+* Provide copy of launch configs to TimerAction's entities (`#836 <https://github.com/ros2/launch/issues/836>`_)
+* Allow concatenating each path component of PathJoinSubstitution (`#838 <https://github.com/ros2/launch/issues/838>`_)
+* Add StringJoinSubstitution substitution (`#843 <https://github.com/ros2/launch/issues/843>`_)
+* Add missing test_depend for launch (`#850 <https://github.com/ros2/launch/issues/850>`_)
+* Document substitutions concatenation in architecture doc (`#845 <https://github.com/ros2/launch/issues/845>`_)
+* Update docs to use proper RST literals (`#837 <https://github.com/ros2/launch/issues/837>`_)
+* Fix function params indentation (`#833 <https://github.com/ros2/launch/issues/833>`_)
+* Contributors: Christian Ruf, Christophe Bedard, Michael Carlstrom
+
 3.8.0 (2025-02-27)
 ------------------
 * Add ForEach action to repeat entities using iteration-specific values (`#802 <https://github.com/ros2/launch/issues/802>`_)
