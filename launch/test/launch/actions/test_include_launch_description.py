@@ -51,7 +51,7 @@ def test_include_launch_description_methods():
     assert isinstance(action.describe_sub_entities(), list)
     assert isinstance(action.describe_conditional_sub_entities(), list)
     # Result should only contain the launch description as there are no launch arguments.
-    assert action.visit(LaunchContext()) == [ld]
+    assert action.visit(LaunchContext())[0] == ld
     assert action.get_asyncio_future() is None
     assert len(action.launch_arguments) == 0
 
@@ -61,7 +61,7 @@ def test_include_launch_description_methods():
     assert isinstance(action2.describe_sub_entities(), list)
     assert isinstance(action2.describe_conditional_sub_entities(), list)
     # Result should only contain the launch description as there are no launch arguments.
-    assert action2.visit(LaunchContext()) == [ld2]
+    assert action2.visit(LaunchContext())[0] == ld2
     assert action2.get_asyncio_future() is None
     assert len(action2.launch_arguments) == 0
 
@@ -75,7 +75,7 @@ def test_include_launch_description_launch_file_location():
     assert isinstance(action.describe_conditional_sub_entities(), list)
     lc1 = LaunchContext()
     # Result should only contain the launch description as there are no launch arguments.
-    assert action.visit(lc1) == [ld]
+    assert action.visit(lc1)[0] == ld
     assert lc1.locals.current_launch_file_directory == '<script>'
     assert action.get_asyncio_future() is None
 
@@ -87,7 +87,7 @@ def test_include_launch_description_launch_file_location():
     assert isinstance(action2.describe_conditional_sub_entities(), list)
     lc2 = LaunchContext()
     # Result should only contain the launch description as there are no launch arguments.
-    assert action2.visit(lc2) == [ld2]
+    assert action2.visit(lc2)[0] == ld2
     assert lc2.locals.current_launch_file_directory == str(this_file.parent)
     assert action2.get_asyncio_future() is None
 
@@ -150,7 +150,7 @@ def test_include_launch_description_launch_arguments():
     assert len(action1.launch_arguments) == 1
     lc1 = LaunchContext()
     result1 = action1.visit(lc1)
-    assert len(result1) == 2
+    assert len(result1) == 3
     assert isinstance(result1[0], SetLaunchConfiguration)
     assert perform_substitutions(lc1, result1[0].name) == 'foo'
     assert perform_substitutions(lc1, result1[0].value) == 'FOO'
@@ -276,8 +276,9 @@ def test_include_python():
         assert 'IncludeLaunchDescription' in action.describe()
         assert isinstance(action.describe_sub_entities(), list)
         assert isinstance(action.describe_conditional_sub_entities(), list)
-        # Result should only contain a single launch description as there are no launch arguments.
-        assert len(action.visit(LaunchContext())) == 1
+        # Result should only contain a single launch description (+ internal action) as there are
+        # no launch arguments.
+        assert len(action.visit(LaunchContext())) == 2
         assert action.get_asyncio_future() is None
         assert len(action.launch_arguments) == 0
 
