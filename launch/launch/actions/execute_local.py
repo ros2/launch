@@ -345,7 +345,7 @@ class ExecuteLocal(Action):
         if buffer.closed:
             # buffer was probably closed by __flush_buffers on shutdown.  Output without
             # buffering.
-            buffer.info(
+            logger.info(
                 self.__output_format.format(line=to_write, this=self)
             )
         else:
