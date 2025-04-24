@@ -2,6 +2,9 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.0 (2025-04-24)
+------------------
+
 3.8.1 (2025-04-18)
 ------------------
 * Provide copy of launch configs to TimerAction's entities (`#836 <https://github.com/ros2/launch/issues/836>`_)
