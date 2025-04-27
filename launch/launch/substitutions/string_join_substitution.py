@@ -36,13 +36,31 @@ class StringJoinSubstitution(Substitution):
 
     .. code-block:: python
 
-        StringJoinSubstitution(
-            [['https', '://'], LaunchConfiguration('subdomain')], 'ros', 'org'],
+        subdomain = LaunchConfiguration(variable_name='subdomain', default='docs')
+        url = StringJoinSubstitution(
+            [['https', '://'], subdomain], 'ros', 'org'],
             delimiter='.'
         )
 
-    If the ``subdomain`` launch configuration was set to ``docs``
-    and the ``delimiter`` to ``.``, this would result in a string equal to
+    .. code-block:: xml
+
+        <launch>
+            <arg name="subdomain" default="docs"/>
+            <let name="url" value="$(string-join . https://$(var subdomain) ros org)"/>
+        </launch>
+
+    .. code-block:: yaml
+
+            launch:
+                - arg:
+                    name: subdomain
+                    default: "docs"
+                - let:
+                    name: url
+                    value: "$(string-join . https://$(var subdomain) ros org)"
+
+    If the ``subdomain`` launch configuration was set to ``docs`` and the ``delimiter`` to ``.``, 
+    then any of the above launch descriptions would result in a string equal to
 
     .. code-block:: python
 
