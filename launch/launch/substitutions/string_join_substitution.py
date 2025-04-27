@@ -14,7 +14,7 @@
 
 """Module for the StringJoinSubstitution substitution."""
 
-from typing import Iterable, List, Sequence, Text
+from typing import Dict, Iterable, List, Sequence, Text
 
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
@@ -86,9 +86,9 @@ class StringJoinSubstitution(Substitution):
                 'string-join substitution expects at least 2 arguments: '
                 '1 delimiter + at least 1 component'
             )
-        kwargs = {}
+        kwargs: Dict[str, SomeSubstitutionsType | Iterable[SomeSubstitutionsType]] = {}
         kwargs['delimiter'] = data[0]
-        kwargs['substitutions'] = iter(data[1:])
+        kwargs['substitutions'] = data[1:]
         return cls, kwargs
 
     def __repr__(self) -> Text:
