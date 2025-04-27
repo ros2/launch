@@ -59,7 +59,7 @@ class StringJoinSubstitution(Substitution):
                     name: url
                     value: "$(string-join . https://$(var subdomain) ros org)"
 
-    If the ``subdomain`` launch configuration was set to ``docs`` and the ``delimiter`` to ``.``, 
+    If the ``subdomain`` launch configuration was set to ``docs`` and the ``delimiter`` to ``.``,
     then any of the above launch descriptions would result in a string equal to
 
     .. code-block:: python
