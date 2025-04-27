@@ -55,6 +55,7 @@ class Log(Action):
 
         # Check if still using old log action
         level = entity.get_attr('level', optional=True)
+        # TODO: Remove optional level for Release after L-turtle release
         if level is None:
             warnings.warn(
                 'The action log now expects a log level.'
@@ -80,10 +81,15 @@ class Log(Action):
         level_sub = ''.join([context.perform_substitution(sub)
                              for sub in self.level]).upper()
 
-        self.__logger.log(
-            logging.getLevelNamesMapping()[level_sub],
-            ''.join([context.perform_substitution(sub) for sub in self.msg])
-        )
+        level_map = logging.getLevelNamesMapping()
+        if level_sub not in level_map:
+            raise KeyError(f"Invalid log level '{level_sub}', expected: {level_map.keys()}")
+
+        level_int = level_map[level_sub]
+
+        self.__logger.log(level_int,
+                          ''.join([context.perform_substitution(sub) for sub in self.msg])
+                          )
         return None
 
 

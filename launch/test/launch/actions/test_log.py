@@ -81,3 +81,11 @@ def test_log_execute():
     log = Log(msg='foo', level='ERROR')
     launch_context = LaunchContext()
     assert log.visit(launch_context) is None
+
+
+def test_log_level_error():
+    """Checks for error message to be raised given invalid level."""
+    try:
+        Log(msg='foo', level='foo')
+    except KeyError as e:
+        assert 'Invalid log level ' in str(e)
