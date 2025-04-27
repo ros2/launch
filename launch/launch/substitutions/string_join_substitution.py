@@ -83,7 +83,8 @@ class StringJoinSubstitution(Substitution):
         """Parse `StringJoinSubstitution` substitution."""
         if len(data) < 2:
             raise TypeError(
-                'string-join substitution expects at least 2 arguments'
+                'string-join substitution expects at least 2 arguments: '
+                '1 delimiter + at least 1 component'
             )
         kwargs = {}
         kwargs['delimiter'] = data[0]
