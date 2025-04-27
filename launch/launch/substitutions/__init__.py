@@ -20,9 +20,11 @@ from .boolean_substitution import NotSubstitution
 from .boolean_substitution import OrSubstitution
 from .command import Command
 from .environment_variable import EnvironmentVariable
+from .equals_substitution import EqualsSubstitution
 from .find_executable import FindExecutable
 from .launch_configuration import LaunchConfiguration
 from .local_substitution import LocalSubstitution
+from .not_equals_substitution import NotEqualsSubstitution
 from .path_join_substitution import PathJoinSubstitution
 from .python_expression import PythonExpression
 from .substitution_failure import SubstitutionFailure
@@ -35,9 +37,11 @@ __all__ = [
     'AnonName',
     'Command',
     'EnvironmentVariable',
+    'EqualsSubstitution',
     'FindExecutable',
     'LaunchConfiguration',
     'LocalSubstitution',
+    'NotEqualsSubstitution',
     'NotSubstitution',
     'OrSubstitution',
     'PathJoinSubstitution',
