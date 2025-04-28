@@ -38,7 +38,7 @@ def test_for_each():
                 default="{name: 'a', id: 1};{name: 'b', id: 2};{name: 'c', opt: '*'}"
             />
             <for_each values="$(var robots)" >
-                <log_info message="'$(for-var name)' id=$(for-var id 0) ($(for-var opt 'none'))" />
+                <log message="'$(for-var name)' id=$(for-var id 0) ($(for-var opt 'none'))" />
             </for_each>
         </launch>
         """
@@ -106,7 +106,7 @@ def test_for_loop():
         <launch>
             <arg name="num_i" default="2" />
             <for len="$(var num_i)" name="i" >
-                <log_info message="index=$(index i)" />
+                <log message="index=$(index i)" />
             </for>
         </launch>
         """
