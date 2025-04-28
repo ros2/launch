@@ -19,4 +19,4 @@ import warnings
 from .log import LogInfo as LogInfo  # noqa: F401
 
 # TODO: Remove log_info.py for Release after L-turtle release
-warnings.warn('importing from log_info.py is deprecate; import LogInfo from log.py instead.')
+warnings.warn('importing from log_info.py is deprecated; import LogInfo from log.py instead.')
