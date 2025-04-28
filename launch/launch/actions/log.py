@@ -15,6 +15,7 @@
 """Module for the Log action."""
 
 import logging
+import sys
 from typing import List
 import warnings
 
@@ -28,6 +29,17 @@ from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
+
+if sys.version_info >= (3, 11):
+    log_levels = logging.getLevelNamesMapping()
+else:
+    # TODO: Remove after Python 3.11+ is minimum support
+    log_levels = {'NOTSET': logging.NOTSET,
+                  'DEBUG': logging.DEBUG,
+                  'INFO': logging.INFO,
+                  'WARNING': logging.WARNING,
+                  'ERROR': logging.ERROR,
+                  'CRITICAL': logging.CRITICAL}
 
 
 @expose_action('log')
@@ -81,11 +93,10 @@ class Log(Action):
         level_sub = ''.join([context.perform_substitution(sub)
                              for sub in self.level]).upper()
 
-        level_map = logging.getLevelNamesMapping()
-        if level_sub not in level_map:
-            raise KeyError(f"Invalid log level '{level_sub}', expected: {level_map.keys()}")
+        if level_sub not in log_levels:
+            raise KeyError(f"Invalid log level '{level_sub}', expected: {log_levels.keys()}")
 
-        level_int = level_map[level_sub]
+        level_int = log_levels[level_sub]
 
         self.__logger.log(level_int,
                           ''.join([context.perform_substitution(sub) for sub in self.msg])
