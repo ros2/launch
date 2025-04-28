@@ -37,6 +37,7 @@ class Entity(BaseEntity):
         parent: 'Entity' = None
     ) -> Text:
         """Create an Entity."""
+        self.__bare_text = element if isinstance(element, str) else None
         self.__type_name = type_name
         self.__element = element
         self.__parent = parent
@@ -99,13 +100,8 @@ class Entity(BaseEntity):
                 f'Unexpected key(s) found in `{self.__type_name}`: {unparsed_keys}'
             )
 
-    def is_element(self) -> bool:
-        return isinstance(self.__element, str)
-
     @property
-    def element(self) -> Text:
-        if not self.is_element():
-            raise RuntimeError('Directly retrieving the element of a non-str Entity is ill-formed.')
+    def bare_text(self) -> Optional[Text]:
         return self.__element
 
     def get_attr(
