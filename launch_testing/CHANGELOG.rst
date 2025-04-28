@@ -2,6 +2,14 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.0 (2025-04-24)
+------------------
+
+3.8.1 (2025-04-18)
+------------------
+* Fix function params indentation (`#833 <https://github.com/ros2/launch/issues/833>`_)
+* Contributors: Christophe Bedard
+
 3.8.0 (2025-02-27)
 ------------------
 * Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)
