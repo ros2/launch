@@ -37,6 +37,15 @@ class Entity(BaseEntity):
         parent: 'Entity' = None
     ) -> Text:
         """Construct the Entity."""
+        text = xml_element.text.strip() if xml_element.text else None
+        num_children = len([i for i in xml_element])
+        self.__is_element = False
+        if text and num_children:
+            raise ValueError(f'Cannot provide XML text alongside children. Found text "{text}" and {num_children} child(ren) in element {xml_element}')
+        elif text:
+            self.__is_element = True
+            self.__element = text
+
         self.__xml_element = xml_element
         self.__parent = parent
         self.__read_attributes = set()
@@ -71,6 +80,13 @@ class Entity(BaseEntity):
                 f'Unexpected attribute(s) found in `{self.__xml_element.tag}`: '
                 f'{unparsed_attributes}'
             )
+
+    def is_element(self) -> bool:
+        return self.__is_element
+
+    @property
+    def element(self) -> Text:
+        return self.__element
 
     def get_attr(
         self,

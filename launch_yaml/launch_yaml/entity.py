@@ -31,7 +31,7 @@ class Entity(BaseEntity):
 
     def __init__(
         self,
-        element: dict,
+        element: Union[dict, List, Text],
         type_name: Text = None,
         *,
         parent: 'Entity' = None
@@ -70,6 +70,8 @@ class Entity(BaseEntity):
                     'list element')
             self.__read_keys.add('children')
             children = self.__element['children']
+        elif isinstance(self.__element, str):
+            return [self]
         else:
             children = self.__element
         entities = []
@@ -83,6 +85,8 @@ class Entity(BaseEntity):
         return entities
 
     def assert_entity_completely_parsed(self):
+        if isinstance(self.__element, str):
+            return
         if isinstance(self.__element, list):
             if not self.__children_called:
                 raise ValueError(
@@ -94,6 +98,15 @@ class Entity(BaseEntity):
             raise ValueError(
                 f'Unexpected key(s) found in `{self.__type_name}`: {unparsed_keys}'
             )
+
+    def is_element(self) -> bool:
+        return isinstance(self.__element, str)
+
+    @property
+    def element(self) -> Text:
+        if not self.is_element():
+            raise RuntimeError('Directly retrieving the element of a non-str Entity is ill-formed.')
+        return self.__element
 
     def get_attr(
         self,
