@@ -39,7 +39,7 @@ def test_for_each():
             - for_each:
                 values: $(var robots)
                 children:
-                    - log_info:
+                    - log:
                         message: "'$(for-var name)' id=$(for-var id 0) ($(for-var opt 'none'))"
         """
     )
@@ -111,7 +111,7 @@ def test_for_loop():
                 len: $(var num_i)
                 name: i
                 children:
-                    - log_info:
+                    - log:
                         message: index=$(index i)
         """
     )
