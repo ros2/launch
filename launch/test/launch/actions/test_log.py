@@ -22,6 +22,8 @@ from launch.actions import LogInfo
 from launch.actions import LogWarning
 from launch.utilities import perform_substitutions
 
+import pytest
+
 
 def test_log_constructors():
     """Test the constructors for Log classes."""
@@ -85,7 +87,5 @@ def test_log_execute():
 
 def test_log_level_error():
     """Checks for error message to be raised given invalid level."""
-    try:
+    with pytest.raises(KeyError, match=r'Invalid log level.*'):
         Log(msg='foo', level='foo')
-    except KeyError as e:
-        assert 'Invalid log level ' in str(e)
