@@ -30,17 +30,6 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 
-if sys.version_info >= (3, 11):
-    log_levels = logging.getLevelNamesMapping()
-else:
-    # TODO: Remove after Python 3.11+ is minimum support
-    log_levels = {'NOTSET': logging.NOTSET,
-                  'DEBUG': logging.DEBUG,
-                  'INFO': logging.INFO,
-                  'WARNING': logging.WARNING,
-                  'ERROR': logging.ERROR,
-                  'CRITICAL': logging.CRITICAL}
-
 
 @expose_action('log')
 class Log(Action):
@@ -92,6 +81,17 @@ class Log(Action):
         """Execute the action."""
         level_sub = ''.join([context.perform_substitution(sub)
                              for sub in self.level]).upper()
+
+        if sys.version_info >= (3, 11):
+            log_levels = logging.getLevelNamesMapping()
+        else:
+            # TODO: Remove after Python 3.11+ is minimum support
+            log_levels = {'NOTSET': logging.NOTSET,
+                          'DEBUG': logging.DEBUG,
+                          'INFO': logging.INFO,
+                          'WARNING': logging.WARNING,
+                          'ERROR': logging.ERROR,
+                          'CRITICAL': logging.CRITICAL}
 
         if level_sub not in log_levels:
             raise KeyError(f"Invalid log level '{level_sub}', expected: {log_levels.keys()}")
