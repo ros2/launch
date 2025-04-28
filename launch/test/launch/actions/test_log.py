@@ -87,5 +87,6 @@ def test_log_execute():
 
 def test_log_level_error():
     """Checks for error message to be raised given invalid level."""
-    with pytest.raises(KeyError, match=r'Invalid log level.*'):
-        Log(msg='foo', level='foo')
+    launch_context = LaunchContext()
+    with pytest.raises(KeyError, match=r'Invalid log level*'):
+        Log(msg='foo', level='foo').execute(launch_context)
