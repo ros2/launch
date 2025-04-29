@@ -102,7 +102,7 @@ class Entity(BaseEntity):
 
     @property
     def bare_text(self) -> Optional[Text]:
-        return self.__element
+        return self.__bare_text
 
     def get_attr(
         self,
