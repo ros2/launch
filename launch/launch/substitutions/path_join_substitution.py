@@ -89,3 +89,16 @@ class PathJoinSubstitution(Substitution):
         """Join path substitutions using the / operator, mimicking pathlib.Path operation."""
         return PathJoinSubstitution(
             self.substitutions + [normalize_to_list_of_substitutions(additional_path)])
+
+
+class PathSubstitution(PathJoinSubstitution):
+    """Thin wrapper on PathJoinSubstitution for more pathlib.Path-like construction."""
+
+    def __init__(self, path: SomeSubstitutionsType):
+        """
+        Create a PathSubstitution.
+
+        :param path: May be a single text or Substitution element,
+        or an Iterable of them which are then joined
+        """
+        super().__init__(normalize_to_list_of_substitutions(path))
