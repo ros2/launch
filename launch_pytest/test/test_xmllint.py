@@ -12,22 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the PathJoinSubstitution substitution class."""
-
-import os
-
-from launch import LaunchContext
-from launch.substitutions import PathJoinSubstitution
-from launch.substitutions import TextSubstitution
+from ament_xmllint.main import main
+import pytest
 
 
-def test_path_join():
-    context = LaunchContext()
-
-    path = ['asd', 'bsd', 'cds']
-    sub = PathJoinSubstitution(path)
-    assert sub.perform(context) == os.path.join(*path)
-
-    path = ['path', ['to'], ['my_', TextSubstitution(text='file'), '.yaml']]
-    sub = PathJoinSubstitution(path)
-    assert sub.perform(context) == os.path.join('path', 'to', 'my_file.yaml')
+@pytest.mark.linter
+@pytest.mark.xmllint
+def test_xmllint():
+    rc = main(argv=[])
+    assert rc == 0, 'Found errors'

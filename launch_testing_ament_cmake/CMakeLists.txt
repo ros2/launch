@@ -24,10 +24,6 @@ if(BUILD_TESTING)
       message(FATAL_ERROR "launch_testing package not found")
   endif()
 
-  # Provides PYTHON_EXECUTABLE_DEBUG
-  find_package(python_cmake_module REQUIRED)
-  find_package(PythonExtra REQUIRED)
-
   # Test argument passing.  This test won't pass unless you give it an argument
   add_launch_test(
     "${LAUNCH_TESTING_INSTALL_PREFIX}/share/launch_testing/examples/args_launch_test.py"

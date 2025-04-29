@@ -16,31 +16,70 @@
 
 import os
 from typing import Iterable
+from typing import List
 from typing import Text
-from typing import Union
 
 from ..launch_context import LaunchContext
+from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
+from ..utilities import perform_substitutions
 
 
 class PathJoinSubstitution(Substitution):
-    """Substitution that join paths, in a platform independent way."""
+    """
+    Substitution that join paths, in a platform independent way.
 
-    def __init__(self, substitutions: Iterable[Union[Text, Substitution]]) -> None:
-        """Create a PathJoinSubstitution."""
+    This takes in a list of path components as substitutions. The substitutions for each path
+    component are performed and concatenated, and then all path components are joined.
+
+    For example:
+
+    .. code-block:: python
+
+        PathJoinSubstitution([
+            EnvironmentVariable('SOME_DIR'),
+            'cfg',
+            ['config_', LaunchConfiguration('map'), '.yml']
+        ])
+
+    If the ``SOME_DIR`` environment variable was set to ``/home/user/dir`` and the ``map`` launch
+    configuration was set to ``my_map``, this would result in a path equal equivalent to (depending
+    on the platform):
+
+    .. code-block:: python
+
+        '/home/user/dir/cfg/config_my_map.yml'
+    """
+
+    def __init__(self, substitutions: Iterable[SomeSubstitutionsType]) -> None:
+        """
+        Create a PathJoinSubstitution.
+
+        :param substitutions: the list of path component substitutions to join
+        """
         from ..utilities import normalize_to_list_of_substitutions
-        self.__substitutions = normalize_to_list_of_substitutions(substitutions)
+        self.__substitutions = [
+            normalize_to_list_of_substitutions(path_component_substitutions)
+            for path_component_substitutions in substitutions
+        ]
 
     @property
-    def substitutions(self) -> Iterable[Substitution]:
-        """Getter for variable_name."""
+    def substitutions(self) -> List[List[Substitution]]:
+        """Getter for substitutions."""
         return self.__substitutions
 
-    def describe(self) -> Text:
+    def __repr__(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f"PathJoin('{' + '.join([s.describe() for s in self.substitutions])}')"
+        path_components = [
+            ' + '.join([s.describe() for s in component_substitutions])
+            for component_substitutions in self.substitutions
+        ]
+        return f"PathJoinSubstitution('{', '.join(path_components)}')"
 
     def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution by retrieving the local variable."""
-        performed_substitutions = [sub.perform(context) for sub in self.__substitutions]
-        return os.path.join(*performed_substitutions)
+        """Perform the substitutions and join into a path."""
+        path_components = [
+            perform_substitutions(context, component_substitutions)
+            for component_substitutions in self.substitutions
+        ]
+        return os.path.join(*path_components)

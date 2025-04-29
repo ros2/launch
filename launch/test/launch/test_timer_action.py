@@ -19,6 +19,7 @@ import sys
 import launch
 import launch.actions
 import launch.event_handlers
+import launch.substitutions
 
 
 def test_multiple_launch_with_timers():
@@ -153,3 +154,33 @@ def test_timer_can_block_preemption():
     assert len(shutdown_reasons) == 2  # Should see 'shutdown' event twice because
     assert shutdown_reasons[0].reason == 'fast shutdown'
     assert shutdown_reasons[1].reason == 'slow shutdown'
+
+
+def test_timer_action_launch_configurations():
+    # The timer action's entities should have access to the launch configurations at the time the
+    # timer action executed
+    ld = launch.LaunchDescription([
+        launch.actions.GroupAction(
+            # Causes the launch configurations to be reset after the timer action executes, which
+            # would cause 'launch_arg' to not exist
+            scoped=True,
+            actions=[
+                launch.actions.SetLaunchConfiguration('launch_arg', 'launch_arg_value'),
+                launch.actions.TimerAction(
+                    period=1.0,
+                    actions=[
+                        launch.actions.LogInfo(
+                            msg=launch.substitutions.LaunchConfiguration('launch_arg'),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ])
+
+    ls = launch.LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    # However, we do not want the timer action's entities to affect the context, e.g., leak launch
+    # configurations out of the GroupAction in this case
+    assert 'launch_arg' not in ls.context.launch_configurations

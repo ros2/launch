@@ -20,8 +20,9 @@ import textwrap
 
 from launch import LaunchService
 from launch.actions import IncludeLaunchDescription
-from launch.frontend import Parser
 from launch.launch_description_sources import AnyLaunchDescriptionSource
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_include():
@@ -35,7 +36,7 @@ def test_include():
         </launch>
         """.format(path)  # noqa: E501
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     include = ld.entities[0]
     assert isinstance(include, IncludeLaunchDescription)
