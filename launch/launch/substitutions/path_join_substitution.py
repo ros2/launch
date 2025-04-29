@@ -22,6 +22,7 @@ from typing import Text
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
+from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
@@ -83,3 +84,8 @@ class PathJoinSubstitution(Substitution):
             for component_substitutions in self.substitutions
         ]
         return os.path.join(*path_components)
+
+    def __truediv__(self, additional_path: SomeSubstitutionsType) -> 'PathJoinSubstitution':
+        """Join path substitutions using the / operator, mimicking pathlib.Path operation."""
+        return PathJoinSubstitution(
+            self.substitutions + [normalize_to_list_of_substitutions(additional_path)])
