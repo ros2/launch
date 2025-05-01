@@ -62,12 +62,18 @@ class ScopedIncludeLaunchDescription(IncludeLaunchDescription):
 
     def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Execute the action."""
-        # FIXME(SuperJappie08): Temporary Test to see if behavior works out
-
-        # print(self.launch_description_source.get_launch_description(context).entities)
-        # FIXME(SuperJappie08): This breaks the PushRosNameSpace Action (Cannot push a namespace in)
-
         evaluated_configurations = {}
+
+        for name in getattr(context.locals, 'globals', set()):
+            expanded_name = perform_substitutions(
+                context,
+                normalize_to_list_of_substitutions(name)
+            )
+
+            if expanded_name in context.launch_configurations:
+                evaluated_configurations[expanded_name] = \
+                    context.launch_configurations[expanded_name]
+
         for k, v in self.launch_arguments:
             evaluated_k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
             evaluated_v = perform_substitutions(context, normalize_to_list_of_substitutions(v))

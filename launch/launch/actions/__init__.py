@@ -32,13 +32,16 @@ from .pop_launch_configurations import PopLaunchConfigurations
 from .push_environment import PushEnvironment
 from .push_launch_configurations import PushLaunchConfigurations
 from .register_event_handler import RegisterEventHandler
+from .register_global_launch_configuration import RegisterGlobalLaunchConfiguration
 from .reset_environment import ResetEnvironment
 from .reset_launch_configurations import ResetLaunchConfigurations
 from .set_environment_variable import SetEnvironmentVariable
+from .set_global_launch_configuration import SetGlobalLaunchConfiguration
 from .set_launch_configuration import SetLaunchConfiguration
 from .shutdown_action import Shutdown
 from .timer_action import TimerAction
 from .unregister_event_handler import UnregisterEventHandler
+from .unregister_global_launch_configuration import UnregisterGlobalLaunchConfiguration
 from .unset_environment_variable import UnsetEnvironmentVariable
 from .unset_launch_configuration import UnsetLaunchConfiguration
 
@@ -52,7 +55,6 @@ __all__ = [
     'ForLoop',
     'GroupAction',
     'IncludeLaunchDescription',
-    'ScopedIncludeLaunchDescription',
     'LogInfo',
     'OpaqueCoroutine',
     'OpaqueFunction',
@@ -60,14 +62,18 @@ __all__ = [
     'PopLaunchConfigurations',
     'PushEnvironment',
     'PushLaunchConfigurations',
+    'RegisterEventHandler',
+    'RegisterGlobalLaunchConfiguration',
     'ResetEnvironment',
     'ResetLaunchConfigurations',
-    'RegisterEventHandler',
+    'ScopedIncludeLaunchDescription',
     'SetEnvironmentVariable',
+    'SetGlobalLaunchConfiguration',
     'SetLaunchConfiguration',
     'Shutdown',
     'TimerAction',
     'UnregisterEventHandler',
+    'UnregisterGlobalLaunchConfiguration',
     'UnsetEnvironmentVariable',
     'UnsetLaunchConfiguration',
 ]

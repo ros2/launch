@@ -16,6 +16,7 @@
 
 from .class_tools_impl import is_a, is_a_subclass, isclassinstance
 from .ensure_argument_type_impl import ensure_argument_type
+from .global_launch_configurations import register_global, unregister_global
 from .normalize_to_list_of_entities_impl import normalize_to_list_of_entities
 from .normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
 from .perform_substitutions_impl import perform_substitutions
@@ -32,4 +33,6 @@ __all__ = [
     'normalize_to_list_of_substitutions',
     'normalize_to_list_of_entities',
     'visit_all_entities_and_collect_futures',
+    'register_global',
+    'unregister_global'
 ]
