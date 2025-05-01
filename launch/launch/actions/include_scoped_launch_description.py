@@ -17,7 +17,6 @@
 # from typing import override # Available starting from Python3.12
 from typing import List
 from typing import Text
-# from itertools import zip_longest
 
 from .include_launch_description import IncludeLaunchDescription
 from .pop_environment import PopEnvironment
@@ -43,22 +42,52 @@ class ScopedIncludeLaunchDescription(IncludeLaunchDescription):
 
     def get_sub_entities(self):
         """Get subentities."""
-        ret = super().get_sub_entities()
+        # ret = super().get_sub_entities()
         # TODO(SuperJappie08)? Do these internals need to be hidden?
+        # print(self.launch_arguments)
         return [
             PushLaunchConfigurations(),
             PushEnvironment(),
             ResetEnvironment(),
             # NOTE(SuperJappie08) Need weird remap, since AnySubstitution type can be a List which
             #   is not Hashable.
-            ResetLaunchConfigurations({k[0]: v for k, v in self.launch_arguments})
-            * ret,
+            # ResetLaunchConfigurations({k: v for k, v in self.launch_arguments}),
+            # *ret,
+            ResetLaunchConfigurations(),
+            *[SetLaunchConfiguration(k, v) for k, v in self.launch_arguments],
+            *super().get_sub_entities(),
             PopEnvironment(),
             PopLaunchConfigurations(),
         ]
 
     def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Execute the action."""
+        # FIXME(SuperJappie08): Temporary Test to see if behavior works out
+
+        # print(self.launch_description_source.get_launch_description(context).entities)
+        # FIXME(SuperJappie08): This breaks the PushRosNameSpace Action (Cannot push a namespace in)
+
+        evaluated_configurations = {}
+        for k, v in self.launch_arguments:
+            evaluated_k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
+            evaluated_v = perform_substitutions(context, normalize_to_list_of_substitutions(v))
+            evaluated_configurations[evaluated_k] = evaluated_v
+
+        return [
+            PushLaunchConfigurations(),
+            PushEnvironment(),
+            ResetEnvironment(),
+            ResetLaunchConfigurations(evaluated_configurations),
+            # Does this reset do anything?
+            # ResetLaunchConfigurations(evaluated_configurations),
+            # *super().execute(context),
+            IncludeLaunchDescription(
+                                     launch_description_source=self.launch_description_source,
+                                     launch_arguments=self.launch_arguments,
+                                     condition=self.condition),
+            PopEnvironment(),
+            PopLaunchConfigurations()
+        ]
         # NOTE(SuperJappie08) Originally this returend something based on the used actions
         #   However after further consideration the context might not be correct that way.
         context._push_launch_configurations()
