@@ -30,6 +30,8 @@ from ..utilities import unregister_global
 @expose_action('unregister-global')
 @expose_action('unregister_global')
 class UnregisterGlobalLaunchConfiguration(Action):
+    """Action that add a launch configuration to the globals set by name."""
+
     def __init__(self, name: SomeSubstitutionsType, **kwargs) -> None:
         """Create a UnregisterGlobalLaunchConfiguration action."""
         super().__init__(**kwargs)

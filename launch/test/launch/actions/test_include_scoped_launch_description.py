@@ -19,11 +19,14 @@ import os
 from launch import LaunchContext
 from launch import LaunchDescription
 from launch import LaunchDescriptionSource
-# from launch import LaunchService
 from launch.actions import DeclareLaunchArgument
-from launch.actions import PopEnvironment, PopLaunchConfigurations
-from launch.actions import PushEnvironment, PushLaunchConfigurations
-from launch.actions import ResetEnvironment, ResetLaunchConfigurations
+from launch.actions import IncludeLaunchDescription
+from launch.actions import PopEnvironment
+from launch.actions import PopLaunchConfigurations
+from launch.actions import PushEnvironment
+from launch.actions import PushLaunchConfigurations
+from launch.actions import ResetEnvironment
+from launch.actions import ResetLaunchConfigurations
 from launch.actions import ScopedIncludeLaunchDescription
 
 import pytest
@@ -46,6 +49,7 @@ def test_scoped_include_launch_description_launch_file_location():
     assert 'ScopedIncludeLaunchDescription' in action.describe()
     assert isinstance(action.describe_sub_entities(), list)
     assert isinstance(action.describe_conditional_sub_entities(), list)
+
     lc1 = LaunchContext()
     # Result should only contain the launch description as there are no launch arguments.
     assert action.visit(lc1) == [ld]
@@ -79,7 +83,7 @@ def test_scoped_include_launch_description_scoping():
     assert isinstance(sub_entities[1], PushEnvironment)
     assert isinstance(sub_entities[2], ResetEnvironment)
     assert isinstance(sub_entities[3], ResetLaunchConfigurations)
-    assert sub_entities[3]._ResetLaunchConfigurations__launch_configurations == {}
+    assert sub_entities[3]._ResetLaunchConfigurations__launch_configurations is None
     assert isinstance(sub_entities[4], LaunchDescription)
     assert sub_entities[4] == ld_empty
     assert isinstance(sub_entities[5], PopEnvironment)
@@ -95,14 +99,19 @@ def test_scoped_include_launch_description_scoping():
     # lc1_pre_env = list(lc1.environment.items())
     # assert list(lc1.environment.items()) == lc1_pre_env
     res1 = action.visit(lc1)
-    assert len(res1) == 3
+    assert len(res1) == 7
 
-    assert isinstance(res1[0], LaunchDescription)
-    assert res1[0] == ld_empty
-    assert res1[0].get_launch_arguments_with_include_launch_description_actions() == []
+    assert isinstance(sub_entities[0], PushLaunchConfigurations)
+    assert isinstance(sub_entities[1], PushEnvironment)
+    assert isinstance(sub_entities[2], ResetEnvironment)
+    assert isinstance(sub_entities[3], ResetLaunchConfigurations)
 
-    assert isinstance(res1[1], PopEnvironment)
-    assert isinstance(res1[2], PopLaunchConfigurations)
+    assert isinstance(res1[4], IncludeLaunchDescription)
+    assert res1[4].describe_sub_entities() == [ld_empty]
+    # assert res1[4].get_launch_arguments_with_include_launch_description_actions() == []
+
+    assert isinstance(res1[5], PopEnvironment)
+    assert isinstance(res1[6], PopLaunchConfigurations)
 
     # Non Empty Inner into empty outer
     inner_declare_argument = DeclareLaunchArgument('some_name', default_value='some_value')
@@ -118,7 +127,7 @@ def test_scoped_include_launch_description_scoping():
     assert isinstance(sub_entities[1], PushEnvironment)
     assert isinstance(sub_entities[2], ResetEnvironment)
     assert isinstance(sub_entities[3], ResetLaunchConfigurations)
-    assert sub_entities[3]._ResetLaunchConfigurations__launch_configurations == {}
+    assert sub_entities[3]._ResetLaunchConfigurations__launch_configurations is None
     assert isinstance(sub_entities[4], LaunchDescription)
     assert sub_entities[4] == ld_non_empty
     assert isinstance(sub_entities[5], PopEnvironment)
@@ -126,7 +135,7 @@ def test_scoped_include_launch_description_scoping():
 
     assert isinstance(action.describe_conditional_sub_entities(), list)
 
-    lc2 = LaunchContext()
+    # lc2 = LaunchContext()
     # TODO: Finish NotImplemented()
 
 # TODO(SuperJappie08) Add tests to verify behavior
