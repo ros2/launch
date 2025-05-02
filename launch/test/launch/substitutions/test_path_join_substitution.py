@@ -33,5 +33,6 @@ def test_path_join():
     assert sub.perform(context) == os.path.join('path', 'to', 'my_file.yaml')
 
     sub = PathSubstitution('some') / 'path'
-    sub = sub / PathJoinSubstitution(['to', 'some', 'file'])
-    assert sub.perform(context) == os.path.join('some', 'path', 'to', 'some', 'file')
+    sub = sub / PathJoinSubstitution(['to', 'some', 'dir'])
+    sub = sub / (TextSubstitution(text='my_model'), '.xacro')
+    assert sub.perform(context) == os.path.join('some', 'path', 'to', 'some', 'dir', 'my_model.xacro')
