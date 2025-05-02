@@ -35,4 +35,5 @@ def test_path_join():
     sub = PathSubstitution('some') / 'path'
     sub = sub / PathJoinSubstitution(['to', 'some', 'dir'])
     sub = sub / (TextSubstitution(text='my_model'), '.xacro')
-    assert sub.perform(context) == os.path.join('some', 'path', 'to', 'some', 'dir', 'my_model.xacro')
+    assert sub.perform(context) == os.path.join(
+        'some', 'path', 'to', 'some', 'dir', 'my_model.xacro')
