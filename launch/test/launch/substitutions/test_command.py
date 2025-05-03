@@ -29,9 +29,9 @@ def commands():
     this_dir = pathlib.Path(__file__).parent
 
     commands = {
-        'normal': str(this_dir / 'test_command' / 'normal_command.bash'),
-        'failing': str(this_dir / 'test_command' / 'failing_command.bash'),
-        'with_stderr': str(this_dir / 'test_command' / 'command_with_stderr.bash')
+        'normal': this_dir / 'test_command' / 'normal_command.bash',
+        'failing': this_dir / 'test_command' / 'failing_command.bash',
+        'with_stderr': this_dir / 'test_command' / 'command_with_stderr.bash'
     }
 
     if os.name == 'nt':
