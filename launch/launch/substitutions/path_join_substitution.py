@@ -106,7 +106,7 @@ class PathSubstitution(PathJoinSubstitution):
 
         PathSubstitution(LaunchConfiguration('base_dir')) / 'sub_dir' / 'file_name'
 
-    Which, for `base_dir:=/my_dir`, results in (depending on the platform)
+    Which, for ``base_dir:=/my_dir``, results in (depending on the platform):
 
     .. code-block:: python
 
