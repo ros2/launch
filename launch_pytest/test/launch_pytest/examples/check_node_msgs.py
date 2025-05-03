@@ -36,7 +36,7 @@ def generate_test_description():
     return launch.LaunchDescription([
         launch_ros.actions.Node(
             executable=sys.executable,
-            arguments=[str(path_to_test / 'executables' / 'talker.py')],
+            arguments=[path_to_test / 'executables' / 'talker.py'],
             additional_env={'PYTHONUNBUFFERED': '1'},
             name='demo_node_1',
             output='screen',
