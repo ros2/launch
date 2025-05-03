@@ -43,6 +43,13 @@ class PathJoinSubstitution(Substitution):
             ['config_', LaunchConfiguration('map'), '.yml']
         ])
 
+    Or:
+
+    .. code-block:: python
+
+        cfg_dir = PathJoinSubstitution([EnvironmentVariable('SOME_DIR'), 'cfg'])
+        cfg_file = cfg_dir / ['config_', LaunchConfiguration('map'), '.yml']
+
     If the ``SOME_DIR`` environment variable was set to ``/home/user/dir`` and the ``map`` launch
     configuration was set to ``my_map``, this would result in a path equal equivalent to (depending
     on the platform):
@@ -92,7 +99,20 @@ class PathJoinSubstitution(Substitution):
 
 
 class PathSubstitution(PathJoinSubstitution):
-    """Thin wrapper on PathJoinSubstitution for more pathlib.Path-like construction."""
+    """
+    Thin wrapper on PathJoinSubstitution for more pathlib.Path-like construction.
+
+    .. code-block:: python
+
+        PathSubstitution(LaunchConfiguration('base_dir')) / 'sub_dir' / 'file_name'
+
+    Which, for `base_dir:=/my_dir`, results in (depending on the platform)
+
+    .. code-block:: python
+
+        /my_dir/sub_dir/file_name
+
+    """
 
     def __init__(self, path: SomeSubstitutionsType):
         """
