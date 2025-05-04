@@ -28,7 +28,6 @@ from typing import Type
 from typing_extensions import NotRequired
 from typing_extensions import Self
 
-
 # yaml has type annotations in typeshed, but those cannot be installed via rosdep
 # since there is no definition for types-PyYAML
 import yaml  # type: ignore
