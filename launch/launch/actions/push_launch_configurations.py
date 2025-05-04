@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Module for the PushLaunchConfigurations action."""
+
 from typing import Any
 
 from ..action import Action
