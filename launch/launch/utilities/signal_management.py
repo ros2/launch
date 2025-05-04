@@ -144,7 +144,7 @@ class AsyncSafeSignalManager:
             def run_background_loop() -> None:
                 asyncio.set_event_loop(self.__background_loop)
                 if self.__background_loop is None:
-                    raise RuntimeError('AsnycSafeSignalManager has not been initliazed.')
+                    raise RuntimeError('AsyncSafeSignalManager has not been initialized.')
                 self.__background_loop.run_forever()
 
             self.__background_thread = threading.Thread(
