@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Module for ProcessStdout event."""
+
 from typing import Any
 
 from .process_io import ProcessIO
