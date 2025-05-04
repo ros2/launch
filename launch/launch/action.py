@@ -31,7 +31,6 @@ from .condition import Condition
 from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
 
-
 if TYPE_CHECKING:
     from .frontend import Entity  # noqa: F401
     from .frontend import Parser  # noqa: F401
