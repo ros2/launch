@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Module for the SetLaunchConfiguration action."""
+
 from typing import Any
 from typing import List
 from typing import Tuple
