@@ -20,7 +20,7 @@ from typing import Any
 from typing import Type
 
 
-# Can be redone properly with TypeIs once mypy is version 1.10+ is available on all platforms
+# Can be redone properly with TypeIs once mypy version 1.10+ is available on all platforms
 def isclassinstance(obj: object) -> bool:
     """Return True if obj is an instance of a class."""
     return hasattr(obj, '__class__')
