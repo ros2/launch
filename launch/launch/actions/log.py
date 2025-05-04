@@ -17,11 +17,15 @@
 import logging
 import sys
 from typing import List
+from typing import Tuple
+from typing import Type
 import warnings
 
 import launch.logging
+from typing_extensions import Self
 
 from ..action import Action
+from ..action import ActionParsedDict
 from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser  # noqa: F401
@@ -29,6 +33,11 @@ from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
+
+
+class LogParsedDict(ActionParsedDict):
+    msg: List[Substitution]
+    level: List[Substitution]
 
 
 @expose_action('log')
@@ -49,10 +58,9 @@ class Log(Action):
         cls,
         entity: Entity,
         parser: 'Parser'
-    ):
+    ) -> Tuple[Type[Self], LogParsedDict]:
         """Parse `log` tag."""
         _, kwargs = super().parse(entity, parser)
-        kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
 
         # Check if still using old log action
         level = entity.get_attr('level', optional=True)
@@ -64,8 +72,12 @@ class Log(Action):
                 stacklevel=2)
             level = 'INFO'
 
-        kwargs['level'] = parser.parse_substitution(level)
-        return cls, kwargs
+        new_kwargs = LogParsedDict(
+            msg=parser.parse_substitution(entity.get_attr('message')),
+            level=parser.parse_substitution(level),
+            **kwargs
+        )
+        return cls, new_kwargs
 
     @property
     def msg(self) -> List[Substitution]:
