@@ -19,7 +19,6 @@ from typing import List
 from typing import Tuple
 from typing import Type
 
-
 import launch.logging
 from typing_extensions import Self
 
