@@ -316,7 +316,12 @@ def pytest_pyfunc_call(pyfuncitem):
         yield
         return
 
-    func = pyfuncitem.obj
+    # Store the original unwrapped function to avoid re-wrapping on reruns.
+    # This prevents issues with pytest plugins like pytest-flaky or pytest-rerunfailures,
+    # which reuse the same pyfuncitem across multiple test runs.
+    func = getattr(pyfuncitem, '_launch_pytest_original_obj', pyfuncitem.obj)
+    pyfuncitem._launch_pytest_original_obj = func
+
     if has_shutdown_kwarg(pyfuncitem) and need_shutdown_test_item(func):
         error_msg = (
             'generator or async generator based launch test items cannot be marked with'
