@@ -128,7 +128,7 @@ class AsyncSafeSignalManager:
 
     def __add_signal_readers(self) -> None:
         if self.__rsock is None:
-            raise RuntimeError('AsnycSafeSignalManager has not been initliazed.')
+            raise RuntimeError('AsyncSafeSignalManager has not been initialized.')
         try:
             self.__loop.add_reader(self.__rsock.fileno(), self.__handle_signal)
         except NotImplementedError:
