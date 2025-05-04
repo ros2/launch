@@ -102,8 +102,8 @@ class TimerAction(Action):
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals: Dict[Text, Any] = {}
-        self._completed_future: Optional[asyncio.Future[None]] = None
         self.__context_launch_configuration: Dict[Any, Any] = {}
+        self._completed_future: Optional[asyncio.Future[None]] = None
         self.__canceled = False
         self._canceled_future: Optional[asyncio.Future[bool]] = None
         self.__cancel_on_shutdown = type_utils.normalize_typed_substitution(

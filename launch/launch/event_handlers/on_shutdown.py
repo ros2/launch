@@ -74,6 +74,6 @@ class OnShutdown(BaseEventHandler):
         return '{}'.format(self.__on_shutdown)
 
     @property
-    def matcher_description(self) -> str:
+    def matcher_description(self) -> Text:
         """Return the string description of the matcher."""
         return 'event issubclass of launch.events.Shutdown'
