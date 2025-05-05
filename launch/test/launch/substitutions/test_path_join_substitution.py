@@ -16,10 +16,30 @@
 
 import os
 
+<<<<<<< HEAD
 from launch.substitutions import PathJoinSubstitution
+=======
+from launch import LaunchContext
+from launch.substitutions import PathJoinSubstitution, PathSubstitution
+from launch.substitutions import TextSubstitution
+>>>>>>> e716d1f (Add a `/` path join operator for `PathJoinSubstitution` (#868))
 
 
 def test_this_launch_file_path():
     path = ['asd', 'bsd', 'cds']
     sub = PathJoinSubstitution(path)
+<<<<<<< HEAD
     assert sub.perform(None) == os.path.join(*path)
+=======
+    assert sub.perform(context) == os.path.join(*path)
+
+    path = ['path', ['to'], ['my_', TextSubstitution(text='file'), '.yaml']]
+    sub = PathJoinSubstitution(path)
+    assert sub.perform(context) == os.path.join('path', 'to', 'my_file.yaml')
+
+    sub = PathSubstitution('some') / 'path'
+    sub = sub / PathJoinSubstitution(['to', 'some', 'dir'])
+    sub = sub / (TextSubstitution(text='my_model'), '.xacro')
+    assert sub.perform(context) == os.path.join(
+        'some', 'path', 'to', 'some', 'dir', 'my_model.xacro')
+>>>>>>> e716d1f (Add a `/` path join operator for `PathJoinSubstitution` (#868))
