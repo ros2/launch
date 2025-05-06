@@ -483,6 +483,8 @@ def get_output_loggers(process_name: str, output_config: Union[str, Dict[str, An
     :param process_name: the process-like action whose outputs want to be logged.
     :param output_config: configuration for the output loggers,
         see above for details.
+    :param main_log_file_name: the name of the main log file to be used.
+        Defaults to 'launch.log'.
     :returns: a tuple with the stdout and stderr output loggers.
     """
     output_config = _normalize_output_configuration(output_config)
