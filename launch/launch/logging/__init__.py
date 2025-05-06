@@ -19,20 +19,11 @@ import datetime
 import locale
 import logging
 import logging.handlers
-
 import os
 import socket
 import sys
-
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Literal
-from typing import Optional
-from typing import Protocol
-from typing import Set
-from typing import Tuple
-from typing import Union
+from typing import (Any, Dict, List, Literal, Optional, Protocol, Set, Tuple,
+                    Union)
 
 from typing_extensions import TypeAlias
 
@@ -125,6 +116,7 @@ class LaunchConfig:
 
     def reset(self) -> None:
         self._log_dir = None
+        self._log_file_name = 'launch.log'
         self.file_handlers: Dict[str, logging.Handler] = {}
         self.screen_handler = None
         self.screen_formatter: Optional[logging.Formatter] = None
@@ -146,6 +138,20 @@ class LaunchConfig:
         :param new_level: the default log level used for all loggers.
         """
         logging.root.setLevel(new_level)
+
+    @property
+    def log_file_name(self) -> str:
+        """Get the current log file name."""
+        return self._log_file_name
+
+    @log_file_name.setter
+    def log_file_name(self, log_file_name: str):
+        """
+        Set the name of the log file.
+
+        :param log_file_name: the name of the log file where logger output should be written.
+        """
+        self._log_file_name = log_file_name
 
     @property
     def log_dir(self):
@@ -366,7 +372,7 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     screen_handler = launch_config.get_screen_handler()
     if screen_handler not in logger.handlers:
         logger.addHandler(screen_handler)
-    launch_log_file_handler = launch_config.get_log_file_handler()
+    launch_log_file_handler = launch_config.get_log_file_handler(launch_config.log_file_name)
     if launch_log_file_handler not in logger.handlers:
         logger.addHandler(launch_log_file_handler)
     return logger
@@ -435,8 +441,8 @@ def _normalize_output_configuration(config: Union[str, Dict[str, Any]]) -> Dict[
     return normalized_config
 
 
-def get_output_loggers(process_name: str, output_config: Union[str, Dict[str, Any]]
-                       ) -> Tuple[logging.Logger, logging.Logger]:
+def get_output_loggers(process_name: str, output_config: Union[str, Dict[str, Any]],
+                       main_log_file_name='launch.log') -> Tuple[logging.Logger, logging.Logger]:
     """
     Get the stdout and stderr output loggers for the given process name.
 
@@ -496,7 +502,7 @@ def get_output_loggers(process_name: str, output_config: Union[str, Dict[str, An
         # If a 'log' output is configured for this source or for
         # 'both' sources, this logger should output to launch main log file.
         if 'log' in (output_config['both'] | output_config[source]):
-            launch_log_file_handler = launch_config.get_log_file_handler()
+            launch_log_file_handler = launch_config.get_log_file_handler(main_log_file_name)
             # Add launch main log file handler if necessary.
             if launch_log_file_handler not in logger.handlers:
                 launch_log_file_handler.setFormatterFor(

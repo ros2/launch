@@ -56,7 +56,8 @@ class LaunchService:
         *,
         argv: Optional[Iterable[Text]] = None,
         noninteractive: bool = False,
-        debug: bool = False
+        debug: bool = False,
+        log_file_name: str = 'launch.log'
     ) -> None:
         """
         Create a LaunchService.
@@ -68,11 +69,17 @@ class LaunchService:
         """
         # Setup logging and debugging.
         launch.logging.launch_config.level = logging.DEBUG if debug else logging.INFO
+        self._log_file_name = log_file_name
+        # Ensure the log file name ends with `.log`
+        if not self._log_file_name.endswith('.log'):
+            self._log_file_name += '.log'
+        launch.logging.launch_config.log_file_name = self._log_file_name
+        # Setup logging
+        self._logger_name = self._log_file_name.removesuffix('.log')
+        self.__logger = launch.logging.get_logger(self._logger_name)
+
         self.__debug = debug
         self.__argv = argv if argv is not None else []
-
-        # Setup logging
-        self.__logger = launch.logging.get_logger('launch')
 
         # Setup context and register a built-in event handler for bootstrapping.
         self.__context = LaunchContext(argv=self.__argv, noninteractive=noninteractive)
