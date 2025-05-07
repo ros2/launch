@@ -177,16 +177,14 @@ class ForEach(Action):
     def parse(cls, entity: Entity, parser: Parser) -> Tuple[Type[Self], Dict[str, Any]]:
         """Return `ForEach` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
+        input_values = entity.get_attr('values')
+        if input_values is not None:
+            kwargs['input_values'] = parser.parse_substitution(input_values)
         parsed_children = [parser.parse_action(e) for e in entity.children]
 
         def for_each(**iteration_vars) -> List[LaunchDescriptionEntity]:
             return cls._get_iteration_entities(parsed_children, iteration_vars)
-
-        kwargs['for_each'] = for_each
-
-        input_values = entity.get_attr('values')
-        if input_values is not None:
-            kwargs['input_values'] = parser.parse_substitution(input_values)
+        kwargs['function'] = for_each
         return cls, kwargs
 
     def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
@@ -377,19 +375,16 @@ class ForLoop(Action):
     def parse(cls, entity: Entity, parser: Parser) -> Tuple[Type[Self], Dict[str, Any]]:
         """Return `ForLoop` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
+        length = entity.get_attr('len')
+        if length is not None:
+            kwargs['length'] = parser.parse_substitution(length)
         name = entity.get_attr('name')
+        kwargs['name'] = name
         parsed_children = [parser.parse_action(e) for e in entity.children]
 
         def for_i(i: int) -> List[LaunchDescriptionEntity]:
             return ForEach._get_iteration_entities(parsed_children, {name: i})
-
         kwargs['function'] = for_i
-        kwargs['name'] = name
-
-        length = entity.get_attr('len')
-        if length is not None:
-            kwargs['length'] = parser.parse_substitution(length)
-
         return cls, kwargs
 
     def execute(self, context: LaunchContext) -> List[ForEach]:

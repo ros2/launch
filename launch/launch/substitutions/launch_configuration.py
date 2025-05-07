@@ -75,9 +75,7 @@ class LaunchConfiguration(Substitution):
         """Parse `FindExecutable` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('var substitution expects 1 or 2 arguments')
-        kwargs = {
-            'variable_name': data[0]
-        }
+        kwargs = {'variable_name': data[0]}
         if len(data) == 2:
             kwargs['default'] = data[1]
         return cls, kwargs

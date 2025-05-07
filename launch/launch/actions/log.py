@@ -57,7 +57,7 @@ class Log(Action):
     ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `log` tag."""
         _, kwargs = super().parse(entity, parser)
-
+        kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
         # Check if still using old log action
         level = entity.get_attr('level', optional=True)
         # TODO: Remove optional level for Release after L-turtle release
@@ -68,9 +68,7 @@ class Log(Action):
                 stacklevel=2)
             level = 'INFO'
 
-        kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
         kwargs['level'] = parser.parse_substitution(level)
-
         return cls, kwargs
 
     @property

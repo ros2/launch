@@ -70,9 +70,7 @@ class PythonExpression(Substitution):
         """Parse `PythonExpression` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('eval substitution expects 1 or 2 arguments')
-        kwargs = {
-            'expression': data[0]
-        }
+        kwargs = {'expression': data[0]}
         if len(data) == 2:
             # We get a text substitution from XML,
             # whose contents are comma-separated module names

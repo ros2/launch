@@ -76,9 +76,7 @@ class Command(Substitution):
         """Parse `Command` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise ValueError('command substitution expects 1 or 2 arguments')
-        kwargs = {
-            'command': data[0]
-        }
+        kwargs = {'command': data[0]}
         if len(data) == 2:
             kwargs['on_stderr'] = data[1]
         return cls, kwargs

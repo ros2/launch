@@ -40,7 +40,7 @@ class ThisLaunchFileDir(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[Any, Any]]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `ThisLaunchFileDir` substitution."""
         if len(data) != 0:
             raise TypeError("dirname substitution doesn't expect arguments")

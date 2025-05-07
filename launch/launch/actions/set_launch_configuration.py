@@ -58,9 +58,11 @@ class SetLaunchConfiguration(Action):
     def parse(cls, entity: Entity, parser: Parser
               ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Return `SetLaunchConfiguration` action and kwargs for constructing it."""
+        name = parser.parse_substitution(entity.get_attr('name'))
+        value = parser.parse_substitution(entity.get_attr('value'))
         _, kwargs = super().parse(entity, parser)
-        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
-        kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
+        kwargs['name'] = name
+        kwargs['value'] = value
         return cls, kwargs
 
     @property

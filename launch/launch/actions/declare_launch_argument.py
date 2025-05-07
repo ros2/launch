@@ -171,7 +171,7 @@ class DeclareLaunchArgument(Action):
     ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `arg` tag."""
         _, kwargs = super().parse(entity, parser)
-
+        kwargs['name'] = parser.escape_characters(entity.get_attr('name'))
         default_value = entity.get_attr('default', optional=True)
         if default_value is not None:
             kwargs['default_value'] = parser.parse_substitution(default_value)

@@ -57,8 +57,7 @@ class SetEnvironmentVariable(Action):
         """Parse a 'set_env' entity."""
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
-        kwargs['value'] = parser.parse_substitution(entity.get_attr('level'))
-
+        kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
         return cls, kwargs
 
     @property

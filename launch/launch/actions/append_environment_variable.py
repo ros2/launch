@@ -81,7 +81,8 @@ class AppendEnvironmentVariable(Action):
     ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse an 'append_env' entity."""
         _, kwargs = super().parse(entity, parser)
-
+        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
+        kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
         prepend = entity.get_attr('prepend', optional=True, data_type=bool, can_be_str=True)
         if prepend is not None:
             kwargs['prepend'] = parser.parse_if_substitutions(prepend)

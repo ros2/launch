@@ -55,7 +55,6 @@ class UnsetEnvironmentVariable(Action):
         """Parse a 'set_env' entity."""
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
-
         return cls, kwargs
 
     @property

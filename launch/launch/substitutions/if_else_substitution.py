@@ -87,10 +87,7 @@ class IfElseSubstitution(Substitution):
         """Parse `IfElseSubstitution` substitution."""
         if len(data) < 2 or len(data) > 3:
             raise TypeError('if substitution expects from 2 or 3 arguments')
-        kwargs = {
-            'condition': data[0],
-            'if_value': data[1]
-        }
+        kwargs = {'condition': data[0], 'if_value': data[1]}
         if len(data) == 3:
             kwargs['else_value'] = data[2]
         return cls, kwargs
