@@ -14,21 +14,20 @@
 
 """Module for the anonymous name substitution."""
 
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Sequence
 from typing import Text
 from typing import Tuple
 from typing import Type
-from typing import TypedDict
+
+from typing_extensions import Self
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
-
-
-class AnonNameParsedDict(TypedDict):
-    name: SomeSubstitutionsType
 
 
 @expose_substitution('anon')
@@ -49,7 +48,7 @@ class AnonName(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['AnonName'], AnonNameParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `AnonName` substitution."""
         if len(data) != 1:
             raise TypeError('anon substitution expects 1 argument')

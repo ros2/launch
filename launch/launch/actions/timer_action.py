@@ -29,7 +29,6 @@ from typing import Union
 import warnings
 
 import launch.logging
-from typing_extensions import NotRequired
 from typing_extensions import Self
 
 from .opaque_function import OpaqueFunction
@@ -38,7 +37,6 @@ from .push_launch_configurations import PushLaunchConfigurations
 from .reset_launch_configurations import ResetLaunchConfigurations
 
 from ..action import Action
-from ..action import ActionParsedDict
 from ..event_handler import EventHandler
 from ..events import Shutdown
 from ..events import TimerEvent
@@ -53,12 +51,6 @@ from ..some_substitutions_type import SomeSubstitutionsType_types_tuple
 from ..utilities import ensure_argument_type
 from ..utilities import is_a_subclass
 from ..utilities import type_utils
-
-
-class TimerActionParsedDict(ActionParsedDict):
-    period: type_utils.NormalizedValueType
-    actions: List[Action]
-    cancel_on_shutdown: NotRequired[type_utils.NormalizedValueType]
 
 
 @expose_action('timer')
@@ -124,20 +116,18 @@ class TimerAction(Action):
         cls,
         entity: Entity,
         parser: Parser,
-    ) -> Tuple[Type[Self], TimerActionParsedDict]:
+    ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Return the `Timer` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        new_kwargs = TimerActionParsedDict(
-            period=parser.parse_if_substitutions(
-                entity.get_attr('period', data_type=float, can_be_str=True)),
-            actions=[parser.parse_action(child) for child in entity.children],
-            **kwargs
-        )
+
+        kwargs['period'] = parser.parse_if_substitutions(
+                entity.get_attr('period', data_type=float, can_be_str=True))
+        kwargs['actions'] = [parser.parse_action(child) for child in entity.children]
         cancel_on_shutdown = entity.get_attr(
             'cancel_on_shutdown', optional=True, data_type=bool, can_be_str=True)
         if cancel_on_shutdown is not None:
-            new_kwargs['cancel_on_shutdown'] = parser.parse_if_substitutions(cancel_on_shutdown)
-        return cls, new_kwargs
+            kwargs['cancel_on_shutdown'] = parser.parse_if_substitutions(cancel_on_shutdown)
+        return cls, kwargs
 
     @property
     def period(self) -> type_utils.NormalizedValueType:

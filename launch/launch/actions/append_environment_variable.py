@@ -16,16 +16,15 @@
 
 import os
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Tuple
 from typing import Type
 from typing import Union
 
-from typing_extensions import NotRequired
 from typing_extensions import Self
 
 from ..action import Action
-from ..action import ActionParsedDict
 from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
@@ -37,13 +36,6 @@ from ..utilities import perform_substitutions
 from ..utilities.type_utils import normalize_typed_substitution
 from ..utilities.type_utils import NormalizedValueType
 from ..utilities.type_utils import perform_typed_substitution
-
-
-class AppendEnvironmentVariableParsedDict(ActionParsedDict):
-    name: List[Substitution]
-    value: List[Substitution]
-    prepend: NotRequired[NormalizedValueType]
-    separator: NotRequired[List[Substitution]]
 
 
 @expose_action('append_env')
@@ -86,22 +78,17 @@ class AppendEnvironmentVariable(Action):
         cls,
         entity: Entity,
         parser: Parser,
-    ) -> Tuple[Type[Self], AppendEnvironmentVariableParsedDict]:
+    ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse an 'append_env' entity."""
         _, kwargs = super().parse(entity, parser)
 
-        new_kwargs = AppendEnvironmentVariableParsedDict(
-            name=parser.parse_substitution(entity.get_attr('name')),
-            value=parser.parse_substitution(entity.get_attr('value')),
-            **kwargs)
-
         prepend = entity.get_attr('prepend', optional=True, data_type=bool, can_be_str=True)
         if prepend is not None:
-            new_kwargs['prepend'] = parser.parse_if_substitutions(prepend)
+            kwargs['prepend'] = parser.parse_if_substitutions(prepend)
         separator = entity.get_attr('separator', optional=True)
         if separator is not None:
-            new_kwargs['separator'] = parser.parse_substitution(separator)
-        return cls, new_kwargs
+            kwargs['separator'] = parser.parse_substitution(separator)
+        return cls, kwargs
 
     @property
     def name(self) -> List[Substitution]:

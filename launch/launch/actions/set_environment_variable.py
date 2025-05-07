@@ -15,6 +15,7 @@
 """Module for the SetEnvironmentVariable action."""
 
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Tuple
 from typing import Type
@@ -22,7 +23,6 @@ from typing import Type
 from typing_extensions import Self
 
 from ..action import Action
-from ..action import ActionParsedDict
 from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
@@ -31,11 +31,6 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-
-
-class SetEnvironmentVariableParsedDict(ActionParsedDict):
-    name: List[Substitution]
-    value: List[Substitution]
 
 
 @expose_action('set_env')
@@ -58,15 +53,13 @@ class SetEnvironmentVariable(Action):
         cls,
         entity: Entity,
         parser: Parser,
-    ) -> Tuple[Type[Self], SetEnvironmentVariableParsedDict]:
+    ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse a 'set_env' entity."""
         _, kwargs = super().parse(entity, parser)
-        new_kwargs = SetEnvironmentVariableParsedDict(
-            name=parser.parse_substitution(entity.get_attr('name')),
-            value=parser.parse_substitution(entity.get_attr('value')),
-            **kwargs
-        )
-        return cls, new_kwargs
+        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
+        kwargs['value'] = parser.parse_substitution(entity.get_attr('level'))
+
+        return cls, kwargs
 
     @property
     def name(self) -> List[Substitution]:

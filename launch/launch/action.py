@@ -14,6 +14,8 @@
 
 """Module for Action class."""
 
+from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -22,8 +24,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 from typing import TYPE_CHECKING
-from typing import TypedDict
-from typing import Union
 
 from typing_extensions import Self
 
@@ -34,12 +34,6 @@ from .launch_description_entity import LaunchDescriptionEntity
 if TYPE_CHECKING:
     from .frontend import Entity  # noqa: F401
     from .frontend import Parser  # noqa: F401
-    from .conditions import IfCondition
-    from .conditions import UnlessCondition
-
-
-class ActionParsedDict(TypedDict, total=False):
-    condition: Union['IfCondition', 'UnlessCondition']
 
 
 class Action(LaunchDescriptionEntity):
@@ -63,7 +57,7 @@ class Action(LaunchDescriptionEntity):
         self.__condition = condition
 
     @classmethod
-    def parse(cls, entity: 'Entity', parser: 'Parser') -> Tuple[Type[Self], ActionParsedDict]:
+    def parse(cls, entity: 'Entity', parser: 'Parser') -> Tuple[Type[Self], Dict[str, Any]]:
         """
         Return the `Action` action and kwargs for constructing it.
 
@@ -75,7 +69,7 @@ class Action(LaunchDescriptionEntity):
         from .conditions import UnlessCondition
         if_cond = entity.get_attr('if', optional=True)
         unless_cond = entity.get_attr('unless', optional=True)
-        kwargs: ActionParsedDict = {}
+        kwargs: Dict[str, Any] = {}
         if if_cond is not None and unless_cond is not None:
             raise RuntimeError("if and unless conditions can't be used simultaneously")
         if if_cond is not None:

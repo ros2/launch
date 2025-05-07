@@ -16,7 +16,7 @@
 
 import logging
 from typing import Any
-from typing import List
+from typing import Dict
 from typing import Text
 from typing import Tuple
 from typing import Type
@@ -27,18 +27,12 @@ from launch.frontend import Parser
 from typing_extensions import Self
 
 from .emit_event import EmitEvent
-from ..action import ActionParsedDict
 from ..events import Shutdown as ShutdownEvent
 from ..events.process import ProcessExited
 from ..launch_context import LaunchContext
-from ..substitution import Substitution
 
 
 _logger = logging.getLogger(name='launch')
-
-
-class ShutdownParsedDict(ActionParsedDict, total=False):
-    reason: List[Substitution]
 
 
 @expose_action('shutdown')
@@ -50,14 +44,14 @@ class Shutdown(EmitEvent):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], ShutdownParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Return `Shutdown` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         reason = entity.get_attr('reason', optional=True)
-        new_kwargs = ShutdownParsedDict(**kwargs)
+
         if reason:
-            new_kwargs['reason'] = parser.parse_substitution(reason)
-        return cls, new_kwargs
+            kwargs['reason'] = parser.parse_substitution(reason)
+        return cls, kwargs
 
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""

@@ -32,20 +32,11 @@ from .reset_environment import ResetEnvironment
 from .reset_launch_configurations import ResetLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
-from ..action import ActionParsedDict
 from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
-
-
-class GroupActionParsedDict(ActionParsedDict, total=False):
-    scoped: bool
-    forwarding: bool
-    launch_configurations: Dict[Tuple[Substitution, ...], List[Substitution]]
-    actions: List[Action]
 
 
 @expose_action('group')
@@ -100,27 +91,26 @@ class GroupAction(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], GroupActionParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Return `GroupAction` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        new_kwargs = GroupActionParsedDict(**kwargs)
         scoped = entity.get_attr('scoped', data_type=bool, optional=True)
         forwarding = entity.get_attr('forwarding', data_type=bool, optional=True)
         keeps = entity.get_attr('keep', data_type=List[Entity], optional=True)
         if scoped is not None:
-            new_kwargs['scoped'] = scoped
+            kwargs['scoped'] = scoped
         if forwarding is not None:
-            new_kwargs['forwarding'] = forwarding
+            kwargs['forwarding'] = forwarding
         if keeps is not None:
-            new_kwargs['launch_configurations'] = {
+            kwargs['launch_configurations'] = {
                     tuple(parser.parse_substitution(e.get_attr('name'))):
                     parser.parse_substitution(e.get_attr('value')) for e in keeps
             }
             for e in keeps:
                 e.assert_entity_completely_parsed()
-        new_kwargs['actions'] = [parser.parse_action(e) for e in entity.children
-                                 if e.type_name != 'keep']
-        return cls, new_kwargs
+        kwargs['actions'] = [parser.parse_action(e) for e in entity.children
+                             if e.type_name != 'keep']
+        return cls, kwargs
 
     def get_sub_entities(self) -> List[Action]:
         """Return subentities."""

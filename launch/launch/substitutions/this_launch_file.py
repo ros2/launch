@@ -21,6 +21,8 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
+from typing_extensions import Self
+
 from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
@@ -38,7 +40,7 @@ class ThisLaunchFile(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['ThisLaunchFile'], Dict[Any, Any]]:
+              ) -> Tuple[Type[Self], Dict[Any, Any]]:
         """Parse `ThisLaunchFile` substitution."""
         if len(data) != 0:
             raise TypeError("filename substitution doesn't expect arguments")

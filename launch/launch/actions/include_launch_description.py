@@ -16,9 +16,11 @@
 
 import os
 from typing import Any
-from typing import Iterable, Sequence
+from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 from typing import Tuple
 from typing import Type
@@ -29,7 +31,6 @@ from typing_extensions import Self
 
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
-from ..action import ActionParsedDict
 from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
@@ -38,14 +39,8 @@ from ..launch_description_entity import LaunchDescriptionEntity
 from ..launch_description_source import LaunchDescriptionSource
 from ..launch_description_sources import AnyLaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-
-
-class IncludeLaunchDescriptionParsedDict(ActionParsedDict, total=False):
-    launch_description_source: List[Substitution]
-    launch_arguments: List[Tuple[List[Substitution], List[Substitution]]]
 
 
 @expose_action('include')
@@ -94,15 +89,14 @@ class IncludeLaunchDescription(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], IncludeLaunchDescriptionParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Return `IncludeLaunchDescription` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         file_path = parser.parse_substitution(entity.get_attr('file'))
-        new_kwargs = IncludeLaunchDescriptionParsedDict(**kwargs)
-        new_kwargs['launch_description_source'] = file_path
+        kwargs['launch_description_source'] = file_path
         args = entity.get_attr('arg', data_type=List[Entity], optional=True)
         if args is not None:
-            new_kwargs['launch_arguments'] = [
+            kwargs['launch_arguments'] = [
                 (
                     parser.parse_substitution(e.get_attr('name')),
                     parser.parse_substitution(e.get_attr('value'))
@@ -111,7 +105,7 @@ class IncludeLaunchDescription(Action):
             ]
             for e in args:
                 e.assert_entity_completely_parsed()
-        return cls, new_kwargs
+        return cls, kwargs
 
     @property
     def launch_description_source(self) -> LaunchDescriptionSource:

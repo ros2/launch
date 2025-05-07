@@ -14,22 +14,21 @@
 
 """Module for the FileContent substitution."""
 
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Sequence
 from typing import Text
 from typing import Tuple
 from typing import Type
-from typing import TypedDict
+
+from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
-
-
-class FileContentParsedDict(TypedDict):
-    path: SomeSubstitutionsType
 
 
 @expose_substitution('file-content')
@@ -49,11 +48,11 @@ class FileContent(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['FileContent'], FileContentParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `FileContent` substitution."""
         if not data or len(data) != 1:
             raise AttributeError('file content substitutions expect 1 argument')
-        kwargs: FileContentParsedDict = {'path': data[0]}
+        kwargs = {'path': data[0]}
         return cls, kwargs
 
     @property

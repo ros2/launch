@@ -14,13 +14,16 @@
 
 """Module for boolean substitutions."""
 
+from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Sequence
 from typing import Text
 from typing import Tuple
 from typing import Type
-from typing import TypedDict
+
+from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -29,10 +32,6 @@ from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities.type_utils import perform_typed_substitution
-
-
-class NotSubstitutionParsedDict(TypedDict):
-    value: SomeSubstitutionsType
 
 
 @expose_substitution('not')
@@ -47,7 +46,7 @@ class NotSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['NotSubstitution'], NotSubstitutionParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `NotSubstitution` substitution."""
         if len(data) != 1:
             raise TypeError('not substitution expects 1 argument')
@@ -72,11 +71,6 @@ class NotSubstitution(Substitution):
         return str(not condition).lower()
 
 
-class LeftRightSubstitutionParsedDict(TypedDict):
-    left: SomeSubstitutionsType
-    right: SomeSubstitutionsType
-
-
 @expose_substitution('and')
 class AndSubstitution(Substitution):
     """Substitution that returns 'and' of the input boolean values."""
@@ -90,7 +84,7 @@ class AndSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['AndSubstitution'], LeftRightSubstitutionParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `AndSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')
@@ -137,7 +131,7 @@ class OrSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['OrSubstitution'], LeftRightSubstitutionParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `OrSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')
@@ -171,10 +165,6 @@ class OrSubstitution(Substitution):
         return str(left_condition or right_condition).lower()
 
 
-class IterableSubstitutionParsedDict(TypedDict):
-    args: Iterable[SomeSubstitutionsType]
-
-
 @expose_substitution('any')
 class AnySubstitution(Substitution):
     """
@@ -195,7 +185,7 @@ class AnySubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]
-              ) -> Tuple[Type['AnySubstitution'], IterableSubstitutionParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `AnySubstitution` substitution."""
         return cls, {'args': data}
 
@@ -242,7 +232,7 @@ class AllSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]
-              ) -> Tuple[Type['AllSubstitution'], IterableSubstitutionParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `AllSubstitution` substitution."""
         return cls, {'args': data}
 

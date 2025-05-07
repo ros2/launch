@@ -17,27 +17,23 @@
 import os
 import shlex
 import subprocess
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Sequence
 from typing import Text
 from typing import Tuple
 from typing import Type
-from typing import TypedDict
 from typing import Union
 
 import launch.logging
-from typing_extensions import NotRequired
+from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
-
-
-class CommandParsedDict(TypedDict):
-    command: SomeSubstitutionsType
-    on_stderr: NotRequired[SomeSubstitutionsType]
 
 
 @expose_substitution('command')
@@ -76,13 +72,13 @@ class Command(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['Command'], CommandParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `Command` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise ValueError('command substitution expects 1 or 2 arguments')
-        kwargs = CommandParsedDict(
-            command=data[0]
-        )
+        kwargs = {
+            'command': data[0]
+        }
         if len(data) == 2:
             kwargs['on_stderr'] = data[1]
         return cls, kwargs

@@ -18,6 +18,7 @@ import math
 
 from typing import Any
 from typing import cast
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -25,8 +26,9 @@ from typing import Sequence
 from typing import Text
 from typing import Tuple
 from typing import Type
-from typing import TypedDict
 from typing import Union
+
+from typing_extensions import Self
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -52,11 +54,6 @@ def _str_is_float(input_str: Text) -> bool:
         return True
     except ValueError:
         return False
-
-
-class EqualsSubstitutionParsedDict(TypedDict):
-    left: SomeSubstitutionsType
-    right: SomeSubstitutionsType
 
 
 @expose_substitution('equals')
@@ -104,7 +101,7 @@ class EqualsSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type['EqualsSubstitution'], EqualsSubstitutionParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Parse `EqualsSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')

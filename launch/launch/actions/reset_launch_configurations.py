@@ -24,19 +24,13 @@ from typing import Type
 from typing_extensions import Self
 
 from ..action import Action
-from ..action import ActionParsedDict
 from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
-
-
-class ResetLaunchConfigurationsParsedDict(ActionParsedDict, total=False):
-    launch_configurations: Dict[Tuple[Substitution, ...], List[Substitution]]
 
 
 @expose_action('reset')
@@ -71,19 +65,18 @@ class ResetLaunchConfigurations(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], ResetLaunchConfigurationsParsedDict]:
+              ) -> Tuple[Type[Self], Dict[str, Any]]:
         """Return `ResetLaunchConfigurations` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        new_kwargs = ResetLaunchConfigurationsParsedDict(**kwargs)
         keeps = entity.get_attr('keep', data_type=List[Entity], optional=True)
         if keeps is not None:
-            new_kwargs['launch_configurations'] = {
+            kwargs['launch_configurations'] = {
                     tuple(parser.parse_substitution(e.get_attr('name'))):
                     parser.parse_substitution(e.get_attr('value')) for e in keeps
             }
             for e in keeps:
                 e.assert_entity_completely_parsed()
-        return cls, new_kwargs
+        return cls, kwargs
 
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
