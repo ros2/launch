@@ -33,6 +33,7 @@ from .launch_log_dir import LaunchLogDir
 from .local_substitution import LocalSubstitution
 from .not_equals_substitution import NotEqualsSubstitution
 from .path_join_substitution import PathJoinSubstitution
+from .path_join_substitution import PathSubstitution
 from .python_expression import PythonExpression
 from .string_join_substitution import StringJoinSubstitution
 from .substitution_failure import SubstitutionFailure
@@ -60,6 +61,7 @@ __all__ = [
     'NotEqualsSubstitution',
     'OrSubstitution',
     'PathJoinSubstitution',
+    'PathSubstitution',
     'PythonExpression',
     'StringJoinSubstitution',
     'SubstitutionFailure',
