@@ -28,6 +28,7 @@ from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
+from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
@@ -84,9 +85,11 @@ class ResetLaunchConfigurations(Action):
         else:
             evaluated_configurations = {}
             for k, v in self.__launch_configurations.items():
-                evaluated_k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
-                evaluated_v = perform_substitutions(context, normalize_to_list_of_substitutions(v))
-                evaluated_configurations[evaluated_k] = evaluated_v
+                if isinstance(k, Substitution) or isinstance(k, str):
+                    k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
+                if isinstance(v, Substitution) or isinstance(v, str):
+                    v = perform_substitutions(context, normalize_to_list_of_substitutions(v))
+                evaluated_configurations[k] = v
 
             context.launch_configurations.clear()
             context.launch_configurations.update(evaluated_configurations)
