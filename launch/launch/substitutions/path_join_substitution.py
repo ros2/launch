@@ -16,8 +16,8 @@
 
 import os
 from typing import Iterable
+from typing import List
 from typing import Text
-from typing import Union
 
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
@@ -66,16 +66,23 @@ class PathJoinSubstitution(Substitution):
         :param substitutions: the list of path component substitutions to join
         """
         from ..utilities import normalize_to_list_of_substitutions
-        self.__substitutions = normalize_to_list_of_substitutions(substitutions)
+        self.__substitutions = [
+            normalize_to_list_of_substitutions(path_component_substitutions)
+            for path_component_substitutions in substitutions
+        ]
 
     @property
-    def substitutions(self) -> Iterable[Substitution]:
+    def substitutions(self) -> List[List[Substitution]]:
         """Getter for variable_name."""
         return self.__substitutions
 
-    def describe(self) -> Text:
+    def __repr__(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f"PathJoin('{' + '.join([s.describe() for s in self.substitutions])}')"
+        path_components = [
+            ' + '.join([s.describe() for s in component_substitutions])
+            for component_substitutions in self.substitutions
+        ]
+        return f"PathJoinSubstitution('{', '.join(path_components)}')"
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitutions and join into a path."""

@@ -22,6 +22,8 @@ from launch.substitutions import TextSubstitution
 
 
 def test_path_join():
+    context = LaunchContext()
+
     path = ['asd', 'bsd', 'cds']
     sub = PathJoinSubstitution(path)
     assert sub.perform(context) == os.path.join(*path)
