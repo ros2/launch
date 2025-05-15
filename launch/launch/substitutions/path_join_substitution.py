@@ -62,7 +62,10 @@ class PathJoinSubstitution(Substitution):
     def __init__(self, substitutions: Iterable[SomeSubstitutionsType]) -> None:
         """Create a PathJoinSubstitution."""
         from ..utilities import normalize_to_list_of_substitutions
-        self.__substitutions = normalize_to_list_of_substitutions(substitutions)
+        self.__substitutions = [
+            normalize_to_list_of_substitutions(path_component_substitutions)
+            for path_component_substitutions in substitutions
+        ]
 
     @property
     def substitutions(self) -> List[List[Substitution]]:
@@ -75,7 +78,7 @@ class PathJoinSubstitution(Substitution):
             ' + '.join([s.describe() for s in component_substitutions])
             for component_substitutions in self.substitutions
         ]
-        return f"PathJoinSubstitution('{', '.join(path_components)}')" "LocalVar('{}')".format(' + '.join([s.describe() for s in self.substitutions]))
+        return f"PathJoinSubstitution('{', '.join(path_components)}')"
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitutions and join into a path."""
