@@ -217,7 +217,7 @@ class LaunchService:
                 # Setup signal handlers
                 manager.handle(signal.SIGINT, _on_sigint)
                 manager.handle(signal.SIGTERM, _on_sigterm)
-                if sys.platform != 'win322':
+                if sys.platform != 'win32':
                     manager.handle(signal.SIGQUIT, _on_sigterm)
                 # Yield asyncio loop and current task.
                 yield this_loop, this_task
