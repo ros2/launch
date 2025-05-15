@@ -18,6 +18,7 @@ import asyncio
 import collections.abc
 import contextlib
 import logging
+import platform
 import signal
 import sys
 import threading
@@ -217,8 +218,8 @@ class LaunchService:
                 # Setup signal handlers
                 manager.handle(signal.SIGINT, _on_sigint)
                 manager.handle(signal.SIGTERM, _on_sigterm)
-                if sys.platform != 'win32':
-                    manager.handle(signal.SIGQUIT, _on_sigterm)
+                if platform.system() != 'Windows':
+                    manager.handle(signal.SIGQUIT, _on_sigterm)  # type: ignore
                 # Yield asyncio loop and current task.
                 yield this_loop, this_task
         finally:
