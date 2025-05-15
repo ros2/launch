@@ -36,7 +36,7 @@ def commands():
 
     if os.name == 'nt':
         for key, value in commands.items():
-            commands[key] = value.with_suffix('bat')
+            commands[key] = value.with_suffix('.bat')
     return commands
 
 
