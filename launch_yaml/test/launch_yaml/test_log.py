@@ -50,8 +50,10 @@ def test_log():
         """
     yaml_file = textwrap.dedent(yaml_file)
     root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
-    with pytest.warns(Warning):
+    with pytest.warns(Warning) as record:
         launch_description = parser.parse_description(root_entity)
+
+    assert len(record) == 1
 
     log = launch_description.entities[0]
     assert isinstance(log, Log)
