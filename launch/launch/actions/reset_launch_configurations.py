@@ -21,7 +21,6 @@ from typing import Optional
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from ..action import Action
 from ..frontend import Entity
@@ -65,7 +64,7 @@ class ResetLaunchConfigurations(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['ResetLaunchConfigurations'], Dict[str, Any]]:
         """Return `ResetLaunchConfigurations` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         keeps = entity.get_attr('keep', data_type=List[Entity], optional=True)

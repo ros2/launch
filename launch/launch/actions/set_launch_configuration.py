@@ -20,7 +20,6 @@ from typing import List
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from ..action import Action
 from ..frontend import Entity
@@ -56,7 +55,7 @@ class SetLaunchConfiguration(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['SetLaunchConfiguration'], Dict[str, Any]]:
         """Return `SetLaunchConfiguration` action and kwargs for constructing it."""
         name = parser.parse_substitution(entity.get_attr('name'))
         value = parser.parse_substitution(entity.get_attr('value'))

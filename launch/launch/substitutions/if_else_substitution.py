@@ -22,7 +22,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -83,7 +82,7 @@ class IfElseSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['IfElseSubstitution'], Dict[str, Any]]:
         """Parse `IfElseSubstitution` substitution."""
         if len(data) < 2 or len(data) > 3:
             raise TypeError('if substitution expects from 2 or 3 arguments')

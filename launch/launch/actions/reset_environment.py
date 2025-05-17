@@ -19,7 +19,6 @@ from typing import Dict
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from ..action import Action
 from ..frontend import Entity
@@ -43,7 +42,8 @@ class ResetEnvironment(Action):
         super().__init__(**kwargs)
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser) -> Tuple[Type[Self], Dict[str, Any]]:
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['ResetEnvironment'], Dict[str, Any]]:
         """Return ``ResetEnvironment`` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         return cls, kwargs

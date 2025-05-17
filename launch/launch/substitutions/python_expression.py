@@ -24,7 +24,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -66,7 +65,7 @@ class PythonExpression(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['PythonExpression'], Dict[str, Any]]:
         """Parse `PythonExpression` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('eval substitution expects 1 or 2 arguments')

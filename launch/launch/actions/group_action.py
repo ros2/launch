@@ -22,7 +22,6 @@ from typing import Optional
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from .pop_environment import PopEnvironment
 from .pop_launch_configurations import PopLaunchConfigurations
@@ -91,7 +90,7 @@ class GroupAction(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['GroupAction'], Dict[str, Any]]:
         """Return `GroupAction` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         scoped = entity.get_attr('scoped', data_type=bool, optional=True)

@@ -23,7 +23,6 @@ from typing import Tuple
 from typing import Type
 
 import launch.logging
-from typing_extensions import Self
 
 from ..action import Action
 from ..frontend import Entity
@@ -168,7 +167,7 @@ class DeclareLaunchArgument(Action):
         cls,
         entity: Entity,
         parser: 'Parser'
-    ) -> Tuple[Type[Self], Dict[str, Any]]:
+    ) -> Tuple[Type['DeclareLaunchArgument'], Dict[str, Any]]:
         """Parse `arg` tag."""
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.escape_characters(entity.get_attr('name'))

@@ -25,7 +25,7 @@ from typing import Tuple
 from typing import Type
 from typing import TYPE_CHECKING
 
-from typing_extensions import Self
+from typing_extensions import Self  # type: ignore
 
 from .condition import Condition
 from .launch_context import LaunchContext
@@ -57,7 +57,8 @@ class Action(LaunchDescriptionEntity):
         self.__condition = condition
 
     @classmethod
-    def parse(cls, entity: 'Entity', parser: 'Parser') -> Tuple[Type[Self], Dict[str, Any]]:
+    def parse(cls, entity: 'Entity', parser: 'Parser'
+              ) -> Tuple[Type[Self], Dict[str, Any]]:  # type: ignore
         """
         Return the `Action` action and kwargs for constructing it.
 

@@ -20,7 +20,6 @@ from typing import List
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from ..action import Action
 from ..frontend import Entity
@@ -53,7 +52,7 @@ class SetEnvironmentVariable(Action):
         cls,
         entity: Entity,
         parser: Parser,
-    ) -> Tuple[Type[Self], Dict[str, Any]]:
+    ) -> Tuple[Type['SetEnvironmentVariable'], Dict[str, Any]]:
         """Parse a 'set_env' entity."""
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))

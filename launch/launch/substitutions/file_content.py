@@ -22,7 +22,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -48,7 +47,7 @@ class FileContent(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['FileContent'], Dict[str, Any]]:
         """Parse `FileContent` substitution."""
         if not data or len(data) != 1:
             raise AttributeError('file content substitutions expect 1 argument')

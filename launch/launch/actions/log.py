@@ -24,7 +24,7 @@ from typing import Type
 import warnings
 
 import launch.logging
-from typing_extensions import Self
+
 
 from ..action import Action
 from ..frontend import Entity
@@ -54,7 +54,7 @@ class Log(Action):
         cls,
         entity: Entity,
         parser: 'Parser'
-    ) -> Tuple[Type[Self], Dict[str, Any]]:
+    ) -> Tuple[Type['Log'], Dict[str, Any]]:
         """Parse `log` tag."""
         _, kwargs = super().parse(entity, parser)
         kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))

@@ -26,7 +26,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 # yaml has type annotations in typeshed, but those cannot be installed via rosdep
 # since there is no definition for types-PyYAML
@@ -174,7 +173,8 @@ class ForEach(Action):
         )
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser) -> Tuple[Type[Self], Dict[str, Any]]:
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['ForEach'], Dict[str, Any]]:
         """Return `ForEach` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         input_values = entity.get_attr('values')
@@ -372,7 +372,8 @@ class ForLoop(Action):
         )
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser) -> Tuple[Type[Self], Dict[str, Any]]:
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['ForLoop'], Dict[str, Any]]:
         """Return `ForLoop` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         length = entity.get_attr('len')

@@ -23,7 +23,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -81,7 +80,7 @@ class ForEachVar(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['ForEachVar'], Dict[str, Any]]:
         if not any(len(data) == length for length in (1, 2)):
             raise ValueError(f'{cls.__name__} substitution expects 1 or 2 arguments')
         kwargs = {'name': data[0]}

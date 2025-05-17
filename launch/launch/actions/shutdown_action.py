@@ -24,7 +24,7 @@ from typing import Type
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
-from typing_extensions import Self
+
 
 from .emit_event import EmitEvent
 from ..events import Shutdown as ShutdownEvent
@@ -44,7 +44,7 @@ class Shutdown(EmitEvent):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['Shutdown'], Dict[str, Any]]:
         """Return `Shutdown` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         reason = entity.get_attr('reason', optional=True)

@@ -23,7 +23,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
@@ -69,7 +68,7 @@ class EnvironmentVariable(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['EnvironmentVariable'], Dict[str, Any]]:
         """Parse `EnviromentVariable` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('env substitution expects 1 or 2 arguments')

@@ -26,7 +26,6 @@ from typing import Tuple
 from typing import Type
 from typing import Union
 
-from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -71,7 +70,7 @@ class LaunchConfiguration(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['LaunchConfiguration'], Dict[str, Any]]:
         """Parse `FindExecutable` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('var substitution expects 1 or 2 arguments')

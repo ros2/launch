@@ -27,7 +27,7 @@ from typing import Type
 from typing import Union
 
 import launch.logging
-from typing_extensions import Self
+
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
@@ -72,7 +72,7 @@ class Command(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['Command'], Dict[str, Any]]:
         """Parse `Command` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise ValueError('command substitution expects 1 or 2 arguments')

@@ -29,7 +29,7 @@ from typing import Union
 import warnings
 
 import launch.logging
-from typing_extensions import Self
+
 
 from .opaque_function import OpaqueFunction
 from .pop_launch_configurations import PopLaunchConfigurations
@@ -116,7 +116,7 @@ class TimerAction(Action):
         cls,
         entity: Entity,
         parser: Parser,
-    ) -> Tuple[Type[Self], Dict[str, Any]]:
+    ) -> Tuple[Type['TimerAction'], Dict[str, Any]]:
         """Return the `Timer` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
 

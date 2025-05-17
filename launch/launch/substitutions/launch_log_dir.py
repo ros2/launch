@@ -21,7 +21,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
@@ -41,7 +40,7 @@ class LaunchLogDir(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[Any, Any]]:
+              ) -> Tuple[Type['LaunchLogDir'], Dict[Any, Any]]:
         """Parse `LaunchLogDir` substitution."""
         if len(data) != 0:
             raise TypeError("launch_log_dir/log_dir substitution doesn't expect arguments")

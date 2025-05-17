@@ -164,7 +164,7 @@ class AsyncSafeSignalManager:
     def __install_signal_writers(self) -> None:
         if self.__wsock is None:
             raise RuntimeError('AsyncSafeSignalManager has not been initialized.')
-        prev_wakeup_handle = self.__set_wakeup_fd(self.__wsock.fileno())
+        prev_wakeup_handle = AsyncSafeSignalManager.__set_wakeup_fd(self.__wsock.fileno())
         try:
             self.__chain_wakeup_handle(prev_wakeup_handle)
         except Exception:

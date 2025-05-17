@@ -27,7 +27,7 @@ from typing import Type
 from typing import Union
 
 import launch.logging
-from typing_extensions import Self
+
 
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
@@ -89,7 +89,7 @@ class IncludeLaunchDescription(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['IncludeLaunchDescription'], Dict[str, Any]]:
         """Return `IncludeLaunchDescription` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         file_path = parser.parse_substitution(entity.get_attr('file'))

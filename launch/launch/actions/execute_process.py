@@ -25,7 +25,6 @@ from typing import Tuple
 from typing import Type
 from typing import Union
 
-from typing_extensions import Self
 
 from .execute_local import ExecuteLocal
 from .shutdown_action import Shutdown
@@ -312,7 +311,7 @@ class ExecuteProcess(ExecuteLocal):
         entity: Entity,
         parser: Parser,
         ignore: Optional[List[str]] = None
-    ) -> Tuple[Type[Self], Dict[str, Any]]:
+    ) -> Tuple[Type['ExecuteProcess'], Dict[str, Any]]:
         """
         Return the `ExecuteProcess` action and kwargs for constructing it.
 

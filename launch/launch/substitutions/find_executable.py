@@ -23,7 +23,7 @@ from typing import Tuple
 from typing import Type
 
 from osrf_pycommon.process_utils import which  # type: ignore
-from typing_extensions import Self
+
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -49,7 +49,7 @@ class FindExecutable(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['FindExecutable'], Dict[str, Any]]:
         """Parse `FindExecutable` substitution."""
         if len(data) != 1:
             raise AttributeError('find-exec substitution expects 1 argument')

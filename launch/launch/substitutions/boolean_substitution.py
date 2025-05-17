@@ -23,7 +23,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -46,7 +45,7 @@ class NotSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['NotSubstitution'], Dict[str, Any]]:
         """Parse `NotSubstitution` substitution."""
         if len(data) != 1:
             raise TypeError('not substitution expects 1 argument')
@@ -84,7 +83,7 @@ class AndSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['AndSubstitution'], Dict[str, Any]]:
         """Parse `AndSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')
@@ -131,7 +130,7 @@ class OrSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['OrSubstitution'], Dict[str, Any]]:
         """Parse `OrSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')
@@ -185,7 +184,7 @@ class AnySubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['AnySubstitution'], Dict[str, Any]]:
         """Parse `AnySubstitution` substitution."""
         return cls, {'args': data}
 
@@ -232,7 +231,7 @@ class AllSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['AllSubstitution'], Dict[str, Any]]:
         """Parse `AllSubstitution` substitution."""
         return cls, {'args': data}
 

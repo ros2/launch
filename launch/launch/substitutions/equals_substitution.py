@@ -28,7 +28,6 @@ from typing import Tuple
 from typing import Type
 from typing import Union
 
-from typing_extensions import Self
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -101,7 +100,7 @@ class EqualsSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['EqualsSubstitution'], Dict[str, Any]]:
         """Parse `EqualsSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')

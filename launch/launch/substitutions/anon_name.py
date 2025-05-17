@@ -22,7 +22,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -48,7 +47,7 @@ class AnonName(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['AnonName'], Dict[str, Any]]:
         """Parse `AnonName` substitution."""
         if len(data) != 1:
             raise TypeError('anon substitution expects 1 argument')

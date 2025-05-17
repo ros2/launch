@@ -21,7 +21,6 @@ from typing import Text
 from typing import Tuple
 from typing import Type
 
-from typing_extensions import Self
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
@@ -40,7 +39,7 @@ class ThisLaunchFileDir(Substitution):
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
-              ) -> Tuple[Type[Self], Dict[str, Any]]:
+              ) -> Tuple[Type['ThisLaunchFileDir'], Dict[str, Any]]:
         """Parse `ThisLaunchFileDir` substitution."""
         if len(data) != 0:
             raise TypeError("dirname substitution doesn't expect arguments")

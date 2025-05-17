@@ -14,6 +14,7 @@
 
 """Module for LaunchDescription class."""
 
+import sys
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -155,7 +156,7 @@ class LaunchDescription(LaunchDescriptionEntity):
                             _conditional_inclusion=False,
                             nested_ild_actions=next_nested_ild_actions)
                     except Exception as e:
-                        if hasattr(e, 'add_note'):
+                        if sys.version_info >= (3, 11):
                             e.add_note(f'processing sub-entities of entity: {entity}')
                         raise
                     for conditional_sub_entity in entity.describe_conditional_sub_entities():
