@@ -25,7 +25,7 @@ from launch_testing.actions import PyTest
 def launch_pytest(test_path):
     """Launch a pytest."""
     ld = LaunchDescription([
-        PyTest(path=str(test_path), timeout=5.0, on_exit=[EmitEvent(event=Shutdown())])
+        PyTest(path=test_path, timeout=5.0, on_exit=[EmitEvent(event=Shutdown())])
     ])
     ls = LaunchService()
     ls.include_launch_description(ld)
