@@ -28,7 +28,7 @@ import pytest
 
 def test_executable():
     """Parse node xml example."""
-    xml_file = str(Path(__file__).parent / 'executable.xml')
+    xml_file = Path(__file__).parent / 'executable.xml'
     root_entity, parser = load_no_extensions(xml_file)
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]

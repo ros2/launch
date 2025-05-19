@@ -25,7 +25,7 @@ from launch_testing.actions import GTest
 def launch_gtest(test_path):
     """Launch a gtest."""
     ld = LaunchDescription([
-        GTest(path=str(test_path), timeout=5.0, on_exit=[EmitEvent(event=Shutdown())])
+        GTest(path=test_path, timeout=5.0, on_exit=[EmitEvent(event=Shutdown())])
     ])
     ls = LaunchService()
     ls.include_launch_description(ld)
