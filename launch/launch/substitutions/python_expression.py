@@ -15,8 +15,13 @@
 """Module for the PythonExpression substitution."""
 
 import collections.abc
+<<<<<<< HEAD
 import math
 from typing import Iterable
+=======
+import importlib
+from pathlib import Path
+>>>>>>> 49bcf2d (Allow Path in substitutions, instead of requiring cast to str (#873))
 from typing import List
 from typing import Text
 
@@ -53,9 +58,36 @@ class PythonExpression(Substitution):
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `PythonExpression` substitution."""
+<<<<<<< HEAD
         if len(data) != 1:
             raise TypeError('eval substitution expects 1 argument')
         return cls, {'expression': data[0]}
+=======
+        if len(data) < 1 or len(data) > 2:
+            raise TypeError('eval substitution expects 1 or 2 arguments')
+        kwargs = {}
+        kwargs['expression'] = data[0]
+        if len(data) == 2:
+            # We get a text substitution from XML,
+            # whose contents are comma-separated module names
+            kwargs['python_modules'] = []
+            # Check if we got empty list from XML
+            # Ensure that we got a list!
+            assert not isinstance(data[1], str)
+            assert not isinstance(data[1], Path)
+            assert not isinstance(data[1], Substitution)
+            # Modules
+            modules = list(data[1])
+            if len(modules) > 0:
+                # XXX: What is going on here: the type annotation says we should get
+                # a either strings or substitutions, but this says that we're
+                # getting a substitution always?
+                # Moreover, `perform` is called with `None`, which is not acceptable
+                # for any substitution as far as I know (should be an empty launch context?)
+                modules_str = modules[0].perform(None)  # type: ignore
+                kwargs['python_modules'] = [module.strip() for module in modules_str.split(',')]
+        return cls, kwargs
+>>>>>>> 49bcf2d (Allow Path in substitutions, instead of requiring cast to str (#873))
 
     @property
     def expression(self) -> List[Substitution]:
