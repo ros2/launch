@@ -18,8 +18,8 @@ import asyncio
 import collections
 import os
 from typing import Any
-from typing import Dict
 from typing import Deque
+from typing import Dict
 from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Mapping
