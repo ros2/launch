@@ -16,6 +16,7 @@
 
 import collections.abc
 import importlib
+from pathlib import Path
 from typing import List
 from typing import Sequence
 from typing import Text
@@ -72,6 +73,7 @@ class PythonExpression(Substitution):
             # Check if we got empty list from XML
             # Ensure that we got a list!
             assert not isinstance(data[1], str)
+            assert not isinstance(data[1], Path)
             assert not isinstance(data[1], Substitution)
             # Modules
             modules = list(data[1])
