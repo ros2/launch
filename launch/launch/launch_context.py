@@ -19,6 +19,7 @@ import collections
 import os
 from typing import Any
 from typing import Dict
+from typing import Deque
 from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Mapping
@@ -55,7 +56,7 @@ class LaunchContext:
         self.__noninteractive = noninteractive
 
         self._event_queue: asyncio.Queue[Event] = asyncio.Queue()
-        self._event_handlers: collections.deque[BaseEventHandler] = collections.deque()
+        self._event_handlers: Deque[BaseEventHandler] = collections.deque()
         self._completion_futures: List[asyncio.Future[Any]] = []
 
         self.__globals: Dict[Text, Any] = {}

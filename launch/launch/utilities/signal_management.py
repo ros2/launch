@@ -24,6 +24,7 @@ import threading
 
 from types import TracebackType
 from typing import Callable
+from typing import ClassVar
 from typing import Dict
 from typing import Optional
 from typing import Tuple  # noqa: F401
@@ -63,9 +64,9 @@ class AsyncSafeSignalManager:
         is not broken by third-party code or by asyncio itself in some platforms.
     """
 
-    __current = None  # type: AsyncSafeSignalManager
+    __current: ClassVar[Optional['AsyncSafeSignalManager']] = None
 
-    __set_wakeup_fd = signal.set_wakeup_fd  # type: Callable[[int], int]
+    __set_wakeup_fd: ClassVar[Callable[[int], int]] = signal.set_wakeup_fd
 
     def __init__(
         self,
@@ -168,13 +169,13 @@ class AsyncSafeSignalManager:
         try:
             self.__chain_wakeup_handle(prev_wakeup_handle)
         except Exception:
-            own_wakeup_handle = self.__set_wakeup_fd(prev_wakeup_handle)
+            own_wakeup_handle = AsyncSafeSignalManager.__set_wakeup_fd(prev_wakeup_handle)
             assert self.__wsock.fileno() == own_wakeup_handle
             raise
 
     def __uninstall_signal_writers(self) -> None:
         prev_wakeup_handle = self.__chain_wakeup_handle(-1)
-        own_wakeup_handle = self.__set_wakeup_fd(prev_wakeup_handle)
+        own_wakeup_handle = AsyncSafeSignalManager.__set_wakeup_fd(prev_wakeup_handle)
         assert self.__wsock and self.__wsock.fileno() == own_wakeup_handle
 
     def __chain(self) -> None:
@@ -183,13 +184,13 @@ class AsyncSafeSignalManager:
         if self.__parent is None:
             # Do not trust signal.set_wakeup_fd calls within context.
             # Overwrite handle at the start of the managers' chain.
-            def modified_set_wakeup_fd(signum):
+            def modified_set_wakeup_fd(fd: int, *, warn_on_full_buffer: bool = True) -> int:
                 if threading.current_thread() is not threading.main_thread():
                     raise ValueError(
                         'set_wakeup_fd only works in main'
                         ' thread of the main interpreter'
                     )
-                return self.__chain_wakeup_handle(signum)
+                return self.__chain_wakeup_handle(fd)
             signal.set_wakeup_fd = modified_set_wakeup_fd
 
     def __unchain(self):
