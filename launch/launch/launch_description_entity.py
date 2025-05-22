@@ -18,6 +18,7 @@ import asyncio
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 from typing import Tuple
 from typing import TYPE_CHECKING
@@ -63,7 +64,7 @@ class LaunchDescriptionEntity:
         """
         raise NotImplementedError()
 
-    def describe_sub_entities(self) -> List['LaunchDescriptionEntity']:
+    def describe_sub_entities(self) -> Sequence['LaunchDescriptionEntity']:
         """
         Return a list of sub-entities which need to be described as well.
 
@@ -100,7 +101,7 @@ class LaunchDescriptionEntity:
         """
         return []
 
-    def visit(self, context: 'LaunchContext') -> Optional[List['LaunchDescriptionEntity']]:
+    def visit(self, context: 'LaunchContext') -> Optional[Sequence['LaunchDescriptionEntity']]:
         """
         Visit the entity.
 
@@ -134,7 +135,7 @@ class LaunchDescriptionEntity:
         """
         return None
 
-    def get_asyncio_future(self) -> Optional[asyncio.Future]:
+    def get_asyncio_future(self) -> Optional[asyncio.Future[None]]:
         """
         Return an asyncio Future, or None if there are no on-going tasks.
 

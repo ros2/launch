@@ -25,7 +25,16 @@ import socket
 import sys
 
 from typing import Any
+from typing import Dict
 from typing import List
+from typing import Literal
+from typing import Optional
+from typing import Protocol
+from typing import Set
+from typing import Tuple
+from typing import Union
+
+from typing_extensions import TypeAlias
 
 from . import handlers
 
@@ -38,7 +47,15 @@ __all__ = [
 ]
 
 
-def _get_logging_directory():
+class FactoryCallable(Protocol):
+
+    def __call__(self, a: str, encoding: str) -> logging.Handler: ...
+
+
+LogStyle: TypeAlias = Literal['%', '{', '$']
+
+
+def _get_logging_directory() -> str:
     """
     Get logging directory path.
 
@@ -61,7 +78,7 @@ def _get_logging_directory():
     return os.path.normpath(os.path.expanduser(log_dir))
 
 
-def _make_unique_log_dir(*, base_path):
+def _make_unique_log_dir(*, base_path: str) -> str:
     """
     Make a unique directory for logging.
 
@@ -82,7 +99,7 @@ def _make_unique_log_dir(*, base_path):
             return log_dir
 
 
-def _renew_latest_log_dir(*, log_dir):
+def _renew_latest_log_dir(*, log_dir: str) -> bool:
     """
     Renew the symbolic link to the latest logging directory.
 
@@ -103,26 +120,26 @@ def _renew_latest_log_dir(*, log_dir):
 class LaunchConfig:
     """Launch Logging Configuration class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         self._log_dir = None
-        self.file_handlers = {}
+        self.file_handlers: Dict[str, logging.Handler] = {}
         self.screen_handler = None
-        self.screen_formatter = None
-        self.file_formatter = None
-        self._log_handler_factory = None
+        self.screen_formatter: Optional[logging.Formatter] = None
+        self.file_formatter: Optional[logging.Formatter] = None
+        self._log_handler_factory: Optional[FactoryCallable] = None
         logging.root.setLevel(logging.INFO)
         self.set_screen_format('default')
         self.set_log_format('default')
 
     @property
-    def level(self):
+    def level(self) -> int:
         return logging.root.getEffectiveLevel()
 
     @level.setter
-    def level(self, new_level):
+    def level(self, new_level: int) -> None:
         """
         Set up launch logging verbosity level for all loggers.
 
@@ -153,7 +170,7 @@ class LaunchConfig:
         return self._log_dir
 
     @log_dir.setter
-    def log_dir(self, new_log_dir):
+    def log_dir(self, new_log_dir) -> None:
         """
         Set up launch logging directory.
 
@@ -171,17 +188,18 @@ class LaunchConfig:
         self._log_dir = new_log_dir
 
     @property
-    def log_handler_factory(self):
+    def log_handler_factory(self) -> FactoryCallable:
         """Get the log_handler_factory, generating it if necessary."""
         if self._log_handler_factory is None:
             if os.name != 'nt':
-                self._log_handler_factory = handlers.WatchedFileHandler
+                self._log_handler_factory = \
+                    handlers.WatchedFileHandler  # type: ignore[attr-defined]
             else:
-                self._log_handler_factory = handlers.FileHandler
+                self._log_handler_factory = handlers.FileHandler  # type: ignore[attr-defined]
         return self._log_handler_factory
 
     @log_handler_factory.setter
-    def log_handler_factory(self, new_log_handler_factory):
+    def log_handler_factory(self, new_log_handler_factory: FactoryCallable) -> None:
         """
         Set up log handler factory.
 
@@ -194,7 +212,8 @@ class LaunchConfig:
         """
         self._log_handler_factory = new_log_handler_factory
 
-    def set_screen_format(self, screen_format, *, screen_style=None):
+    def set_screen_format(self, screen_format: str, *,
+                          screen_style: Optional[LogStyle] = None) -> None:
         """
         Set up screen formats.
 
@@ -217,7 +236,7 @@ class LaunchConfig:
         # If the environment variable is set override the given format
         if screen_format_env not in [None, '']:
             # encoded escape characters correctly
-            screen_format = screen_format_env.encode(
+            screen_format = screen_format_env.encode(  # type: ignore[union-attr]
                 'latin1').decode('unicode_escape')
             # Set the style correspondingly
             screen_style = '{'
@@ -261,7 +280,7 @@ class LaunchConfig:
             self.screen_handler.setFormatter(self.screen_formatter)
         return self.screen_handler
 
-    def set_log_format(self, log_format, *, log_style=None):
+    def set_log_format(self, log_format: str, *, log_style: Optional[LogStyle] = None) -> None:
         """
         Set up launch log file format.
 
@@ -279,7 +298,7 @@ class LaunchConfig:
         # If the environment variable is set override the given format
         if log_format_env not in [None, '']:
             # encoded escape characters correctly
-            log_format = log_format_env.encode(
+            log_format = log_format_env.encode(  # type: ignore[union-attr]
                 'latin1').decode('unicode_escape')
             # Set the style correspondingly
             log_style = '{'
@@ -300,7 +319,7 @@ class LaunchConfig:
         else:
             self.file_formatter = None
 
-    def get_log_file_path(self, file_name='launch.log'):
+    def get_log_file_path(self, file_name: str = 'launch.log') -> str:
         """
         Get the absolute path to the given log file.
 
@@ -309,7 +328,7 @@ class LaunchConfig:
         """
         return os.path.join(self.log_dir, file_name)
 
-    def get_log_file_handler(self, file_name='launch.log'):
+    def get_log_file_handler(self, file_name: str = 'launch.log'):
         """
         Get the logging handler to a log file.
 
@@ -332,7 +351,7 @@ class LaunchConfig:
 launch_config = LaunchConfig()
 
 
-def log_launch_config(*, logger=logging.root):
+def log_launch_config(*, logger: logging.Logger = logging.root) -> None:
     """Log logging configuration details relevant for a user with the given logger."""
     if any(launch_config.file_handlers):
         logger.info('All log files can be found below {}'.format(launch_config.log_dir))
@@ -341,7 +360,7 @@ def log_launch_config(*, logger=logging.root):
     )))
 
 
-def get_logger(name=None) -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """Get named logger, configured to output to screen and launch main log file."""
     logger = logging.getLogger(name)
     screen_handler = launch_config.get_screen_handler()
@@ -353,13 +372,13 @@ def get_logger(name=None) -> logging.Logger:
     return logger
 
 
-def _normalize_output_configuration(config):
+def _normalize_output_configuration(config: Union[str, Dict[str, Any]]) -> Dict[str, Set[str]]:
     """
     Normalize output configuration to a dict representation.
 
     See `get_output_loggers()` documentation for further reference.
     """
-    normalized_config = {
+    normalized_config: Dict[str, Set[str]] = {
         'both': set(), 'stdout': set(), 'stderr': set()
     }
     if isinstance(config, str):
@@ -416,7 +435,8 @@ def _normalize_output_configuration(config):
     return normalized_config
 
 
-def get_output_loggers(process_name, output_config):
+def get_output_loggers(process_name: str, output_config: Union[str, Dict[str, Any]]
+                       ) -> Tuple[logging.Logger, logging.Logger]:
     """
     Get the stdout and stderr output loggers for the given process name.
 
@@ -528,7 +548,7 @@ class LaunchLogger(_Base):
         self.propagate = False
 
 
-def reset():
+def reset() -> None:
     """Reset logging."""
     # Reset existing logging infrastructure
     for logger in LaunchLogger.all_loggers:

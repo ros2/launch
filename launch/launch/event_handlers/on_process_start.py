@@ -14,6 +14,7 @@
 
 """Module for OnProcessStart class."""
 
+from typing import Any
 from typing import Callable
 from typing import cast
 from typing import Optional
@@ -48,7 +49,7 @@ class OnProcessStart(OnActionEventBase):
             Union[
                 SomeEntitiesType,
                 Callable[[ProcessStarted, LaunchContext], Optional[SomeEntitiesType]]],
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """Create an OnProcessStart event handler."""
         from ..actions import ExecuteProcess  # noqa: F811

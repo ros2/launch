@@ -231,7 +231,7 @@ def coerce_to_type(
     :raise: `TypeError` if `value` is not a `str`.
     :return: `value` coerced to `data_type`.
     """
-    def convert_as_yaml(value, error_msg):
+    def convert_as_yaml(value: Text, error_msg: str) -> Any:
         # Forward empty strings
         if not value:
             return value
@@ -354,6 +354,7 @@ def get_typed_value(
 # only return True when the passed tpe is either a substitution or a mixed
 # list of strings and substitutions. Indeed, there is no way that I could find
 # using overloads to describe "anything else than the above two types".
+# Can be redone properly with TypeIs once mypy version 1.10+ is available on all platforms
 def is_substitution(x):
     """
     Return `True` if `x` is some substitution.
@@ -506,7 +507,7 @@ def normalize_typed_substitution(
     )
 
 
-def is_normalized_substitution(x):
+def is_normalized_substitution(x: object) -> bool:
     """
     Return `True` if `x` is a normalized substitution.
 
