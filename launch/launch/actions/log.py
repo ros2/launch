@@ -119,7 +119,7 @@ class SharedLogSpecificParse(Action):
         cls,
         entity: Entity,
         parser: 'Parser'
-    ):
+    ) -> Tuple[Type['SharedLogSpecificParse'], Dict[str, Any]]:
         """Parse `log_*` tag."""
         _, kwargs = super().parse(entity, parser)
         kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
