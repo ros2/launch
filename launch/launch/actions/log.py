@@ -93,7 +93,7 @@ class Log(LogInterface):
         cls,
         entity: Entity,
         parser: 'Parser'
-    ):
+    ) -> Tuple[Type['Log'], Dict[str, Any]]:
         """Parse `log` tag."""
         _, kwargs = super().parse(entity, parser)
         kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
