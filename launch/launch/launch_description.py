@@ -14,6 +14,7 @@
 
 """Module for LaunchDescription class."""
 
+import sys
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -60,7 +61,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         self.__entities = list(initial_entities) if initial_entities is not None else []
         self.__deprecated_reason = deprecated_reason
 
-    def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
         if self.__deprecated_reason is not None:
             if 'current_launch_file_path' in context.get_locals_as_dict():
@@ -77,7 +78,8 @@ class LaunchDescription(LaunchDescriptionEntity):
         """Override describe_sub_entities from LaunchDescriptionEntity to return sub entities."""
         return self.__entities
 
-    def get_launch_arguments(self, conditional_inclusion=False) -> List[DeclareLaunchArgument]:
+    def get_launch_arguments(self, conditional_inclusion: bool = False
+                             ) -> List[DeclareLaunchArgument]:
         """
         Return a list of :py:class:`launch.actions.DeclareLaunchArgument` actions.
 
@@ -91,7 +93,7 @@ class LaunchDescription(LaunchDescriptionEntity):
         ]
 
     def get_launch_arguments_with_include_launch_description_actions(
-        self, conditional_inclusion=False
+        self, conditional_inclusion: bool = False
     ) -> List[Tuple[DeclareLaunchArgument, List['IncludeLaunchDescription']]]:
         """
         Return a list of launch arguments with its associated include launch descriptions actions.
@@ -128,7 +130,7 @@ class LaunchDescription(LaunchDescriptionEntity):
             Tuple[DeclareLaunchArgument, List[IncludeLaunchDescription]]] = []
         from .actions import ResetLaunchConfigurations
 
-        def process_entities(entities, *, _conditional_inclusion, nested_ild_actions=None):
+        def process_entities(entities, *, _conditional_inclusion: bool, nested_ild_actions=None):
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
@@ -154,7 +156,7 @@ class LaunchDescription(LaunchDescriptionEntity):
                             _conditional_inclusion=False,
                             nested_ild_actions=next_nested_ild_actions)
                     except Exception as e:
-                        if hasattr(e, 'add_note'):
+                        if sys.version_info >= (3, 11):
                             e.add_note(f'processing sub-entities of entity: {entity}')
                         raise
                     for conditional_sub_entity in entity.describe_conditional_sub_entities():

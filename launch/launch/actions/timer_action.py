@@ -24,10 +24,12 @@ from typing import List
 from typing import Optional
 from typing import Text
 from typing import Tuple
+from typing import Type
 from typing import Union
 import warnings
 
 import launch.logging
+
 
 from .opaque_function import OpaqueFunction
 from .pop_launch_configurations import PopLaunchConfigurations
@@ -70,7 +72,7 @@ class TimerAction(Action):
         period: Union[float, SomeSubstitutionsType],
         actions: Iterable[LaunchDescriptionEntity],
         cancel_on_shutdown: Union[bool, SomeSubstitutionsType] = True,
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """
         Create a TimerAction.
@@ -93,9 +95,9 @@ class TimerAction(Action):
         self.__actions = actions
         self.__context_locals: Dict[Text, Any] = {}
         self.__context_launch_configuration: Dict[Any, Any] = {}
-        self._completed_future: Optional[asyncio.Future] = None
+        self._completed_future: Optional[asyncio.Future[None]] = None
         self.__canceled = False
-        self._canceled_future: Optional[asyncio.Future] = None
+        self._canceled_future: Optional[asyncio.Future[bool]] = None
         self.__cancel_on_shutdown = type_utils.normalize_typed_substitution(
             cancel_on_shutdown, bool)
         self.__logger = launch.logging.get_logger(__name__)
@@ -114,11 +116,12 @@ class TimerAction(Action):
         cls,
         entity: Entity,
         parser: Parser,
-    ):
+    ) -> Tuple[Type['TimerAction'], Dict[str, Any]]:
         """Return the `Timer` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
+
         kwargs['period'] = parser.parse_if_substitutions(
-            entity.get_attr('period', data_type=float, can_be_str=True))
+                entity.get_attr('period', data_type=float, can_be_str=True))
         kwargs['actions'] = [parser.parse_action(child) for child in entity.children]
         cancel_on_shutdown = entity.get_attr(
             'cancel_on_shutdown', optional=True, data_type=bool, can_be_str=True)
@@ -127,11 +130,11 @@ class TimerAction(Action):
         return cls, kwargs
 
     @property
-    def period(self):
+    def period(self) -> type_utils.NormalizedValueType:
         return self.__period
 
     @property
-    def actions(self):
+    def actions(self) -> Iterable[LaunchDescriptionEntity]:
         return self.__actions
 
     def describe(self) -> Text:
@@ -172,7 +175,7 @@ class TimerAction(Action):
             self._canceled_future.set_result(True)
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> None:
         """
         Execute the action.
 
@@ -224,6 +227,6 @@ class TimerAction(Action):
 
         return None
 
-    def get_asyncio_future(self) -> Optional[asyncio.Future]:
+    def get_asyncio_future(self) -> Optional[asyncio.Future[None]]:
         """Return an asyncio Future, used to let the launch system know when we're done."""
         return self._completed_future

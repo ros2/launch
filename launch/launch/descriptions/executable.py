@@ -106,61 +106,61 @@ class Executable:
         self.__final_name: Optional[str] = None
 
     @property
-    def name(self):
+    def name(self) -> Optional[List[Substitution]]:
         """Getter for name."""
         return self.__name
 
     @property
-    def prefix(self):
+    def prefix(self) -> List[Substitution]:
         """Getter for prefix."""
         return self.__prefix
 
     @property
-    def cmd(self):
+    def cmd(self) -> List[List[Substitution]]:
         """Getter for cmd."""
         return self.__cmd
 
     @property
-    def cwd(self):
+    def cwd(self) -> Optional[List[Substitution]]:
         """Getter for cwd."""
         return self.__cwd
 
     @property
-    def env(self):
+    def env(self) -> Optional[List[Tuple[List[Substitution], List[Substitution]]]]:
         """Getter for env."""
         return self.__env
 
     @property
-    def additional_env(self):
+    def additional_env(self) -> Optional[List[Tuple[List[Substitution], List[Substitution]]]]:
         """Getter for additional_env."""
         return self.__additional_env
 
     @property
-    def arguments(self):
+    def arguments(self) -> Optional[Iterable[SomeSubstitutionsType]]:
         """Getter for arguments."""
         return self.__arguments
 
     @property
-    def final_name(self):
+    def final_name(self) -> Optional[str]:
         """Getter for final_name."""
         return self.__final_name
 
     @property
-    def final_cmd(self):
+    def final_cmd(self) -> Optional[List[str]]:
         """Getter for final_cmd."""
         return self.__final_cmd
 
     @property
-    def final_cwd(self):
+    def final_cwd(self) -> Optional[str]:
         """Getter for cwd."""
         return self.__final_cwd
 
     @property
-    def final_env(self):
+    def final_env(self) -> Optional[Dict[str, str]]:
         """Getter for final_env."""
         return self.__final_env
 
-    def prepare(self, context: LaunchContext, action: Action):
+    def prepare(self, context: LaunchContext, action: Action) -> None:
         """
         Prepare an executable description for execution in a given environment.
 

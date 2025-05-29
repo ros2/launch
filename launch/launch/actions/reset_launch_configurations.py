@@ -14,9 +14,13 @@
 
 """Module for the ResetLaunchConfigurations action."""
 
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
+from typing import Type
+
 
 from ..action import Action
 from ..frontend import Entity
@@ -52,14 +56,15 @@ class ResetLaunchConfigurations(Action):
     def __init__(
         self,
         launch_configurations: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """Create an ResetLaunchConfigurations action."""
         super().__init__(**kwargs)
         self.__launch_configurations = launch_configurations
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['ResetLaunchConfigurations'], Dict[str, Any]]:
         """Return `ResetLaunchConfigurations` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         keeps = entity.get_attr('keep', data_type=List[Entity], optional=True)
@@ -72,7 +77,7 @@ class ResetLaunchConfigurations(Action):
                 e.assert_entity_completely_parsed()
         return cls, kwargs
 
-    def execute(self, context: LaunchContext):
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         if self.__launch_configurations is None:
             context.launch_configurations.clear()

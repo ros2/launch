@@ -17,11 +17,15 @@
 from copy import deepcopy
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Mapping
 from typing import Optional
 from typing import Protocol
 from typing import Text
+from typing import Tuple
+from typing import Type
+
 
 # yaml has type annotations in typeshed, but those cannot be installed via rosdep
 # since there is no definition for types-PyYAML
@@ -169,7 +173,8 @@ class ForEach(Action):
         )
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['ForEach'], Dict[str, Any]]:
         """Return `ForEach` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         input_values = entity.get_attr('values')
@@ -182,7 +187,7 @@ class ForEach(Action):
         kwargs['function'] = for_each
         return cls, kwargs
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         # Get the for-each input values
         input_values = perform_substitutions(context, self._input_values)
         self._logger.debug(f'input_values={input_values}')
@@ -223,7 +228,7 @@ class ForEach(Action):
     def _push_locals(
         cls,
         context: LaunchContext,
-    ) -> Optional[List[LaunchDescriptionEntity]]:
+    ) -> None:
         context._push_locals()
         return None
 
@@ -231,7 +236,7 @@ class ForEach(Action):
     def _pop_locals(
         cls,
         context: LaunchContext,
-    ) -> Optional[List[LaunchDescriptionEntity]]:
+    ) -> None:
         context._pop_locals()
         return None
 
@@ -367,7 +372,8 @@ class ForLoop(Action):
         )
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['ForLoop'], Dict[str, Any]]:
         """Return `ForLoop` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         length = entity.get_attr('len')
@@ -382,7 +388,7 @@ class ForLoop(Action):
         kwargs['function'] = for_i
         return cls, kwargs
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> List[ForEach]:
         # Get the for-loop length and convert to int
         length = int(perform_substitutions(context, self._length))
         self._logger.debug(f'for-loop length={length}')
