@@ -100,21 +100,11 @@ class ResetLaunchConfigurations(Action):
                         )
                     )
 
-                evaluated_k = (
-                    perform_substitutions(context, normalize_to_list_of_substitutions(k))
-                    if is_substitutable(k) else k
-                )
+                evaluated_k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
                 evaluated_v = (
                     perform_substitutions(context, normalize_to_list_of_substitutions(v))
                     if is_substitutable(v) else v
                 )
-
-                # The key must be a string - check that it has resolved to a string
-                if not isinstance(evaluated_k, str):
-                    raise TypeError(
-                        f'Launch config name {k} must be a string or a Substitution, '
-                        f'but got {type(k)}'
-                    )
 
                 evaluated_configurations[evaluated_k] = evaluated_v
 
