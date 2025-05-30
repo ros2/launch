@@ -85,10 +85,30 @@ class ResetLaunchConfigurations(Action):
         else:
             evaluated_configurations = {}
             for k, v in self.__launch_configurations.items():
-                if isinstance(k, Substitution) or isinstance(k, str):
-                    k = perform_substitutions(context, normalize_to_list_of_substitutions(k))
-                if isinstance(v, Substitution) or isinstance(v, str):
-                    v = perform_substitutions(context, normalize_to_list_of_substitutions(v))
+                # Move imports to the top of the file
+                import collections.abc
+                from pathlib import Path
+                from ..substitution import Substitution
+
+                def is_substitutable(value: Any) -> bool:
+                    # Specifically look for iterables of non-substitutable values. Assume the rest
+                    # is substitutable and let it error out if not
+                    return (
+                        not isinstance(value, collections.abc.Iterable)
+                        or all(
+                            isinstance(iter_value, (str, Path, Substitution))
+                            for iter_value in value
+                        )
+                    )
+
+                k = (
+                    perform_substitutions(context, normalize_to_list_of_substitutions(k))
+                    if is_substitutable(k) else k
+                )
+                v = (
+                    perform_substitutions(context, normalize_to_list_of_substitutions(v))
+                    if is_substitutable(v) else v
+                )
                 evaluated_configurations[k] = v
 
             context.launch_configurations.clear()
