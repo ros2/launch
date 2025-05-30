@@ -14,6 +14,8 @@
 
 """Module for the ResetLaunchConfigurations action."""
 
+import collections.abc
+
 from typing import Any
 from typing import Dict
 from typing import List
@@ -21,14 +23,13 @@ from typing import Optional
 from typing import Tuple
 from typing import Type
 
-
 from ..action import Action
 from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
+from ..some_substitutions_type import SomeSubstitutionsType_types_tuple
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
@@ -85,31 +86,37 @@ class ResetLaunchConfigurations(Action):
         else:
             evaluated_configurations = {}
             for k, v in self.__launch_configurations.items():
-                # Move imports to the top of the file
-                import collections.abc
-                from pathlib import Path
-                from ..substitution import Substitution
-
                 def is_substitutable(value: Any) -> bool:
                     # Specifically look for iterables of non-substitutable values. Assume the rest
                     # is substitutable and let it error out if not
                     return (
                         not isinstance(value, collections.abc.Iterable)
                         or all(
-                            isinstance(iter_value, (str, Path, Substitution))
+                            (
+                                isinstance(iter_value, SomeSubstitutionsType_types_tuple)
+                                and not isinstance(iter_value, collections.abc.Iterable)
+                            )
                             for iter_value in value
                         )
                     )
 
-                k = (
+                evaluated_k = (
                     perform_substitutions(context, normalize_to_list_of_substitutions(k))
                     if is_substitutable(k) else k
                 )
-                v = (
+                evaluated_v = (
                     perform_substitutions(context, normalize_to_list_of_substitutions(v))
                     if is_substitutable(v) else v
                 )
-                evaluated_configurations[k] = v
+
+                # The key must be a string - check that it has resolved to a string
+                if not isinstance(evaluated_k, str):
+                    raise TypeError(
+                        f'Launch config name {k} must be a string or a Substitution, '
+                        f'but got {type(k)}'
+                    )
+
+                evaluated_configurations[evaluated_k] = evaluated_v
 
             context.launch_configurations.clear()
             context.launch_configurations.update(evaluated_configurations)
