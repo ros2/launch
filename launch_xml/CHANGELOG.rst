@@ -2,8 +2,8 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.9 (2025-06-06)
+------------------
 * Expose emulate_tty to xml and yaml launch (`#669 <https://github.com/ros2/launch/issues/669>`_) (`#869 <https://github.com/ros2/launch/issues/869>`_)
 * Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_) (`#863 <https://github.com/ros2/launch/issues/863>`_)
 * Contributors: Emerson Knapp

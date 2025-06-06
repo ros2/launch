@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.9 (2025-06-06)
+------------------
 * Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_) (`#870 <https://github.com/ros2/launch/issues/870>`_)
 * Implement Any, All, Equals, and NotEquals substitutions (`#649 <https://github.com/ros2/launch/issues/649>`_) (`#871 <https://github.com/ros2/launch/issues/871>`_)
 * Add a `/` path join operator for `PathJoinSubstitution` (`#868 <https://github.com/ros2/launch/issues/868>`_) (`#881 <https://github.com/ros2/launch/issues/881>`_)
