@@ -2,6 +2,17 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_) (`#870 <https://github.com/ros2/launch/issues/870>`_)
+* Implement Any, All, Equals, and NotEquals substitutions (`#649 <https://github.com/ros2/launch/issues/649>`_) (`#871 <https://github.com/ros2/launch/issues/871>`_)
+* Add a `/` path join operator for `PathJoinSubstitution` (`#868 <https://github.com/ros2/launch/issues/868>`_) (`#881 <https://github.com/ros2/launch/issues/881>`_)
+* Add special cases to coerce "1" and "0" to bool when using bool coercion only (`#651 <https://github.com/ros2/launch/issues/651>`_) (`#872 <https://github.com/ros2/launch/issues/872>`_)
+* Expose emulate_tty to xml and yaml launch (`#669 <https://github.com/ros2/launch/issues/669>`_) (`#869 <https://github.com/ros2/launch/issues/869>`_)
+* Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_) (`#863 <https://github.com/ros2/launch/issues/863>`_)
+* Fix ExecuteLocal output flushing (`#860 <https://github.com/ros2/launch/issues/860>`_)
+* Contributors: Emerson Knapp, mhidalgo-bdai
+
 1.0.8 (2025-03-25)
 ------------------
 * Document substitutions concatenation in architecture doc (`#845 <https://github.com/ros2/launch/issues/845>`_) (`#847 <https://github.com/ros2/launch/issues/847>`_)
