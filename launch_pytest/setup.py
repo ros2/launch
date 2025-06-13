@@ -24,6 +24,7 @@ setup(
             glob.glob(f'test/{package_name}/examples/executables/[!_]*')
         ),
     ],
+    package_data={'': ['py.typed']},
     entry_points={
         'pytest11': ['launch_pytest = launch_pytest.plugin'],
     },

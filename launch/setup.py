@@ -13,6 +13,7 @@ setup(
             ['resource/' + package_name]),
         ('share/launch/frontend', ['share/launch/frontend/grammar.lark']),
     ],
+    package_data={'': ['py.typed']},
     install_requires=['setuptools'],
     zip_safe=True,
     author='Dirk Thomas',
