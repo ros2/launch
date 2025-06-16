@@ -59,7 +59,7 @@ class Entity(BaseEntity):
         self.__children_called = True
         if not isinstance(self.__element, (dict, list)):
             raise TypeError(
-                f'Expected a dict or list, got {type(self.element)}:'
+                f'Expected a dict or list, got {type(self.element).__name__}:'
                 f'\n---\n{self.__element}\n---'
             )
         if isinstance(self.__element, dict):
@@ -133,7 +133,7 @@ class Entity(BaseEntity):
         if not is_instance_of(data, data_type, can_be_str=can_be_str):
             raise TypeError(
                 "Attribute '{}' of Entity '{}' expected to be of type '{}', got '{}'".format(
-                    name, self.type_name, data_type, type(data)
+                    name, self.type_name, data_type.__name__, type(data).__name__
                 )
             )
         return data

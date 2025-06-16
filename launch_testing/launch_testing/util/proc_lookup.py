@@ -154,5 +154,5 @@ def resolveProcesses(info_obj, *, process=None, cmd_args=None, strict_proc_match
     else:
         # Invalid argument passed for 'process'
         raise TypeError(
-            "proc argument must be 'ExecuteProcess' or 'str' not {}".format(type(process))
+            "proc argument must be 'ExecuteProcess' or 'str' not {}".format(type(process).__name__)
         )
