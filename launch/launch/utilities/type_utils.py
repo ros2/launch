@@ -314,7 +314,8 @@ def coerce_list(
     ensure_argument_type(value, list, 'value', 'coerce_list')
     output = [coerce_to_type(i, data_type, can_be_str=can_be_str) for i in value]
     if not is_instance_of_valid_type(output, can_be_str=can_be_str):
-        raise ValueError(f'cannot convert value to {data_type.__name__}. Got value=`{value}`')
+        typename = data_type.__name__ if data_type is not None else "inferred type"
+        raise ValueError(f'cannot convert value to {typename}. Got value=`{value}`')
     return cast(ListValueType, output)
 
 
@@ -459,9 +460,10 @@ def normalize_typed_substitution(
         )
 
     # Normalize each specific uniform list input
+    type_name = data_type.__name__ if data_type is not None else "inferred type"
     err_msg = (
         "Got a list of '{}'"
-        f", expected a list of '{data_type.__name__}'. value='{value}'"
+        f", expected a list of '{type_name}'. value='{value}'"
     )
     if types_in_list == {Substitution}:
         # list of substitutions, can be coerced later to anything
