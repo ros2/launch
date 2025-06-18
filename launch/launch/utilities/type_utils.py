@@ -460,7 +460,7 @@ def normalize_typed_substitution(
         )
 
     # Normalize each specific uniform list input
-    type_name = data_type.__name__ if data_type is not None else "inferred type"
+    type_name = data_type.__name__ if data_type is not None else 'inferred type'
     err_msg = (
         "Got a list of '{}'"
         f", expected a list of '{type_name}'. value='{value}'"
