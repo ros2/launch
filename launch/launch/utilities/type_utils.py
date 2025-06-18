@@ -314,7 +314,7 @@ def coerce_list(
     ensure_argument_type(value, list, 'value', 'coerce_list')
     output = [coerce_to_type(i, data_type, can_be_str=can_be_str) for i in value]
     if not is_instance_of_valid_type(output, can_be_str=can_be_str):
-        typename = data_type.__name__ if data_type is not None else "inferred type"
+        typename = data_type.__name__ if data_type is not None else 'inferred type'
         raise ValueError(f'cannot convert value to {typename}. Got value=`{value}`')
     return cast(ListValueType, output)
 
