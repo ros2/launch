@@ -424,7 +424,8 @@ def normalize_typed_substitution(
     # Resolve scalar types immediately
     if isinstance(value, ScalarTypesTuple):
         if not is_instance_of(value, data_type):
-            raise TypeError(f"value='{value}' is not an instance of {data_type.__name__}")
+            typename = data_type.__name__ if data_type is not None else 'inferred type'
+            raise TypeError(f"value='{value}' is not an instance of {typename}")
         return value
     # Resolve substitutions and list of substitutions immediately
     if is_substitution(value):
@@ -454,9 +455,10 @@ def normalize_typed_substitution(
         data_type, is_list = extract_type(data_type)
     # Must be expecting a list
     if not is_list:
+        typename = data_type.__name__ if data_type is not None else 'inferred type'
         raise TypeError(
             'The provided value resolves to a list, though the required type is a scalar. '
-            f"Got value='{value}', data_type='{data_type.__name__}'."
+            f"Got value='{value}', data_type='{typename}'."
         )
 
     # Normalize each specific uniform list input
