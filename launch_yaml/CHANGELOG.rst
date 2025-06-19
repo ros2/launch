@@ -2,6 +2,17 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* Add remaining `py.typed` (`#884 <https://github.com/ros2/launch/issues/884>`_)
+* Fix `log\_*` warnings (`#883 <https://github.com/ros2/launch/issues/883>`_)
+* Other Logging Implementations with `getLevelNamesMapping` fix (`#866 <https://github.com/ros2/launch/issues/866>`_)
+* Revert "Add Other Logging Implementations (`#858 <https://github.com/ros2/launch/issues/858>`_)" (`#865 <https://github.com/ros2/launch/issues/865>`_)
+  This reverts commit b7b31c45b0eb350deedd282b88398d1ca0d5faf4.
+* Add Other Logging Implementations (`#858 <https://github.com/ros2/launch/issues/858>`_)
+* Contributors: Christophe Bedard, Michael Carlstrom
+
 3.9.0 (2025-04-24)
 ------------------
 

@@ -2,6 +2,14 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* Add remaining `py.typed` (`#884 <https://github.com/ros2/launch/issues/884>`_)
+* Allow Path in substitutions, instead of requiring cast to str (`#873 <https://github.com/ros2/launch/issues/873>`_)
+* fix(launch_pytest): prevent re-wrapping test funtions on re-run (`#855 <https://github.com/ros2/launch/issues/855>`_)
+* Contributors: Christophe Bedard, David Revay, Emerson Knapp, Michael Carlstrom
+
 3.9.0 (2025-04-24)
 ------------------
 

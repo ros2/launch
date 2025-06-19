@@ -2,6 +2,21 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* use custom log_file name as per the user setting (`#861 <https://github.com/ros2/launch/issues/861>`_)
+* Using ``TimerAction`` with ``SetParameter`` from launch_ros causes crash (`#879 <https://github.com/ros2/launch/issues/879>`_)
+* Fix `log\_*` warnings (`#883 <https://github.com/ros2/launch/issues/883>`_)
+* Updated `launch` typings (`#831 <https://github.com/ros2/launch/issues/831>`_)
+* Allow Path in substitutions, instead of requiring cast to str (`#873 <https://github.com/ros2/launch/issues/873>`_)
+* Add a `/` path join operator for `PathJoinSubstitution` (`#868 <https://github.com/ros2/launch/issues/868>`_)
+* Other Logging Implementations with `getLevelNamesMapping` fix (`#866 <https://github.com/ros2/launch/issues/866>`_)
+* Revert "Add Other Logging Implementations (`#858 <https://github.com/ros2/launch/issues/858>`_)" (`#865 <https://github.com/ros2/launch/issues/865>`_)
+  This reverts commit b7b31c45b0eb350deedd282b88398d1ca0d5faf4.
+* Add Other Logging Implementations (`#858 <https://github.com/ros2/launch/issues/858>`_)
+* Contributors: Christophe Bedard, Emerson Knapp, Kenji Brameld (TRACLabs), Michael Carlstrom, Tanishq Chaudhary
+
 3.9.0 (2025-04-24)
 ------------------
 

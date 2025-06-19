@@ -2,6 +2,13 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* Add remaining `py.typed` (`#884 <https://github.com/ros2/launch/issues/884>`_)
+* Updated `launch` typings (`#831 <https://github.com/ros2/launch/issues/831>`_)
+* Contributors: Christophe Bedard, Michael Carlstrom
+
 3.9.0 (2025-04-24)
 ------------------
 
