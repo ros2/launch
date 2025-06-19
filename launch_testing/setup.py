@@ -14,6 +14,7 @@ setup(
         ('share/launch_testing', ['package.xml']),
         ('share/launch_testing/examples', glob.glob('test/launch_testing/examples/[!_]**')),
     ],
+    package_data={'': ['py.typed']},
     entry_points={
         'console_scripts': ['launch_test=launch_testing.launch_test:main'],
         'pytest11': ['launch_testing = launch_testing.pytest.hooks'],
