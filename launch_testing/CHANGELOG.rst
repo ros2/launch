@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.2 (2025-06-23)
+------------------
+
 3.8.1 (2025-04-18)
 ------------------
 * Fix function params indentation (`#833 <https://github.com/ros2/launch/issues/833>`_)

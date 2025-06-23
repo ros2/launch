@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.2 (2025-06-23)
+------------------
+* Add a `/` path join operator for `PathJoinSubstitution` (`#868 <https://github.com/ros2/launch/issues/868>`_) (`#875 <https://github.com/ros2/launch/issues/875>`_)
+* Contributors: mergify[bot]
+
 3.8.1 (2025-04-18)
 ------------------
 * Provide copy of launch configs to TimerAction's entities (`#836 <https://github.com/ros2/launch/issues/836>`_)
