@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.5 (2025-06-23)
+------------------
+* Provide copy of launch configs to TimerAction's entities (`#836 <https://github.com/ros2/launch/issues/836>`_) (`#878 <https://github.com/ros2/launch/issues/878>`_)
+* [backport jazzy] Add a `/` path join operator for `PathJoinSubstitution` (`#868 <https://github.com/ros2/launch/issues/868>`_) (`#880 <https://github.com/ros2/launch/issues/880>`_)
+* Contributors: Emerson Knapp, Kenji Brameld (TRACLabs)
+
 3.4.4 (2025-04-02)
 ------------------
 * Document substitutions concatenation in architecture doc (`#845 <https://github.com/ros2/launch/issues/845>`_) (`#846 <https://github.com/ros2/launch/issues/846>`_)

@@ -2,6 +2,9 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.5 (2025-06-23)
+------------------
+
 3.4.4 (2025-04-02)
 ------------------
 
@@ -204,4 +207,3 @@ Changelog for package launch_xml
 * Add parsing method for `DeclareLaunchArgument` (`#270 <https://github.com/ros2/launch/issues/270>`_)
 * Add frontend module in launch, launch_xml and launch_yaml packages (`#226 <https://github.com/ros2/launch/issues/226>`_)
 * Contributors: Dirk Thomas, ivanpauno
-

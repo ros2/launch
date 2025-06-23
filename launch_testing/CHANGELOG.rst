@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.5 (2025-06-23)
+------------------
+
 3.4.4 (2025-04-02)
 ------------------
 * Merge pull request `#834 <https://github.com/ros2/launch/issues/834>`_ from ros2/mergify/bp/jazzy/pr-833
