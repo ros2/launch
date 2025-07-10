@@ -135,10 +135,6 @@ There are many possible variations of a substitution, but here are some of the c
 
   - This substitution takes a substitution, and if it evaluates to true, then the result is the if_value, else the result is the else_value.
 
-- :class:`launch.substitutions.LaunchDescriptionArgument`
-
-  - This substitution gets the value of a launch description argument, as a string, by name.
-
 - :class:`launch.substitutions.LocalSubstitution`
 
   - This substitution gets a "local" variable out of the context. This is a mechanism that allows a "parent" action to pass information to sub actions.
