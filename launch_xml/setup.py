@@ -24,7 +24,6 @@ setup(
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
@@ -33,7 +32,11 @@ setup(
         'This package provides XML parsing ability to `launch-frontend` package.'
     ),
     license='Apache License, Version 2.0',
-    tests_require=['pytest'],
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
     entry_points={
         'launch.frontend.parser': [
             'xml = launch_xml:Parser',
