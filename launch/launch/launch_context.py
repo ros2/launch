@@ -61,8 +61,8 @@ class LaunchContext:
         self.__locals: Dict[Text, Any] = {}
         self.__combined_locals_cache: Optional[Dict[Text, Any]] = None
 
-        self.__launch_configurations_stack: List[Dict[Text, Text]] = []
-        self.__launch_configurations: Dict[Text, Text] = {}
+        self.__launch_configurations_stack: List[Dict[Text, Any]] = []
+        self.__launch_configurations: Dict[Text, Any] = {}
 
         self.__environment_stack: List[Mapping[Text, Text]] = []
         # We will reset to this copy when "reset_environment" is called
@@ -197,7 +197,7 @@ class LaunchContext:
         self.__launch_configurations = self.__launch_configurations_stack.pop()
 
     @property
-    def launch_configurations(self) -> Dict[Text, Text]:
+    def launch_configurations(self) -> Dict[Text, Any]:
         """Getter for launch_configurations dictionary."""
         return self.__launch_configurations
 
