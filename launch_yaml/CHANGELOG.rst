@@ -2,6 +2,9 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.9 (2025-06-06)
 ------------------
 * Expose emulate_tty to xml and yaml launch (`#669 <https://github.com/ros2/launch/issues/669>`_) (`#869 <https://github.com/ros2/launch/issues/869>`_)

@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove LaunchDescriptionArgument (`#891 <https://github.com/ros2/launch/issues/891>`_) (`#897 <https://github.com/ros2/launch/issues/897>`_)
+* Contributors: mergify[bot]
+
 1.0.9 (2025-06-06)
 ------------------
 * Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_) (`#870 <https://github.com/ros2/launch/issues/870>`_)
