@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.10 (2025-07-16)
+-------------------
 * Remove LaunchDescriptionArgument (`#891 <https://github.com/ros2/launch/issues/891>`_) (`#897 <https://github.com/ros2/launch/issues/897>`_)
 * Contributors: mergify[bot]
 
