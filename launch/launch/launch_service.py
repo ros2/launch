@@ -94,7 +94,7 @@ class LaunchService:
         # it being set to None by run() as it exits.
         self.__loop_from_run_thread_lock = threading.RLock()
         self.__loop_from_run_thread = None
-        self.__this_task: Optional[asyncio.Future[None]] = None
+        self.__this_task: Optional[asyncio.Task[None]] = None
 
         # Used to indicate when shutdown() has been called.
         self.__shutting_down = False
@@ -156,7 +156,14 @@ class LaunchService:
     def _is_idle(self) -> bool:
         number_of_entity_future_pairs = self._prune_and_count_entity_future_pairs()
         number_of_entity_future_pairs += self._prune_and_count_context_completion_futures()
-        return number_of_entity_future_pairs == 0 and self.__context._event_queue.empty()
+        if self.event_loop is not None and self.__this_task is not None:
+            tasks = asyncio.all_tasks(self.event_loop)
+            tasks.remove(self.__this_task)
+        else:
+            tasks = set()
+        return (number_of_entity_future_pairs == 0 and
+                self.__context._event_queue.empty() and
+                len(tasks) == 0)
 
     @contextlib.contextmanager
     def _prepare_run_loop(
