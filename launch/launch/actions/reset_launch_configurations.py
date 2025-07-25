@@ -14,20 +14,12 @@
 
 """Module for the ResetLaunchConfigurations action."""
 
-<<<<<<< HEAD
-from typing import Dict
-from typing import List
-from typing import Optional
-=======
 import collections.abc
 
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
-from typing import Type
->>>>>>> eeca6e2 (Using ``TimerAction`` with ``SetParameter`` from launch_ros causes crash (#879))
 
 from ..action import Action
 from ..frontend import Entity
