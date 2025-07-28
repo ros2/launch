@@ -26,7 +26,8 @@ from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
-from ..some_substitutions_type import SomeSubstitutionsType, SomeSubstitutionsType_types_tuple
+from ..some_substitutions_type import SomeSubstitutionsType
+from ..some_substitutions_type import SomeSubstitutionsType_types_tuple
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
