@@ -2,6 +2,11 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix CMake deprecation (`#899 <https://github.com/ros2/launch/issues/899>`_)
+* Contributors: mosfet80
+
 3.9.1 (2025-06-19)
 ------------------
 * Allow Path in substitutions, instead of requiring cast to str (`#873 <https://github.com/ros2/launch/issues/873>`_)

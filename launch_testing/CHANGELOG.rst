@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
+* Contributors: mosfet80
+
 3.9.1 (2025-06-19)
 ------------------
 * Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
