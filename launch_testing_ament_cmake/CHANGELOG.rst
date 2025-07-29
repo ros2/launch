@@ -2,8 +2,8 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.9.2 (2025-07-29)
+------------------
 * Fix CMake deprecation (`#899 <https://github.com/ros2/launch/issues/899>`_)
 * Contributors: mosfet80
 

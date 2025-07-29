@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.9.2 (2025-07-29)
+------------------
 * Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
 * Remove LaunchDescriptionArgument (`#891 <https://github.com/ros2/launch/issues/891>`_)
 * Contributors: Harrison Chen, mosfet80

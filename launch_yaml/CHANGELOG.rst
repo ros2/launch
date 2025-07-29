@@ -2,8 +2,8 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.9.2 (2025-07-29)
+------------------
 * Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
 * Contributors: mosfet80
 
