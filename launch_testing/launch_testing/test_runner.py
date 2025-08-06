@@ -169,6 +169,7 @@ class _RunnerWorker():
             print('Processes under test stopped before tests completed')
             # Give some extra help debugging why processes died early
             self._print_process_output_summary(proc_info, proc_output)
+            self._launch_service.context._reset_environment()
             # We treat this as a test failure and return some test results indicating such
             raise _LaunchDiedException()
 
@@ -178,6 +179,8 @@ class _RunnerWorker():
         ).run(self._test_run.post_shutdown_tests)
 
         self._results.append(inactive_results)
+
+        self._launch_service.context._reset_environment()
 
         return self._results
 
