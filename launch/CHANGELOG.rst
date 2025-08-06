@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Using `TimerAction` with `SetParameter` from launch_ros causes crash (backport `#879 <https://github.com/ros2/launch/issues/879>`_) (`#893 <https://github.com/ros2/launch/issues/893>`_)
+  Co-authored-by: Christophe Bedard <bedard.christophe@gmail.com>
+* Remove LaunchDescriptionArgument (`#891 <https://github.com/ros2/launch/issues/891>`_) (`#896 <https://github.com/ros2/launch/issues/896>`_)
+  (cherry picked from commit 8fd76bb11c45cdd072b5f3ef4f3800ff63ee3c9a)
+  Co-authored-by: Harrison Chen <hchen.robotics@gmail.com>
+* Contributors: Rafal Gorecki, mergify[bot]
+
 3.4.5 (2025-06-23)
 ------------------
 * Provide copy of launch configs to TimerAction's entities (`#836 <https://github.com/ros2/launch/issues/836>`_) (`#878 <https://github.com/ros2/launch/issues/878>`_)
