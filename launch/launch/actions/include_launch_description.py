@@ -92,7 +92,9 @@ class IncludeLaunchDescription(Action):
               ) -> Tuple[Type['IncludeLaunchDescription'], Dict[str, Any]]:
         """Return `IncludeLaunchDescription` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        file_path = parser.parse_substitution(entity.get_attr('file'))
+        file_attr = entity.bare_text or entity.get_attr('file')
+        file_path = parser.parse_substitution(file_attr)
+
         kwargs['launch_description_source'] = file_path
         args = entity.get_attr('arg', data_type=List[Entity], optional=True)
         if args is not None:

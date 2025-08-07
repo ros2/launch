@@ -116,3 +116,8 @@ class Entity:
         function completed.
         """
         raise NotImplementedError()
+
+    @property
+    def bare_text(self) -> Optional[Text]:
+        """Return the bare text of this element if it is a bare text element, or None."""
+        raise NotImplementedError()

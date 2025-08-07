@@ -1,4 +1,4 @@
-# Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2025 Polymath Robotics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test parsing an include action."""
+"""Test parsing a launch file inclusion."""
 
 import io
 from pathlib import Path
@@ -26,17 +26,15 @@ from parser_no_extensions import load_no_extensions
 
 
 def test_include():
-    """Parse node xml example."""
-    # Always use posix style paths in launch XML files.
-    path = (Path(__file__).parent / 'executable.xml').as_posix()
-    xml_file = \
-        """\
-        <launch>
-            <include file="{}"/>
-        </launch>
-        """.format(path)  # noqa: E501
-    xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    """Parse include yaml example."""
+    path = (Path(__file__).parent / 'executable.yaml').as_posix()
+    yaml_file = f"""\
+        launch:
+          - include:
+              file: {path}
+        """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     include = ld.entities[0]
     assert isinstance(include, IncludeLaunchDescription)
@@ -47,14 +45,14 @@ def test_include():
 
 
 def test_include_bare_text():
-    path = (Path(__file__).parent / 'executable.xml').as_posix()
-    xml_file = f"""
-        <launch>
-            <include>{path}</include>
-        </launch>
-    """
-    xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    """Parse include yaml example."""
+    path = (Path(__file__).parent / 'executable.yaml').as_posix()
+    yaml_file = f"""
+        launch:
+          - include: {path}
+        """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     include = ld.entities[0]
     assert isinstance(include, IncludeLaunchDescription)
