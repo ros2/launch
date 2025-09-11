@@ -2,6 +2,11 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.3 (2025-09-11)
+------------------
+* Fix CMake deprecation (`#899 <https://github.com/ros2/launch/issues/899>`_) (`#900 <https://github.com/ros2/launch/issues/900>`_)
+* Contributors: mergify[bot]
+
 3.8.2 (2025-06-23)
 ------------------
 

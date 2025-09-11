@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.3 (2025-09-11)
+------------------
+* Using ``TimerAction`` with ``SetParameter`` from launch_ros causes crash (backport `#879 <https://github.com/ros2/launch/issues/879>`_) (`#902 <https://github.com/ros2/launch/issues/902>`_)
+* Remove LaunchDescriptionArgument (`#891 <https://github.com/ros2/launch/issues/891>`_) (`#895 <https://github.com/ros2/launch/issues/895>`_)
+* Contributors: mergify[bot]
+
 3.8.2 (2025-06-23)
 ------------------
 * Add a `/` path join operator for `PathJoinSubstitution` (`#868 <https://github.com/ros2/launch/issues/868>`_) (`#875 <https://github.com/ros2/launch/issues/875>`_)
