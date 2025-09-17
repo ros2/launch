@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 from itertools import chain
+from operator import and_, or_
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -139,7 +140,7 @@ class AndSubstitution(LeftRightLogicalSubstitution):
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
         """Create an AndSubstitution substitution."""
-        super().__init__(lambda _left, _right: _left and _right, left, right)
+        super().__init__(and_, left, right)
 
 
 @expose_substitution('or')
@@ -148,7 +149,7 @@ class OrSubstitution(LeftRightLogicalSubstitution):
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
         """Create an OrSubstitution substitution."""
-        super().__init__(lambda _left, _right: _left or _right, left, right)
+        super().__init__(or_, left, right)
 
 
 class ContainerSubstitution(Substitution):
