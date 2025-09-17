@@ -35,8 +35,8 @@ from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
-from ..utilities.type_utils import StrSomeValueType
 from ..utilities.type_utils import perform_typed_substitution
+from ..utilities.type_utils import StrSomeValueType
 
 
 @expose_substitution('not')
