@@ -182,7 +182,7 @@ class ContainerSubstitution(Substitution):
         return cls, {'container': data}
 
     @property
-    def func(self) -> Callable[[StrSomeValueType], bool]:
+    def func(self) -> Callable[[List[StrSomeValueType]], bool]:
         """Getter for the logical evaluation function."""
         return self.__func
 
