@@ -79,7 +79,12 @@ class NotSubstitution(Substitution):
 class LeftRightLogicalSubstitution(Substitution):
     """Substitution that returns the result of logical evaluation of the input boolean values."""
 
-    def __init__(self, func: Callable[[StrSomeValueType, StrSomeValueType], bool], left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
+    def __init__(
+        self,
+        func: Callable[[StrSomeValueType, StrSomeValueType], bool],
+        left: SomeSubstitutionsType,
+        right: SomeSubstitutionsType,
+    ) -> None:
         """Create an LeftRightLogicalSubstitution substitution."""
         super().__init__()
 
@@ -134,7 +139,7 @@ class AndSubstitution(LeftRightLogicalSubstitution):
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
         """Create an AndSubstitution substitution."""
-        super().__init__(lambda l, r: l and r, left, right)
+        super().__init__(lambda _left, _right: _left and _right, left, right)
 
 
 @expose_substitution('or')
@@ -143,11 +148,11 @@ class OrSubstitution(LeftRightLogicalSubstitution):
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
         """Create an OrSubstitution substitution."""
-        super().__init__(lambda l, r: l or r, left, right)
+        super().__init__(lambda _left, _right: _left or _right, left, right)
 
 
 class ContainerSubstitution(Substitution):
-    """Substitution that returns the result of a logical evaluation on the boolean values of the container."""
+    """Substitution running a logical evaluation on the boolean values of the container."""
 
     def __init__(
         self,
