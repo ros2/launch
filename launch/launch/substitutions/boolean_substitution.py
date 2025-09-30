@@ -214,6 +214,9 @@ class AnySubstitution(ContainerSubstitution):
     Substitutes to the string 'true' if at least one of the input arguments evaluates to true.
 
     If none of the arguments evaluate to true, then this substitution returns the string 'false'.
+
+    The following string arguments evaluate to true: '1', 'true', 'True', 'on'
+    The following string arguments evaluate to false: '0', 'false', 'False', 'off'
     """
 
     def __init__(
@@ -231,6 +234,9 @@ class AllSubstitution(ContainerSubstitution):
     Substitutes to the string 'true' if all the input arguments evaluate to true.
 
     If any of the arguments evaluates to false, then this substitution returns the string 'false'.
+
+    The following string arguments evaluate to true: '1', 'true', 'True', 'on'
+    The following string arguments evaluate to false: '0', 'false', 'False', 'off'
     """
 
     def __init__(
