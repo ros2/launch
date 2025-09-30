@@ -96,7 +96,7 @@ class LeftRightLogicalSubstitution(Substitution):
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
               ) -> Tuple[Type[LeftRightLogicalSubstitution], Dict[str, Any]]:
-        """Parse `AndSubstitution` substitution."""
+        """Parse `LeftRightLogicalSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError(f'{cls.__name__} expects 2 arguments')
         return cls, {'left': data[0], 'right': data[1]}
@@ -178,7 +178,7 @@ class ContainerSubstitution(Substitution):
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]
               ) -> Tuple[Type[ContainerSubstitution], Dict[str, Any]]:
-        """Parse `AnySubstitution` substitution."""
+        """Parse `ContainerSubstitution` substitution."""
         return cls, {'container': data}
 
     @property
