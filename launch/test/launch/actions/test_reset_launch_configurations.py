@@ -91,3 +91,10 @@ def test_reset_launch_configurations_execute():
     assert len(lc6.launch_configurations) == 1
     assert lc6.launch_configurations['foo'] == 'OOF'
     assert 'bar' not in lc6.launch_configurations.keys()
+
+    # With a non-substitutable launch configuration
+    lc7 = LaunchContext()
+    assert len(lc7.launch_configurations) == 0
+    ResetLaunchConfigurations(launch_configurations={'global_param': [('foo', 'true')]}).visit(lc7)
+    assert len(lc7.launch_configurations) == 1
+    assert lc7.launch_configurations['global_param'] == [('foo', 'true')]

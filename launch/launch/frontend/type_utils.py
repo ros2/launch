@@ -14,7 +14,9 @@
 
 """Extra type utils for launch frontend implementations."""
 
+from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Text
 from typing import Type
 from typing import Union
@@ -30,8 +32,8 @@ def check_is_list_entity(data_type: Union[AllowedTypesType, Type[List[Entity]]])
         issubclass(data_type.__args__[0], Entity)  # type: ignore
 
 
-def get_data_type_from_identifier(type_identifier: Text):
-    mapping = {
+def get_data_type_from_identifier(type_identifier: Text) -> Optional[type]:
+    mapping: Dict[Text, Optional[type]] = {
         'str': str,
         'bool': bool,
         'float': float,

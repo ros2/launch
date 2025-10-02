@@ -19,7 +19,8 @@ import textwrap
 
 from launch import LaunchService
 from launch.actions import Shutdown
-from launch.frontend import Parser
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_executable():
@@ -42,7 +43,7 @@ def test_executable():
                         value: '1'
         """
     yaml_file = textwrap.dedent(yaml_file)
-    root_entity, parser = Parser.load(io.StringIO(yaml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
@@ -73,7 +74,7 @@ def test_executable_on_exit():
                 on_exit: shutdown
         """
     yaml_file = textwrap.dedent(yaml_file)
-    root_entity, parser = Parser.load(io.StringIO(yaml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     sub_entities = executable.get_sub_entities()

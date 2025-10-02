@@ -14,9 +14,14 @@
 
 """Module for the FileContent substitution."""
 
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
+
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -41,7 +46,8 @@ class FileContent(Substitution):
         self.__path = normalize_to_list_of_substitutions(path)
 
     @classmethod
-    def parse(cls, data: Sequence[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['FileContent'], Dict[str, Any]]:
         """Parse `FileContent` substitution."""
         if not data or len(data) != 1:
             raise AttributeError('file content substitutions expect 1 argument')

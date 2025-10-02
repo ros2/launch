@@ -51,7 +51,7 @@ class OpaqueFunction(Action):
         function: Callable,
         args: Optional[Iterable[Any]] = None,
         kwargs: Optional[Dict[Text, Any]] = None,
-        **left_over_kwargs
+        **left_over_kwargs: Any
     ) -> None:
         """Create an OpaqueFunction action."""
         super().__init__(**left_over_kwargs)
@@ -63,7 +63,7 @@ class OpaqueFunction(Action):
             args, (collections.abc.Iterable, type(None)), 'args', 'OpaqueFunction')
         ensure_argument_type(kwargs, (dict, type(None)), 'kwargs', 'OpaqueFunction')
         self.__function = function
-        self.__args = []  # type: Iterable
+        self.__args = []  # type: Iterable[Any]
         if args is not None:
             self.__args = args
         self.__kwargs = {}  # type: Dict[Text, Any]

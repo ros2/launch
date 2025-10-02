@@ -14,7 +14,7 @@
 
 """Tests for the IncludeLaunchDescription action class."""
 
-import os
+from pathlib import Path
 
 from launch import LaunchContext
 from launch import LaunchDescription
@@ -74,7 +74,7 @@ def test_include_launch_description_launch_file_location():
     assert lc1.locals.current_launch_file_directory == '<script>'
     assert action.get_asyncio_future() is None
 
-    this_file = os.path.abspath(__file__)
+    this_file = Path(__file__).absolute()
     ld2 = LaunchDescription()
     action2 = IncludeLaunchDescription(LaunchDescriptionSource(ld2, this_file))
     assert 'IncludeLaunchDescription' in action2.describe()
@@ -83,7 +83,7 @@ def test_include_launch_description_launch_file_location():
     lc2 = LaunchContext()
     # Result should only contain the launch description as there are no launch arguments.
     assert action2.visit(lc2) == [ld2]
-    assert lc2.locals.current_launch_file_directory == os.path.dirname(this_file)
+    assert lc2.locals.current_launch_file_directory == str(this_file.parent)
     assert action2.get_asyncio_future() is None
 
 
@@ -209,11 +209,8 @@ def test_include_launch_description_launch_arguments():
 
 def test_include_python():
     """Test including Python, with and without explicit PythonLaunchDescriptionSource."""
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    simple_launch_file_path = os.path.join(this_dir,
-                                           '..',
-                                           'launch_description_source',
-                                           'simple.launch.py')
+    this_dir = Path(__file__).parent
+    simple_launch_file_path = this_dir.parent / 'launch_description_source' / 'simple.launch.py'
 
     # Explicitly construct with PythonLaunchDescriptionSource
     plds = PythonLaunchDescriptionSource(simple_launch_file_path)
@@ -232,4 +229,4 @@ def test_include_python():
         assert action.get_asyncio_future() is None
         assert len(action.launch_arguments) == 0
 
-        assert action.launch_description_source.location == simple_launch_file_path
+        assert action.launch_description_source.location == str(simple_launch_file_path)

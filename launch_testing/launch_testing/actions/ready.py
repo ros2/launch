@@ -13,12 +13,9 @@
 # limitations under the License.
 
 import logging
-from typing import List
-from typing import Optional
 
 from launch.action import Action
 from launch.launch_context import LaunchContext
-from launch.launch_description_entity import LaunchDescriptionEntity
 
 _logger_ = logging.getLogger(__name__)
 
@@ -33,7 +30,7 @@ class ReadyToTest(Action):
     def _add_callback(self, callback):
         self._cb_list.append(callback)
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         for cb in self._cb_list:
             try:
