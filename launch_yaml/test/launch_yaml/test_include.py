@@ -26,24 +26,40 @@ from parser_no_extensions import load_no_extensions
 
 
 def test_include():
-    """Parse node yaml example."""
+    """Parse include YAML example."""
     # Always use posix style paths in launch YAML files.
     path = (Path(__file__).parent / 'executable.yaml').as_posix()
     yaml_file = \
         """\
         launch:
-        -   include:
-                file: "{}"
+        - let:
+            name: 'main_baz'
+            value: 'BAZ'
+        - include:
+            file: '{}'
+            arg:
+                - name: 'foo'
+                  value: 'FOO'
+                - name: 'baz'
+                  value: 'overwritten'
+            let:
+                - name: 'bar'
+                  value: 'BAR'
+                - name: 'baz'
+                  value: '$(var main_baz)'
         """.format(path)  # noqa: E501
     yaml_file = textwrap.dedent(yaml_file)
     root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
-    include = ld.entities[0]
+    include = ld.entities[1]
     assert isinstance(include, IncludeLaunchDescription)
     assert isinstance(include.launch_description_source, AnyLaunchDescriptionSource)
     ls = LaunchService(debug=True)
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+    assert ls.context.launch_configurations['foo'] == 'FOO'
+    assert ls.context.launch_configurations['bar'] == 'BAR'
+    assert ls.context.launch_configurations['baz'] == 'BAZ'
 
 
 def include_inner(inner_launch_file: str):
