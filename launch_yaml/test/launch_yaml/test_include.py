@@ -1,4 +1,4 @@
-# Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2025 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,17 +26,17 @@ from parser_no_extensions import load_no_extensions
 
 
 def test_include():
-    """Parse node xml example."""
-    # Always use posix style paths in launch XML files.
-    path = (Path(__file__).parent / 'executable.xml').as_posix()
-    xml_file = \
+    """Parse node yaml example."""
+    # Always use posix style paths in launch YAML files.
+    path = (Path(__file__).parent / 'executable.yaml').as_posix()
+    yaml_file = \
         """\
-        <launch>
-            <include file="{}"/>
-        </launch>
+        launch:
+        -   include:
+                file: "{}"
         """.format(path)  # noqa: E501
-    xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     include = ld.entities[0]
     assert isinstance(include, IncludeLaunchDescription)
@@ -47,16 +47,16 @@ def test_include():
 
 
 def include_inner(inner_launch_file: str):
-    # Always use posix style paths in launch XML files.
+    # Always use posix style paths in launch YAML files.
     path = (Path(__file__).parent / inner_launch_file).as_posix()
-    xml_file = \
+    yaml_file = \
         """\
-        <launch>
-            <include file="{}"/>
-        </launch>
+        launch:
+        -   include:
+                file: "{}"
         """.format(path)  # noqa: E501
-    xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     include = ld.entities[0]
     assert isinstance(include, IncludeLaunchDescription)
@@ -68,7 +68,7 @@ def include_inner(inner_launch_file: str):
 def test_include_inner_argument_default_no_argument():
     """Test inner launch file having an argument with default value (no commandline input)."""
     argument_name = 'inner_argument'
-    ld = include_inner('inner_default.launch.xml')
+    ld = include_inner('inner_default.launch.yaml')
 
     ls = LaunchService(debug=True)
     # Pass the arguments as it is done in ros2launch
@@ -84,7 +84,7 @@ def test_include_inner_argument_default_with_argument():
     """Test inner launch file having an argument with default value overwritten via commandline."""
     argument_name = 'inner_argument'
     argument_value = 'another_value'
-    ld = include_inner('inner_default.launch.xml')
+    ld = include_inner('inner_default.launch.yaml')
 
     ls = LaunchService(debug=True, argv=[f'{argument_name}:="{argument_value}"'])
 
@@ -101,8 +101,8 @@ def test_include_inner_argument_default_with_argument():
 
 
 def test_include_inner_argument_no_argument():
-    """Test inner launch file having a required argument (no commandline input)."""
-    ld = include_inner('inner.launch.xml')
+    """Test inner launch file having a required argument value (no commandline input)."""
+    ld = include_inner('inner.launch.yaml')
 
     ls = LaunchService(debug=True)
     # Pass the arguments as it is done in ros2launch
@@ -114,10 +114,10 @@ def test_include_inner_argument_no_argument():
 
 
 def test_include_inner_argument_with_argument():
-    """Test inner launch file having a required argument overwritten via commandline."""
+    """Test inner launch file having a required argument value overwritten via commandline."""
     argument_name = 'inner_argument'
     argument_value = 'another_value'
-    ld = include_inner('inner.launch.xml')
+    ld = include_inner('inner.launch.yaml')
 
     ls = LaunchService(debug=True, argv=[f'{argument_name}:="{argument_value}"'])
 
