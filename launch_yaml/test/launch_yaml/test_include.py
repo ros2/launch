@@ -20,9 +20,8 @@ import textwrap
 
 from launch import LaunchService
 from launch.actions import IncludeLaunchDescription
+from launch.frontend import Parser
 from launch.launch_description_sources import AnyLaunchDescriptionSource
-
-from parser_no_extensions import load_no_extensions
 
 
 def test_include():
@@ -48,7 +47,7 @@ def test_include():
                   value: '$(var main_baz)'
         """.format(path)  # noqa: E501
     yaml_file = textwrap.dedent(yaml_file)
-    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    root_entity, parser = Parser.load(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     include = ld.entities[1]
     assert isinstance(include, IncludeLaunchDescription)
