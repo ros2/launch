@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.11 (2025-10-06)
+-------------------
+* Add file-content launch substitution (`#708 <https://github.com/ros2/launch//issues/708>`_) (`#903 <https://github.com/ros2/launch//issues/903>`_)
+* Contributors: mergify[bot]
+
 1.0.10 (2025-07-16)
 -------------------
 * Remove LaunchDescriptionArgument (`#891 <https://github.com/ros2/launch/issues/891>`_) (`#897 <https://github.com/ros2/launch/issues/897>`_)
