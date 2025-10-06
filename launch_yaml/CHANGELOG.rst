@@ -2,6 +2,11 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.3 (2025-10-06)
+------------------
+* Allow providing launch args to include using let in frontends (`#848 <https://github.com/ros2/launch//issues/848>`_)
+* Contributors: Christophe Bedard
+
 3.9.2 (2025-07-29)
 ------------------
 * Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
