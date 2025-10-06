@@ -23,6 +23,7 @@ from .boolean_substitution import OrSubstitution
 from .command import Command
 from .environment_variable import EnvironmentVariable
 from .equals_substitution import EqualsSubstitution
+from .file_content import FileContent
 from .find_executable import FindExecutable
 from .if_else_substitution import IfElseSubstitution
 from .launch_configuration import LaunchConfiguration
@@ -44,6 +45,7 @@ __all__ = [
     'Command',
     'EqualsSubstitution',
     'EnvironmentVariable',
+    'FileContent',
     'FindExecutable',
     'IfElseSubstitution',
     'LaunchConfiguration',
