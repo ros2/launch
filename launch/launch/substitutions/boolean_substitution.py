@@ -14,12 +14,7 @@
 
 """Module for boolean substitutions."""
 
-<<<<<<< HEAD
-=======
 from itertools import chain
-from typing import Any
-from typing import Dict
->>>>>>> 835d136 (Fix all/any in xml and yaml launch files (#906))
 from typing import Iterable
 from typing import List
 from typing import Optional
