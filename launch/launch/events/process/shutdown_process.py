@@ -20,14 +20,14 @@ from typing import TYPE_CHECKING
 from .process_targeted_event import ProcessTargetedEvent
 
 if TYPE_CHECKING:
-    from ...actions import ExecuteProcess  # noqa: F401
+    from ...actions import ExecuteLocal  # noqa: F401
 
 
 class ShutdownProcess(ProcessTargetedEvent):
     """
     Event emitted when a process should begin shutting down.
 
-    This event is handled by the launch.actions.ExecuteProcess action, see it
+    This event is handled by the launch.actions.ExecuteLocal action, see it
     for details on what happens when this is emitted.
 
     Also see ProcessTargetedEvent for details on how to target a specific
@@ -36,6 +36,6 @@ class ShutdownProcess(ProcessTargetedEvent):
 
     name = 'launch.events.process.ShutdownProcess'
 
-    def __init__(self, *, process_matcher: Callable[['ExecuteProcess'], bool]) -> None:
+    def __init__(self, *, process_matcher: Callable[['ExecuteLocal'], bool]) -> None:
         """Create a ShutdownProcess event."""
         super().__init__(process_matcher=process_matcher)

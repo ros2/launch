@@ -22,7 +22,7 @@ from .on_action_event_base import OnActionEventBase
 from ..event import Event
 from ..events import ExecutionComplete
 from ..launch_context import LaunchContext
-from ..some_actions_type import SomeActionsType
+from ..some_entities_type import SomeEntitiesType
 
 if TYPE_CHECKING:
     from .. import Action  # noqa: F401
@@ -43,16 +43,16 @@ class OnExecutionComplete(OnActionEventBase):
             Optional[Union[Callable[['Action'], bool], 'Action']] = None,
         on_completion:
             Union[
-                SomeActionsType,
-                Callable[[ExecutionComplete, LaunchContext], Optional[SomeActionsType]]],
+                SomeEntitiesType,
+                Callable[[ExecutionComplete, LaunchContext], Optional[SomeEntitiesType]]],
         **kwargs
     ) -> None:
         """Create an OnExecutionComplete event handler."""
         from ..action import Action  # noqa: F811
         on_completion = cast(
             Union[
-                SomeActionsType,
-                Callable[[Event, LaunchContext], Optional[SomeActionsType]]],
+                SomeEntitiesType,
+                Callable[[Event, LaunchContext], Optional[SomeEntitiesType]]],
             on_completion)
         super().__init__(
             action_matcher=target_action,

@@ -14,7 +14,7 @@
 
 """Module for the ThisLaunchFileDir substitution."""
 
-from typing import Iterable
+from typing import Sequence
 from typing import Text
 
 from .substitution_failure import SubstitutionFailure
@@ -33,8 +33,13 @@ class ThisLaunchFileDir(Substitution):
         super().__init__()
 
     @classmethod
+<<<<<<< HEAD
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `EnviromentVariable` substitution."""
+=======
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
+        """Parse `ThisLaunchFileDir` substitution."""
+>>>>>>> 06dc66b (Improve type checking (#679))
         if len(data) != 0:
             raise TypeError("dirname substitution doesn't expect arguments")
         return cls, {}

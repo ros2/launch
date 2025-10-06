@@ -14,6 +14,7 @@
 
 """Module for Action class."""
 
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -62,7 +63,7 @@ class Action(LaunchDescriptionEntity):
         from .conditions import UnlessCondition
         if_cond = entity.get_attr('if', optional=True)
         unless_cond = entity.get_attr('unless', optional=True)
-        kwargs = {}
+        kwargs: Dict[str, Condition] = {}
         if if_cond is not None and unless_cond is not None:
             raise RuntimeError("if and unless conditions can't be used simultaneously")
         if if_cond is not None:

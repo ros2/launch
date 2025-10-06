@@ -49,7 +49,7 @@ class LaunchDescriptionSource:
         """
         self.__launch_description: Optional[LaunchDescription] = launch_description
         self.__expanded_location: Optional[Text] = None
-        self.__location: SomeSubstitutionsType = normalize_to_list_of_substitutions(location)
+        self.__location = normalize_to_list_of_substitutions(location)
         self.__method: str = method
         self.__logger = launch.logging.get_logger(__name__)
 

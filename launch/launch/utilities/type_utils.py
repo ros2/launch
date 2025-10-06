@@ -26,7 +26,9 @@ from typing import Tuple
 from typing import Type
 from typing import Union
 
-import yaml
+# yaml has type annotations in typeshed, but those cannot be installed via rosdep
+# since there is no definition for types-PyYAML
+import yaml  # type: ignore
 
 from .ensure_argument_type_impl import ensure_argument_type
 from .normalize_to_list_of_substitutions_impl import normalize_to_list_of_substitutions
@@ -200,6 +202,7 @@ def is_instance_of(
     """
     if data_type is None:
         return is_instance_of_valid_type(value, can_be_str=can_be_str)
+    type_obj: Union[Tuple[Type[str], AllowedTypesType], AllowedTypesType]
     type_obj, is_list = extract_type(data_type)
     if can_be_str:
         type_obj = (str, type_obj)
@@ -342,12 +345,15 @@ def get_typed_value(
                     f"Cannot convert input '{value}' of type '{type(value)}' to"
                     f" '{data_type}'"
                 )
-        output: AllowedValueType = coerce_list(value, data_type, can_be_str=can_be_str)
+        return coerce_list(value, data_type, can_be_str=can_be_str)
     else:
-        output = coerce_to_type(value, data_type, can_be_str=can_be_str)
-    return output
+        return coerce_to_type(value, data_type, can_be_str=can_be_str)
 
 
+# Unfortunately, mypy is unable to correctly infer that `is_substitution` can
+# only return True when the passed tpe is either a substitution or a mixed
+# list of strings and substitutions. Indeed, there is no way that I could find
+# using overloads to describe "anything else than the above two types".
 def is_substitution(x):
     """
     Return `True` if `x` is some substitution.
@@ -517,7 +523,7 @@ def perform_typed_substitution(
     context: LaunchContext,
     value: NormalizedValueType,
     data_type: Optional[AllowedTypesType]
-) -> AllowedValueType:
+) -> StrSomeValueType:
     """
     Perform a normalized typed substitution.
 

@@ -14,7 +14,6 @@
 
 """Module for the DeclareLaunchArgument action."""
 
-from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
@@ -109,7 +108,7 @@ class DeclareLaunchArgument(Action):
         *,
         default_value: Optional[SomeSubstitutionsType] = None,
         description: Optional[Text] = None,
-        choices: Iterable[Text] = None,
+        choices: List[Text] = None,
         **kwargs
     ) -> None:
         """Create a DeclareLaunchArgument action."""
@@ -196,7 +195,7 @@ class DeclareLaunchArgument(Action):
         return self.__description
 
     @property
-    def choices(self) -> List[Text]:
+    def choices(self) -> Optional[List[Text]]:
         """Getter for self.__choices."""
         return self.__choices
 
