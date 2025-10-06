@@ -19,6 +19,7 @@ from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Text
 from typing import Tuple
@@ -176,7 +177,7 @@ class AnySubstitution(Substitution):
     def __init__(
         self,
         *args: SomeSubstitutionsType,
-        container: Iterable[SomeSubstitutionsType] | None = None,
+        container: Optional[Iterable[SomeSubstitutionsType]] = None,
     ) -> None:
         """
         Create an AnySubstitution substitution.
@@ -229,7 +230,7 @@ class AllSubstitution(Substitution):
     def __init__(
         self,
         *args: SomeSubstitutionsType,
-        container: Iterable[SomeSubstitutionsType] | None = None,
+        container: Optional[Iterable[SomeSubstitutionsType]] = None,
     ) -> None:
         """
         Create an AllSubstitution substitution.
