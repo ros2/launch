@@ -16,9 +16,15 @@
 
 import collections.abc
 import importlib
+from pathlib import Path
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
+
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -59,12 +65,12 @@ class PythonExpression(Substitution):
         self.__python_modules = normalize_to_list_of_substitutions(python_modules)
 
     @classmethod
-    def parse(cls, data: Sequence[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['PythonExpression'], Dict[str, Any]]:
         """Parse `PythonExpression` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('eval substitution expects 1 or 2 arguments')
-        kwargs = {}
-        kwargs['expression'] = data[0]
+        kwargs = {'expression': data[0]}
         if len(data) == 2:
             # We get a text substitution from XML,
             # whose contents are comma-separated module names
@@ -72,6 +78,7 @@ class PythonExpression(Substitution):
             # Check if we got empty list from XML
             # Ensure that we got a list!
             assert not isinstance(data[1], str)
+            assert not isinstance(data[1], Path)
             assert not isinstance(data[1], Substitution)
             # Modules
             modules = list(data[1])

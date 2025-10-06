@@ -15,8 +15,13 @@
 """Module for the AppendEnvironmentVariable action."""
 
 import os
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Tuple
+from typing import Type
 from typing import Union
+
 
 from ..action import Action
 from ..frontend import Entity
@@ -48,7 +53,7 @@ class AppendEnvironmentVariable(Action):
         value: SomeSubstitutionsType,
         prepend: Union[bool, SomeSubstitutionsType] = False,
         separator: SomeSubstitutionsType = os.pathsep,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Create an AppendEnvironmentVariable action.
@@ -72,7 +77,7 @@ class AppendEnvironmentVariable(Action):
         cls,
         entity: Entity,
         parser: Parser,
-    ):
+    ) -> Tuple[Type['AppendEnvironmentVariable'], Dict[str, Any]]:
         """Parse an 'append_env' entity."""
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))

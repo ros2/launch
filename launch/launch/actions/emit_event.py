@@ -14,6 +14,8 @@
 
 """Module for the EmitEvent action."""
 
+from typing import Any
+
 from ..action import Action
 from ..event import Event
 from ..launch_context import LaunchContext
@@ -23,7 +25,7 @@ from ..utilities import is_a_subclass
 class EmitEvent(Action):
     """Action that emits an event when executed."""
 
-    def __init__(self, *, event: Event, **kwargs) -> None:
+    def __init__(self, *, event: Event, **kwargs: Any) -> None:
         """Create an EmitEvent action."""
         super().__init__(**kwargs)
         if not is_a_subclass(event, Event):
@@ -31,10 +33,10 @@ class EmitEvent(Action):
         self.__event = event
 
     @property
-    def event(self):
+    def event(self) -> Event:
         """Getter for self.__event."""
         return self.__event
 
-    def execute(self, context: LaunchContext):
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         context.emit_event_sync(self.__event)

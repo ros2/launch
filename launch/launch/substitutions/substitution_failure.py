@@ -18,6 +18,6 @@
 class SubstitutionFailure(RuntimeError):
     """Raised when a Substitution fails."""
 
-    def __init__(self, msg):
+    def __init__(self, msg: object) -> None:
         """Create a SubstitutionFailure error."""
         super().__init__(msg)

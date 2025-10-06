@@ -14,6 +14,7 @@
 
 """Module for the RegisterEventHandler action."""
 
+from typing import Any
 from typing import Iterable
 from typing import List
 from typing import Text
@@ -39,7 +40,7 @@ class RegisterEventHandler(Action):
     place.
     """
 
-    def __init__(self, event_handler: BaseEventHandler, **kwargs) -> None:
+    def __init__(self, event_handler: BaseEventHandler, **kwargs: Any) -> None:
         """Create a RegisterEventHandler action."""
         super().__init__(**kwargs)
         self.__event_handler = event_handler
@@ -49,7 +50,7 @@ class RegisterEventHandler(Action):
         """Getter for self.__event_handler."""
         return self.__event_handler
 
-    def execute(self, context: LaunchContext):
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         context.register_event_handler(self.__event_handler)
 

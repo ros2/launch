@@ -18,7 +18,8 @@ import io
 import textwrap
 
 from launch.actions import SetEnvironmentVariable
-from launch.frontend import Parser
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_set_env():
@@ -29,7 +30,7 @@ def test_set_env():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     assert len(ld.entities) == 1
     set_env = ld.entities[0]

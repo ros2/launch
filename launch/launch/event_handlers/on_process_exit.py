@@ -14,6 +14,7 @@
 
 """Module for OnProcessExit class."""
 
+from typing import Any
 from typing import Callable
 from typing import cast
 from typing import Optional
@@ -50,7 +51,7 @@ class OnProcessExit(OnActionEventBase):
                 SomeEntitiesType,
                 Callable[[ProcessExited, LaunchContext], Optional[SomeEntitiesType]]
             ],
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """Create an OnProcessExit event handler."""
         from ..actions import ExecuteLocal  # noqa: F811

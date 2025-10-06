@@ -19,9 +19,15 @@ from .append_environment_variable import AppendEnvironmentVariable  # noqa: I100
 from .emit_event import EmitEvent
 from .execute_local import ExecuteLocal
 from .execute_process import ExecuteProcess
+from .for_loop import ForEach
+from .for_loop import ForLoop
 from .group_action import GroupAction
 from .include_launch_description import IncludeLaunchDescription
-from .log_info import LogInfo
+from .log import Log
+from .log import LogDebug
+from .log import LogError
+from .log import LogInfo
+from .log import LogWarning
 from .opaque_coroutine import OpaqueCoroutine
 from .opaque_function import OpaqueFunction
 from .pop_environment import PopEnvironment
@@ -45,9 +51,15 @@ __all__ = [
     'EmitEvent',
     'ExecuteLocal',
     'ExecuteProcess',
+    'ForEach',
+    'ForLoop',
     'GroupAction',
     'IncludeLaunchDescription',
+    'Log',
+    'LogDebug',
+    'LogError',
     'LogInfo',
+    'LogWarning',
     'OpaqueCoroutine',
     'OpaqueFunction',
     'PopEnvironment',

@@ -24,12 +24,17 @@ from typing import List
 from typing import Optional
 from typing import Text
 from typing import Tuple
+from typing import Type
 from typing import Union
 import warnings
 
 import launch.logging
 
+
 from .opaque_function import OpaqueFunction
+from .pop_launch_configurations import PopLaunchConfigurations
+from .push_launch_configurations import PushLaunchConfigurations
+from .reset_launch_configurations import ResetLaunchConfigurations
 
 from ..action import Action
 from ..event_handler import EventHandler
@@ -54,6 +59,11 @@ class TimerAction(Action):
     Action that defers other entities until a period of time has passed, unless canceled.
 
     All timers are "one-shot", in that they only fire one time and never again.
+
+    Entities executed after the given period of time can access the launch configurations that
+    exist at the time that the timer action executed, but changes made by them will not persist.
+    This is similar to grouping the entities in a :class:`launch.actions.GroupAction` with
+    ``scoped=True``.
     """
 
     def __init__(
@@ -62,7 +72,7 @@ class TimerAction(Action):
         period: Union[float, SomeSubstitutionsType],
         actions: Iterable[LaunchDescriptionEntity],
         cancel_on_shutdown: Union[bool, SomeSubstitutionsType] = True,
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """
         Create a TimerAction.
@@ -84,9 +94,10 @@ class TimerAction(Action):
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals: Dict[Text, Any] = {}
-        self._completed_future: Optional[asyncio.Future] = None
+        self.__context_launch_configuration: Dict[Any, Any] = {}
+        self._completed_future: Optional[asyncio.Future[None]] = None
         self.__canceled = False
-        self._canceled_future: Optional[asyncio.Future] = None
+        self._canceled_future: Optional[asyncio.Future[bool]] = None
         self.__cancel_on_shutdown = type_utils.normalize_typed_substitution(
             cancel_on_shutdown, bool)
         self.__logger = launch.logging.get_logger(__name__)
@@ -105,11 +116,12 @@ class TimerAction(Action):
         cls,
         entity: Entity,
         parser: Parser,
-    ):
+    ) -> Tuple[Type['TimerAction'], Dict[str, Any]]:
         """Return the `Timer` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
+
         kwargs['period'] = parser.parse_if_substitutions(
-            entity.get_attr('period', data_type=float, can_be_str=True))
+                entity.get_attr('period', data_type=float, can_be_str=True))
         kwargs['actions'] = [parser.parse_action(child) for child in entity.children]
         cancel_on_shutdown = entity.get_attr(
             'cancel_on_shutdown', optional=True, data_type=bool, can_be_str=True)
@@ -118,11 +130,11 @@ class TimerAction(Action):
         return cls, kwargs
 
     @property
-    def period(self):
+    def period(self) -> type_utils.NormalizedValueType:
         return self.__period
 
     @property
-    def actions(self):
+    def actions(self) -> Iterable[LaunchDescriptionEntity]:
         return self.__actions
 
     def describe(self) -> Text:
@@ -139,7 +151,14 @@ class TimerAction(Action):
     def handle(self, context: LaunchContext) -> Optional[SomeEntitiesType]:
         """Handle firing of timer."""
         context.extend_locals(self.__context_locals)
-        return self.__actions
+        # Reset the launch configurations to the state they were in when the timer action was
+        # executed, and make sure to push and pop them so that the changes don't persist and leak
+        return [
+            PushLaunchConfigurations(),
+            ResetLaunchConfigurations(self.__context_launch_configuration),
+            *self.__actions,
+            PopLaunchConfigurations(),
+        ]
 
     def cancel(self) -> None:
         """
@@ -156,7 +175,7 @@ class TimerAction(Action):
             self._canceled_future.set_result(True)
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> None:
         """
         Execute the action.
 
@@ -189,8 +208,11 @@ class TimerAction(Action):
             ))
             setattr(context, '_TimerAction__event_handler_has_been_installed', True)
 
-        # Capture the current context locals so the yielded actions can make use of them too.
-        self.__context_locals = dict(context.get_locals_as_dict())  # Capture a copy
+        # Capture the current context locals and launch configuration so the yielded actions can
+        # make use of them too.
+        # Make sure to capture copies
+        self.__context_locals = dict(context.get_locals_as_dict())
+        self.__context_launch_configuration = context.launch_configurations.copy()
         context.asyncio_loop.create_task(self._wait_to_fire_event(context))
 
         # By default, the 'shutdown' event will cause timers to cancel so they don't hold up the
@@ -205,6 +227,6 @@ class TimerAction(Action):
 
         return None
 
-    def get_asyncio_future(self) -> Optional[asyncio.Future]:
+    def get_asyncio_future(self) -> Optional[asyncio.Future[None]]:
         """Return an asyncio Future, used to let the launch system know when we're done."""
         return self._completed_future

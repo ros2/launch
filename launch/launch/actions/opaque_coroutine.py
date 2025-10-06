@@ -21,7 +21,6 @@ from typing import Awaitable
 from typing import Callable
 from typing import Dict
 from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Text
 
@@ -29,7 +28,6 @@ from ..action import Action
 from ..event import Event
 from ..event_handlers import OnShutdown
 from ..launch_context import LaunchContext
-from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_entities_type import SomeEntitiesType
 from ..utilities import ensure_argument_type
 
@@ -68,7 +66,7 @@ class OpaqueCoroutine(Action):
         args: Optional[Iterable[Any]] = None,
         kwargs: Optional[Dict[Text, Any]] = None,
         ignore_context: bool = False,
-        **left_over_kwargs
+        **left_over_kwargs: Any
     ) -> None:
         """Create an OpaqueCoroutine action."""
         super().__init__(**left_over_kwargs)
@@ -91,7 +89,7 @@ class OpaqueCoroutine(Action):
         if kwargs is not None:
             self.__kwargs = kwargs
         self.__ignore_context = ignore_context  # type: bool
-        self.__future = None  # type: Optional[asyncio.Future]
+        self.__future = None  # type: Optional[asyncio.Future[None]]
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
         """Cancel ongoing coroutine upon shutdown."""
@@ -99,7 +97,7 @@ class OpaqueCoroutine(Action):
             self.__future.cancel()
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         args = self.__args
         if not self.__ignore_context:
@@ -112,6 +110,6 @@ class OpaqueCoroutine(Action):
         )
         return None
 
-    def get_asyncio_future(self) -> Optional[asyncio.Future]:
+    def get_asyncio_future(self) -> Optional[asyncio.Future[None]]:
         """Return an asyncio Future, used to let the launch system know when we're done."""
         return self.__future

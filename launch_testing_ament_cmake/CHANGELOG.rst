@@ -2,6 +2,25 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.2 (2025-07-29)
+------------------
+* Fix CMake deprecation (`#899 <https://github.com/ros2/launch/issues/899>`_)
+* Contributors: mosfet80
+
+3.9.1 (2025-06-19)
+------------------
+
+3.9.0 (2025-04-24)
+------------------
+
+3.8.1 (2025-04-18)
+------------------
+* Add CMake parameter to override launch_testing module (`#854 <https://github.com/ros2/launch/issues/854>`_)
+* Contributors: Scott K Logan
+
+3.8.0 (2025-02-27)
+------------------
+
 3.7.1 (2024-12-20)
 ------------------
 
