@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Allow providing launch args to include using let in frontends (`#848 <https://github.com/ros2/launch/issues/848>`_) (`#909 <https://github.com/ros2/launch/issues/909>`_)
+* Contributors: mergify[bot]
+
 3.8.3 (2025-09-11)
 ------------------
 * Using ``TimerAction`` with ``SetParameter`` from launch_ros causes crash (backport `#879 <https://github.com/ros2/launch/issues/879>`_) (`#902 <https://github.com/ros2/launch/issues/902>`_)
