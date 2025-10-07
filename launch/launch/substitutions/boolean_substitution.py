@@ -14,7 +14,9 @@
 
 """Module for boolean substitutions."""
 
+from itertools import chain
 from typing import Iterable
+from typing import Optional
 from typing import Text
 
 from .substitution_failure import SubstitutionFailure
@@ -162,7 +164,11 @@ class AnySubstitution(Substitution):
     If none of the arguments evaluate to true, then this substitution returns the string 'false'.
     """
 
-    def __init__(self, *args: SomeSubstitutionsType) -> None:
+    def __init__(
+        self,
+        *args: SomeSubstitutionsType,
+        container: Optional[Iterable[SomeSubstitutionsType]] = None,
+    ) -> None:
         """
         Create an AnySubstitution substitution.
 
@@ -170,12 +176,15 @@ class AnySubstitution(Substitution):
         """
         super().__init__()
 
-        self.__args = [normalize_to_list_of_substitutions(arg) for arg in args]
+        if container is None:
+            container = []
+
+        self.__args = [normalize_to_list_of_substitutions(arg) for arg in chain(args, container)]
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `AnySubstitution` substitution."""
-        return cls, {'args': data}
+        return cls, {'container': data}
 
     @property
     def args(self) -> Substitution:
@@ -207,7 +216,11 @@ class AllSubstitution(Substitution):
     If any of the arguments evaluates to false, then this substitution returns the string 'false'.
     """
 
-    def __init__(self, *args: SomeSubstitutionsType) -> None:
+    def __init__(
+        self,
+        *args: SomeSubstitutionsType,
+        container: Optional[Iterable[SomeSubstitutionsType]] = None,
+    ) -> None:
         """
         Create an AllSubstitution substitution.
 
@@ -216,12 +229,15 @@ class AllSubstitution(Substitution):
         """
         super().__init__()
 
-        self.__args = [normalize_to_list_of_substitutions(arg) for arg in args]
+        if container is None:
+            container = []
+
+        self.__args = [normalize_to_list_of_substitutions(arg) for arg in chain(args, container)]
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse `AllSubstitution` substitution."""
-        return cls, {'args': data}
+        return cls, {'container': data}
 
     @property
     def args(self) -> Substitution:
