@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.4 (2025-10-17)
+------------------
+* Fix all/any in xml and yaml launch files (`#906 <https://github.com/ros2/launch/issues/906>`_)
+* Contributors: Matthijs van der Burgh
+
 3.9.3 (2025-10-06)
 ------------------
 * Allow providing launch args to include using let in frontends (`#848 <https://github.com/ros2/launch//issues/848>`_)
