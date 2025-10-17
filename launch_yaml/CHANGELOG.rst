@@ -2,6 +2,11 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.5 (2025-10-17)
+------------------
+* Fix all/any in xml and yaml launch files (backport `#906 <https://github.com/ros2/launch/issues/906>`_) (`#911 <https://github.com/ros2/launch/issues/911>`_)
+* Contributors: mergify[bot]
+
 3.8.4 (2025-10-06)
 ------------------
 * Allow providing launch args to include using let in frontends (`#848 <https://github.com/ros2/launch/issues/848>`_) (`#909 <https://github.com/ros2/launch/issues/909>`_)
