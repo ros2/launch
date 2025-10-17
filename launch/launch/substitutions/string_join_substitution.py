@@ -38,7 +38,7 @@ class StringJoinSubstitution(Substitution):
 
         subdomain = LaunchConfiguration(variable_name='subdomain', default='docs')
         url = StringJoinSubstitution(
-            [['https', '://'], subdomain], 'ros', 'org'],
+            [['https', '://', subdomain], 'ros', 'org'],
             delimiter='.'
         )
 
