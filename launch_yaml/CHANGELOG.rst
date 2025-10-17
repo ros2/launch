@@ -2,6 +2,11 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.12 (2025-10-17)
+-------------------
+* Fix all/any in xml and yaml launch files (backport `#906 <https://github.com/ros2/launch/issues/906>`_) (`#913 <https://github.com/ros2/launch/issues/913>`_)
+* Contributors: mergify[bot]
+
 1.0.11 (2025-10-06)
 -------------------
 
