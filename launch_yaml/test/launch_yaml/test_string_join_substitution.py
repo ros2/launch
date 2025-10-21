@@ -39,8 +39,8 @@ def test_nested():
     ld = parser.parse_description(root_entity)
 
     assert len(ld.entities) == 2
-    assert isinstance(ld.describe_sub_entities()[0], DeclareLaunchArgument)
-    assert isinstance(ld.describe_sub_entities()[1], SetLaunchConfiguration)
+    assert isinstance(ld.entities[0], DeclareLaunchArgument)
+    assert isinstance(ld.entities[1], SetLaunchConfiguration)
 
     lc = LaunchContext()
     ld.entities[0].visit(lc)
