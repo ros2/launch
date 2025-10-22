@@ -45,7 +45,7 @@ def test_nested():
     lc = LaunchContext()
     ld.entities[0].visit(lc)
 
-    let = ld.describe_sub_entities()[1]
+    let = ld.entities[1]
     assert isinstance(let.value[0], StringJoinSubstitution)
     assert let.value[0].perform(lc) == 'https://wiki.ros.org'
 
