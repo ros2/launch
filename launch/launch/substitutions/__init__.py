@@ -25,6 +25,7 @@ from .environment_variable import EnvironmentVariable
 from .equals_substitution import EqualsSubstitution
 from .file_content import FileContent
 from .find_executable import FindExecutable
+from .find_launchfile import FindLaunchfile
 from .for_loop_var import ForEachVar
 from .for_loop_var import ForLoopIndex
 from .if_else_substitution import IfElseSubstitution
@@ -51,6 +52,7 @@ __all__ = [
     'EnvironmentVariable',
     'FileContent',
     'FindExecutable',
+    'FindLaunchfile',
     'ForEachVar',
     'ForLoopIndex',
     'IfElseSubstitution',
