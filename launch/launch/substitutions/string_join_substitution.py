@@ -14,14 +14,16 @@
 
 """Module for the StringJoinSubstitution substitution."""
 
-from typing import Iterable, List, Text
+from typing import Any, Dict, Iterable, List, Sequence, Text, Tuple, Type
 
+from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import perform_substitutions
 
 
+@expose_substitution('string-join')
 class StringJoinSubstitution(Substitution):
     """
     Substitution that joins strings and/or other substitutions.
@@ -34,13 +36,31 @@ class StringJoinSubstitution(Substitution):
 
     .. code-block:: python
 
-        StringJoinSubstitution(
-            [['https', '://'], LaunchConfiguration('subdomain')], 'ros', 'org'],
+        subdomain = LaunchConfiguration(variable_name='subdomain', default='docs')
+        url = StringJoinSubstitution(
+            [['https', '://', subdomain], 'ros', 'org'],
             delimiter='.'
         )
 
-    If the ``subdomain`` launch configuration was set to ``docs``
-    and the ``delimiter`` to ``.``, this would result in a string equal to
+    .. code-block:: xml
+
+        <launch>
+            <arg name="subdomain" default="docs"/>
+            <let name="url" value="$(string-join . https://$(var subdomain) ros org)"/>
+        </launch>
+
+    .. code-block:: yaml
+
+            launch:
+                - arg:
+                    name: subdomain
+                    default: "docs"
+                - let:
+                    name: url
+                    value: "$(string-join . https://$(var subdomain) ros org)"
+
+    If the ``subdomain`` launch configuration was set to ``docs`` and the ``delimiter`` to ``.``,
+    then any of the above launch descriptions would result in a string equal to
 
     .. code-block:: python
 
@@ -75,6 +95,18 @@ class StringJoinSubstitution(Substitution):
     def delimiter(self) -> List[Substitution]:
         """Getter for delimiter."""
         return self.__delimiter
+
+    @classmethod
+    def parse(
+        cls, data: Sequence[SomeSubstitutionsType]
+    ) -> Tuple[Type['StringJoinSubstitution'], Dict[str, Any]]:
+        """Parse `StringJoinSubstitution` substitution."""
+        if len(data) < 2:
+            raise TypeError(
+                'string-join substitution expects at least 2 arguments: '
+                '1 delimiter + at least 1 component'
+            )
+        return cls, {'delimiter': data[0], 'substitutions': data[1:]}
 
     def __repr__(self) -> Text:
         """Return a description of this substitution as a string."""
