@@ -25,21 +25,29 @@ from launch.utilities import perform_substitutions
 import pytest
 
 TEST_DIR = Path(__file__).parent / 'test_find_launchfile'
+
+
 # Fake some valid extensions, since those packages aren't available here
-Parser.frontend_parsers = {  # type: ignore
-    'yaml': None,
-    'xml': None,
-}
+@pytest.fixture
+def mock_frontends():
+    Parser.frontend_parsers = {
+        'xml': None,
+        'yaml': None,
+    }
+    Parser.extensions_loaded = True
+    yield
+    Parser.frontend_parsers = None
+    Parser.extensions_loaded = False
 
 
-def test_fullname():
+def test_fullname(mock_frontends):
     assert FindLaunchfile(name='a_launch.py', path=TEST_DIR).perform(LaunchContext())
     assert FindLaunchfile(name='a.launch.xml', path=TEST_DIR).perform(LaunchContext())
     assert FindLaunchfile(name='b_launch.yaml', path=TEST_DIR).perform(LaunchContext())
     assert FindLaunchfile(name='c.py', path=TEST_DIR).perform(LaunchContext())
 
 
-def test_valid_suffix():
+def test_valid_suffix(mock_frontends):
     assert FindLaunchfile(name='a_launch', path=TEST_DIR).perform(LaunchContext())
     assert FindLaunchfile(name='a.launch', path=TEST_DIR).perform(LaunchContext())
     assert FindLaunchfile(name='b', path=TEST_DIR).perform(LaunchContext())
@@ -47,22 +55,22 @@ def test_valid_suffix():
     assert FindLaunchfile(name='c', path=TEST_DIR).perform(LaunchContext())
 
 
-def test_invalid_suffix():
+def test_invalid_suffix(mock_frontends):
     with pytest.raises(SubstitutionFailure):
         FindLaunchfile(name='b_l', path=TEST_DIR).perform(LaunchContext())
 
 
-def test_notfound():
+def test_notfound(mock_frontends):
     with pytest.raises(SubstitutionFailure):
         FindLaunchfile(name='d', path=TEST_DIR).perform(LaunchContext())
 
 
-def test_multiple():
+def test_multiple(mock_frontends):
     with pytest.raises(SubstitutionFailure):
         FindLaunchfile(name='a', path=TEST_DIR).perform(LaunchContext())
 
 
-def test_frontend():
+def test_frontend(mock_frontends):
     subst = parse_substitution('$(find-launchfile foo bar)')
     assert len(subst) == 1
     result = subst[0]
