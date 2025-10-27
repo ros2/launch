@@ -35,7 +35,7 @@ class LaunchLogDir(PathSubstitution):
 
     def __init__(self) -> None:
         """Create a LaunchLogDir substitution."""
-        super().__init__(self)
+        super().__init__(path=self)
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]

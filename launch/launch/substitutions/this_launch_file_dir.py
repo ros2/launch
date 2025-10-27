@@ -35,7 +35,7 @@ class ThisLaunchFileDir(PathSubstitution):
 
     def __init__(self) -> None:
         """Create a ThisLaunchFileDir substitution."""
-        super().__init__(self)
+        super().__init__(path=self)
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
