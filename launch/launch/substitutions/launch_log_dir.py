@@ -16,22 +16,28 @@
 
 from typing import Sequence
 from typing import Text
+<<<<<<< HEAD
 
+=======
+from typing import Tuple
+from typing import Type
+
+from .path_join_substitution import PathSubstitution
+>>>>>>> 0d54476 (Make the directory-finding substitutions into a PathSubstitution for / operator (#914))
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..logging import launch_config as launch_logging_config
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
 
 
 @expose_substitution('launch_log_dir')
 @expose_substitution('log_dir')
-class LaunchLogDir(Substitution):
+class LaunchLogDir(PathSubstitution):
     """Substitution that returns the absolute path to the current launch log directory."""
 
     def __init__(self) -> None:
         """Create a LaunchLogDir substitution."""
-        super().__init__()
+        super().__init__(path=self)
 
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]):
