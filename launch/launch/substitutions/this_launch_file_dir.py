@@ -17,20 +17,20 @@
 from typing import Iterable
 from typing import Text
 
+from .path_join_substitution import PathSubstitution
 from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
 
 
 @expose_substitution('dirname')
-class ThisLaunchFileDir(Substitution):
+class ThisLaunchFileDir(PathSubstitution):
     """Substitution that returns the absolute path to the current launch file."""
 
     def __init__(self) -> None:
         """Create a ThisLaunchFileDir substitution."""
-        super().__init__()
+        super().__init__(path=self)
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):

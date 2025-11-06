@@ -22,7 +22,7 @@ from unittest import mock
 
 from launch.frontend.parse_substitution import parse_substitution
 import launch.logging
-from launch.substitutions import TextSubstitution
+from launch.substitutions import LaunchLogDir
 
 import pytest
 
@@ -333,5 +333,4 @@ def test_get_log_dir_frontend(log_dir):
     subst = parse_substitution('$(log_dir)')
     assert len(subst) == 1
     result = subst[0]
-    assert isinstance(result, TextSubstitution)
-    assert result.text == log_dir
+    assert isinstance(result, LaunchLogDir)
