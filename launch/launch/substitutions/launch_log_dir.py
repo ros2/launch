@@ -16,14 +16,8 @@
 
 from typing import Sequence
 from typing import Text
-<<<<<<< HEAD
-
-=======
-from typing import Tuple
-from typing import Type
 
 from .path_join_substitution import PathSubstitution
->>>>>>> 0d54476 (Make the directory-finding substitutions into a PathSubstitution for / operator (#914))
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..logging import launch_config as launch_logging_config
