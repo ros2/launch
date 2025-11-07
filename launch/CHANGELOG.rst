@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.5 (2025-11-07)
+------------------
+* Make the directory-finding substitutions into a PathSubstitution for / operator (`#914 <https://github.com/ros2/launch//issues/914>`_)
+* Expose StringJoinSubstitution to frontend (`#857 <https://github.com/ros2/launch//issues/857>`_)
+* Contributors: Christian Ruf, Emerson Knapp
+
 3.9.4 (2025-10-17)
 ------------------
 * Shared logic for substitutions (`#769 <https://github.com/ros2/launch/issues/769>`_)

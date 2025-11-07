@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.5 (2025-11-07)
+------------------
+* Expose StringJoinSubstitution to frontend (`#857 <https://github.com/ros2/launch//issues/857>`_)
+* Contributors: Christian Ruf
+
 3.9.4 (2025-10-17)
 ------------------
 * Fix all/any in xml and yaml launch files (`#906 <https://github.com/ros2/launch/issues/906>`_)
