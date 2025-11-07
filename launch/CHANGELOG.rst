@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.6 (2025-11-07)
+------------------
+* [backport kilted] Make the directory-finding substitutions into a PathSubstitution for / operator (backport `#914 <https://github.com/ros2/launch//issues/914>`_) (`#919 <https://github.com/ros2/launch//issues/919>`_)
+* Contributors: mergify[bot]
+
 3.8.5 (2025-10-17)
 ------------------
 * Fix all/any in xml and yaml launch files (backport `#906 <https://github.com/ros2/launch/issues/906>`_) (`#911 <https://github.com/ros2/launch/issues/911>`_)
