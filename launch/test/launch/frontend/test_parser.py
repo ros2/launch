@@ -14,11 +14,11 @@
 
 """Test the abstract Parser class."""
 
+from importlib import metadata
 from unittest.mock import patch
 import warnings
 
 import launch.frontend.parser
-from launch.frontend.parser import importlib_metadata
 from launch.frontend.parser import Parser
 
 import pytest
@@ -42,7 +42,7 @@ def skip_if_warned_already(warn_text):
 
 def test_invalid_launch_extension():
     skip_if_warned_already('Failed to load the launch')
-    with patch(importlib_metadata.__name__ + '.entry_points') as mock_ep:
+    with patch(metadata.__name__ + '.entry_points') as mock_ep:
         mock_ep.return_value = {
             'launch.frontend.launch_extension': [InvalidEntryPoint()]
         }
@@ -54,7 +54,7 @@ def test_invalid_launch_extension():
 
 def test_invalid_parser_implementations():
     skip_if_warned_already('Failed to load the parser')
-    with patch(importlib_metadata.__name__ + '.entry_points') as mock_ep:
+    with patch(metadata.__name__ + '.entry_points') as mock_ep:
         mock_ep.return_value = {
             'launch.frontend.parser': [InvalidEntryPoint()]
         }
