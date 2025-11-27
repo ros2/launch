@@ -15,6 +15,7 @@
 
 """Module for Parser class and parsing methods."""
 
+from importlib import metadata
 import itertools
 import os.path
 import sys
@@ -41,11 +42,6 @@ from ..substitution import Substitution
 from ..utilities.type_utils import NormalizedValueType
 from ..utilities.type_utils import StrSomeValueType
 from ..utilities.typing_file_path import FilePath
-
-if sys.version_info >= (3, 8):
-    import importlib.metadata as importlib_metadata
-else:
-    import importlib_metadata
 
 if TYPE_CHECKING:
     from ..launch_description import LaunchDescription
@@ -75,8 +71,8 @@ class Parser:
     def load_launch_extensions(cls):
         """Load launch extensions, in order to get all the exposed substitutions and actions."""
         if cls.extensions_loaded is False:
-            entry_points = importlib_metadata.entry_points()
-            if hasattr(entry_points, 'select'):
+            entry_points = metadata.entry_points()
+            if sys.version_info >= (3, 12):
                 groups = entry_points.select(group='launch.frontend.launch_extension')
             else:
                 groups = entry_points.get('launch.frontend.launch_extension', [])
@@ -93,8 +89,8 @@ class Parser:
         """Load all the available frontend entities."""
         if cls.frontend_parsers is None:
             parsers = {}
-            entry_points = importlib_metadata.entry_points()
-            if hasattr(entry_points, 'select'):
+            entry_points = metadata.entry_points()
+            if sys.version_info >= (3, 12):
                 groups = entry_points.select(group='launch.frontend.parser')
             else:
                 groups = entry_points.get('launch.frontend.parser', [])
