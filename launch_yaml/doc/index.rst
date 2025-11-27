@@ -2,9 +2,7 @@ Welcome to launch_yaml's documentation!
 =======================================
 
 ``launch_yaml`` provides a YAML frontend for the ROS 2 launch system.
-
-For usage details, see `Using XML, YAML, and Python for ROS 2 Launch Files
-<https://docs.ros.org/en/rolling/How-To-Guides/Launch-file-different-formats.html>`_.
+See the ROS 2 documentation for usage examples with XML, YAML, and Python launch files.
 
 .. toctree::
    :maxdepth: 2
