@@ -14,6 +14,7 @@
 
 """Module for OnProcessIO class."""
 
+from typing import Any
 from typing import Callable
 from typing import cast
 from typing import Optional
@@ -44,7 +45,7 @@ class OnProcessIO(OnActionEventBase):
         on_stdin: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
         on_stdout: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
         on_stderr: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """Create an OnProcessIO event handler."""
         from ..actions import ExecuteLocal  # noqa: F811

@@ -2,6 +2,89 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.5 (2025-11-07)
+------------------
+
+3.9.4 (2025-10-17)
+------------------
+* Switch osrf_pycommon dependency to system package (`#817 <https://github.com/ros2/launch/issues/817>`_)
+* Contributors: Scott K Logan
+
+3.9.3 (2025-10-06)
+------------------
+
+3.9.2 (2025-07-29)
+------------------
+* Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
+* Contributors: mosfet80
+
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* Add remaining `py.typed` (`#884 <https://github.com/ros2/launch/issues/884>`_)
+* Allow Path in substitutions, instead of requiring cast to str (`#873 <https://github.com/ros2/launch/issues/873>`_)
+* fix(launch_pytest): prevent re-wrapping test funtions on re-run (`#855 <https://github.com/ros2/launch/issues/855>`_)
+* Contributors: Christophe Bedard, David Revay, Emerson Knapp, Michael Carlstrom
+
+3.9.0 (2025-04-24)
+------------------
+
+3.8.1 (2025-04-18)
+------------------
+
+3.8.0 (2025-02-27)
+------------------
+* Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)
+* Contributors: Chris Lalancette
+
+3.7.1 (2024-12-20)
+------------------
+
+3.7.0 (2024-11-20)
+------------------
+* Add test_xmllint to all of the ament_python packages. (`#804 <https://github.com/ros2/launch/issues/804>`_)
+* Contributors: Chris Lalancette
+
+3.6.1 (2024-07-29)
+------------------
+* Switch to using an rclpy context manager. (`#787 <https://github.com/ros2/launch/issues/787>`_)
+* Contributors: Chris Lalancette
+
+3.6.0 (2024-06-25)
+------------------
+
+3.5.1 (2024-06-17)
+------------------
+
+3.5.0 (2024-04-26)
+------------------
+
+3.4.2 (2024-04-16)
+------------------
+
+3.4.1 (2024-03-28)
+------------------
+* Switch tryfirst/trylast to hookimpl.
+* Contributors: Chris Lalancette
+
+3.4.0 (2024-02-07)
+------------------
+
+3.3.0 (2024-01-24)
+------------------
+
+3.2.1 (2023-12-26)
+------------------
+
+3.2.0 (2023-10-04)
+------------------
+
+3.1.0 (2023-09-08)
+------------------
+
+3.0.1 (2023-09-07)
+------------------
+
 3.0.0 (2023-08-21)
 ------------------
 

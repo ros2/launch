@@ -2,6 +2,134 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.5 (2025-11-07)
+------------------
+* Make the directory-finding substitutions into a PathSubstitution for / operator (`#914 <https://github.com/ros2/launch//issues/914>`_)
+* Expose StringJoinSubstitution to frontend (`#857 <https://github.com/ros2/launch//issues/857>`_)
+* Contributors: Christian Ruf, Emerson Knapp
+
+3.9.4 (2025-10-17)
+------------------
+* Shared logic for substitutions (`#769 <https://github.com/ros2/launch/issues/769>`_)
+* Use yaml types (`#781 <https://github.com/ros2/launch/issues/781>`_)
+* Switch osrf_pycommon dependency to system package (`#817 <https://github.com/ros2/launch/issues/817>`_)
+* Fix all/any in xml and yaml launch files (`#906 <https://github.com/ros2/launch/issues/906>`_)
+* Contributors: Matthijs van der Burgh, Michael Carlstrom, Scott K Logan
+
+3.9.3 (2025-10-06)
+------------------
+* Allow providing launch args to include using let in frontends (`#848 <https://github.com/ros2/launch//issues/848>`_)
+* Contributors: Christophe Bedard
+
+3.9.2 (2025-07-29)
+------------------
+* Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
+* Remove LaunchDescriptionArgument (`#891 <https://github.com/ros2/launch/issues/891>`_)
+* Contributors: Harrison Chen, mosfet80
+
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* use custom log_file name as per the user setting (`#861 <https://github.com/ros2/launch/issues/861>`_)
+* Using ``TimerAction`` with ``SetParameter`` from launch_ros causes crash (`#879 <https://github.com/ros2/launch/issues/879>`_)
+* Fix `log\_*` warnings (`#883 <https://github.com/ros2/launch/issues/883>`_)
+* Updated `launch` typings (`#831 <https://github.com/ros2/launch/issues/831>`_)
+* Allow Path in substitutions, instead of requiring cast to str (`#873 <https://github.com/ros2/launch/issues/873>`_)
+* Add a `/` path join operator for `PathJoinSubstitution` (`#868 <https://github.com/ros2/launch/issues/868>`_)
+* Other Logging Implementations with `getLevelNamesMapping` fix (`#866 <https://github.com/ros2/launch/issues/866>`_)
+* Revert "Add Other Logging Implementations (`#858 <https://github.com/ros2/launch/issues/858>`_)" (`#865 <https://github.com/ros2/launch/issues/865>`_)
+  This reverts commit b7b31c45b0eb350deedd282b88398d1ca0d5faf4.
+* Add Other Logging Implementations (`#858 <https://github.com/ros2/launch/issues/858>`_)
+* Contributors: Christophe Bedard, Emerson Knapp, Kenji Brameld (TRACLabs), Michael Carlstrom, Tanishq Chaudhary
+
+3.9.0 (2025-04-24)
+------------------
+
+3.8.1 (2025-04-18)
+------------------
+* Provide copy of launch configs to TimerAction's entities (`#836 <https://github.com/ros2/launch/issues/836>`_)
+* Allow concatenating each path component of PathJoinSubstitution (`#838 <https://github.com/ros2/launch/issues/838>`_)
+* Add StringJoinSubstitution substitution (`#843 <https://github.com/ros2/launch/issues/843>`_)
+* Add missing test_depend for launch (`#850 <https://github.com/ros2/launch/issues/850>`_)
+* Document substitutions concatenation in architecture doc (`#845 <https://github.com/ros2/launch/issues/845>`_)
+* Update docs to use proper RST literals (`#837 <https://github.com/ros2/launch/issues/837>`_)
+* Fix function params indentation (`#833 <https://github.com/ros2/launch/issues/833>`_)
+* Contributors: Christian Ruf, Christophe Bedard, Michael Carlstrom
+
+3.8.0 (2025-02-27)
+------------------
+* Add ForEach action to repeat entities using iteration-specific values (`#802 <https://github.com/ros2/launch/issues/802>`_)
+* Create py.typed (`#828 <https://github.com/ros2/launch/issues/828>`_)
+* Improve error reporting by adding file locations to exceptions (`#823 <https://github.com/ros2/launch/issues/823>`_)
+* add test coverage for substitution edgecases involving E notation (`#824 <https://github.com/ros2/launch/issues/824>`_)
+* Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)
+* Contributors: Chris Lalancette, Christophe Bedard, Michael Carlstrom, Roland Arsenault, danielcranston
+
+3.7.1 (2024-12-20)
+------------------
+* Fix 'set up' typo (`#813 <https://github.com/ros2/launch/issues/813>`_)
+* Contributors: Christophe Bedard
+
+3.7.0 (2024-11-20)
+------------------
+* Add test_xmllint to all of the ament_python packages. (`#804 <https://github.com/ros2/launch/issues/804>`_)
+* Contributors: Chris Lalancette
+
+3.6.1 (2024-07-29)
+------------------
+
+3.6.0 (2024-06-25)
+------------------
+
+3.5.1 (2024-06-17)
+------------------
+* Fix typo in comment (`#783 <https://github.com/ros2/launch/issues/783>`_)
+* Contributors: Christophe Bedard
+
+3.5.0 (2024-04-26)
+------------------
+
+3.4.2 (2024-04-16)
+------------------
+* (launch) fix describe of PathJoinSubstitution (`#771 <https://github.com/ros2/launch/issues/771>`_)
+* Contributors: Matthijs van der Burgh
+
+3.4.1 (2024-03-28)
+------------------
+* Small fixes for modern flake8. (`#772 <https://github.com/ros2/launch/issues/772>`_)
+* Cleanup some type annotations.
+* Contributors: Chris Lalancette
+
+3.4.0 (2024-02-07)
+------------------
+* Rework task exceptions loop. (`#755 <https://github.com/ros2/launch/issues/755>`_)
+* add format overriding by environment variables (`#722 <https://github.com/ros2/launch/issues/722>`_)
+* Add exception type to error output (`#753 <https://github.com/ros2/launch/issues/753>`_)
+* Contributors: Chris Lalancette, David Yackzan, Marc Bestmann
+
+3.3.0 (2024-01-24)
+------------------
+* Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_)
+* Contributors: Matthew Elwin
+
+3.2.1 (2023-12-26)
+------------------
+
+3.2.0 (2023-10-04)
+------------------
+* Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_)
+* Contributors: Nick Lamprianidis
+
+3.1.0 (2023-09-08)
+------------------
+* Add maximum times for a process to respawn (`#696 <https://github.com/ros2/launch/issues/696>`_)
+* Contributors: Santti4go
+
+3.0.1 (2023-09-07)
+------------------
+* Add in a timeout for launch pytests. (`#725 <https://github.com/ros2/launch/issues/725>`_)
+* Contributors: Chris Lalancette
+
 3.0.0 (2023-08-21)
 ------------------
 * Fix remaining occurrences of "There is no current event loop" (`#723 <https://github.com/ros2/launch/issues/723>`_)

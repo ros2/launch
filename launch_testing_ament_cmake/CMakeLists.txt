@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.20)
 
 project(launch_testing_ament_cmake)
 
@@ -23,10 +23,6 @@ if(BUILD_TESTING)
   if(NOT LAUNCH_TESTING_INSTALL_PREFIX)
       message(FATAL_ERROR "launch_testing package not found")
   endif()
-
-  # Provides PYTHON_EXECUTABLE_DEBUG
-  find_package(python_cmake_module REQUIRED)
-  find_package(PythonExtra REQUIRED)
 
   # Test argument passing.  This test won't pass unless you give it an argument
   add_launch_test(

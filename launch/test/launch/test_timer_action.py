@@ -20,13 +20,16 @@ from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import ExecuteProcess
 from launch.actions import GroupAction
+from launch.actions import LogInfo
 from launch.actions import RegisterEventHandler
 from launch.actions import SetEnvironmentVariable
+from launch.actions import SetLaunchConfiguration
 from launch.actions import Shutdown
 from launch.actions import TimerAction
 from launch.conditions import IfCondition
 from launch.event_handlers import OnShutdown
 from launch.substitutions import EnvironmentVariable
+from launch.substitutions import LaunchConfiguration
 from launch.substitutions import NotSubstitution
 from launch.substitutions import PythonExpression
 
@@ -216,3 +219,33 @@ def test_timer_can_block_preemption():
     assert len(shutdown_reasons) == 2  # Should see 'shutdown' event twice because
     assert shutdown_reasons[0].reason == 'fast shutdown'
     assert shutdown_reasons[1].reason == 'slow shutdown'
+
+
+def test_timer_action_launch_configurations():
+    # The timer action's entities should have access to the launch configurations at the time the
+    # timer action executed
+    ld = LaunchDescription([
+        GroupAction(
+            # Causes the launch configurations to be reset after the timer action executes, which
+            # would cause 'launch_arg' to not exist
+            scoped=True,
+            actions=[
+                SetLaunchConfiguration('launch_arg', 'launch_arg_value'),
+                TimerAction(
+                    period=1.0,
+                    actions=[
+                        LogInfo(
+                            msg=LaunchConfiguration('launch_arg'),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ])
+
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    # However, we do not want the timer action's entities to affect the context, e.g., leak launch
+    # configurations out of the GroupAction in this case
+    assert 'launch_arg' not in ls.context.launch_configurations

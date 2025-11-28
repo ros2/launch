@@ -21,6 +21,7 @@ from launch import LaunchContext
 from launch import SomeSubstitutionsType
 from launch import Substitution
 from launch.actions import ExecuteProcess
+from launch.frontend import Parser
 from launch.frontend.expose import expose_substitution
 from launch.frontend.parse_substitution import parse_if_substitutions
 from launch.frontend.parse_substitution import parse_substitution
@@ -317,13 +318,13 @@ def test_parse_if_substitutions():
         parse_if_substitutions(['$(test asd)', 1, 1.0])
 
 
-class MockParser:
+class MockParser(Parser):
 
-    def parse_substitution(self, value: Text) -> SomeSubstitutionsType:
+    def parse_substitution(self, value: Text) -> List[Substitution]:
         return parse_substitution(value)
 
 
-def test_execute_process_parse_cmd_line():
+def test_execute_process_parse_cmd_line() -> None:
     """Test ExecuteProcess._parse_cmd_line."""
     parser = MockParser()
 

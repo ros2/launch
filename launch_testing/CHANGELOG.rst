@@ -2,6 +2,98 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.5 (2025-11-07)
+------------------
+
+3.9.4 (2025-10-17)
+------------------
+* Switch osrf_pycommon dependency to system package (`#817 <https://github.com/ros2/launch/issues/817>`_)
+* Contributors: Scott K Logan
+
+3.9.3 (2025-10-06)
+------------------
+
+3.9.2 (2025-07-29)
+------------------
+* Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
+* Contributors: mosfet80
+
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* Add remaining `py.typed` (`#884 <https://github.com/ros2/launch/issues/884>`_)
+* Updated `launch` typings (`#831 <https://github.com/ros2/launch/issues/831>`_)
+* Contributors: Christophe Bedard, Michael Carlstrom
+
+3.9.0 (2025-04-24)
+------------------
+
+3.8.1 (2025-04-18)
+------------------
+* Fix function params indentation (`#833 <https://github.com/ros2/launch/issues/833>`_)
+* Contributors: Christophe Bedard
+
+3.8.0 (2025-02-27)
+------------------
+* Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)
+* Contributors: Chris Lalancette
+
+3.7.1 (2024-12-20)
+------------------
+
+3.7.0 (2024-11-20)
+------------------
+* Add test_xmllint to all of the ament_python packages. (`#804 <https://github.com/ros2/launch/issues/804>`_)
+* Contributors: Chris Lalancette
+
+3.6.1 (2024-07-29)
+------------------
+
+3.6.0 (2024-06-25)
+------------------
+
+3.5.1 (2024-06-17)
+------------------
+* Add mechanism to disable workaround for dependency groups (`#775 <https://github.com/ros2/launch/issues/775>`_)
+* Contributors: Scott K Logan
+
+3.5.0 (2024-04-26)
+------------------
+
+3.4.2 (2024-04-16)
+------------------
+* Fix a warning in modern unittest. (`#773 <https://github.com/ros2/launch/issues/773>`_)
+  Newer versions of unittest no longer store an errors
+  list; instead, they store a result, which then stores
+  an error list.  Update the code here to be able to deal
+  with either version.
+* Contributors: Chris Lalancette
+
+3.4.1 (2024-03-28)
+------------------
+* Add consider_namespace_packages=False (`#766 <https://github.com/ros2/launch/issues/766>`_)
+* Contributors: Tony Najjar
+
+3.4.0 (2024-02-07)
+------------------
+
+3.3.0 (2024-01-24)
+------------------
+
+3.2.1 (2023-12-26)
+------------------
+
+3.2.0 (2023-10-04)
+------------------
+* to open expected outpout file with an encoding parameter (`#717 <https://github.com/ros2/launch/issues/717>`_)
+* Contributors: Chen Lihui
+
+3.1.0 (2023-09-08)
+------------------
+
+3.0.1 (2023-09-07)
+------------------
+
 3.0.0 (2023-08-21)
 ------------------
 

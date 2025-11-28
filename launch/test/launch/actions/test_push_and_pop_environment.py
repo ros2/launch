@@ -33,7 +33,7 @@ def test_push_and_pop_environment_constructors():
 @sandbox_environment_variables
 def test_push_and_pop_environment_execute():
     """Test the execute() of the PopEnvironment and PushEnvironment classes."""
-    assert type(os.environ) == os._Environ
+    assert isinstance(os.environ, os._Environ)
 
     context = LaunchContext()
 
@@ -89,4 +89,4 @@ def test_push_and_pop_environment_execute():
     assert context.environment['foo'] == 'FOO'
 
     # Pushing and popping the environment should not change the type of os.environ
-    assert type(os.environ) == os._Environ
+    assert isinstance(os.environ, os._Environ)

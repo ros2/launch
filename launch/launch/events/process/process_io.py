@@ -14,6 +14,8 @@
 
 """Module for ProcessIO event."""
 
+from typing import Any
+
 from .running_process_event import RunningProcessEvent
 
 
@@ -22,7 +24,7 @@ class ProcessIO(RunningProcessEvent):
 
     name = 'launch.events.process.ProcessIO'
 
-    def __init__(self, *, text: bytes, fd: int, **kwargs) -> None:
+    def __init__(self, *, text: bytes, fd: int, **kwargs: Any) -> None:
         """
         Create a ProcessIO event.
 

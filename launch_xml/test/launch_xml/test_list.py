@@ -18,7 +18,7 @@ import io
 import textwrap
 from typing import List
 
-from launch.frontend import Parser
+from parser_no_extensions import load_no_extensions
 
 
 def test_list():
@@ -32,7 +32,7 @@ def test_list():
         </root>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     tags = root_entity.children
     assert tags[0].get_attr('attr', data_type=List[str]) == ['1', '2', '3']
     assert tags[0].get_attr('attr', data_type=List[int]) == [1, 2, 3]
