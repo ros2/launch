@@ -14,10 +14,11 @@
 
 """Tests for the LaunchContext class."""
 
-import asyncio
 import os
 
 from launch import LaunchContext
+
+import osrf_pycommon
 
 import pytest
 
@@ -52,8 +53,8 @@ def test_launch_context_get_set_asyncio_loop():
     """Test the getting and settings for asyncio_loop in the LaunchContext class."""
     lc = LaunchContext()
     assert lc.asyncio_loop is None
-    lc._set_asyncio_loop(asyncio.get_event_loop())
-    assert lc.asyncio_loop == asyncio.get_event_loop()
+    lc._set_asyncio_loop(osrf_pycommon.process_utils.get_loop())
+    assert lc.asyncio_loop == osrf_pycommon.process_utils.get_loop()
 
 
 def test_launch_context_locals():
@@ -148,7 +149,7 @@ def test_launch_context_emit_events():
     assert lc._event_queue.qsize() == 1
 
     mock_event2 = MockEvent()
-    loop = asyncio.get_event_loop()
+    loop = osrf_pycommon.process_utils.get_loop()
     task = loop.create_task(lc.emit_event(mock_event2))
     loop.run_until_complete(task)
     assert lc._event_queue.qsize() == 2

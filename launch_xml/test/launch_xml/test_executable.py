@@ -19,15 +19,17 @@ from pathlib import Path
 import textwrap
 
 from launch import LaunchService
-from launch.frontend import Parser
+from launch.actions import Shutdown
+
+from parser_no_extensions import load_no_extensions
 
 import pytest
 
 
 def test_executable():
     """Parse node xml example."""
-    xml_file = str(Path(__file__).parent / 'executable.xml')
-    root_entity, parser = Parser.load(xml_file)
+    xml_file = Path(__file__).parent / 'executable.xml'
+    root_entity, parser = load_no_extensions(xml_file)
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
@@ -60,11 +62,27 @@ def test_executable_wrong_subtag():
         </launch>
         """  # noqa, line too long
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     with pytest.raises(ValueError) as excinfo:
         parser.parse_description(root_entity)
     assert '`executable`' in str(excinfo.value)
     assert 'whats_this' in str(excinfo.value)
+
+
+def test_executable_on_exit():
+    xml_file = \
+        """\
+        <launch>
+            <executable cmd="ls" on_exit="shutdown"/>
+        </launch>
+        """
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    ld = parser.parse_description(root_entity)
+    executable = ld.entities[0]
+    sub_entities = executable.get_sub_entities()
+    assert len(sub_entities) == 1
+    assert isinstance(sub_entities[0], Shutdown)
 
 
 if __name__ == '__main__':

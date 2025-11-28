@@ -15,19 +15,26 @@
 """Module for the ExecuteProcess action."""
 
 import shlex
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
+from typing import Type
+from typing import Union
+
 
 from .execute_local import ExecuteLocal
-
+from .shutdown_action import Shutdown
 from ..descriptions import Executable
 from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..some_substitutions_type import SomeSubstitutionsType
+
+from ..substitution import Substitution
 from ..substitutions import TextSubstitution
 
 
@@ -122,15 +129,15 @@ class ExecuteProcess(ExecuteLocal):
     """
 
     def __init__(
-            self,
-            *,
-            cmd: Iterable[SomeSubstitutionsType],
-            prefix: Optional[SomeSubstitutionsType] = None,
-            name: Optional[SomeSubstitutionsType] = None,
-            cwd: Optional[SomeSubstitutionsType] = None,
-            env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-            additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-            **kwargs
+        self,
+        *,
+        cmd: Iterable[SomeSubstitutionsType],
+        prefix: Optional[SomeSubstitutionsType] = None,
+        name: Optional[SomeSubstitutionsType] = None,
+        cwd: Optional[SomeSubstitutionsType] = None,
+        env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        **kwargs: Any
     ) -> None:
         """
         Construct an ExecuteProcess action.
@@ -204,9 +211,9 @@ class ExecuteProcess(ExecuteLocal):
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
             :py:func:`evaluate_condition_expression`.
-            Throws :py:exception:`InvalidConditionExpressionError` if the
+            Throws :py:exc:`InvalidConditionExpressionError` if the
             'emulate_tty' configuration does not represent a boolean.
-        :param: prefix a set of commands/arguments to preceed the cmd, used for
+        :param: prefix a set of commands/arguments to precede the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'. Note that a non-default prefix provided in
             a launch file will override the prefix provided via the `launch-prefix`
@@ -230,6 +237,8 @@ class ExecuteProcess(ExecuteLocal):
         :param: respawn if 'True', relaunch the process that abnormally died.
             Defaults to 'False'.
         :param: respawn_delay a delay time to relaunch the died process if respawn is 'True'.
+        :param: respawn_max_retries number of times to respawn the process if respawn is 'True'.
+                A negative value will respawn an infinite number of times (default behavior).
         """
         executable = Executable(cmd=cmd, prefix=prefix, name=name, cwd=cwd, env=env,
                                 additional_env=additional_env)
@@ -249,10 +258,10 @@ class ExecuteProcess(ExecuteLocal):
            list again as a `TextSubstitution`.
         :returns: a list of command line arguments.
         """
-        result_args = []
-        arg = []
+        result_args: List[SomeSubstitutionsType] = []
+        arg: List[Substitution] = []
 
-        def _append_arg():
+        def _append_arg() -> None:
             nonlocal arg
             result_args.append(arg)
             arg = []
@@ -260,7 +269,7 @@ class ExecuteProcess(ExecuteLocal):
             if isinstance(sub, TextSubstitution):
                 tokens = shlex.split(sub.text)
                 if not tokens:
-                    # Sting with just spaces.
+                    # String with just spaces.
                     # Appending args allow splitting two substitutions
                     # separated by a space.
                     # e.g.: `$(subst1 asd) $(subst2 bsd)` will be two separate arguments.
@@ -302,7 +311,7 @@ class ExecuteProcess(ExecuteLocal):
         entity: Entity,
         parser: Parser,
         ignore: Optional[List[str]] = None
-    ):
+    ) -> Tuple[Type['ExecuteProcess'], Dict[str, Any]]:
         """
         Return the `ExecuteProcess` action and kwargs for constructing it.
 
@@ -327,6 +336,16 @@ class ExecuteProcess(ExecuteLocal):
             if name is not None:
                 kwargs['name'] = parser.parse_substitution(name)
 
+        if 'on_exit' not in ignore:
+            on_exit = entity.get_attr('on_exit', optional=True)
+            if on_exit is not None:
+                if on_exit == 'shutdown':
+                    kwargs['on_exit'] = [Shutdown()]
+                else:
+                    raise ValueError(
+                        'Attribute on_exit of Entity node expected to be shutdown but got `{}`'
+                        'Other on_exit actions not yet supported'.format(on_exit))
+
         if 'prefix' not in ignore:
             prefix = entity.get_attr('launch-prefix', optional=True)
             if prefix is not None:
@@ -341,6 +360,12 @@ class ExecuteProcess(ExecuteLocal):
             respawn = entity.get_attr('respawn', optional=True)
             if respawn is not None:
                 kwargs['respawn'] = parser.parse_substitution(respawn)
+
+        if 'respawn_max_retries' not in ignore:
+            respawn_max_retries = entity.get_attr('respawn_max_retries', data_type=int,
+                                                  optional=True)
+            if respawn_max_retries is not None:
+                kwargs['respawn_max_retries'] = respawn_max_retries
 
         if 'respawn_delay' not in ignore:
             respawn_delay = entity.get_attr('respawn_delay', data_type=float, optional=True)
@@ -397,34 +422,35 @@ class ExecuteProcess(ExecuteLocal):
         return cls, kwargs
 
     @property
-    def name(self):
+    def name(self) -> Union[str, List[Substitution], None]:
         """Getter for name."""
         if self.process_description.final_name is not None:
             return self.process_description.final_name
         return self.process_description.name
 
     @property
-    def cmd(self):
+    def cmd(self) -> Union[List[str], List[List[Substitution]]]:
         """Getter for cmd."""
         if self.process_description.final_cmd is not None:
             return self.process_description.final_cmd
         return self.process_description.cmd
 
     @property
-    def cwd(self):
+    def cwd(self) -> Union[str, List[Substitution], None]:
         """Getter for cwd."""
         if self.process_description.final_cwd is not None:
             return self.process_description.final_cwd
         return self.process_description.cwd
 
     @property
-    def env(self):
+    def env(self) -> Union[Dict[str, str],
+                           List[Tuple[List[Substitution], List[Substitution]]], None]:
         """Getter for env."""
         if self.process_description.final_env is not None:
             return self.process_description.final_env
         return self.process_description.env
 
     @property
-    def additional_env(self):
+    def additional_env(self) -> Optional[List[Tuple[List[Substitution], List[Substitution]]]]:
         """Getter for additional_env."""
         return self.process_description.additional_env

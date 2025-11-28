@@ -6,7 +6,7 @@ This tool is a framework for launch integration testing. For example:
   * Tests can check that all processes shut down normally, or with specific exit codes.
   * Tests can fail when a process dies unexpectedly.
   * The stdout and stderr of all processes are available to the tests.
-  * The command-line used to launch the processes are avilalbe to the tests.
+  * The command-line used to launch the processes are available to the tests.
   * Some tests run concurrently with the launch and can interact with the running processes.
 
 ## Quick start example
@@ -46,7 +46,7 @@ In the above example, there is no need to delay the start of the tests so the `R
 
 #### Active Tests
 
-Any classes that inherit from `unittest.TestCase` and not decorated with the `post_shutdown_test` descriptor will be run concurrently with the proccess under test.
+Any classes that inherit from `unittest.TestCase` and not decorated with the `post_shutdown_test` descriptor will be run concurrently with the process under test.
 These tests are expected to interact with the running processes in some way.
 
 #### Post-Shutdown Tests
@@ -194,7 +194,7 @@ Usage:
 launch_test test/launch_testing/examples/hello_world_launch_test.py
 ```
 
-This test is a simple example on how to use the ``launch_testing``. 
+This test is a simple example on how to use the ``launch_testing``.
 
 It launches a process and asserts that it prints "hello_world" to ``stdout`` using ``proc_output.assertWaitFor()``.
 Finally, it checks if the process exits normally (zero exit code).

@@ -48,8 +48,8 @@ def test_invalid_launch_extension():
         }
         with warnings.catch_warnings(record=True) as caught_warnings:
             Parser.load_launch_extensions()
-            assert(caught_warnings)
-            assert('Failed to load the launch' in str(caught_warnings[0]))
+            assert caught_warnings
+            assert 'Failed to load the launch' in str(caught_warnings[0])
 
 
 def test_invalid_parser_implementations():
@@ -61,5 +61,5 @@ def test_invalid_parser_implementations():
 
         with warnings.catch_warnings(record=True) as caught_warnings:
             Parser.load_parser_implementations()
-            assert(caught_warnings)
-            assert('Failed to load the parser' in str(caught_warnings[0]))
+            assert caught_warnings
+            assert 'Failed to load the parser' in str(caught_warnings[0])

@@ -26,12 +26,20 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+# The python interpreter that executes this conf.py file will not have this
+# package's modules in the system path which will lead to import failures when
+# running sphinx-autodoc. As a workaround, the sphinx_builder.py script in
+# rosdoc2 will copy this package's modules along with this conf.py into a folder
+# with the same name of this package within the docs_build directory.
+# Hence we add the parent folder to the system path so that the modules from
+# this package can be imported.
+sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
+# type: ignore
 
 project = 'launch'
 copyright = '2018, Open Source Robotics Foundation, Inc.'  # noqa
@@ -92,8 +100,9 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = []
+# This pattern also affects html_static_path and html_extra_path.
+#
+# exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -136,23 +145,23 @@ htmlhelp_basename = 'launchdoc'
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
+# latex_elements: dict[str, str] = {
+#     # The paper size ('letterpaper' or 'a4paper').
 
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
+#     'papersize': 'letterpaper',
 
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
+#     # The font size ('10pt', '11pt' or '12pt').
 
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
-}
+#     'pointsize': '10pt',
+
+#     # Additional stuff for the LaTeX preamble.
+
+#     'preamble': '',
+
+#     # Latex figure (float) alignment
+
+#     'figure_align': 'htbp',
+# }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
@@ -190,7 +199,7 @@ texinfo_documents = [
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 # -- Options for todo extension ----------------------------------------------
 

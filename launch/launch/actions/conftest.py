@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, Dict
+
 # imports needed for doctests
 import launch
 import launch.actions
@@ -22,7 +24,7 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def add_imports_to_doctest_namespace(doctest_namespace):
+def add_imports_to_doctest_namespace(doctest_namespace: Dict[str, Any]) -> None:
     doctest_namespace['launch'] = launch
     doctest_namespace['LaunchDescription'] = launch.LaunchDescription
     for subpackage in (

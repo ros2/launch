@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>launch</name>
-  <version>1.3.0</version>
+  <version>3.9.5</version>
   <description>The ROS launch tool.</description>
 
   <maintainer email="aditya.pande@openrobotics.org">Aditya Pande</maintainer>
@@ -15,18 +15,27 @@
   <author email="michel@ekumenlabs.com">Michel Hidalgo</author>
   <author email="william@osrfoundation.org">William Woodall</author>
 
-  <depend>osrf_pycommon</depend>
+  <!-- The rosdep key for python3 lark module is python3-lark-parser.
+  rosdoc2 will mock "lark-parser" however the module is imported as "lark".
+  Hence, to mock the import of the lark module, we add this doc depend. -->
+  <doc_depend>lark</doc_depend>
 
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>python3-importlib-metadata</exec_depend>
   <exec_depend>python3-lark-parser</exec_depend>
+  <exec_depend>python3-osrf-pycommon</exec_depend>
   <exec_depend>python3-psutil</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>python3-typing-extensions</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
+  <test_depend>ament_mypy</test_depend>
+  <test_depend>ament_xmllint</test_depend>
+  <test_depend>python3-types-pyyaml</test_depend>
   <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-pytest-timeout</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

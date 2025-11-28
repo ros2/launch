@@ -17,17 +17,25 @@
 import math
 
 from typing import Any
+from typing import cast
+from typing import Dict
 from typing import Iterable
+from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
 from typing import Union
+
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
-from ..utilities.type_utils import is_substitution, perform_substitutions
+from ..utilities.perform_substitutions_impl import perform_substitutions
+from ..utilities.type_utils import is_substitution
 
 
 def _str_is_bool(input_str: Text) -> bool:
@@ -79,23 +87,32 @@ class EqualsSubstitution(Substitution):
             else:
                 right = str(right)
 
-        self.__left = normalize_to_list_of_substitutions(left)
-        self.__right = normalize_to_list_of_substitutions(right)
+        # mypy is unable to understand that if we passed in the `else` branch
+        # above, left & right must be substitutions. Unfortunately due to the
+        # way is_substitution is written, it's hard to get mypy to typecheck
+        # it correctly, so cast here.
+        self.__left = normalize_to_list_of_substitutions(
+                cast(Union[str, Substitution, Sequence[Union[str, Substitution]]], left)
+                )
+        self.__right = normalize_to_list_of_substitutions(
+                cast(Union[str, Substitution, Sequence[Union[str, Substitution]]], right)
+                )
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['EqualsSubstitution'], Dict[str, Any]]:
         """Parse `EqualsSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')
         return cls, {'left': data[0], 'right': data[1]}
 
     @property
-    def left(self) -> Substitution:
+    def left(self) -> List[Substitution]:
         """Getter for left."""
         return self.__left
 
     @property
-    def right(self) -> Substitution:
+    def right(self) -> List[Substitution]:
         """Getter for right."""
         return self.__right
 

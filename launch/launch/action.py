@@ -14,17 +14,24 @@
 
 """Module for Action class."""
 
+from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+
+from typing_extensions import Self  # type: ignore
 
 from .condition import Condition
 from .launch_context import LaunchContext
 from .launch_description_entity import LaunchDescriptionEntity
 
-if False:
+if TYPE_CHECKING:
     from .frontend import Entity  # noqa: F401
     from .frontend import Parser  # noqa: F401
 
@@ -49,8 +56,9 @@ class Action(LaunchDescriptionEntity):
         """
         self.__condition = condition
 
-    @staticmethod
-    def parse(entity: 'Entity', parser: 'Parser'):
+    @classmethod
+    def parse(cls, entity: 'Entity', parser: 'Parser'
+              ) -> Tuple[Type[Self], Dict[str, Any]]:  # type: ignore
         """
         Return the `Action` action and kwargs for constructing it.
 
@@ -62,7 +70,7 @@ class Action(LaunchDescriptionEntity):
         from .conditions import UnlessCondition
         if_cond = entity.get_attr('if', optional=True)
         unless_cond = entity.get_attr('unless', optional=True)
-        kwargs = {}
+        kwargs: Dict[str, Any] = {}
         if if_cond is not None and unless_cond is not None:
             raise RuntimeError("if and unless conditions can't be used simultaneously")
         if if_cond is not None:
@@ -73,7 +81,7 @@ class Action(LaunchDescriptionEntity):
             kwargs['condition'] = UnlessCondition(
                 predicate_expression=parser.parse_substitution(unless_cond)
             )
-        return Action, kwargs
+        return cls, kwargs
 
     @property
     def condition(self) -> Optional[Condition]:
@@ -84,11 +92,11 @@ class Action(LaunchDescriptionEntity):
         """Return a description of this Action."""
         return self.__repr__()
 
-    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
+    def get_sub_entities(self) -> Sequence[LaunchDescriptionEntity]:
         """Return subentities."""
         return []
 
-    def describe_sub_entities(self) -> List[LaunchDescriptionEntity]:
+    def describe_sub_entities(self) -> Sequence[LaunchDescriptionEntity]:
         """Override describe_sub_entities from LaunchDescriptionEntity."""
         return self.get_sub_entities() if self.condition is None else []
 
@@ -101,7 +109,7 @@ class Action(LaunchDescriptionEntity):
             ('Conditionally included by {}'.format(self.describe()), self.get_sub_entities())
         ] if self.condition is not None else []
 
-    def visit(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def visit(self, context: LaunchContext) -> Optional[Sequence[LaunchDescriptionEntity]]:
         """Override visit from LaunchDescriptionEntity so that it executes."""
         if self.__condition is None or self.__condition.evaluate(context):
             try:
@@ -119,7 +127,7 @@ class Action(LaunchDescriptionEntity):
                         context.emit_event_sync(event)
         return None
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> Optional[Sequence[LaunchDescriptionEntity]]:
         """
         Execute the action.
 

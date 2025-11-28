@@ -20,19 +20,20 @@ import contextlib
 import logging
 import platform
 import signal
+import sys
 import threading
 import traceback
 from typing import Coroutine
+from typing import Generator
 from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Optional
-from typing import Set  # noqa: F401
 from typing import Text
 from typing import Tuple  # noqa: F401
 
 import launch.logging
 
-import osrf_pycommon.process_utils
+from osrf_pycommon import process_utils
 
 from .event import Event
 from .event_handlers import OnIncludeLaunchDescription
@@ -42,7 +43,7 @@ from .events import Shutdown
 from .launch_context import LaunchContext
 from .launch_description import LaunchDescription
 from .launch_description_entity import LaunchDescriptionEntity
-from .some_actions_type import SomeActionsType
+from .some_entities_type import SomeEntitiesType
 from .utilities import AsyncSafeSignalManager
 from .utilities import visit_all_entities_and_collect_futures
 
@@ -55,7 +56,8 @@ class LaunchService:
         *,
         argv: Optional[Iterable[Text]] = None,
         noninteractive: bool = False,
-        debug: bool = False
+        debug: bool = False,
+        log_file_name: str = 'launch.log'
     ) -> None:
         """
         Create a LaunchService.
@@ -63,15 +65,21 @@ class LaunchService:
         :param: argv stored in the context for access by the entities, None results in []
         :param: noninteractive if True (not default), this service will assume it has
             no terminal associated e.g. it is being executed from a non interactive script
-        :param: debug if True (not default), asyncio the logger are seutp for debug
+        :param: debug if True (not default), asyncio and the logger are set up for debug
         """
         # Setup logging and debugging.
         launch.logging.launch_config.level = logging.DEBUG if debug else logging.INFO
+        self._log_file_name = log_file_name
+        # Ensure the log file name ends with `.log`
+        if not self._log_file_name.endswith('.log'):
+            self._log_file_name += '.log'
+        launch.logging.launch_config.log_file_name = self._log_file_name
+        # Setup logging
+        self._logger_name = self._log_file_name.removesuffix('.log')
+        self.__logger = launch.logging.get_logger(self._logger_name)
+
         self.__debug = debug
         self.__argv = argv if argv is not None else []
-
-        # Setup logging
-        self.__logger = launch.logging.get_logger('launch')
 
         # Setup context and register a built-in event handler for bootstrapping.
         self.__context = LaunchContext(argv=self.__argv, noninteractive=noninteractive)
@@ -80,13 +88,13 @@ class LaunchService:
 
         # Setup storage for state.
         self._entity_future_pairs = \
-            []  # type: List[Tuple[LaunchDescriptionEntity, asyncio.Future]]
+            []  # type: List[Tuple[LaunchDescriptionEntity, asyncio.Future[None]]]
 
         # Used to allow asynchronous use of self.__loop_from_run_thread without
         # it being set to None by run() as it exits.
         self.__loop_from_run_thread_lock = threading.RLock()
         self.__loop_from_run_thread = None
-        self.__this_task = None
+        self.__this_task: Optional[asyncio.Future[None]] = None
 
         # Used to indicate when shutdown() has been called.
         self.__shutting_down = False
@@ -125,7 +133,7 @@ class LaunchService:
         """
         self.emit_event(IncludeLaunchDescription(launch_description))
 
-    def _prune_and_count_entity_future_pairs(self):
+    def _prune_and_count_entity_future_pairs(self) -> int:
         needs_prune = False
         for pair in self._entity_future_pairs:
             if pair[1].done():
@@ -135,7 +143,7 @@ class LaunchService:
                 [pair for pair in self._entity_future_pairs if not pair[1].done()]
         return len(self._entity_future_pairs)
 
-    def _prune_and_count_context_completion_futures(self):
+    def _prune_and_count_context_completion_futures(self) -> int:
         needs_prune = False
         for future in self.__context._completion_futures:
             if future.done():
@@ -145,13 +153,15 @@ class LaunchService:
                 [f for f in self.__context._completion_futures if not f.done()]
         return len(self.__context._completion_futures)
 
-    def _is_idle(self):
+    def _is_idle(self) -> bool:
         number_of_entity_future_pairs = self._prune_and_count_entity_future_pairs()
         number_of_entity_future_pairs += self._prune_and_count_context_completion_futures()
         return number_of_entity_future_pairs == 0 and self.__context._event_queue.empty()
 
     @contextlib.contextmanager
-    def _prepare_run_loop(self):
+    def _prepare_run_loop(
+        self
+    ) -> Generator[Tuple[asyncio.AbstractEventLoop, Optional[asyncio.Task[None]]], None, None]:
         try:
             # Acquire the lock and initialize the loop.
             with self.__loop_from_run_thread_lock:
@@ -159,7 +169,7 @@ class LaunchService:
                     raise RuntimeError(
                         'LaunchService cannot be run multiple times concurrently.'
                     )
-                this_loop = asyncio.get_event_loop()
+                this_loop = process_utils.get_loop()
 
                 if self.__debug:
                     this_loop.set_debug(True)
@@ -167,7 +177,7 @@ class LaunchService:
                 # Set the asyncio loop for the context.
                 self.__context._set_asyncio_loop(this_loop)
                 # Recreate the event queue to ensure the same event loop is being used.
-                new_queue = asyncio.Queue()
+                new_queue: asyncio.Queue[Event] = asyncio.Queue()
                 while True:
                     try:
                         new_queue.put_nowait(self.__context._event_queue.get_nowait())
@@ -178,17 +188,17 @@ class LaunchService:
                 self.__loop_from_run_thread = this_loop
 
             # Get current task.
-            try:
+            if sys.version_info >= (3, 7):
                 # Python 3.7+
                 this_task = asyncio.current_task(this_loop)
-            except AttributeError:
+            else:
                 this_task = asyncio.Task.current_task(this_loop)
 
             self.__this_task = this_task
             # Setup custom signal handlers for SIGINT, SIGTERM and maybe SIGQUIT.
             sigint_received = False
 
-            def _on_sigint(signum):
+            def _on_sigint(signum: int) -> None:
                 nonlocal sigint_received
                 base_msg = 'user interrupted with ctrl-c (SIGINT)'
                 if not sigint_received:
@@ -201,21 +211,22 @@ class LaunchService:
                 else:
                     self.__logger.warning('{} again, ignoring...'.format(base_msg))
 
-            def _on_sigterm(signum):
+            def _on_sigterm(signum: int) -> None:
                 signame = signal.Signals(signum).name
                 self.__logger.error(
                     'user interrupted with ctrl-\\ ({}), terminating...'.format(signame))
                 # TODO(wjwwood): try to terminate running subprocesses before exiting.
                 self.__logger.error('using {} can result in orphaned processes'.format(signame))
                 self.__logger.error('make sure no processes launched are still running')
-                this_loop.call_soon(this_task.cancel)
+                if this_task:
+                    this_loop.call_soon(this_task.cancel)
 
             with AsyncSafeSignalManager(this_loop) as manager:
                 # Setup signal handlers
                 manager.handle(signal.SIGINT, _on_sigint)
                 manager.handle(signal.SIGTERM, _on_sigterm)
                 if platform.system() != 'Windows':
-                    manager.handle(signal.SIGQUIT, _on_sigterm)
+                    manager.handle(signal.SIGQUIT, _on_sigterm)  # type: ignore
                 # Yield asyncio loop and current task.
                 yield this_loop, this_task
         finally:
@@ -237,9 +248,9 @@ class LaunchService:
                     "processing event: '{}' ✓ '{}'".format(event, event_handler))
                 self.__context._push_locals()
                 entities = event_handler.handle(event, self.__context)
-                entities = \
+                entities_iterable = \
                     entities if isinstance(entities, collections.abc.Iterable) else (entities,)
-                for entity in [e for e in entities if e is not None]:
+                for entity in [e for e in entities_iterable if e is not None]:
                     from .utilities import is_a_subclass
                     if not is_a_subclass(entity, LaunchDescriptionEntity):
                         raise RuntimeError(
@@ -256,7 +267,7 @@ class LaunchService:
                 #     'launch.LaunchService',
                 #     "processing event: '{}' x '{}'".format(event, event_handler))
 
-    async def run_async(self, *, shutdown_when_idle=True) -> int:
+    async def run_async(self, *, shutdown_when_idle: bool = True) -> int:
         """
         Visit all entities of all included LaunchDescription instances asynchronously.
 
@@ -264,6 +275,7 @@ class LaunchService:
         asynchronous runs.
 
         :param: shutdown_when_idle if True (default), the service will shutdown when idle.
+        :return: the return code (non-zero if there are any errors)
         """
         # Make sure this has not been called from any thread but the main thread.
         if threading.current_thread() is not threading.main_thread():
@@ -326,14 +338,20 @@ class LaunchService:
                         return_when=asyncio.FIRST_COMPLETED
                     )
                     # Propagate exception from completed tasks
-                    completed_tasks_exceptions = [task.exception() for task in completed_tasks]
-                    completed_tasks_exceptions = list(filter(None, completed_tasks_exceptions))
-                    if completed_tasks_exceptions:
-                        self.__logger.debug('An exception was raised in an async action/event')
-                        # in case there is more than one completed_task, log other exceptions
-                        for completed_tasks_exception in completed_tasks_exceptions[1:]:
-                            self.__logger.error(completed_tasks_exception)
-                        raise completed_tasks_exceptions[0]
+                    exception_to_raise = None
+                    for task in completed_tasks:
+                        exc = task.exception()
+                        if exc is None:
+                            continue
+
+                        if exception_to_raise is None:
+                            self.__logger.debug('An exception was raised in an async action/event')
+                            exception_to_raise = exc
+                        else:
+                            self.__logger.error(exc)
+
+                    if exception_to_raise is not None:
+                        raise exception_to_raise
 
                 except KeyboardInterrupt:
                     continue
@@ -354,7 +372,7 @@ class LaunchService:
                     continue
             return return_code
 
-    def run(self, *, shutdown_when_idle=True) -> int:
+    def run(self, *, shutdown_when_idle: bool = True) -> int:
         """
         Run an event loop and visit all entities of all included LaunchDescription instances.
 
@@ -365,8 +383,9 @@ class LaunchService:
         After the run ends, this behavior is undone.
 
         :param: shutdown_when_idle if True (default), the service will shutdown when idle
+        :return: the return code (non-zero if there are any errors)
         """
-        loop = osrf_pycommon.process_utils.get_loop()
+        loop = process_utils.get_loop()
         run_async_task = loop.create_task(self.run_async(
             shutdown_when_idle=shutdown_when_idle
         ))
@@ -376,19 +395,20 @@ class LaunchService:
             except KeyboardInterrupt:
                 continue
 
-    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeActionsType]:
+    def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
         self.__shutting_down = True
         self.__context._set_is_shutdown(True)
         return None
 
-    def _shutdown(self, *, reason, due_to_sigint, force_sync=False) -> Optional[Coroutine]:
+    def _shutdown(self, *, reason: Text, due_to_sigint: bool, force_sync: bool = False
+                  ) -> Optional[Coroutine]:
         # Assumption is that this method is only called when running.
         retval = None
         if not self.__shutting_down:
             shutdown_event = Shutdown(reason=reason, due_to_sigint=due_to_sigint)
             asyncio_event_loop = None
             try:
-                asyncio_event_loop = asyncio.get_event_loop()
+                asyncio_event_loop = process_utils.get_loop()
             except (RuntimeError, AssertionError):
                 # If no event loop is set for this thread, asyncio will raise an exception.
                 # The exception type depends on the version of Python, so just catch both.
@@ -405,7 +425,7 @@ class LaunchService:
         self.__context._set_is_shutdown(True)
         return retval
 
-    def shutdown(self, force_sync=False) -> Optional[Coroutine]:
+    def shutdown(self, force_sync: bool = False) -> Optional[Coroutine[None, None, None]]:
         """
         Shutdown all on-going activities and then stop the asyncio run loop.
 
@@ -423,18 +443,19 @@ class LaunchService:
                     reason='LaunchService.shutdown() called',
                     due_to_sigint=False, force_sync=force_sync
                 )
+        return None
 
     @property
-    def context(self):
+    def context(self) -> LaunchContext:
         """Getter for context."""
         return self.__context
 
     @property
-    def event_loop(self):
+    def event_loop(self) -> Optional[asyncio.AbstractEventLoop]:
         """Getter for the event loop being used in the thread running the launch service."""
         return self.__loop_from_run_thread
 
     @property
-    def task(self):
+    def task(self) -> Optional[asyncio.Future[None]]:
         """Return asyncio task associated with this launch service."""
         return self.__this_task

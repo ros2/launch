@@ -24,7 +24,7 @@ from .process_targeted_event import ProcessTargetedEvent
 from ...utilities import ensure_argument_type
 
 if TYPE_CHECKING:
-    from ...actions import ExecuteProcess  # noqa: F401
+    from ...actions import ExecuteLocal  # noqa: F401
 
 
 class SignalProcess(ProcessTargetedEvent):
@@ -35,7 +35,7 @@ class SignalProcess(ProcessTargetedEvent):
     def __init__(
         self, *,
         signal_number: Union[Text, signal_module.Signals],
-        process_matcher: Callable[['ExecuteProcess'], bool]
+        process_matcher: Callable[['ExecuteLocal'], bool]
     ) -> None:
         """
         Create a SignalProcess event.

@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,16 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the create_future() function."""
-
-import asyncio
-
-from launch.utilities import create_future
+from ament_xmllint.main import main
+import pytest
 
 
-def test_create_future():
-    """Test the create_future() function."""
-    future_none_result = create_future(None)
-    assert isinstance(future_none_result, asyncio.Future)
-    future_event_loop_result = create_future(asyncio.get_event_loop())
-    assert isinstance(future_event_loop_result, asyncio.Future)
+@pytest.mark.linter
+@pytest.mark.xmllint
+def test_xmllint():
+    rc = main(argv=[])
+    assert rc == 0, 'Found errors'

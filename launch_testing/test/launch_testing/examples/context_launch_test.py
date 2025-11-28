@@ -42,7 +42,7 @@ def get_test_process_action():
     )
 
 
-# This launch description shows the prefered way to let the tests access launch actions.  By
+# This launch description shows the preferred way to let the tests access launch actions.  By
 # adding them to the test context, it's not necessary to scope them at the module level like in
 # the good_proc.test.py example
 @pytest.mark.launch_test

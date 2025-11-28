@@ -14,9 +14,14 @@
 
 """Module for the anonymous name substitution."""
 
-from typing import Iterable
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
+
 
 from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
@@ -41,7 +46,8 @@ class AnonName(Substitution):
         self.__name = normalize_to_list_of_substitutions(name)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['AnonName'], Dict[str, Any]]:
         """Parse `AnonName` substitution."""
         if len(data) != 1:
             raise TypeError('anon substitution expects 1 argument')
@@ -61,14 +67,10 @@ class AnonName(Substitution):
         from ..utilities import perform_substitutions
         name = perform_substitutions(context, self.name)
 
-        if 'anon' not in context.launch_configurations:
-            context.launch_configurations['anon'] = {}
-        anon_context = context.launch_configurations['anon']
+        if 'anon' + name not in context.launch_configurations:
+            context.launch_configurations['anon' + name] = self.compute_name(name)
 
-        if name not in anon_context:
-            anon_context[name] = self.compute_name(name)
-
-        return anon_context[name]
+        return context.launch_configurations['anon' + name]
 
     def compute_name(self, id_value: Text) -> Text:
         """Get anonymous name based on id value."""

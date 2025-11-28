@@ -14,11 +14,16 @@
 
 """Module for the FindExecutable substitution."""
 
-from typing import Iterable
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
 
-from osrf_pycommon.process_utils import which
+from osrf_pycommon.process_utils import which  # type: ignore
+
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -43,7 +48,8 @@ class FindExecutable(Substitution):
         self.__name = normalize_to_list_of_substitutions(name)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['FindExecutable'], Dict[str, Any]]:
         """Parse `FindExecutable` substitution."""
         if len(data) != 1:
             raise AttributeError('find-exec substitution expects 1 argument')

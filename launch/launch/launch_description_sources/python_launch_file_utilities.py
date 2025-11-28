@@ -17,8 +17,10 @@
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec
 from importlib.util import spec_from_loader
+from pathlib import Path
 from types import ModuleType
 from typing import Text
+from typing import Union
 
 from ..launch_description import LaunchDescription
 
@@ -29,17 +31,19 @@ class InvalidPythonLaunchFileError(Exception):
     ...
 
 
-def load_python_launch_file_as_module(python_launch_file_path: Text) -> ModuleType:
+def load_python_launch_file_as_module(python_launch_file_path: Union[Text, Path]) -> ModuleType:
     """Load a given Python launch file (by path) as a Python module."""
-    loader = SourceFileLoader('python_launch_file', python_launch_file_path)
+    loader = SourceFileLoader('python_launch_file', str(python_launch_file_path))
     spec = spec_from_loader(loader.name, loader)
+    if spec is None:
+        raise RuntimeError('Failed to load module spec!')
     mod = module_from_spec(spec)
     loader.exec_module(mod)
     return mod
 
 
 def get_launch_description_from_python_launch_file(
-    python_launch_file_path: Text
+    python_launch_file_path: Union[Text, Path]
 ) -> LaunchDescription:
     """
     Load a given Python launch file (by path), and return the launch description from it.

@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2022 Toyota Motor Corporation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,21 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for SomeActionsType type."""
-
-import collections.abc
-from typing import Iterable
-from typing import Union
-
-from .launch_description_entity import LaunchDescriptionEntity
+from ament_mypy.main import main
+import pytest
 
 
-SomeActionsType = Union[
-    LaunchDescriptionEntity,
-    Iterable[LaunchDescriptionEntity],
-]
-
-SomeActionsType_types_tuple = (
-    LaunchDescriptionEntity,
-    collections.abc.Iterable,
-)
+@pytest.mark.mypy
+@pytest.mark.linter
+def test_mypy():
+    rc = main(argv=[])
+    assert rc == 0, 'Found type errors!'

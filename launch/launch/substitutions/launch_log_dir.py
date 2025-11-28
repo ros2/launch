@@ -14,27 +14,32 @@
 
 """Module for the LaunchLogDir substitution."""
 
-from typing import Iterable
+from typing import Any
+from typing import Dict
+from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
 
+from .path_join_substitution import PathSubstitution
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..logging import launch_config as launch_logging_config
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
 
 
 @expose_substitution('launch_log_dir')
 @expose_substitution('log_dir')
-class LaunchLogDir(Substitution):
+class LaunchLogDir(PathSubstitution):
     """Substitution that returns the absolute path to the current launch log directory."""
 
     def __init__(self) -> None:
         """Create a LaunchLogDir substitution."""
-        super().__init__()
+        super().__init__(path=self)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['LaunchLogDir'], Dict[Any, Any]]:
         """Parse `LaunchLogDir` substitution."""
         if len(data) != 0:
             raise TypeError("launch_log_dir/log_dir substitution doesn't expect arguments")

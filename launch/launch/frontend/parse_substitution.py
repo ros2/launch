@@ -39,7 +39,7 @@ class ExtractSubstitution(Transformer):
     """Extract a substitution."""
 
     def part(self, content):
-        assert(len(content) == 1)
+        assert len(content) == 1
         content = content[0]
         if isinstance(content, Token):
             assert content.type.endswith('_RSTRING')
@@ -95,7 +95,7 @@ class ExtractSubstitution(Transformer):
     double_quoted_template = template
 
 
-def get_grammar_path():
+def get_grammar_path() -> str:
     return os.path.join(
         get_package_share_directory('launch'), 'frontend', 'grammar.lark')
 

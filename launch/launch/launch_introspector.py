@@ -15,6 +15,7 @@
 """Module for the LaunchIntrospector class."""
 
 from typing import cast
+from typing import Iterable
 from typing import List
 from typing import Text
 
@@ -63,7 +64,7 @@ def tree_like_indent(lines: List[Text]) -> List[Text]:
     return result
 
 
-def format_entities(entities: List[LaunchDescriptionEntity]) -> List[Text]:
+def format_entities(entities: Iterable[LaunchDescriptionEntity]) -> List[Text]:
     """Return a list of lines of text that represent of a list of LaunchDescriptionEntity's."""
     result = []
     for entity in entities:
@@ -84,9 +85,16 @@ def format_event_handler(event_handler: BaseEventHandler) -> List[Text]:
     """Return a text representation of an event handler."""
     if hasattr(event_handler, 'describe'):
         # TODO(wjwwood): consider supporting mode complex descriptions of branching
-        description, entities = event_handler.describe()  # type: ignore
+        description, entities = event_handler.describe()
         result = [description]
-        result.extend(indent(format_entities(entities)))
+        if isinstance(entities, LaunchDescriptionEntity):
+            result.extend(indent(format_entities([entities])))
+        else:
+            # Note due to a bug in mypy ( https://github.com/python/mypy/issues/13709 ),
+            # the variable is not correctly narrowed to Iterable[...] in this branch...
+            result.extend(
+              indent(format_entities(cast(Iterable[LaunchDescriptionEntity], entities)))
+            )
         return result
     else:
         return ["EventHandler('{}')".format(hex(id(event_handler)))]
@@ -106,8 +114,10 @@ def format_action(action: Action) -> List[Text]:
                 format_substitutions(typed_action.cwd)
             ),
             typed_action.env if typed_action.env is None else '{' + ', '.join(
-                ['{}: {}'.format(format_substitutions(k), format_substitutions(v))
-                 for k, v in typed_action.env]) + '}',
+                ['{}: {}'.format(format_substitutions(k),  # type:ignore[misc]
+                                 format_substitutions(v))
+                 for k, v in typed_action.env]
+                 ) + '}',
             typed_action.shell,
         )
         return [msg]

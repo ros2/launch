@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the create_future() utility function."""
+"""Module for SomeEntitiesType type."""
 
-import asyncio
+import collections.abc
+from typing import Iterable
+from typing import Union
 
+from .launch_description_entity import LaunchDescriptionEntity
 
-def create_future(loop: asyncio.AbstractEventLoop) -> asyncio.Future:
-    """
-    Return a Future, using the loop if possible.
+SomeEntitiesType = Union[
+    LaunchDescriptionEntity,
+    Iterable[LaunchDescriptionEntity],
+]
 
-    loop.create_future() is better, but was only added in Python 3.5.2, see:
-
-    https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.create_future
-    """
-    if hasattr(loop, 'create_future'):
-        return loop.create_future()
-    return asyncio.Future(loop=loop)
+SomeEntitiesType_types_tuple = (
+    LaunchDescriptionEntity,
+    collections.abc.Iterable,
+)

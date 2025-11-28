@@ -103,7 +103,7 @@ def assertSequentialStdout(proc_output,
                            process,
                            cmd_args=None):
     """
-    Create a context manager used to check stdout occured in a specific order.
+    Create a context manager used to check stdout occurred in a specific order.
 
     :param proc_output:  The captured output from a test run
 
@@ -120,7 +120,7 @@ def assertSequentialStdout(proc_output,
         process=process,
         cmd_args=cmd_args,
         # There's no good way to sequence output from multiple processes reliably, so we won't
-        # pretend to be able to.  Only allow one matching process for the comination of proc and
+        # pretend to be able to. Only allow one matching process for the combination of proc and
         # cmd_args
         strict_proc_matching=True,
     )[0]

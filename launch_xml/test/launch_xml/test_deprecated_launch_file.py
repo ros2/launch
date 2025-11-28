@@ -18,7 +18,8 @@ import io
 import textwrap
 
 from launch import LaunchDescription
-from launch.frontend import Parser
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_deprecated_launch_file():
@@ -27,7 +28,7 @@ def test_deprecated_launch_file():
         <launch deprecated="MY_DEPRECATED_MESSAGE"/>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     assert isinstance(ld, LaunchDescription)
     assert 'MY_DEPRECATED_MESSAGE' == ld.deprecated_reason

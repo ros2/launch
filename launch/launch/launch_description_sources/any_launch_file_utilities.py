@@ -15,6 +15,8 @@
 """Python package utility functions related to loading Frontend Launch Files."""
 
 import os
+from typing import Callable
+from typing import List
 from typing import Text
 from typing import Type
 
@@ -33,12 +35,14 @@ def get_launch_description_from_any_launch_file(
     """
     Load a given launch file (by path), and return the launch description from it.
 
-    :raise `InvalidLaunchFileError`: Failed to load launch file.
+    :raises `launch.invalid_launch_file_error.InvalidLaunchFileError`: Failed to load launch file.
         It's only showed with launch files without extension (or not recognized extensions).
-    :raise `SyntaxError`: Invalid file. The file may have a syntax error in it.
-    :raise `ValueError`: Invalid file. The file may not be a text file.
+    :raises `SyntaxError`: Invalid file. The file may have a syntax error in it.
+    :raises `ValueError`: Invalid file. The file may not be a text file.
     """
-    loaders = [get_launch_description_from_frontend_launch_file]
+    loaders: List[Callable[[str], LaunchDescription]] =\
+        [get_launch_description_from_frontend_launch_file]
+
     launch_file_name = os.path.basename(launch_file_path)
     extension = os.path.splitext(launch_file_name)[1]
     if extension:

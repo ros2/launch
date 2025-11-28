@@ -49,7 +49,7 @@ class LaunchDescriptionSource:
         """
         self.__launch_description: Optional[LaunchDescription] = launch_description
         self.__expanded_location: Optional[Text] = None
-        self.__location: SomeSubstitutionsType = normalize_to_list_of_substitutions(location)
+        self.__location = normalize_to_list_of_substitutions(location)
         self.__method: str = method
         self.__logger = launch.logging.get_logger(__name__)
 
@@ -84,7 +84,7 @@ class LaunchDescriptionSource:
                 self._get_launch_description(self.__expanded_location)
         return self.__launch_description
 
-    def _get_launch_description(self, location):
+    def _get_launch_description(self, location: Text):
         """Get the LaunchDescription from location."""
         if self.__launch_description is None:
             raise RuntimeError(

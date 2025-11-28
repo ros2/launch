@@ -94,7 +94,7 @@ def test_is_a():
     class MockNonRelativeClass:
         pass
 
-    # Test with class inheritence
+    # Test with class inheritance
     child = MockChildClass()
     other = MockNonRelativeClass()
     assert is_a(child, MockChildClass)

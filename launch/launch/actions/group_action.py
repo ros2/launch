@@ -14,10 +14,14 @@
 
 """Module for the GroupAction action."""
 
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Tuple
+from typing import Type
+
 
 from .pop_environment import PopEnvironment
 from .pop_launch_configurations import PopLaunchConfigurations
@@ -31,7 +35,6 @@ from ..frontend import Entity
 from ..frontend import expose_action
 from ..frontend import Parser
 from ..launch_context import LaunchContext
-from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_substitutions_type import SomeSubstitutionsType
 
 
@@ -72,7 +75,7 @@ class GroupAction(Action):
         scoped: bool = True,
         forwarding: bool = True,
         launch_configurations: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-        **left_over_kwargs
+        **left_over_kwargs: Any
     ) -> None:
         """Create a GroupAction."""
         super().__init__(**left_over_kwargs)
@@ -83,10 +86,11 @@ class GroupAction(Action):
             self.__launch_configurations = launch_configurations
         else:
             self.__launch_configurations = {}
-        self.__actions_to_return: Optional[List] = None
+        self.__actions_to_return: Optional[List[Action]] = None
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['GroupAction'], Dict[str, Any]]:
         """Return `GroupAction` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         scoped = entity.get_attr('scoped', data_type=bool, optional=True)
@@ -107,7 +111,7 @@ class GroupAction(Action):
                              if e.type_name != 'keep']
         return cls, kwargs
 
-    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
+    def get_sub_entities(self) -> List[Action]:
         """Return subentities."""
         if self.__actions_to_return is None:
             self.__actions_to_return = list(self.__actions)
@@ -141,6 +145,6 @@ class GroupAction(Action):
                 ]
         return self.__actions_to_return
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> List[Action]:
         """Execute the action."""
         return self.get_sub_entities()

@@ -16,20 +16,23 @@
 
 import functools
 import inspect
+from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import Optional
 from typing import Text
+from typing import TYPE_CHECKING
 
 from ..action import Action
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 
-if False:
+if TYPE_CHECKING:
     from .entity import Entity  # noqa: F401
     from .parser import Parser  # noqa: F401
 
-action_parse_methods = {}
-substitution_parse_methods = {}
+action_parse_methods: Dict[str, Any] = {}
+substitution_parse_methods: Dict[str, Any] = {}
 
 
 def instantiate_action(entity: 'Entity', parser: 'Parser') -> Action:
@@ -70,7 +73,7 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
     :param name: a string which specifies the key used for storing the parsing
         method in the dictionary.
     :param parse_methods_map: a dict where the parsing method will be stored.
-    :param exposed_type: A string specifing the parsing function type.
+    :param exposed_type: A string specifying the parsing function type.
     """
     # TODO(ivanpauno): Check signature of the registered method/parsing function.
     # TODO(ivanpauno): Infer a parsing function from the constructor annotations.
@@ -89,7 +92,7 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
         if not found_parse_method:
             raise RuntimeError(
                 'Exposed {} parser for {} is not a callable or a class'
-                ' containg a parse method'.format(exposed_type, name)
+                ' containing a parse method'.format(exposed_type, name)
             )
         if name in parse_methods_map and found_parse_method != parse_methods_map[name]:
             raise RuntimeError(

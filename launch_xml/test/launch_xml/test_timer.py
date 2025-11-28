@@ -19,8 +19,9 @@ import math
 import textwrap
 
 from launch.actions import TimerAction
-from launch.frontend import Parser
 from launch.substitutions import LaunchConfiguration
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_timer():
@@ -33,7 +34,7 @@ def test_timer():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     timer = ld.entities[0]
     assert isinstance(timer, TimerAction)
@@ -52,7 +53,7 @@ def test_timer_period_is_substitution():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     timer = ld.entities[0]
     assert isinstance(timer, TimerAction)

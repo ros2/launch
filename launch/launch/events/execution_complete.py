@@ -28,6 +28,6 @@ class ExecutionComplete(Event):
         self.__action = action
 
     @property
-    def action(self):
+    def action(self) -> Action:
         """Getter for action."""
         return self.__action

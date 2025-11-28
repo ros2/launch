@@ -14,26 +14,32 @@
 
 """Module for the ThisLaunchFileDir substitution."""
 
-from typing import Iterable
+from typing import Any
+from typing import Dict
+from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
 
+
+from .path_join_substitution import PathSubstitution
 from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
 
 
 @expose_substitution('dirname')
-class ThisLaunchFileDir(Substitution):
+class ThisLaunchFileDir(PathSubstitution):
     """Substitution that returns the absolute path to the current launch file."""
 
     def __init__(self) -> None:
         """Create a ThisLaunchFileDir substitution."""
-        super().__init__()
+        super().__init__(path=self)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['ThisLaunchFileDir'], Dict[str, Any]]:
         """Parse `ThisLaunchFileDir` substitution."""
         if len(data) != 0:
             raise TypeError("dirname substitution doesn't expect arguments")
@@ -50,7 +56,8 @@ class ThisLaunchFileDir(Substitution):
         If there is no current launch file, i.e. if run from a script, then an
         error is raised.
 
-        :raises: SubstitutionFailure if not in a launch file
+        :raises `launch.substitutions.substitution_failure.SubstitutionFailure`:
+            if not in a launch file
         """
         if 'current_launch_file_directory' not in context.get_locals_as_dict():
             raise SubstitutionFailure(

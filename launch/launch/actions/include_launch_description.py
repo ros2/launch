@@ -15,13 +15,19 @@
 """Module for the IncludeLaunchDescription action."""
 
 import os
-from typing import Iterable, Sequence
+from typing import Any
+from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
+from typing import Text
 from typing import Tuple
+from typing import Type
 from typing import Union
 
 import launch.logging
+
 
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
@@ -62,6 +68,58 @@ class IncludeLaunchDescription(Action):
     Conditionally included launch arguments that do not have a default value
     will eventually raise an error if this best effort argument checking is
     unable to see an unsatisfied argument ahead of time.
+
+    For example, to include ``my_pkg``'s ``other_launch.py`` and set launch arguments for it:
+
+    .. code-block:: python
+
+        def generate_launch_description():
+            return ([
+                SetLaunchConfiguration('arg1', 'value1'),
+                IncludeLaunchDescription(
+                    AnyLaunchDescriptionSource([
+                        PathJoinSubstitution([
+                            FindPackageShare('my_pkg'),
+                            'launch',
+                            'other_launch.py',
+                        ]),
+                    ]),
+                    launch_arguments={
+                        'other_arg1': LaunchConfiguration('arg1'),
+                        'other_arg2': 'value2',
+                    }.items(),
+                ),
+            ])
+
+    .. code-block:: xml
+
+        <launch>
+            <let name="arg1" value="value1" />
+            <include file="$(find-pkg-share my_pkg)/launch/other_launch.py">
+                <let name="other_arg1" value="$(var arg1)" />
+                <let name="other_arg2" value="value2" />
+            </include>
+        </launch>
+
+    .. code-block:: yaml
+
+        launch:
+        - let:
+            name: 'arg1'
+            value: 'value1'
+        - include:
+            file: '$(find-pkg-share my_pkg)/launch/other_launch.py'
+            let:
+                - name: 'other_arg1'
+                  value: '$(var arg1)'
+                - name: 'other_arg2'
+                  value: 'value2'
+
+    .. note::
+
+        While frontends currently support both ``let`` and ``arg`` for launch arguments, they are
+        both converted into ``SetLaunchConfiguration`` actions (``let``). The same launch argument
+        should not be defined using both ``let`` and ``arg``.
     """
 
     def __init__(
@@ -71,7 +129,7 @@ class IncludeLaunchDescription(Action):
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
         ] = None,
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """Create an IncludeLaunchDescription action."""
         super().__init__(**kwargs)
@@ -82,13 +140,20 @@ class IncludeLaunchDescription(Action):
         self.__logger = launch.logging.get_logger(__name__)
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['IncludeLaunchDescription'], Dict[str, Any]]:
         """Return `IncludeLaunchDescription` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         file_path = parser.parse_substitution(entity.get_attr('file'))
         kwargs['launch_description_source'] = file_path
-        args = entity.get_attr('arg', data_type=List[Entity], optional=True)
-        if args is not None:
+        args = []
+        args_arg = entity.get_attr('arg', data_type=List[Entity], optional=True)
+        if args_arg is not None:
+            args.extend(args_arg)
+        args_let = entity.get_attr('let', data_type=List[Entity], optional=True)
+        if args_let is not None:
+            args.extend(args_let)
+        if args:
             kwargs['launch_arguments'] = [
                 (
                     parser.parse_substitution(e.get_attr('name')),
@@ -110,10 +175,10 @@ class IncludeLaunchDescription(Action):
         """Getter for self.__launch_arguments."""
         return self.__launch_arguments
 
-    def _get_launch_file(self):
+    def _get_launch_file(self) -> str:
         return os.path.abspath(self.__launch_description_source.location)
 
-    def _get_launch_file_directory(self):
+    def _get_launch_file_directory(self) -> str:
         launch_file_location = self._get_launch_file()
         if os.path.exists(launch_file_location):
             launch_file_location = os.path.dirname(launch_file_location)
@@ -123,12 +188,12 @@ class IncludeLaunchDescription(Action):
             launch_file_location = self.__launch_description_source.location
         return launch_file_location
 
-    def get_sub_entities(self):
+    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
         """Get subentities."""
         ret = self.__launch_description_source.try_get_launch_description_without_context()
         return [ret] if ret is not None else []
 
-    def _try_get_arguments_names_without_context(self):
+    def _try_get_arguments_names_without_context(self) -> Optional[List[Text]]:
         try:
             context = LaunchContext()
             return [
@@ -143,7 +208,8 @@ class IncludeLaunchDescription(Action):
             )
         return None
 
-    def execute(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
+    def execute(self, context: LaunchContext) -> List[Union[SetLaunchConfiguration,
+                                                            LaunchDescriptionEntity]]:
         """Execute the action."""
         launch_description = self.__launch_description_source.get_launch_description(context)
         # If the location does not exist, then it's likely set to '<script>' or something.
@@ -160,15 +226,22 @@ class IncludeLaunchDescription(Action):
             perform_substitutions(context, normalize_to_list_of_substitutions(arg_name))
             for arg_name, arg_value in self.launch_arguments
         ]
-        declared_launch_arguments = (
-            launch_description.get_launch_arguments_with_include_launch_description_actions())
+        try:
+            declared_launch_arguments = (
+                launch_description.get_launch_arguments_with_include_launch_description_actions())
+        except Exception as exc:
+            if hasattr(exc, 'add_note'):
+                exc.add_note(f'while executing {self.describe()}')  # type: ignore
+            raise
         for argument, ild_actions in declared_launch_arguments:
             if argument._conditionally_included or argument.default_value is not None:
                 continue
             argument_names = my_argument_names
             if ild_actions is not None:
                 for ild_action in ild_actions:
-                    argument_names.extend(ild_action._try_get_arguments_names_without_context())
+                    names = ild_action._try_get_arguments_names_without_context()
+                    if names:
+                        argument_names.extend(names)
             if argument.name not in argument_names:
                 raise RuntimeError(
                     "Included launch description missing required argument '{}' "
@@ -183,3 +256,7 @@ class IncludeLaunchDescription(Action):
 
         # Set launch arguments as launch configurations and then include the launch description.
         return [*set_launch_configuration_actions, launch_description]
+
+    def __repr__(self) -> Text:
+        """Return a description of this IncludeLaunchDescription as a string."""
+        return f'IncludeLaunchDescription({self.__launch_description_source.location})'

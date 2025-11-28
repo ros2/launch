@@ -14,6 +14,7 @@
 
 """Module for OnProcessIO class."""
 
+from typing import Any
 from typing import Callable
 from typing import cast
 from typing import Optional
@@ -24,10 +25,10 @@ from .on_action_event_base import OnActionEventBase
 from ..event import Event
 from ..events.process import ProcessIO
 from ..launch_context import LaunchContext
-from ..some_actions_type import SomeActionsType
+from ..some_entities_type import SomeEntitiesType
 
 if TYPE_CHECKING:
-    from ..actions import Action  # noqa: F401
+    from ..action import Action  # noqa: F401
     from ..actions import ExecuteLocal  # noqa: F401
 
 
@@ -35,24 +36,21 @@ class OnProcessIO(OnActionEventBase):
     """Convenience class for handling I/O from processes via events."""
 
     # TODO(wjwwood): make the __init__ more flexible like OnProcessExit, so
-    # that it can take SomeActionsType directly or a callable that returns it.
+    # that it can take SomeEntitiesType directly or a callable that returns it.
     def __init__(
         self,
         *,
         target_action:
-            Optional[Union[Callable[['ExecuteLocal'], bool], 'ExecuteLocal']] = None,
-        on_stdin: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
-        on_stdout: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
-        on_stderr: Callable[[ProcessIO], Optional[SomeActionsType]] = None,
-        **kwargs
+            Optional[Union[Callable[['Action'], bool], 'Action']] = None,
+        on_stdin: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
+        on_stdout: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
+        on_stderr: Optional[Callable[[ProcessIO], Optional[SomeEntitiesType]]] = None,
+        **kwargs: Any
     ) -> None:
         """Create an OnProcessIO event handler."""
         from ..actions import ExecuteLocal  # noqa: F811
-        target_action = cast(
-            Optional[Union[Callable[['Action'], bool], 'Action']],
-            target_action)
 
-        def handle(event: Event, _: LaunchContext) -> Optional[SomeActionsType]:
+        def handle(event: Event, _: LaunchContext) -> Optional[SomeEntitiesType]:
             event = cast(ProcessIO, event)
             if event.from_stdout and on_stdout is not None:
                 return on_stdout(event)
