@@ -2,6 +2,40 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.13 (2025-11-07)
+-------------------
+
+1.0.12 (2025-10-17)
+-------------------
+* Fix all/any in xml and yaml launch files (backport `#906 <https://github.com/ros2/launch/issues/906>`_) (`#913 <https://github.com/ros2/launch/issues/913>`_)
+* Contributors: mergify[bot]
+
+1.0.11 (2025-10-06)
+-------------------
+
+1.0.10 (2025-07-16)
+-------------------
+
+1.0.9 (2025-06-06)
+------------------
+* Expose emulate_tty to xml and yaml launch (`#669 <https://github.com/ros2/launch/issues/669>`_) (`#869 <https://github.com/ros2/launch/issues/869>`_)
+* Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_) (`#863 <https://github.com/ros2/launch/issues/863>`_)
+* Contributors: Emerson Knapp
+
+1.0.8 (2025-03-25)
+------------------
+
+1.0.7 (2024-11-25)
+------------------
+
+1.0.6 (2024-05-17)
+------------------
+
+1.0.5 (2024-02-16)
+------------------
+* Backport error message improvements (`#754 <https://github.com/ros2/launch/issues/754>`_)
+* Contributors: David Yackzan
+
 1.0.4 (2023-01-10)
 ------------------
 
@@ -130,4 +164,3 @@ Changelog for package launch_xml
 * Add parsing method for `DeclareLaunchArgument` (`#270 <https://github.com/ros2/launch/issues/270>`_)
 * Add frontend module in launch, launch_xml and launch_yaml packages (`#226 <https://github.com/ros2/launch/issues/226>`_)
 * Contributors: Dirk Thomas, ivanpauno
-

@@ -18,6 +18,7 @@ import io
 import textwrap
 
 from launch import LaunchService
+from launch.actions import Shutdown
 from launch.frontend import Parser
 
 
@@ -31,6 +32,7 @@ def test_executable():
                 cwd: '/'
                 name: my_ls
                 shell: true
+                emulate_tty: true
                 output: log
                 'launch-prefix': $(env LAUNCH_PREFIX '')
                 env:
@@ -47,6 +49,7 @@ def test_executable():
     assert(executable.cwd[0].perform(None) == '/')
     assert(executable.name[0].perform(None) == 'my_ls')
     assert(executable.shell is True)
+    assert(executable.emulate_tty is True)
     assert(executable.output[0].perform(None) == 'log')
     key, value = executable.additional_env[0]
     key = key[0].perform(None)
@@ -56,6 +59,23 @@ def test_executable():
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert(0 == ls.run())
+
+
+def test_executable_on_exit():
+    yaml_file = \
+        """\
+        launch:
+        -   executable:
+                cmd: ls
+                on_exit: shutdown
+        """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = Parser.load(io.StringIO(yaml_file))
+    ld = parser.parse_description(root_entity)
+    executable = ld.entities[0]
+    sub_entities = executable.get_sub_entities()
+    assert len(sub_entities) == 1
+    assert isinstance(sub_entities[0], Shutdown)
 
 
 if __name__ == '__main__':

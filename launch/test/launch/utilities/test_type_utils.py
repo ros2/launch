@@ -234,6 +234,8 @@ def test_coercions_given_specific_type(coerce_to_type_impl):
     assert coerce_to_type_impl('on', data_type=bool) is True
     assert coerce_to_type_impl('off', data_type=bool) is False
     assert coerce_to_type_impl('True', data_type=bool) is True
+    assert coerce_to_type_impl('1', data_type=bool) is True
+    assert coerce_to_type_impl('0', data_type=bool) is False
 
     assert coerce_to_type_impl('[.2, .1, .1]', data_type=List[float]) == [.2, .1, .1]
     assert coerce_to_type_impl('[asd, bsd, csd]', data_type=List[str]) == ['asd', 'bsd', 'csd']
@@ -283,8 +285,6 @@ def test_coercion_raises_value_error(coerce_to_type_impl):
         coerce_to_type_impl('', data_type=bool)
     with pytest.raises(ValueError):
         coerce_to_type_impl('Bsd', data_type=bool)
-    with pytest.raises(ValueError):
-        coerce_to_type_impl('1', data_type=bool)
 
     with pytest.raises(ValueError):
         coerce_to_type_impl('', data_type=List[float])

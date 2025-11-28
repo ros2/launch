@@ -227,6 +227,11 @@ class ExecuteLocal(Action):
         return self.__shell
 
     @property
+    def emulate_tty(self):
+        """Getter for emulate_tty."""
+        return self.__emulate_tty
+
+    @property
     def output(self):
         """Getter for output."""
         return self.__output
@@ -345,7 +350,7 @@ class ExecuteLocal(Action):
         if buffer.closed:
             # buffer was probably closed by __flush_buffers on shutdown.  Output without
             # buffering.
-            buffer.info(
+            logger.info(
                 self.__output_format.format(line=to_write, this=self)
             )
         else:

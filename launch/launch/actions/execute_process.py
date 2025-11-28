@@ -23,7 +23,7 @@ from typing import Optional
 from typing import Text
 
 from .execute_local import ExecuteLocal
-
+from .shutdown_action import Shutdown
 from ..descriptions import Executable
 from ..frontend import Entity
 from ..frontend import expose_action
@@ -331,6 +331,16 @@ class ExecuteProcess(ExecuteLocal):
             if name is not None:
                 kwargs['name'] = parser.parse_substitution(name)
 
+        if 'on_exit' not in ignore:
+            on_exit = entity.get_attr('on_exit', optional=True)
+            if on_exit is not None:
+                if on_exit == 'shutdown':
+                    kwargs['on_exit'] = [Shutdown()]
+                else:
+                    raise ValueError(
+                        'Attribute on_exit of Entity node expected to be shutdown but got `{}`'
+                        'Other on_exit actions not yet supported'.format(on_exit))
+
         if 'prefix' not in ignore:
             prefix = entity.get_attr('launch-prefix', optional=True)
             if prefix is not None:
@@ -360,6 +370,11 @@ class ExecuteProcess(ExecuteLocal):
             shell = entity.get_attr('shell', data_type=bool, optional=True)
             if shell is not None:
                 kwargs['shell'] = shell
+
+        if 'emulate_tty' not in ignore:
+            emulate_tty = entity.get_attr('emulate_tty', data_type=bool, optional=True)
+            if emulate_tty is not None:
+                kwargs['emulate_tty'] = emulate_tty
 
         if 'additional_env' not in ignore:
             # Conditions won't be allowed in the `env` tag.

@@ -2,6 +2,54 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.13 (2025-11-07)
+-------------------
+* [backport humble] Make the directory-finding substitutions into a PathSubstitution for / operator (backport `#914 <https://github.com/ros2/launch//issues/914>`_) (`#917 <https://github.com/ros2/launch//issues/917>`_)
+* Contributors: mergify[bot]
+
+1.0.12 (2025-10-17)
+-------------------
+* Fix all/any in xml and yaml launch files (backport `#906 <https://github.com/ros2/launch/issues/906>`_) (`#913 <https://github.com/ros2/launch/issues/913>`_)
+* Contributors: mergify[bot]
+
+1.0.11 (2025-10-06)
+-------------------
+* Add file-content launch substitution (`#708 <https://github.com/ros2/launch//issues/708>`_) (`#903 <https://github.com/ros2/launch//issues/903>`_)
+* Contributors: mergify[bot]
+
+1.0.10 (2025-07-16)
+-------------------
+* Remove LaunchDescriptionArgument (`#891 <https://github.com/ros2/launch/issues/891>`_) (`#897 <https://github.com/ros2/launch/issues/897>`_)
+* Contributors: mergify[bot]
+
+1.0.9 (2025-06-06)
+------------------
+* Add conditional substitution (`#734 <https://github.com/ros2/launch/issues/734>`_) (`#870 <https://github.com/ros2/launch/issues/870>`_)
+* Implement Any, All, Equals, and NotEquals substitutions (`#649 <https://github.com/ros2/launch/issues/649>`_) (`#871 <https://github.com/ros2/launch/issues/871>`_)
+* Add a `/` path join operator for `PathJoinSubstitution` (`#868 <https://github.com/ros2/launch/issues/868>`_) (`#881 <https://github.com/ros2/launch/issues/881>`_)
+* Add special cases to coerce "1" and "0" to bool when using bool coercion only (`#651 <https://github.com/ros2/launch/issues/651>`_) (`#872 <https://github.com/ros2/launch/issues/872>`_)
+* Expose emulate_tty to xml and yaml launch (`#669 <https://github.com/ros2/launch/issues/669>`_) (`#869 <https://github.com/ros2/launch/issues/869>`_)
+* Let XML executables/nodes be "required" (like in ROS 1) (`#751 <https://github.com/ros2/launch/issues/751>`_) (`#863 <https://github.com/ros2/launch/issues/863>`_)
+* Fix ExecuteLocal output flushing (`#860 <https://github.com/ros2/launch/issues/860>`_)
+* Contributors: Emerson Knapp, mhidalgo-bdai
+
+1.0.8 (2025-03-25)
+------------------
+* Document substitutions concatenation in architecture doc (`#845 <https://github.com/ros2/launch/issues/845>`_) (`#847 <https://github.com/ros2/launch/issues/847>`_)
+* Update docs to use proper RST literals (`#837 <https://github.com/ros2/launch/issues/837>`_) (`#840 <https://github.com/ros2/launch/issues/840>`_)
+* Contributors: mergify[bot]
+
+1.0.7 (2024-11-25)
+------------------
+
+1.0.6 (2024-05-17)
+------------------
+
+1.0.5 (2024-02-16)
+------------------
+* Backport error message improvements (`#754 <https://github.com/ros2/launch/issues/754>`_)
+* Contributors: David Yackzan
+
 1.0.4 (2023-01-10)
 ------------------
 * Allow ReadyToTest() usage in event handler (`#681 <https://github.com/ros2/launch/issues/681>`_)

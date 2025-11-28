@@ -14,7 +14,9 @@
 
 """Module for boolean substitutions."""
 
+from itertools import chain
 from typing import Iterable
+from typing import Optional
 from typing import Text
 
 from .substitution_failure import SubstitutionFailure
@@ -67,7 +69,7 @@ class AndSubstitution(Substitution):
     """Substitution that returns 'and' of the input boolean values."""
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
-        """Create a AndSubstitution substitution."""
+        """Create an AndSubstitution substitution."""
         super().__init__()
 
         self.__left = normalize_to_list_of_substitutions(left)
@@ -113,7 +115,7 @@ class OrSubstitution(Substitution):
     """Substitution that returns 'or' of the input boolean values."""
 
     def __init__(self, left: SomeSubstitutionsType, right: SomeSubstitutionsType) -> None:
-        """Create a AndSubstitution substitution."""
+        """Create an OrSubstitution substitution."""
         super().__init__()
 
         self.__left = normalize_to_list_of_substitutions(left)
@@ -121,7 +123,7 @@ class OrSubstitution(Substitution):
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
-        """Parse `AndSubstitution` substitution."""
+        """Parse `OrSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')
         return cls, {'left': data[0], 'right': data[1]}
@@ -152,3 +154,108 @@ class OrSubstitution(Substitution):
             raise SubstitutionFailure(e)
 
         return str(left_condition or right_condition).lower()
+
+
+@expose_substitution('any')
+class AnySubstitution(Substitution):
+    """
+    Substitutes to the string 'true' if at least one of the input arguments evaluates to true.
+
+    If none of the arguments evaluate to true, then this substitution returns the string 'false'.
+    """
+
+    def __init__(
+        self,
+        *args: SomeSubstitutionsType,
+        container: Optional[Iterable[SomeSubstitutionsType]] = None,
+    ) -> None:
+        """
+        Create an AnySubstitution substitution.
+
+        The following string arguments evaluate to true: '1', 'true', 'True', 'on'
+        """
+        super().__init__()
+
+        if container is None:
+            container = []
+
+        self.__args = [normalize_to_list_of_substitutions(arg) for arg in chain(args, container)]
+
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+        """Parse `AnySubstitution` substitution."""
+        return cls, {'container': data}
+
+    @property
+    def args(self) -> Substitution:
+        """Getter for args."""
+        return self.__args
+
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return f'AnySubstitution({" ".join(self.args)})'
+
+    def perform(self, context: LaunchContext) -> Text:
+        """Perform the substitution."""
+        substituted_conditions = []
+        for arg in self.args:
+            try:
+                arg_condition = perform_typed_substitution(context, arg, bool)
+                substituted_conditions.append(arg_condition)
+            except (TypeError, ValueError) as e:
+                raise SubstitutionFailure(e)
+
+        return str(any(substituted_conditions)).lower()
+
+
+@expose_substitution('all')
+class AllSubstitution(Substitution):
+    """
+    Substitutes to the string 'true' if all of the input arguments evaluate to true.
+
+    If any of the arguments evaluates to false, then this substitution returns the string 'false'.
+    """
+
+    def __init__(
+        self,
+        *args: SomeSubstitutionsType,
+        container: Optional[Iterable[SomeSubstitutionsType]] = None,
+    ) -> None:
+        """
+        Create an AllSubstitution substitution.
+
+        The following string arguments evaluate to true: '1', 'true', 'True', 'on'
+        The following string arguments evaluate to false: '0', 'false', 'False', 'off'
+        """
+        super().__init__()
+
+        if container is None:
+            container = []
+
+        self.__args = [normalize_to_list_of_substitutions(arg) for arg in chain(args, container)]
+
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+        """Parse `AllSubstitution` substitution."""
+        return cls, {'container': data}
+
+    @property
+    def args(self) -> Substitution:
+        """Getter for args."""
+        return self.__args
+
+    def describe(self) -> Text:
+        """Return a description of this substitution as a string."""
+        return f'AllSubstitution({" ".join(self.args)})'
+
+    def perform(self, context: LaunchContext) -> Text:
+        """Perform the substitution."""
+        substituted_conditions = []
+        for arg in self.args:
+            try:
+                arg_condition = perform_typed_substitution(context, arg, bool)
+                substituted_conditions.append(arg_condition)
+            except (TypeError, ValueError) as e:
+                raise SubstitutionFailure(e)
+
+        return str(all(substituted_conditions)).lower()
