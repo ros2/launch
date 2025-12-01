@@ -70,7 +70,7 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
     :param name: a string which specifies the key used for storing the parsing
         method in the dictionary.
     :param parse_methods_map: a dict where the parsing method will be stored.
-    :param exposed_type: A string specifing the parsing function type.
+    :param exposed_type: A string specifying the parsing function type.
     """
     # TODO(ivanpauno): Check signature of the registered method/parsing function.
     # TODO(ivanpauno): Infer a parsing function from the constructor annotations.
@@ -89,7 +89,7 @@ def __expose_impl(name: Text, parse_methods_map: dict, exposed_type: Text):
         if not found_parse_method:
             raise RuntimeError(
                 'Exposed {} parser for {} is not a callable or a class'
-                ' containg a parse method'.format(exposed_type, name)
+                ' containing a parse method'.format(exposed_type, name)
             )
         if name in parse_methods_map and found_parse_method != parse_methods_map[name]:
             raise RuntimeError(
