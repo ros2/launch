@@ -14,7 +14,7 @@
 
 """Tests for the PathJoinSubstitution substitution class."""
 
-import os
+from pathlib import Path
 
 from launch import LaunchContext
 from launch.substitutions import PathJoinSubstitution, PathSubstitution
@@ -26,14 +26,17 @@ def test_this_launch_file_path():
 
     path = ['asd', 'bsd', 'cds']
     sub = PathJoinSubstitution(path)
-    assert sub.perform(context) == os.path.join(*path)
+    assert sub.perform(context) == str(Path(*path))
 
     path = ['path', ['to'], ['my_', TextSubstitution(text='file'), '.yaml']]
     sub = PathJoinSubstitution(path)
-    assert sub.perform(context) == os.path.join('path', 'to', 'my_file.yaml')
+    assert sub.perform(context) == str(Path('path', 'to', 'my_file.yaml'))
 
     sub = PathSubstitution('some') / 'path'
     sub = sub / PathJoinSubstitution(['to', 'some', 'dir'])
     sub = sub / (TextSubstitution(text='my_model'), '.xacro')
-    assert sub.perform(context) == os.path.join(
-        'some', 'path', 'to', 'some', 'dir', 'my_model.xacro')
+    assert sub.perform(context) == str(Path('some', 'path', 'to', 'some', 'dir', 'my_model.xacro'))
+
+    path = ['path', [Path('to', 'my'), '_dir'], Path('file.yml')]
+    sub = PathJoinSubstitution(path)
+    assert sub.perform(context) == str(Path('path', 'to', 'my_dir', 'file.yml'))
