@@ -32,8 +32,11 @@ import launch.logging
 
 
 from .opaque_function import OpaqueFunction
+from .pop_environment import PopEnvironment
 from .pop_launch_configurations import PopLaunchConfigurations
+from .push_environment import PushEnvironment
 from .push_launch_configurations import PushLaunchConfigurations
+from .replace_environment_variables import ReplaceEnvironmentVariables
 from .reset_launch_configurations import ResetLaunchConfigurations
 
 from ..action import Action
@@ -94,10 +97,14 @@ class TimerAction(Action):
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals: Dict[Text, Any] = {}
+        self.__canceled = False
+
+        self.__context_environment: Dict[Text, Text] = {}
+
         self.__context_launch_configuration: Dict[Any, Any] = {}
         self._completed_future: Optional[asyncio.Future[None]] = None
-        self.__canceled = False
         self._canceled_future: Optional[asyncio.Future[bool]] = None
+
         self.__cancel_on_shutdown = type_utils.normalize_typed_substitution(
             cancel_on_shutdown, bool)
         self.__logger = launch.logging.get_logger(__name__)
@@ -154,9 +161,12 @@ class TimerAction(Action):
         # Reset the launch configurations to the state they were in when the timer action was
         # executed, and make sure to push and pop them so that the changes don't persist and leak
         return [
+            PushEnvironment(),
             PushLaunchConfigurations(),
+            ReplaceEnvironmentVariables(self.__context_environment),
             ResetLaunchConfigurations(self.__context_launch_configuration),
             *self.__actions,
+            PopEnvironment(),
             PopLaunchConfigurations(),
         ]
 
@@ -194,6 +204,7 @@ class TimerAction(Action):
             )
             if self._completed_future is not None:
                 self._completed_future.set_result(None)
+
             return None
 
         # Once per context, install the general purpose OnTimerEvent event handler.
@@ -213,6 +224,8 @@ class TimerAction(Action):
         # Make sure to capture copies
         self.__context_locals = dict(context.get_locals_as_dict())
         self.__context_launch_configuration = context.launch_configurations.copy()
+        # Capture the current context environment so the yielded actions can make use of them too.
+        self.__context_environment = dict(context.environment)  # Capture a copy
         context.asyncio_loop.create_task(self._wait_to_fire_event(context))
 
         # By default, the 'shutdown' event will cause timers to cancel so they don't hold up the
