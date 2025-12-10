@@ -14,11 +14,12 @@
 
 """Test the abstract Parser class."""
 
+from importlib import metadata
+import sys
 from unittest.mock import patch
 import warnings
 
 import launch.frontend.parser
-from launch.frontend.parser import importlib_metadata
 from launch.frontend.parser import Parser
 
 import pytest
@@ -42,10 +43,20 @@ def skip_if_warned_already(warn_text):
 
 def test_invalid_launch_extension():
     skip_if_warned_already('Failed to load the launch')
-    with patch(importlib_metadata.__name__ + '.entry_points') as mock_ep:
-        mock_ep.return_value = {
-            'launch.frontend.launch_extension': [InvalidEntryPoint()]
-        }
+    with patch(metadata.__name__ + '.entry_points') as mock_ep:
+        if sys.version_info >= (3, 12):
+            mock_ep.return_value = metadata.EntryPoints([
+                metadata.EntryPoint(
+                    name='invalid',
+                    value='some.module:InvalidEntryPoint',
+                    group='launch.frontend.launch_extension',
+                )
+            ])
+        else:
+            mock_ep.return_value = {
+                'launch.frontend.launch_extension': [InvalidEntryPoint()]
+            }
+
         with warnings.catch_warnings(record=True) as caught_warnings:
             Parser.load_launch_extensions()
             assert caught_warnings
@@ -54,10 +65,19 @@ def test_invalid_launch_extension():
 
 def test_invalid_parser_implementations():
     skip_if_warned_already('Failed to load the parser')
-    with patch(importlib_metadata.__name__ + '.entry_points') as mock_ep:
-        mock_ep.return_value = {
-            'launch.frontend.parser': [InvalidEntryPoint()]
-        }
+    with patch(metadata.__name__ + '.entry_points') as mock_ep:
+        if sys.version_info >= (3, 12):
+            mock_ep.return_value = metadata.EntryPoints([
+                metadata.EntryPoint(
+                    name='invalid',
+                    value='some.module:InvalidEntryPoint',
+                    group='launch.frontend.parser',
+                )
+            ])
+        else:
+            mock_ep.return_value = {
+                'launch.frontend.parser': [InvalidEntryPoint()]
+            }
 
         with warnings.catch_warnings(record=True) as caught_warnings:
             Parser.load_parser_implementations()

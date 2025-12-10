@@ -22,7 +22,6 @@
 
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>osrf_pycommon</exec_depend>
-  <exec_depend>python3-importlib-metadata</exec_depend>
   <exec_depend>python3-lark-parser</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
 
