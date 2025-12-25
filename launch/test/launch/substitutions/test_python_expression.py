@@ -114,3 +114,26 @@ def test_python_substitution_two_modules():
     # Test the describe() method
     assert subst.describe() ==\
         "PythonExpr('math.isfinite(sys.getrefcount(str(\"hello world!\")))', ['sys', 'math'])"
+
+
+def test_python_substitution_submodule():
+    """Evaluation of submodules within a package."""
+    python_modules = ['launch']
+    lc = LaunchContext()
+    expr = (
+        'not launch.utilities.is_a_subclass('
+        '    launch.substitutions.PythonExpression, '
+        '    launch.substitutions.SubstitutionFailure'
+        ')'
+    )
+    subst = PythonExpression([expr], python_modules)
+    try:
+        result = subst.perform(lc)
+    except NameError:
+        pytest.fail('Failed to evaluate PythonExpression containing submodules.'
+                    'There may be a missing import.')
+    except SubstitutionFailure:
+        pytest.fail('Failed to evaluate PythonExpression containing submodules.')
+
+    # The expression should evaluate to True
+    assert result

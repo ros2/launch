@@ -367,3 +367,13 @@ def test_execute_process_parse_cmd_line() -> None:
     cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
     cmd_performed = expand_cmd_subs(cmd_subs)
     assert cmd_performed == ['that', 'this']
+
+
+def test_eval_subst_submodule():
+    # Case where a submodule is used
+    subst = parse_substitution(
+        r'$(eval "os.path.exists(\'/\')" "os")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert expr.perform(LaunchContext())

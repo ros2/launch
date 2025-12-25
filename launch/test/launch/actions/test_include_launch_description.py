@@ -14,6 +14,7 @@
 
 """Tests for the IncludeLaunchDescription action class."""
 
+import os
 from pathlib import Path
 
 from launch import LaunchContext
@@ -22,9 +23,13 @@ from launch import LaunchDescriptionSource
 from launch import LaunchService
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
+from launch.actions import OpaqueFunction
 from launch.actions import ResetLaunchConfigurations
+from launch.actions import SetEnvironmentVariable
 from launch.actions import SetLaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import ThisLaunchFile
+from launch.substitutions import ThisLaunchFileDir
 from launch.utilities import perform_substitutions
 
 import pytest
@@ -46,7 +51,7 @@ def test_include_launch_description_methods():
     assert isinstance(action.describe_sub_entities(), list)
     assert isinstance(action.describe_conditional_sub_entities(), list)
     # Result should only contain the launch description as there are no launch arguments.
-    assert action.visit(LaunchContext()) == [ld]
+    assert action.visit(LaunchContext())[0] == ld
     assert action.get_asyncio_future() is None
     assert len(action.launch_arguments) == 0
 
@@ -56,7 +61,7 @@ def test_include_launch_description_methods():
     assert isinstance(action2.describe_sub_entities(), list)
     assert isinstance(action2.describe_conditional_sub_entities(), list)
     # Result should only contain the launch description as there are no launch arguments.
-    assert action2.visit(LaunchContext()) == [ld2]
+    assert action2.visit(LaunchContext())[0] == ld2
     assert action2.get_asyncio_future() is None
     assert len(action2.launch_arguments) == 0
 
@@ -70,7 +75,7 @@ def test_include_launch_description_launch_file_location():
     assert isinstance(action.describe_conditional_sub_entities(), list)
     lc1 = LaunchContext()
     # Result should only contain the launch description as there are no launch arguments.
-    assert action.visit(lc1) == [ld]
+    assert action.visit(lc1)[0] == ld
     assert lc1.locals.current_launch_file_directory == '<script>'
     assert action.get_asyncio_future() is None
 
@@ -82,9 +87,56 @@ def test_include_launch_description_launch_file_location():
     assert isinstance(action2.describe_conditional_sub_entities(), list)
     lc2 = LaunchContext()
     # Result should only contain the launch description as there are no launch arguments.
-    assert action2.visit(lc2) == [ld2]
+    assert action2.visit(lc2)[0] == ld2
     assert lc2.locals.current_launch_file_directory == str(this_file.parent)
     assert action2.get_asyncio_future() is None
+
+
+def test_include_launch_description_launch_file_dir_location_scoped():
+    """Test that the launch file name & dir locals are scoped to the included launch file."""
+    # Rely on the test launch files to set environment variables with
+    # ThisLaunchFile()/ThisLaunchFileDir() to make testing easier
+    parent_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'launch')
+    parent_launch_file = os.path.join(parent_dir, 'parent_launch_file_dir.launch.py')
+    included_dir = os.path.join(parent_dir, 'included')
+    included_launch_file = os.path.join(included_dir, 'launch_file_dir.launch.py')
+
+    # The current launch file/dir context locals should be scoped to the included launch file
+    ld = LaunchDescription([IncludeLaunchDescription(parent_launch_file)])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    lc = ls.context
+    assert lc.environment.get('Before_ThisLaunchFile') == parent_launch_file
+    assert lc.environment.get('Before_ThisLaunchFileDir') == parent_dir
+    assert lc.environment.get('Included_ThisLaunchFile') == included_launch_file
+    assert lc.environment.get('Included_ThisLaunchFileDir') == included_dir
+    assert lc.environment.get('After_ThisLaunchFile') == parent_launch_file
+    assert lc.environment.get('After_ThisLaunchFileDir') == parent_dir
+
+    # The launch file/dir context locals should be completely removed after the first included
+    # (parent) launch file, because at that point we're in a launch script and not a launch file,
+    # and therefore these substitutions should raise an error
+    ld2 = LaunchDescription([
+        IncludeLaunchDescription(parent_launch_file),
+        SetEnvironmentVariable('Outside_ThisLaunchFile', ThisLaunchFile()),
+        SetEnvironmentVariable('Outside_ThisLaunchFileDir', ThisLaunchFileDir()),
+    ])
+    ls2 = LaunchService()
+    ls2.include_launch_description(ld2)
+    assert 1 == ls2.run()
+
+    # The non-launch file/dir context locals should not be scoped to the included launch file
+    def assert_unscoped_context_local(context: LaunchContext):
+        assert context.locals.included_local == 'context_local_value'
+
+    ld3 = LaunchDescription([
+        IncludeLaunchDescription(parent_launch_file),
+        OpaqueFunction(function=assert_unscoped_context_local),
+    ])
+    ls3 = LaunchService()
+    ls3.include_launch_description(ld3)
+    assert 0 == ls3.run()
 
 
 def test_include_launch_description_launch_arguments():
@@ -98,7 +150,7 @@ def test_include_launch_description_launch_arguments():
     assert len(action1.launch_arguments) == 1
     lc1 = LaunchContext()
     result1 = action1.visit(lc1)
-    assert len(result1) == 2
+    assert len(result1) == 3
     assert isinstance(result1[0], SetLaunchConfiguration)
     assert perform_substitutions(lc1, result1[0].name) == 'foo'
     assert perform_substitutions(lc1, result1[0].value) == 'FOO'
@@ -224,8 +276,9 @@ def test_include_python():
         assert 'IncludeLaunchDescription' in action.describe()
         assert isinstance(action.describe_sub_entities(), list)
         assert isinstance(action.describe_conditional_sub_entities(), list)
-        # Result should only contain a single launch description as there are no launch arguments.
-        assert len(action.visit(LaunchContext())) == 1
+        # Result should only contain a single launch description (+ internal action) as there are
+        # no launch arguments.
+        assert len(action.visit(LaunchContext())) == 2
         assert action.get_asyncio_future() is None
         assert len(action.launch_arguments) == 0
 
