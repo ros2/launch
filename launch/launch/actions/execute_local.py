@@ -478,12 +478,13 @@ class ExecuteLocal(Action):
             actions=[
                 OpaqueFunction(
                     function=printer,
-                    args=(base_msg.format('{}', sigterm_timeout, 'SIGINT', 'SIGTERM'), )
+                    args=(base_msg.format('{}', sigterm_timeout, 'SIGINT', 'SIGTERM'),),
                 ),
-                EmitEvent(event=SignalProcess(
-                    signal_number=signal.SIGTERM,
-                    process_matcher=matches_action(self)
-                )),
+                EmitEvent(
+                    event=SignalProcess(
+                        signal_number=signal.SIGTERM, process_matcher=matches_action(self)
+                    )
+                ),
             ],
             cancel_on_shutdown=False,
         )
@@ -494,12 +495,13 @@ class ExecuteLocal(Action):
             actions=[
                 OpaqueFunction(
                     function=printer,
-                    args=(base_msg.format('{}', sigkill_timeout, 'SIGTERM', 'SIGKILL'), )
+                    args=(base_msg.format('{}', sigkill_timeout, 'SIGTERM', 'SIGKILL'),),
                 ),
-                EmitEvent(event=SignalProcess(
-                    signal_number='SIGKILL',
-                    process_matcher=matches_action(self)
-                ))
+                EmitEvent(
+                    event=SignalProcess(
+                        signal_number='SIGKILL', process_matcher=matches_action(self)
+                    )
+                ),
             ],
             cancel_on_shutdown=False,
         )
