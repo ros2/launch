@@ -31,6 +31,8 @@ from typing import Text
 from typing import Tuple  # noqa: F401
 from typing import Union
 
+from asyncio.transports import SubprocessTransport
+
 import launch.logging
 
 from osrf_pycommon.process_utils import async_execute_process  # type: ignore
@@ -224,7 +226,7 @@ class ExecuteLocal(Action):
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
-        self._subprocess_transport = None
+        self._subprocess_transport: Optional[SubprocessTransport] = None
         self.__completed_future = None  # type: Optional[asyncio.Future[None]]
         self.__shutdown_future = None  # type: Optional[asyncio.Future[None]]
         self.__sigterm_timer = None  # type: Optional[TimerAction]
@@ -506,7 +508,9 @@ class ExecuteLocal(Action):
             cancel_on_shutdown=False,
         )
         self.__children = []
-        pid = self._subprocess_transport.get_pid()
+        pid = None
+        if self._subprocess_transport is not None:
+            pid = self._subprocess_transport.get_pid()
         if pid is not None:
             try:
                 self.__children = psutil.Process(pid).children(recursive=True)
