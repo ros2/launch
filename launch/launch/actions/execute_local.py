@@ -31,8 +31,6 @@ from typing import Text
 from typing import Tuple  # noqa: F401
 from typing import Union
 
-from asyncio.transports import SubprocessTransport
-
 import launch.logging
 
 from osrf_pycommon.process_utils import async_execute_process  # type: ignore
@@ -226,7 +224,7 @@ class ExecuteLocal(Action):
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
-        self._subprocess_transport: Optional[SubprocessTransport] = None
+        self._subprocess_transport = None  # type: Optional[Any]
         self.__completed_future = None  # type: Optional[asyncio.Future[None]]
         self.__shutdown_future = None  # type: Optional[asyncio.Future[None]]
         self.__sigterm_timer = None  # type: Optional[TimerAction]
@@ -337,7 +335,7 @@ class ExecuteLocal(Action):
             raise RuntimeError('Signal event received before execution.')
         if self._subprocess_transport is None:
             raise RuntimeError('Signal event received before subprocess transport available.')
-        if self._subprocess_protocol.complete.done():
+        if self._subprocess_protocol and self._subprocess_protocol.complete.done():
             # the process is done or is cleaning up, no need to signal
             self.__logger.debug(
                 "signal '{}' not set to '{}' because it is already closing".format(
@@ -361,13 +359,13 @@ class ExecuteLocal(Action):
                 self._subprocess_transport.kill()  # works on both Windows and POSIX
                 return None
             self._subprocess_transport.send_signal(typed_event.signal)
-            return None
         except ProcessLookupError:
             self.__logger.debug(
                 "signal '{}' not sent to '{}' because it has closed already".format(
                     typed_event.signal_name, self.process_details['name']
                 )
             )
+        return None
 
     def __on_process_stdin(
         self,
