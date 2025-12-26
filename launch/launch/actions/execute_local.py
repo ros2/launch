@@ -472,7 +472,7 @@ class ExecuteLocal(Action):
             self.__logger.error(msg.format(context.locals.process_name))
 
         # Setup a timer to send us a SIGTERM if we don't shutdown quickly.
-        sigterm_timeout = cast(float, self.__sigterm_timeout_value)
+        sigterm_timeout = self.__sigterm_timeout_value
         self.__sigterm_timer = TimerAction(
             period=sigterm_timeout,
             actions=[
@@ -488,7 +488,7 @@ class ExecuteLocal(Action):
             ],
             cancel_on_shutdown=False,
         )
-        sigkill_timeout = sigterm_timeout + cast(float, self.__sigkill_timeout_value)
+        sigkill_timeout = sigterm_timeout + self.__sigkill_timeout_value
         # Setup a timer to send us a SIGKILL if we don't shutdown after SIGTERM.
         self.__sigkill_timer = TimerAction(
             period=sigkill_timeout,
@@ -772,12 +772,15 @@ class ExecuteLocal(Action):
         ]
         for event_handler in event_handlers:
             context.register_event_handler(event_handler)
-        self.__sigterm_timeout_value = perform_typed_substitution(
-            context, self.__sigterm_timeout, float)
-        self.__sigkill_timeout_value = perform_typed_substitution(
-            context, self.__sigkill_timeout, float)
+        self.__sigterm_timeout_value = cast(
+            float, perform_typed_substitution(context, self.__sigterm_timeout, float)
+        )
+        self.__sigkill_timeout_value = cast(
+            float, perform_typed_substitution(context, self.__sigkill_timeout, float)
+        )
         self.__signal_lingering_subprocesses_value = perform_typed_substitution(
-            context, self.__signal_lingering_subprocesses, bool)
+            context, self.__signal_lingering_subprocesses, bool
+        )
 
         try:
             self.__completed_future = context.asyncio_loop.create_future()
