@@ -2,6 +2,13 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.14 (2026-01-12)
+-------------------
+* Fixed typos (backport `#692 <https://github.com/ros2/launch/issues/692>`_) (`#693 <https://github.com/ros2/launch/issues/693>`_)
+* [humble] Allow Path in substitutions, instead of requiring cast to str (backport `#873 <https://github.com/ros2/launch/issues/873>`_) (`#926 <https://github.com/ros2/launch/issues/926>`_)
+* Fix intersphinx_mapping format (`#921 <https://github.com/ros2/launch/issues/921>`_) (`#922 <https://github.com/ros2/launch/issues/922>`_)
+* Contributors: mergify[bot]
+
 1.0.13 (2025-11-07)
 -------------------
 * [backport humble] Make the directory-finding substitutions into a PathSubstitution for / operator (backport `#914 <https://github.com/ros2/launch//issues/914>`_) (`#917 <https://github.com/ros2/launch//issues/917>`_)

@@ -2,6 +2,11 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.14 (2026-01-12)
+-------------------
+* Fixed typos (backport `#692 <https://github.com/ros2/launch/issues/692>`_) (`#693 <https://github.com/ros2/launch/issues/693>`_)
+* Contributors: mergify[bot]
+
 1.0.13 (2025-11-07)
 -------------------
 
