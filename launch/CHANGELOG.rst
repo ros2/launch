@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.7 (2026-01-12)
+------------------
+* Remove importlib metadata (backport `#932 <https://github.com/ros2/launch/issues/932>`_) (`#934 <https://github.com/ros2/launch/issues/934>`_)
+* Merge pull request `#928 <https://github.com/ros2/launch/issues/928>`_ from ros2/mergify/bp/kilted/pr-873
+* Allow Path in substitutions, instead of requiring cast to str (`#873 <https://github.com/ros2/launch/issues/873>`_)
+* Fix intersphinx_mapping format (`#921 <https://github.com/ros2/launch/issues/921>`_) (`#924 <https://github.com/ros2/launch/issues/924>`_)
+* Contributors: Emerson Knapp, mergify[bot]
+
 3.8.6 (2025-11-07)
 ------------------
 * [backport kilted] Make the directory-finding substitutions into a PathSubstitution for / operator (backport `#914 <https://github.com/ros2/launch//issues/914>`_) (`#919 <https://github.com/ros2/launch//issues/919>`_)
