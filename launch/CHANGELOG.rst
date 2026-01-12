@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.10 (2026-01-12)
+-------------------
+* [jazzy] Allow Path in substitutions, instead of requiring cast to str (backport `#873 <https://github.com/ros2/launch/issues/873>`_) (`#927 <https://github.com/ros2/launch/issues/927>`_)
+* Fix intersphinx_mapping format (`#921 <https://github.com/ros2/launch/issues/921>`_) (`#923 <https://github.com/ros2/launch/issues/923>`_)
+* Contributors: mergify[bot]
+
 3.4.9 (2025-11-07)
 ------------------
 * [backport jazzy] Make the directory-finding substitutions into a PathSubstitution for / operator (backport `#914 <https://github.com/ros2/launch//issues/914>`_) (`#918 <https://github.com/ros2/launch//issues/918>`_)

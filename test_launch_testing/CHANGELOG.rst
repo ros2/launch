@@ -2,6 +2,11 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.10 (2026-01-12)
+-------------------
+* [jazzy] Allow Path in substitutions, instead of requiring cast to str (backport `#873 <https://github.com/ros2/launch/issues/873>`_) (`#927 <https://github.com/ros2/launch/issues/927>`_)
+* Contributors: mergify[bot]
+
 3.4.9 (2025-11-07)
 ------------------
 
