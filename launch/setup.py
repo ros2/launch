@@ -5,7 +5,7 @@ package_name = 'launch'
 
 setup(
     name=package_name,
-    version='3.9.5',
+    version='3.9.6',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/' + package_name, ['package.xml']),
