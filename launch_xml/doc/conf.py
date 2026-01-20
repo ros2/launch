@@ -1,4 +1,4 @@
-# Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2025 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,4 +19,3 @@ import sys
 
 # rosdoc2 copies this package's modules alongside conf.py, so add parent to path
 sys.path.insert(0, os.path.abspath('.'))
-
