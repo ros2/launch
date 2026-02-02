@@ -18,6 +18,9 @@ Welcome to launch's documentation!
 
 
 Indices and tables
+   ROS Package Dependencies <__ros_package_dependencies>
+
+Indices and tables
 ==================
 
 * :ref:`genindex`
