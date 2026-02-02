@@ -20,6 +20,11 @@ Welcome to launch's documentation!
 Indices and tables
    ROS Package Dependencies <__ros_package_dependencies>
 
+.. toctree::
+   :hidden:
+
+   doc/source/architecture
+
 Indices and tables
 ==================
 
