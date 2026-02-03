@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.6 (2026-01-12)
+------------------
+* test python substitution with submodules (`#688 <https://github.com/ros2/launch/issues/688>`_)
+* Scope launch file dir/path locals to included launch file (`#862 <https://github.com/ros2/launch/issues/862>`_)
+* Capture the environment variables in TimerAction (`#728 <https://github.com/ros2/launch/issues/728>`_)
+* Remove importlib metadata (`#932 <https://github.com/ros2/launch/issues/932>`_)
+* Fix intersphinx_mapping format (`#921 <https://github.com/ros2/launch/issues/921>`_)
+* Contributors: Christophe Bedard, Jonas Otto, Michael Carlstrom, Sebastian Javier D'Alessandro Szymanowski, Will
+
 3.9.5 (2025-11-07)
 ------------------
 * Make the directory-finding substitutions into a PathSubstitution for / operator (`#914 <https://github.com/ros2/launch//issues/914>`_)

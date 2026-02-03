@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.6 (2026-01-12)
+------------------
+* Capture the environment variables in TimerAction (`#728 <https://github.com/ros2/launch/issues/728>`_)
+* Contributors: Sebastian Javier D'Alessandro Szymanowski
+
 3.9.5 (2025-11-07)
 ------------------
 * Expose StringJoinSubstitution to frontend (`#857 <https://github.com/ros2/launch//issues/857>`_)
