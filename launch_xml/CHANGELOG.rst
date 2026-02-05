@@ -2,6 +2,59 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.6 (2026-01-12)
+------------------
+* Capture the environment variables in TimerAction (`#728 <https://github.com/ros2/launch/issues/728>`_)
+* Contributors: Sebastian Javier D'Alessandro Szymanowski
+
+3.9.5 (2025-11-07)
+------------------
+* Expose StringJoinSubstitution to frontend (`#857 <https://github.com/ros2/launch//issues/857>`_)
+* Contributors: Christian Ruf
+
+3.9.4 (2025-10-17)
+------------------
+* Fix all/any in xml and yaml launch files (`#906 <https://github.com/ros2/launch/issues/906>`_)
+* Contributors: Matthijs van der Burgh
+
+3.9.3 (2025-10-06)
+------------------
+* Allow providing launch args to include using let in frontends (`#848 <https://github.com/ros2/launch//issues/848>`_)
+* Contributors: Christophe Bedard
+
+3.9.2 (2025-07-29)
+------------------
+* Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
+* Contributors: mosfet80
+
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* Add remaining `py.typed` (`#884 <https://github.com/ros2/launch/issues/884>`_)
+* Fix `log\_*` warnings (`#883 <https://github.com/ros2/launch/issues/883>`_)
+* Allow Path in substitutions, instead of requiring cast to str (`#873 <https://github.com/ros2/launch/issues/873>`_)
+* Other Logging Implementations with `getLevelNamesMapping` fix (`#866 <https://github.com/ros2/launch/issues/866>`_)
+* Revert "Add Other Logging Implementations (`#858 <https://github.com/ros2/launch/issues/858>`_)" (`#865 <https://github.com/ros2/launch/issues/865>`_)
+  This reverts commit b7b31c45b0eb350deedd282b88398d1ca0d5faf4.
+* Add Other Logging Implementations (`#858 <https://github.com/ros2/launch/issues/858>`_)
+* Contributors: Christophe Bedard, Emerson Knapp, Michael Carlstrom
+
+3.9.0 (2025-04-24)
+------------------
+
+3.8.1 (2025-04-18)
+------------------
+
+3.8.0 (2025-02-27)
+------------------
+* Add ForEach action to repeat entities using iteration-specific values (`#802 <https://github.com/ros2/launch/issues/802>`_)
+* Stop loading extensions during launch\_{xml,yaml} tests. (`#820 <https://github.com/ros2/launch/issues/820>`_)
+* Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)
+* Contributors: Chris Lalancette, Christophe Bedard
+
+3.7.1 (2024-12-20)
+------------------
+
 3.7.0 (2024-11-20)
 ------------------
 * Add test_xmllint to all of the ament_python packages. (`#804 <https://github.com/ros2/launch/issues/804>`_)
@@ -215,4 +268,3 @@ Changelog for package launch_xml
 * Add parsing method for `DeclareLaunchArgument` (`#270 <https://github.com/ros2/launch/issues/270>`_)
 * Add frontend module in launch, launch_xml and launch_yaml packages (`#226 <https://github.com/ros2/launch/issues/226>`_)
 * Contributors: Dirk Thomas, ivanpauno
-

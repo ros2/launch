@@ -215,8 +215,8 @@ class ExecuteLocal(Action):
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
         self._subprocess_transport = None
-        self.__completed_future = None  # type: Optional[asyncio.Future]
-        self.__shutdown_future = None  # type: Optional[asyncio.Future]
+        self.__completed_future = None  # type: Optional[asyncio.Future[None]]
+        self.__shutdown_future = None  # type: Optional[asyncio.Future[None]]
         self.__sigterm_timer = None  # type: Optional[TimerAction]
         self.__sigkill_timer = None  # type: Optional[TimerAction]
         self.__stdout_buffer = io.StringIO()
@@ -225,27 +225,27 @@ class ExecuteLocal(Action):
         self.__executed = False
 
     @property
-    def process_description(self):
+    def process_description(self) -> Executable:
         """Getter for process_description."""
         return self.__process_description
 
     @property
-    def shell(self):
+    def shell(self) -> bool:
         """Getter for shell."""
         return self.__shell
 
     @property
-    def emulate_tty(self):
+    def emulate_tty(self) -> bool:
         """Getter for emulate_tty."""
         return self.__emulate_tty
 
     @property
-    def sigkill_timeout(self):
+    def sigkill_timeout(self) -> List[Substitution]:
         """Getter for sigkill timeout."""
         return self.__sigkill_timeout
 
     @property
-    def sigterm_timeout(self):
+    def sigterm_timeout(self) -> List[Substitution]:
         """Getter for sigterm timeout."""
         return self.__sigterm_timeout
 
@@ -259,12 +259,13 @@ class ExecuteLocal(Action):
         """Getter for the process details, e.g. name, pid, cmd, etc., or None if not started."""
         return self.__process_event_args
 
-    def get_sub_entities(self):
+    def get_sub_entities(self) -> List[LaunchDescriptionEntity]:
         if isinstance(self.__on_exit, list):
             return self.__on_exit
         return []
 
-    def _shutdown_process(self, context, *, send_sigint):
+    def _shutdown_process(self, context: LaunchContext, *, send_sigint: bool
+                          ) -> Optional[List[Action]]:
         if self.__shutdown_future is None or self.__shutdown_future.done():
             # Execution not started or already done, nothing to do.
             return None
@@ -300,7 +301,7 @@ class ExecuteLocal(Action):
     def __on_shutdown_process_event(
         self,
         context: LaunchContext
-    ) -> Optional[LaunchDescription]:
+    ) -> Optional[List[Action]]:
         typed_event = cast(ShutdownProcess, context.locals.event)
         if not typed_event.process_matcher(self):
             # this event was not intended for this process
@@ -497,13 +498,13 @@ class ExecuteLocal(Action):
             cast(Action, self.__sigkill_timer),
         ]
 
-    def __get_sigint_event(self):
+    def __get_sigint_event(self) -> EmitEvent:
         return EmitEvent(event=SignalProcess(
             signal_number=signal.SIGINT,
             process_matcher=matches_action(self),
         ))
 
-    def __cleanup(self):
+    def __cleanup(self) -> None:
         # Cancel any pending timers we started.
         if self.__sigterm_timer is not None:
             self.__sigterm_timer.cancel()
@@ -513,22 +514,23 @@ class ExecuteLocal(Action):
         if self._subprocess_transport is not None:
             self._subprocess_transport.close()
         # Signal that we're done to the launch system.
-        self.__completed_future.set_result(None)
+        if self.__completed_future is not None:
+            self.__completed_future.set_result(None)
 
     class __ProcessProtocol(AsyncSubprocessProtocol):
         def __init__(
             self,
             action: 'ExecuteLocal',
             context: LaunchContext,
-            process_event_args: Dict,
-            **kwargs
+            process_event_args: Dict[str, Any],
+            **kwargs: Any
         ) -> None:
             super().__init__(**kwargs)
             self.__context = context
             self.__process_event_args = process_event_args
             self.__logger = launch.logging.get_logger(process_event_args['name'])
 
-        def connection_made(self, transport):
+        def connection_made(self, transport: asyncio.transports.SubprocessTransport) -> None:
             self.__logger.info(
                 'process started with pid [{}]'.format(transport.get_pid()),
             )
@@ -621,7 +623,7 @@ class ExecuteLocal(Action):
                 return
         self.__cleanup()
 
-    def prepare(self, context: LaunchContext):
+    def prepare(self, context: LaunchContext) -> None:
         """Prepare the action for execution."""
         self.__process_description.prepare(context, self)
 
@@ -637,7 +639,7 @@ class ExecuteLocal(Action):
 
         self.__respawn = cast(bool, perform_typed_substitution(context, self.__respawn, bool))
 
-    def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
+    def execute(self, context: LaunchContext) -> None:
         """
         Execute the action.
 
@@ -706,6 +708,8 @@ class ExecuteLocal(Action):
             self.__completed_future = context.asyncio_loop.create_future()
             self.__shutdown_future = context.asyncio_loop.create_future()
             self.__logger = launch.logging.get_logger(name)
+            if name is None:
+                raise RuntimeError('Cannot get Ouput Loggers with None name')
             if not isinstance(self.__output, dict):
                 self.__stdout_logger, self.__stderr_logger = \
                     launch.logging.get_output_loggers(
@@ -721,11 +725,11 @@ class ExecuteLocal(Action):
             raise
         return None
 
-    def get_asyncio_future(self) -> Optional[asyncio.Future]:
+    def get_asyncio_future(self) -> Optional[asyncio.Future[None]]:
         """Return an asyncio Future, used to let the launch system know when we're done."""
         return self.__completed_future
 
-    def get_stdout(self):
+    def get_stdout(self) -> str:
         """
         Get cached stdout.
 
@@ -737,7 +741,7 @@ class ExecuteLocal(Action):
                 f" proc '{self.__process_description.name}'")
         return self.__stdout_buffer.getvalue()
 
-    def get_stderr(self):
+    def get_stderr(self) -> str:
         """
         Get cached stdout.
 
@@ -750,7 +754,7 @@ class ExecuteLocal(Action):
         return self.__stderr_buffer.getvalue()
 
     @property
-    def return_code(self):
+    def return_code(self) -> Optional[int]:
         """Get the process return code, None if it hasn't finished."""
         if self._subprocess_transport is None:
             return None

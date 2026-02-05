@@ -14,10 +14,15 @@
 
 """Module for the EnvironmentVariable substitution."""
 
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
+
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend.expose import expose_substitution
@@ -62,7 +67,8 @@ class EnvironmentVariable(Substitution):
         self.__default_value = default_value
 
     @classmethod
-    def parse(cls, data: Sequence[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['EnvironmentVariable'], Dict[str, Any]]:
         """Parse `EnviromentVariable` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('env substitution expects 1 or 2 arguments')

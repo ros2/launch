@@ -14,6 +14,7 @@
 
 """Module for OnIncludeLaunchDescription class."""
 
+from typing import Any
 from typing import Text
 
 from ..event_handler import EventHandler
@@ -24,7 +25,7 @@ from ..utilities import is_a_subclass
 class OnIncludeLaunchDescription(EventHandler):
     """Event handler used to handle asynchronous requests to include LaunchDescriptions."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Create an OnIncludeLaunchDescription event handler."""
         from ..actions import OpaqueFunction
         super().__init__(
