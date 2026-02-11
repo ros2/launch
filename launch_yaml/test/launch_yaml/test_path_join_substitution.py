@@ -15,6 +15,7 @@
 """Test parsing a `PathJoinSubstitution` substitution."""
 
 import io
+from pathlib import Path
 import textwrap
 
 import lark
@@ -56,7 +57,8 @@ def test_path_join_substitution():
     log_info = launch_description.entities[3]
     assert isinstance(log_info, Log)
     assert isinstance(log_info.msg[1], PathJoinSubstitution)
-    assert perform_substitutions(ls.context, log_info.msg) == 'file=robot2/a/ur df/v_1.0.xacro'
+    assert perform_substitutions(ls.context, log_info.msg) == \
+        'file=' + str(Path('robot2', 'a', 'ur df', 'v_1.0.xacro'))
 
 
 def test_path_join_substitution_empty():
