@@ -15,10 +15,16 @@
 """Module for the PathJoinSubstitution substitution."""
 
 from pathlib import Path
+from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import List
+from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
 
+from ..frontend import expose_substitution
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
@@ -26,6 +32,7 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
+@expose_substitution('path-join')
 class PathJoinSubstitution(Substitution):
     """
     Substitution that join paths, in a platform independent way.
@@ -35,11 +42,19 @@ class PathJoinSubstitution(Substitution):
 
     For example:
 
+    .. code-block:: xml
+
+        $(path-join $(env SOME_DIR) 'cfg 2' config_$(var map).yml)
+
+    .. code-block:: yaml
+
+        $(path-join $(env SOME_DIR) "cfg 2" config_$(var map).yml)
+
     .. code-block:: python
 
         PathJoinSubstitution([
             EnvironmentVariable('SOME_DIR'),
-            'cfg',
+            'cfg 2',
             ['config_', LaunchConfiguration('map'), '.yml']
         ])
 
@@ -47,7 +62,7 @@ class PathJoinSubstitution(Substitution):
 
     .. code-block:: python
 
-        cfg_dir = PathJoinSubstitution([EnvironmentVariable('SOME_DIR'), 'cfg'])
+        cfg_dir = PathJoinSubstitution([EnvironmentVariable('SOME_DIR'), 'cfg 2'])
         cfg_file = cfg_dir / ['config_', LaunchConfiguration('map'), '.yml']
 
     If the ``SOME_DIR`` environment variable was set to ``/home/user/dir`` and the ``map`` launch
@@ -56,7 +71,7 @@ class PathJoinSubstitution(Substitution):
 
     .. code-block:: python
 
-        '/home/user/dir/cfg/config_my_map.yml'
+        '/home/user/dir/cfg 2/config_my_map.yml'
     """
 
     def __init__(self, substitutions: Iterable[SomeSubstitutionsType]) -> None:
@@ -65,7 +80,6 @@ class PathJoinSubstitution(Substitution):
 
         :param substitutions: the list of path component substitutions to join
         """
-        from ..utilities import normalize_to_list_of_substitutions
         self.__substitutions = [
             normalize_to_list_of_substitutions(path_component_substitutions)
             for path_component_substitutions in substitutions
@@ -75,6 +89,17 @@ class PathJoinSubstitution(Substitution):
     def substitutions(self) -> List[List[Substitution]]:
         """Getter for substitutions."""
         return self.__substitutions
+
+    @classmethod
+    def parse(
+        cls,
+        data: Sequence[SomeSubstitutionsType],
+    ) -> Tuple[Type['PathJoinSubstitution'], Dict[str, Any]]:
+        if len(data) == 0:
+            raise ValueError(f'{cls.__name__} expects at least 1 argument')
+        kwargs = {}
+        kwargs['substitutions'] = data
+        return cls, kwargs
 
     def __repr__(self) -> Text:
         """Return a description of this substitution as a string."""
