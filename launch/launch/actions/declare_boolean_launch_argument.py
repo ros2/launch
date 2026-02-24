@@ -65,7 +65,7 @@ class DeclareBooleanLaunchArgument(DeclareLaunchArgument):
             name=name,
             default_value=(default_value if not isinstance(default_value, bool)
                            else str(default_value)),
-            choices=['true', 'false', 'True', 'False'],
+            choices=['true', 'false', 'True', 'False', 'TRUE', 'FALSE'],
             **kwargs
         )
 

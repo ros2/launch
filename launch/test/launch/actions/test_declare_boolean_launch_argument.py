@@ -25,12 +25,8 @@ def test_declare_launch_argument_constructors():
     DeclareBooleanLaunchArgument('name')
 
     # All possible default values
-    DeclareBooleanLaunchArgument('name', default_value='True')
-    DeclareBooleanLaunchArgument('name', default_value='true')
-    DeclareBooleanLaunchArgument('name', default_value='False')
-    DeclareBooleanLaunchArgument('name', default_value='false')
-    DeclareBooleanLaunchArgument('name', default_value=True)
-    DeclareBooleanLaunchArgument('name', default_value=False)
+    for default_value in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE', True, False]:
+        DeclareBooleanLaunchArgument('name', default_value=default_value)
 
     # With description
     DeclareBooleanLaunchArgument('name', description='description')
