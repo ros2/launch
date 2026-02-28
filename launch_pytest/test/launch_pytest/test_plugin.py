@@ -14,6 +14,9 @@
 
 from pathlib import Path
 import shutil
+from types import SimpleNamespace
+
+from launch_pytest.plugin import get_launch_test_fixture_scope
 
 
 def test_launch_fixture_is_not_a_launch_description(testdir):
@@ -330,3 +333,15 @@ def test_examples(testdir):
     shutil.copytree(examples_dir / 'executables', Path(testdir.tmpdir) / 'executables')
     result = testdir.runpytest()
     result.assert_outcomes(passed=22)
+
+
+def test_get_launch_test_fixture_scope_with_new_and_old_pytest_repr():
+    old_pytest_fixture = SimpleNamespace(
+        _pytestfixturefunction=SimpleNamespace(scope='module')
+    )
+    new_pytest_fixture = SimpleNamespace(
+        _fixture_function_marker=SimpleNamespace(scope='class')
+    )
+
+    assert get_launch_test_fixture_scope(old_pytest_fixture) == 'module'
+    assert get_launch_test_fixture_scope(new_pytest_fixture) == 'class'
