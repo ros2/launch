@@ -20,6 +20,7 @@ from typing import Optional
 from typing import Text
 from typing import Tuple
 from typing import Type
+from typing import Union
 
 from .declare_launch_argument import DeclareLaunchArgument
 from ..frontend import Entity
@@ -57,7 +58,8 @@ class DeclareBooleanLaunchArgument(DeclareLaunchArgument):
         self,
         name: Text,
         *,
-        default_value: Optional[SomeSubstitutionsType | bool] = None,
+        default_value: Optional[Union[SomeSubstitutionsType,
+                                      bool]] = None,
         **kwargs: Any
     ) -> None:
         """Create a DeclareBooleanLaunchArgument action."""
