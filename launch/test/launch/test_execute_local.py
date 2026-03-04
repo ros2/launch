@@ -178,3 +178,95 @@ def test_execute_process_with_output_dictionary():
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+
+
+def test_event_handlers_cleaned_up_after_process_exit():
+    """Test that event handlers are unregistered after a process exits."""
+    ls = LaunchService()
+    initial_handler_count = len(ls.context._event_handlers)
+
+    executable = ExecuteLocal(
+        process_description=Executable(
+            cmd=[sys.executable, '-c', "print('hello')"]
+        ),
+        output='screen'
+    )
+    ld = LaunchDescription([executable])
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+
+    final_handler_count = len(ls.context._event_handlers)
+    assert final_handler_count == initial_handler_count, (
+        f'Expected {initial_handler_count} handlers after cleanup, '
+        f'but found {final_handler_count}'
+    )
+
+
+def test_event_handlers_stable_during_respawn():
+    """Test that event handler count stays stable across respawn cycles."""
+    handler_counts = []
+
+    def on_exit_callback(event, context):
+        handler_counts.append(len(context._event_handlers))
+
+    shutdown_time = 4.0
+    respawn_delay = 1.0
+
+    executable = ExecuteLocal(
+        process_description=Executable(
+            cmd=[sys.executable, '-c', "print('respawn test')"]
+        ),
+        respawn=True,
+        respawn_delay=respawn_delay,
+        on_exit=on_exit_callback,
+        output='screen'
+    )
+
+    ls = LaunchService()
+
+    ld = LaunchDescription([
+        executable,
+        TimerAction(
+            period=shutdown_time,
+            actions=[
+                Shutdown(reason='Timer expired')
+            ]
+        )
+    ])
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+
+    # Handler count should remain stable during respawn (not growing)
+    assert len(handler_counts) >= 2, (
+        f'Expected at least 2 process exits, got {len(handler_counts)}'
+    )
+    assert all(c == handler_counts[0] for c in handler_counts), (
+        f'Handler counts should be stable across respawns, got: {handler_counts}'
+    )
+
+
+def test_multiple_processes_handler_cleanup():
+    """Test that multiple processes don't leak event handlers."""
+    ls = LaunchService()
+    initial_handler_count = len(ls.context._event_handlers)
+
+    executables = [
+        ExecuteLocal(
+            process_description=Executable(
+                cmd=[sys.executable, '-c', f"print('process {i}')"]
+            ),
+            output='screen'
+        )
+        for i in range(5)
+    ]
+
+    ld = LaunchDescription(executables)
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+
+    final_handler_count = len(ls.context._event_handlers)
+    assert final_handler_count == initial_handler_count, (
+        f'Expected {initial_handler_count} handlers after cleanup, '
+        f'but found {final_handler_count}. '
+        f'Leaked {final_handler_count - initial_handler_count} handlers from 5 processes.'
+    )
