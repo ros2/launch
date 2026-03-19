@@ -61,5 +61,61 @@ def test_include():
     assert ls.context.launch_configurations['baz'] == 'BAZ'
 
 
+def test_include_scoped_true():
+    """Parse include with scoped: true — child configs do not leak to parent."""
+    path = (Path(__file__).parent / 'executable.yaml').as_posix()
+    yaml_file = \
+        """\
+        launch:
+        - let:
+            name: 'bar'
+            value: 'BAR'
+        - include:
+            file: '{}'
+            scoped: true
+            let:
+                - name: 'foo'
+                  value: 'FOO'
+        """.format(path)  # noqa: E501
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    ld = parser.parse_description(root_entity)
+    include = ld.entities[1]
+    assert isinstance(include, IncludeLaunchDescription)
+    ls = LaunchService(debug=True)
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    assert ls.context.launch_configurations['bar'] == 'BAR'
+    assert 'foo' not in ls.context.launch_configurations
+
+
+def test_include_scoped_false():
+    """Parse include with scoped: false — child configs leak to parent."""
+    path = (Path(__file__).parent / 'executable.yaml').as_posix()
+    yaml_file = \
+        """\
+        launch:
+        - let:
+            name: 'bar'
+            value: 'BAR'
+        - include:
+            file: '{}'
+            scoped: false
+            let:
+                - name: 'foo'
+                  value: 'FOO'
+        """.format(path)  # noqa: E501
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    ld = parser.parse_description(root_entity)
+    include = ld.entities[1]
+    assert isinstance(include, IncludeLaunchDescription)
+    ls = LaunchService(debug=True)
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    assert ls.context.launch_configurations['bar'] == 'BAR'
+    assert ls.context.launch_configurations['foo'] == 'FOO'
+
+
 if __name__ == '__main__':
     test_include()
