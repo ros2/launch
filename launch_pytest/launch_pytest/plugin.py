@@ -17,6 +17,7 @@ from collections.abc import Sequence
 import functools
 import inspect
 
+from _pytest.fixtures import getfixturemarker
 from _pytest.outcomes import fail
 from _pytest.outcomes import skip
 
@@ -171,12 +172,7 @@ def get_launch_test_fixturename(item):
 
 def get_launch_test_fixture_scope(fixture):
     """Return launch fixture scope for multiple pytest fixture representations."""
-    # Pytest < 8.4 decorates fixtures in-place and stores metadata in
-    # `_pytestfixturefunction`; pytest >= 8.4 returns a fixture object with
-    # `_fixture_function_marker`.
-    fixture_marker = getattr(fixture, '_pytestfixturefunction', None)
-    if fixture_marker is None:
-        fixture_marker = getattr(fixture, '_fixture_function_marker', None)
+    fixture_marker = getfixturemarker(fixture)
     if fixture_marker is None:
         raise AttributeError(
             f'Unable to retrieve fixture scope from fixture {fixture!r}.'
