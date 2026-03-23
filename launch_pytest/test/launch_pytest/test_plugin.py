@@ -14,9 +14,6 @@
 
 from pathlib import Path
 import shutil
-from types import SimpleNamespace
-
-from launch_pytest.plugin import get_launch_test_fixture_scope
 
 
 def test_launch_fixture_is_not_a_launch_description(testdir):
