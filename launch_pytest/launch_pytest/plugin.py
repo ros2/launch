@@ -418,7 +418,6 @@ def wrap_generator(func, event_loop, on_shutdown):
     gen = None
 
     def shutdown():
-        nonlocal gen
         if gen is None:
             skip('shutdown test skipped because the test failed before')
         on_shutdown()
@@ -469,7 +468,6 @@ def wrap_asyncgen(func, event_loop, on_shutdown):
     agen = None
 
     def shutdown(**kwargs):
-        nonlocal agen
         if agen is None:
             skip('shutdown test skipped because the test failed before')
         on_shutdown()
