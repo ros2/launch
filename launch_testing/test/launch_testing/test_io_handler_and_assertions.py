@@ -181,7 +181,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
 
     def test_asserts_on_missing_text(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
-            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, 'terminating_proc.py-1')
+            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, self.proc_1.name)
 
     def test_asserts_on_missing_text_by_proc(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
