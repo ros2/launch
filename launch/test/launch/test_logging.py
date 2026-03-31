@@ -335,7 +335,7 @@ def test_get_logging_directory():
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == my_log_dir
     # Setting ROS_HOME won't change anything since ROS_LOG_DIR is used first
-    os.environ['ROS_HOME'] = '/this/wont/be/used'
+    os.environ['ROS_HOME'] = '/this/won't/be/used'
     launch.logging.launch_config.log_dir = None
     assert launch.logging.launch_config.log_dir == my_log_dir
     os.environ.pop('ROS_HOME', None)

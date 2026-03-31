@@ -76,7 +76,7 @@ class StringJoinSubstitution(Substitution):
         Create a StringJoinSubstitution.
 
         :param substitutions: the list of string component substitutions to join
-        :param delimiter: the text inbetween two consecutive components (default no text)
+        :param delimiter: the text in between two consecutive components (default no text)
         """
         from ..utilities import normalize_to_list_of_substitutions
 
