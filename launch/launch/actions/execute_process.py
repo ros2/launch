@@ -409,8 +409,8 @@ class ExecuteProcess(ExecuteLocal):
 
         if 'additional_env' not in ignore:
             # Conditions won't be allowed in the `env` tag.
-            # If that feature is needed, `set_enviroment_variable` and
-            # `unset_enviroment_variable` actions should be used.
+            # If that feature is needed, `set_environment_variable` and
+            # `unset_environment_variable` actions should be used.
             env = entity.get_attr('env', data_type=List[Entity], optional=True)
             if env is not None:
                 kwargs['additional_env'] = {

@@ -30,7 +30,7 @@ class StringJoinSubstitution(Substitution):
 
     This takes in a list of string components as substitutions.
     The substitutions for each string component are performed and concatenated,
-    and then all string components are joined with a specified delimiter as seperation.
+    and then all string components are joined with a specified delimiter as separation.
 
     For example:
 
