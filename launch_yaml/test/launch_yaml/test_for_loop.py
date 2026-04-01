@@ -57,7 +57,7 @@ def test_for_each():
     #   2 OpaqueFunction
     #   N user-defined entities
     #   1 OpaqueFunction
-    # = 3 + N entitites/iteration
+    # = 3 + N entities/iteration
     assert len(actions) == 3 * (3 + 1)
     assert isinstance(actions[0], OpaqueFunction)
     assert isinstance(actions[1], OpaqueFunction)
@@ -132,7 +132,7 @@ def test_for_loop():
     #   2 OpaqueFunction
     #   N user-defined entities
     #   1 OpaqueFunction
-    # = 3 + N entitites/iteration
+    # = 3 + N entities/iteration
     assert len(actions_for_each) == 2 * (3 + 1)
     assert isinstance(actions_for_each[0], OpaqueFunction)
     assert isinstance(actions_for_each[1], OpaqueFunction)
