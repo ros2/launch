@@ -69,7 +69,7 @@ class SequentialTextChecker:
 
     def get_nearby_lines(self):
 
-        # This works by concatinating a few of the process_io outputs that we received, then
+        # This works by concatenating a few of the process_io outputs that we received, then
         # searching forward and backward for two return-lines in each direction, then returning
         # just that portion to give context about where a failure happened
 
