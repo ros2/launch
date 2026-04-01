@@ -30,7 +30,7 @@ class StringJoinSubstitution(Substitution):
 
     This takes in a list of string components as substitutions.
     The substitutions for each string component are performed and concatenated,
-    and then all string components are joined with a specified delimiter as seperation.
+    and then all string components are joined with a specified delimiter as separation.
 
     For example:
 
@@ -76,7 +76,7 @@ class StringJoinSubstitution(Substitution):
         Create a StringJoinSubstitution.
 
         :param substitutions: the list of string component substitutions to join
-        :param delimiter: the text inbetween two consecutive components (default no text)
+        :param delimiter: the text in between two consecutive components (default no text)
         """
         from ..utilities import normalize_to_list_of_substitutions
 

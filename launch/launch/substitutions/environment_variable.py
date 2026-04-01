@@ -69,7 +69,7 @@ class EnvironmentVariable(Substitution):
     @classmethod
     def parse(cls, data: Sequence[SomeSubstitutionsType]
               ) -> Tuple[Type['EnvironmentVariable'], Dict[str, Any]]:
-        """Parse `EnviromentVariable` substitution."""
+        """Parse `EnvironmentVariable` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('env substitution expects 1 or 2 arguments')
         kwargs = {'name': data[0]}

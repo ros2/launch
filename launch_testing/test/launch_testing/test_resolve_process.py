@@ -48,7 +48,7 @@ class TestResolveProcess(unittest.TestCase):
                 process=lookup_obj
             )
 
-        # We'll get a good error mesasge here because there were no substitutions in
+        # We'll get a good error message here because there were no substitutions in
         # the execute process cmd - it's all text
         self.assertIn('python -c', str(cm.exception))
 
@@ -69,7 +69,7 @@ class TestResolveProcess(unittest.TestCase):
                 process=lookup_obj
             )
 
-        # We'll get a good error mesasge here because there were no substitutions in
+        # We'll get a good error message here because there were no substitutions in
         # the execute process cmd - it's all text
         self.assertIn('python -c', str(cm.exception))
 
