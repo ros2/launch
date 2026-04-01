@@ -32,9 +32,9 @@ from .utilities import is_a
 from .utilities import normalize_to_list_of_substitutions
 
 
-def indent(lines: List[Text], indention: Text = '    ') -> List[Text]:
+def indent(lines: List[Text], indentation: Text = '    ') -> List[Text]:
     """Indent a list of strings and return them."""
-    return ['{}{}'.format(indention, line) for line in lines]
+    return ['{}{}'.format(indentation, line) for line in lines]
 
 
 def tree_like_indent(lines: List[Text]) -> List[Text]:
