@@ -677,11 +677,6 @@ class ExecuteLocal(Action):
             self.__completed_future = create_future(context.asyncio_loop)
             self.__shutdown_future = create_future(context.asyncio_loop)
             self.__logger = launch.logging.get_logger(name)
-<<<<<<< HEAD
-=======
-            if name is None:
-                raise RuntimeError('Cannot get Output Loggers with None name')
->>>>>>> b51d67a (Correct typos (#961))
             if not isinstance(self.__output, dict):
                 self.__output = perform_substitutions(context, self.__output)
             self.__stdout_logger, self.__stderr_logger = \

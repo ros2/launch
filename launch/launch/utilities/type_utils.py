@@ -348,14 +348,6 @@ def get_typed_value(
     return output
 
 
-<<<<<<< HEAD
-=======
-# Unfortunately, mypy is unable to correctly infer that `is_substitution` can
-# only return True when the passed type is either a substitution or a mixed
-# list of strings and substitutions. Indeed, there is no way that I could find
-# using overloads to describe "anything else than the above two types".
-# Can be redone properly with TypeIs once mypy version 1.10+ is available on all platforms
->>>>>>> b51d67a (Correct typos (#961))
 def is_substitution(x):
     """
     Return `True` if `x` is some substitution.
