@@ -106,7 +106,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         matches = [t for t in text_lines if 'Called with arguments' in t]
         print('Called with arguments: {}'.format(matches))
 
-        # Two process have args, because thats how process names are passed down
+        # Two process have args, because that's how process names are passed down
         self.assertEqual(2, len(matches))
 
         matches_extra = [t for t in matches if '--extra' in t]
