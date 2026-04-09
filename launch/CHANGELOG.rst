@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.7 (2026-04-09)
+------------------
+* Correct typos (`#961 <https://github.com/ros2/launch/issues/961>`_)
+* hotfix (`#950 <https://github.com/ros2/launch/issues/950>`_)
+* Declare Boolean Launch Argument (`#944 <https://github.com/ros2/launch/issues/944>`_)
+* Support frontends for PathJoinSubstitution (`#943 <https://github.com/ros2/launch/issues/943>`_)
+* Contributors: Auguste Lalande, Christophe Bedard, David V. Lu!!, Michael Carlstrom
+
 3.9.6 (2026-01-12)
 ------------------
 * test python substitution with submodules (`#688 <https://github.com/ros2/launch/issues/688>`_)

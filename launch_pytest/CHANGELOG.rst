@@ -2,6 +2,12 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.7 (2026-04-09)
+------------------
+* fix regressions (`#959 <https://github.com/ros2/launch/issues/959>`_)
+* fix: add get_launch_test_fixture_scope for pytest compatibility (`#949 <https://github.com/ros2/launch/issues/949>`_)
+* Contributors: Daisuke Nishimatsu, Michael Carlstrom
+
 3.9.6 (2026-01-12)
 ------------------
 

@@ -2,6 +2,12 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.7 (2026-04-09)
+------------------
+* Correct typos (`#961 <https://github.com/ros2/launch/issues/961>`_)
+* Support frontends for PathJoinSubstitution (`#943 <https://github.com/ros2/launch/issues/943>`_)
+* Contributors: Auguste Lalande, Christophe Bedard
+
 3.9.6 (2026-01-12)
 ------------------
 * Capture the environment variables in TimerAction (`#728 <https://github.com/ros2/launch/issues/728>`_)
