@@ -17,6 +17,7 @@ from collections.abc import Sequence
 import functools
 import inspect
 
+from _pytest.fixtures import getfixturemarker
 from _pytest.outcomes import fail
 from _pytest.outcomes import skip
 
@@ -169,6 +170,16 @@ def get_launch_test_fixturename(item):
     return None if fixture is None else fixture.__name__
 
 
+def get_launch_test_fixture_scope(fixture):
+    """Return launch fixture scope for multiple pytest fixture representations."""
+    fixture_marker = getfixturemarker(fixture)
+    if fixture_marker is None:
+        raise AttributeError(
+            f'Unable to retrieve fixture scope from fixture {fixture!r}.'
+        )
+    return fixture_marker.scope
+
+
 def is_valid_test_item(obj):
     """Return true if obj is a valid launch test item."""
     return (
@@ -236,7 +247,7 @@ def pytest_pycollect_makeitem(collector, name, obj):
                 return [item]
             fixture = get_launch_test_fixture(item)
             fixturename = fixture.__name__
-            scope = fixture._pytestfixturefunction.scope
+            scope = get_launch_test_fixture_scope(fixture)
             is_shutdown = has_shutdown_kwarg(item)
             items = generate_test_items(
                 collector, name, obj, fixturename, is_shutdown=is_shutdown, needs_renaming=False)
@@ -264,7 +275,7 @@ def is_same_launch_test_fixture(left_item, right_item):
         return False
     if lfn is not rfn:
         return False
-    if lfn._pytestfixturefunction.scope == 'function':
+    if get_launch_test_fixture_scope(lfn) == 'function':
         return False
     name = lfn.__name__
 
@@ -326,7 +337,7 @@ def pytest_pyfunc_call(pyfuncitem):
         return
     shutdown_test = is_shutdown_test(pyfuncitem)
     fixture = get_launch_test_fixture(pyfuncitem)
-    scope = fixture._pytestfixturefunction.scope
+    scope = get_launch_test_fixture_scope(fixture)
     event_loop = pyfuncitem.funcargs['event_loop']
     ls = pyfuncitem.funcargs['launch_service']
     auto_shutdown = fixture._launch_pytest_fixture_options['auto_shutdown']
