@@ -365,6 +365,19 @@ class ExecuteProcess(ExecuteLocal):
             respawn_max_retries = entity.get_attr('respawn_max_retries', data_type=int,
                                                   optional=True)
             if respawn_max_retries is not None:
+                if isinstance(respawn_max_retries, bool):
+                    raise ValueError(
+                        'Attribute respawn_max_retries of Entity `{}` expected to be '
+                        'an integer but got `{}`'.format(entity.type_name, respawn_max_retries)
+                    )
+                if isinstance(respawn_max_retries, str):
+                    try:
+                        respawn_max_retries = int(respawn_max_retries)
+                    except ValueError:
+                        raise ValueError(
+                            'Attribute respawn_max_retries of Entity `{}` expected to be '
+                            'an integer but got `{}`'.format(entity.type_name, respawn_max_retries)
+                        ) from None
                 kwargs['respawn_max_retries'] = respawn_max_retries
 
         if 'respawn_delay' not in ignore:
