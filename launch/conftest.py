@@ -17,6 +17,7 @@ import pathlib
 import pytest
 
 
+<<<<<<< HEAD
 def _pytest_version_ge(major, minor=0, patch=0):
     """Return True if pytest version is >= the given version."""
     pytest_version = tuple(int(v) for v in pytest.__version__.split('.'))
@@ -42,3 +43,15 @@ if _pytest_version_ge(8):
 else:
     def pytest_ignore_collect(path, config):
         return _should_ignore(path)
+=======
+def pytest_ignore_collect(collection_path=None, path=None):
+    if collection_path is not None:
+        path = collection_path
+    # pytest doctest messes up when trying to import .launch.py packages, ignore them.
+    # It also messes up when trying to import launch.logging.handlers due to conflicts with
+    # logging.handlers, ignore that as well.
+    return str(path).endswith((
+        '.launch.py',
+        str(PurePath('logging') / 'handlers.py'),
+    ))
+>>>>>>> 0630831 (Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (#972))

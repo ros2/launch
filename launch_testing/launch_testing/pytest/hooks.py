@@ -200,6 +200,7 @@ def find_launch_test_entrypoint(path):
         return None
 
 
+<<<<<<< HEAD
 @pytest.hookimpl(tryfirst=True)
 def pytest_ignore_collect(collection_path=None, path=None, config=None):
     # Pytest 8.x signature: (collection_path, path, config)
@@ -221,6 +222,8 @@ def pytest_ignore_collect(collection_path=None, path=None, config=None):
     return False
 
 
+=======
+>>>>>>> 0630831 (Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (#972))
 if _pytest_version_ge(8):
     def pytest_pycollect_makemodule(module_path, parent):
         return _pytest_pycollect_makemodule(module_path, parent)
@@ -234,7 +237,11 @@ def _pytest_pycollect_makemodule(path, parent):
     if entrypoint is not None:
         ihook = parent.session.gethookproxy(path)
         module = ihook.pytest_launch_collect_makemodule(
+<<<<<<< HEAD
             module_path=path, path=path, parent=parent, entrypoint=entrypoint
+=======
+            module_path=path, parent=parent, entrypoint=entrypoint
+>>>>>>> 0630831 (Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (#972))
         )
         if module is not None:
             return module
@@ -261,6 +268,7 @@ def _pytest_pycollect_makemodule(path, parent):
 
 
 @pytest.hookimpl(trylast=True)
+<<<<<<< HEAD
 def pytest_launch_collect_makemodule(module_path, path, parent, entrypoint):
     p = module_path or path
     if _pytest_version_ge(7):
@@ -275,6 +283,21 @@ def pytest_launch_collect_makemodule(module_path, path, parent, entrypoint):
         decorator = decorator.with_args(*mark.args, **mark.kwargs)
         module.add_marker(decorator)
     return module
+=======
+def pytest_launch_collect_makemodule(module_path, parent, entrypoint):
+    marks = getattr(entrypoint, 'pytestmark', [])
+    if marks and any(m.name == 'launch_test' for m in marks):
+        if _pytest_version_ge(7):
+            path = pathlib.Path(module_path)
+            module = LaunchTestModule.from_parent(parent=parent, path=path)
+        else:
+            module = LaunchTestModule.from_parent(parent=parent, fspath=module_path)
+        for mark in marks:
+            decorator = getattr(pytest.mark, mark.name)
+            decorator = decorator.with_args(*mark.args, **mark.kwargs)
+            module.add_marker(decorator)
+        return module
+>>>>>>> 0630831 (Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (#972))
 
 
 def pytest_addhooks(pluginmanager):
