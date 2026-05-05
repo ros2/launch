@@ -12,14 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import PurePath
+import pytest
 
 
-def pytest_ignore_collect(path):
-    # pytest doctest messes up when trying to import .launch.py packages, ignore them.
-    # It also messes up when trying to import launch.logging.handlers due to conflicts with
-    # logging.handlers, ignore that as well.
-    return str(path).endswith((
-        '.launch.py',
-        str(PurePath('logging') / 'handlers.py'),
-    ))
+@pytest.hookimpl(tryfirst=True)
+def pytest_ignore_collect(collection_path, config, path=None):
+    # Pytest 7.x signature: (path, config)
+    # Pytest 8.x signature: (collection_path, path, config)
+    # By using (collection_path, config, path=None), we handle both:
+    # 7.x: collection_path=path, config=config, path=None
+    # 8.x: collection_path=collection_path, config=path, path=config
+    # In both cases, the first argument 'collection_path' contains the path we care about.
+    p = collection_path
+    if p is None:
+        return False
+
+    p_str = str(p)
+
+    # Ignore .launch.py files to avoid collection failures for launch_pytest tests
+    if p_str.endswith('.launch.py'):
+        return True
+
+    # Ignore launch.logging.handlers to avoid collision with standard library
+    # The file path typically ends with launch/logging/handlers.py or just logging/handlers.py
+    if 'logging/handlers.py' in p_str.replace('\\', '/'):
+        return True
+
+    return False
