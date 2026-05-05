@@ -15,7 +15,9 @@
 from pathlib import PurePath
 
 
-def pytest_ignore_collect(path):
+def pytest_ignore_collect(collection_path=None, path=None):
+    if collection_path is not None:
+        path = collection_path
     # pytest doctest messes up when trying to import .launch.py packages, ignore them.
     # It also messes up when trying to import launch.logging.handlers due to conflicts with
     # logging.handlers, ignore that as well.
