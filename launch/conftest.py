@@ -18,21 +18,16 @@ import pytest
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_ignore_collect(collection_path=None, path=None, config=None):
-    # Pytest 7.x signature: (path, config)
     # Pytest 8.x signature: (collection_path, path, config)
+    # Pytest < 8 signature: (path, config)
     p = collection_path or path
     if p is None:
         return False
 
-    path_obj = pathlib.Path(p)
+    p_str = str(p)
 
-    # Ignore .launch.py files to avoid collection failures for launch_pytest tests
-    if path_obj.name.endswith('.launch.py'):
-        return True
-
-    # Ignore launch.logging.handlers to avoid collision with standard library
-    # The file path typically ends with launch/logging/handlers.py or just logging/handlers.py
-    if path_obj.name == 'handlers.py' and path_obj.parent.name == 'logging':
+    # Ignore .launch.py files
+    if p_str.endswith('.launch.py'):
         return True
 
     return False
