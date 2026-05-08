@@ -119,12 +119,17 @@ def pytest_fixture_setup(fixturedef, request):
         run_async_task = event_loop.create_task(ls.run_async(
             shutdown_when_idle=options['shutdown_when_idle']
         ))
+        fixturedef.addfinalizer(functools.partial(
+            finalize_launch_service,
+            ls,
+            eprefix=eprefix,
+            auto_shutdown=options['auto_shutdown'],
+            task=run_async_task
+        ))
         ready = get_ready_to_test_action(ld)
         asyncio.set_event_loop(event_loop)
         event = asyncio.Event()
         ready._add_callback(lambda: event.set())
-        fixturedef.addfinalizer(functools.partial(
-            finalize_launch_service, ls, eprefix=eprefix, auto_shutdown=options['auto_shutdown']))
         run_until_complete(event_loop, event.wait())
         # this is guaranteed by the current run_async() implementation, let's check it just in case
         # it changes in the future
@@ -361,7 +366,7 @@ def pytest_pyfunc_call(pyfuncitem):
                 wrap_generator(func, event_loop, on_shutdown)
             )
             shutdown_item._fixtureinfo = shutdown_item.session._fixturemanager.getfixtureinfo(
-                shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
+                shutdown_item, shutdown_item.obj, shutdown_item.cls)
         else:
             pyfuncitem.obj = wrap_generator_fscope(func, event_loop, on_shutdown)
     elif inspect.isasyncgenfunction(func):
@@ -371,7 +376,7 @@ def pytest_pyfunc_call(pyfuncitem):
                 wrap_asyncgen(func, event_loop, on_shutdown)
             )
             shutdown_item._fixtureinfo = shutdown_item.session._fixturemanager.getfixtureinfo(
-                shutdown_item, shutdown_item.obj, shutdown_item.cls, funcargs=True)
+                shutdown_item, shutdown_item.obj, shutdown_item.cls)
         else:
             pyfuncitem.obj = wrap_asyncgen_fscope(func, event_loop, on_shutdown)
     elif not getattr(pyfuncitem.obj, '_launch_pytest_wrapped', False):
@@ -417,7 +422,7 @@ def wrap_generator(func, event_loop, on_shutdown):
     """Return wrappers for the normal test and the teardown test for a generator function."""
     gen = None
 
-    def shutdown():
+    def shutdown(**kwargs):
         if gen is None:
             skip('shutdown test skipped because the test failed before')
         on_shutdown()
