@@ -2,6 +2,11 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Backport `#949 <https://github.com/ros2/launch/issues/949>`_ (`#967 <https://github.com/ros2/launch/issues/967>`_)
+* Contributors: Tim Clephas
+
 3.4.10 (2026-01-12)
 -------------------
 * [jazzy] Allow Path in substitutions, instead of requiring cast to str (backport `#873 <https://github.com/ros2/launch/issues/873>`_) (`#927 <https://github.com/ros2/launch/issues/927>`_)

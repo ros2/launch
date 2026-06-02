@@ -2,6 +2,15 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Correct typos (backport `#961 <https://github.com/ros2/launch/issues/961>`_) (`#963 <https://github.com/ros2/launch/issues/963>`_)
+  * Correct typos (`#961 <https://github.com/ros2/launch/issues/961>`_)
+  (cherry picked from commit b51d67a0fb3c572a8255855ac73364ca53ed3691)
+  Co-authored-by: Auguste Lalande <auguste.lalande@gmail.com>
+  Co-authored-by: Alejandro Hernandez Cordero <ahcorde@gmail.com>
+* Contributors: mergify[bot]
+
 3.4.10 (2026-01-12)
 -------------------
 
