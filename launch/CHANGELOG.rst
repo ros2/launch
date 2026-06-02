@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.4.11 (2026-06-02)
+-------------------
 * Correct typos (backport `#961 <https://github.com/ros2/launch/issues/961>`_) (`#963 <https://github.com/ros2/launch/issues/963>`_)
   * Correct typos (`#961 <https://github.com/ros2/launch/issues/961>`_)
   (cherry picked from commit b51d67a0fb3c572a8255855ac73364ca53ed3691)

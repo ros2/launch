@@ -2,8 +2,8 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.4.11 (2026-06-02)
+-------------------
 * Backport `#949 <https://github.com/ros2/launch/issues/949>`_ (`#967 <https://github.com/ros2/launch/issues/967>`_)
 * Contributors: Tim Clephas
 
