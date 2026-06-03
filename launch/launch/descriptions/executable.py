@@ -178,11 +178,13 @@ class Executable:
             prefix_filter = perform_substitutions(context, self.__prefix_filter)
             # Apply if filter regex matches (empty regex matches all strings)
             should_apply_prefix = re.match(prefix_filter, os.path.basename(cmd[0])) is not None
+        # Derive the logger name from the user's command before the prefix is
+        # prepended, otherwise ``prefix='gdb ...'`` ends up as the logger name.
+        name = os.path.basename(cmd[0]) if self.__name is None \
+            else perform_substitutions(context, self.__name)
         if should_apply_prefix:
             cmd = shlex.split(perform_substitutions(context, self.__prefix)) + cmd
         self.__final_cmd = cmd
-        name = os.path.basename(cmd[0]) if self.__name is None \
-            else perform_substitutions(context, self.__name)
         with _executable_process_counter_lock:
             global _executable_process_counter
             _executable_process_counter += 1
