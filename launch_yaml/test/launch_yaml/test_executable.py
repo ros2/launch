@@ -21,9 +21,9 @@ from launch import LaunchService
 from launch.actions import Shutdown
 from launch.actions.execute_process import ExecuteProcess
 
-import pytest
-
 from parser_no_extensions import load_no_extensions
+
+import pytest
 
 
 def test_executable():
