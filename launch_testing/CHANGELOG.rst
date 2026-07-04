@@ -2,6 +2,19 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.0 (2026-05-07)
+-------------------
+* Robust pytest_ignore_collect for multi-version Pytest compatibility (`#974 <https://github.com/ros2/launch/issues/974>`_)
+* Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (`#972 <https://github.com/ros2/launch/issues/972>`_)
+* Contributors: Michael Carroll
+
+3.9.7 (2026-04-09)
+------------------
+* Correct typos (`#961 <https://github.com/ros2/launch/issues/961>`_)
+* Fix test_io_tests for Ubuntu26 (`#960 <https://github.com/ros2/launch/issues/960>`_)
+* Fix flake8 (`#952 <https://github.com/ros2/launch/issues/952>`_)
+* Contributors: Auguste Lalande, Michael Carlstrom
+
 3.9.6 (2026-01-12)
 ------------------
 

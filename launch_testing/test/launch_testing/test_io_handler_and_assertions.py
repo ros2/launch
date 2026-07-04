@@ -106,7 +106,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         matches = [t for t in text_lines if 'Called with arguments' in t]
         print('Called with arguments: {}'.format(matches))
 
-        # Two process have args, because thats how process names are passed down
+        # Two process have args, because that's how process names are passed down
         self.assertEqual(2, len(matches))
 
         matches_extra = [t for t in matches if '--extra' in t]
@@ -126,9 +126,9 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         self.assertTrue(any(contains_ready))
 
     def test_process_names(self):
-        self.assertIn('terminating_proc.py-1', self.proc_output.process_names())
-        self.assertIn('terminating_proc.py-2', self.proc_output.process_names())
-        self.assertIn('terminating_proc.py-3', self.proc_output.process_names())
+        self.assertIn(self.proc_1.name, self.proc_output.process_names())
+        self.assertIn(self.proc_2.name, self.proc_output.process_names())
+        self.assertIn(self.proc_3.name, self.proc_output.process_names())
 
     def test_processes(self):
         self.assertIn(self.proc_1, self.proc_output.processes())
@@ -143,18 +143,18 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         print(cm.exception)
 
         # Make sure the assertion method lists the names of the process it does have:
-        self.assertIn('terminating_proc.py-1', str(cm.exception))
-        self.assertIn('terminating_proc.py-2', str(cm.exception))
-        self.assertIn('terminating_proc.py-3', str(cm.exception))
+        self.assertIn(self.proc_1.name, str(cm.exception))
+        self.assertIn(self.proc_2.name, str(cm.exception))
+        self.assertIn(self.proc_3.name, str(cm.exception))
 
     def test_assertInStdout_notices_too_many_matching_procs(self):
         with self.assertRaisesRegex(Exception, 'Found multiple processes') as cm:
             assertInStdout(self.proc_output, self.EXPECTED_TEXT, 'terminating_proc.py')
 
         # Make sure the assertion method lists the names of the duplicate procs:
-        self.assertIn('terminating_proc.py-1', str(cm.exception))
-        self.assertIn('terminating_proc.py-2', str(cm.exception))
-        self.assertIn('terminating_proc.py-3', str(cm.exception))
+        self.assertIn(self.proc_1.name, str(cm.exception))
+        self.assertIn(self.proc_2.name, str(cm.exception))
+        self.assertIn(self.proc_3.name, str(cm.exception))
 
     def test_strict_proc_matching_false(self):
         assertInStdout(
@@ -168,7 +168,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
         assertInStdout(
             self.proc_output,
             re.compile(r'Called with arguments \S+'),
-            'terminating_proc.py-2'
+            self.proc_2.name
         )
 
     def test_arguments_disambiguate_processes(self):
@@ -181,7 +181,7 @@ class TestIoHandlerAndAssertions(unittest.TestCase):
 
     def test_asserts_on_missing_text(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):
-            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, 'terminating_proc.py-1')
+            assertInStdout(self.proc_output, self.NOT_FOUND_TEXT, self.proc_1.name)
 
     def test_asserts_on_missing_text_by_proc(self):
         with self.assertRaisesRegex(AssertionError, self.NOT_FOUND_TEXT):

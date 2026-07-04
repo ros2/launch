@@ -111,7 +111,7 @@ class ForEach(Action):
                     - log_info:
                         message: "'$(for-var name)' id=$(for-var id)"
 
-    The above examples would ouput the following log messages by default:
+    The above examples would output the following log messages by default:
 
     .. code-block:: text
 
@@ -306,7 +306,7 @@ class ForLoop(Action):
                     - log_info:
                         message: i=$(index i)
 
-    The above examples would ouput the following log messages by default:
+    The above examples would output the following log messages by default:
 
     .. code-block:: text
 
