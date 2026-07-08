@@ -19,9 +19,9 @@ if(BUILD_TESTING)
 
   find_package(ament_cmake_gtest REQUIRED)
   add_executable(locking test/dummy_tests/locking.cpp)
-  target_link_libraries(locking ament_ros_cxx_standard)
+  target_link_libraries(locking ament_cmake_ros_core::ament_ros_cxx_standard)
   ament_add_gtest_executable(dummy test/dummy_tests/dummy.cpp)
-  target_link_libraries(dummy ament_ros_cxx_standard)
+  target_link_libraries(dummy ament_cmake_ros_core::ament_ros_cxx_standard)
 
   # pytest scripts are to be found in the source tree.
   ament_add_pytest_test(test_pytest_py "test/test_launch_testing/actions/test_pytest.py"
