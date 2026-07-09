@@ -36,6 +36,8 @@ import launch.logging
 from osrf_pycommon.process_utils import async_execute_process  # type: ignore
 from osrf_pycommon.process_utils import AsyncSubprocessProtocol
 
+import psutil
+
 from .emit_event import EmitEvent
 from .opaque_function import OpaqueFunction
 from .timer_action import TimerAction
@@ -64,9 +66,8 @@ from ..launch_description import LaunchDescription
 from ..launch_description_entity import LaunchDescriptionEntity
 from ..some_entities_type import SomeEntitiesType
 from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution  # noqa: F401
+from ..substitution import Substitution
 from ..substitutions import LaunchConfiguration
-from ..substitutions import PythonExpression
 from ..utilities import is_a_subclass
 from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
@@ -86,6 +87,8 @@ class ExecuteLocal(Action):
             'sigterm_timeout', default=5),
         sigkill_timeout: SomeSubstitutionsType = LaunchConfiguration(
             'sigkill_timeout', default=5),
+        signal_lingering_subprocesses: SomeSubstitutionsType = LaunchConfiguration(
+            'signal_lingering_subprocesses', default=True),
         emulate_tty: bool = False,
         output: SomeSubstitutionsType = 'log',
         output_format: Text = '[{this.process_description.final_name}] {line}',
@@ -158,6 +161,11 @@ class ExecuteLocal(Action):
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
             'sigkill_timeout'
+        :param: signal_lingering_subprocesses if `True`, all subprocesses spawned by the process
+            will be signaled to make sure they finish.
+            The sequence of signals used is the same SIGINT/SIGTERM/SIGKILL sequence
+            used to kill the main process.
+            Subprocesses start being signaled when the main process completes.
         :param: emulate_tty emulate a tty (terminal), defaults to False, but can
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
@@ -190,6 +198,8 @@ class ExecuteLocal(Action):
         self.__shell = shell
         self.__sigterm_timeout = normalize_to_list_of_substitutions(sigterm_timeout)
         self.__sigkill_timeout = normalize_to_list_of_substitutions(sigkill_timeout)
+        self.__signal_lingering_subprocesses = normalize_to_list_of_substitutions(
+            signal_lingering_subprocesses)
         self.__emulate_tty = emulate_tty
         # Note: we need to use a temporary here so that we don't assign values with different types
         # to the same variable
@@ -214,11 +224,12 @@ class ExecuteLocal(Action):
 
         self.__process_event_args = None  # type: Optional[Dict[Text, Any]]
         self._subprocess_protocol = None  # type: Optional[Any]
-        self._subprocess_transport = None
+        self._subprocess_transport = None  # type: Optional[Any]
         self.__completed_future = None  # type: Optional[asyncio.Future[None]]
         self.__shutdown_future = None  # type: Optional[asyncio.Future[None]]
         self.__sigterm_timer = None  # type: Optional[TimerAction]
         self.__sigkill_timer = None  # type: Optional[TimerAction]
+        self.__children: List[psutil.Process] = []
         self.__stdout_buffer = io.StringIO()
         self.__stderr_buffer = io.StringIO()
 
@@ -292,7 +303,11 @@ class ExecuteLocal(Action):
         self.__shutdown_future.set_result(None)
 
         # Otherwise process is still running, start the shutdown procedures.
-        context.extend_locals({'process_name': self.process_details['name']})
+        context.extend_locals(
+            {
+                'process_name': self.process_details['name'],
+                'process_pid': self.process_details['pid'],
+            })
         actions_to_return = self.__get_shutdown_timer_actions()
         if send_sigint:
             actions_to_return.append(self.__get_sigint_event())
@@ -320,7 +335,7 @@ class ExecuteLocal(Action):
             raise RuntimeError('Signal event received before execution.')
         if self._subprocess_transport is None:
             raise RuntimeError('Signal event received before subprocess transport available.')
-        if self._subprocess_protocol.complete.done():
+        if self._subprocess_protocol and self._subprocess_protocol.complete.done():
             # the process is done or is cleaning up, no need to signal
             self.__logger.debug(
                 "signal '{}' not set to '{}' because it is already closing".format(
@@ -344,13 +359,13 @@ class ExecuteLocal(Action):
                 self._subprocess_transport.kill()  # works on both Windows and POSIX
                 return None
             self._subprocess_transport.send_signal(typed_event.signal)
-            return None
         except ProcessLookupError:
             self.__logger.debug(
                 "signal '{}' not sent to '{}' because it has closed already".format(
                     typed_event.signal_name, self.process_details['name']
                 )
             )
+        return None
 
     def __on_process_stdin(
         self,
@@ -453,46 +468,52 @@ class ExecuteLocal(Action):
         base_msg = \
             "process[{}] failed to terminate '{}' seconds after receiving '{}', escalating to '{}'"
 
-        def printer(context, msg, timeout_substitutions):
-            self.__logger.error(msg.format(
-                context.locals.process_name,
-                perform_substitutions(context, timeout_substitutions),
-            ))
+        def printer(context, msg):
+            self.__logger.error(msg.format(context.locals.process_name))
 
-        sigterm_timeout = self.__sigterm_timeout
-        sigkill_timeout = [PythonExpression(
-            ('float(', *self.__sigterm_timeout, ') + float(', *self.__sigkill_timeout, ')')
-        )]
         # Setup a timer to send us a SIGTERM if we don't shutdown quickly.
+        sigterm_timeout = self.__sigterm_timeout_value
         self.__sigterm_timer = TimerAction(
             period=sigterm_timeout,
             actions=[
                 OpaqueFunction(
                     function=printer,
-                    args=(base_msg.format('{}', '{}', 'SIGINT', 'SIGTERM'), sigterm_timeout)
+                    args=(base_msg.format('{}', sigterm_timeout, 'SIGINT', 'SIGTERM'),),
                 ),
-                EmitEvent(event=SignalProcess(
-                    signal_number=signal.SIGTERM,
-                    process_matcher=matches_action(self)
-                )),
+                EmitEvent(
+                    event=SignalProcess(
+                        signal_number=signal.SIGTERM, process_matcher=matches_action(self)
+                    )
+                ),
             ],
             cancel_on_shutdown=False,
         )
+        sigkill_timeout = sigterm_timeout + self.__sigkill_timeout_value
         # Setup a timer to send us a SIGKILL if we don't shutdown after SIGTERM.
         self.__sigkill_timer = TimerAction(
             period=sigkill_timeout,
             actions=[
                 OpaqueFunction(
                     function=printer,
-                    args=(base_msg.format('{}', '{}', 'SIGTERM', 'SIGKILL'), sigkill_timeout)
+                    args=(base_msg.format('{}', sigkill_timeout, 'SIGTERM', 'SIGKILL'),),
                 ),
-                EmitEvent(event=SignalProcess(
-                    signal_number='SIGKILL',
-                    process_matcher=matches_action(self)
-                ))
+                EmitEvent(
+                    event=SignalProcess(
+                        signal_number='SIGKILL', process_matcher=matches_action(self)
+                    )
+                ),
             ],
             cancel_on_shutdown=False,
         )
+        self.__children = []
+        pid = None
+        if self._subprocess_transport is not None:
+            pid = self._subprocess_transport.get_pid()
+        if pid is not None:
+            try:
+                self.__children = psutil.Process(pid).children(recursive=True)
+            except psutil.NoSuchProcess:
+                pass
         return [
             cast(Action, self.__sigterm_timer),
             cast(Action, self.__sigkill_timer),
@@ -504,12 +525,15 @@ class ExecuteLocal(Action):
             process_matcher=matches_action(self),
         ))
 
-    def __cleanup(self) -> None:
-        # Cancel any pending timers we started.
+    def __cleanup_timers(self):
         if self.__sigterm_timer is not None:
             self.__sigterm_timer.cancel()
         if self.__sigkill_timer is not None:
             self.__sigkill_timer.cancel()
+
+    def __cleanup(self):
+        # Cancel any pending timers we started.
+        self.__cleanup_timers()
         # Close subprocess transport if any.
         if self._subprocess_transport is not None:
             self._subprocess_transport.close()
@@ -542,6 +566,48 @@ class ExecuteLocal(Action):
 
         def on_stderr_received(self, data: bytes) -> None:
             self.__context.emit_event_sync(ProcessStderr(text=data, **self.__process_event_args))
+
+    async def _signal_subprocesses(self, context):
+        to_signal = self.__children
+        signaled = []
+        sig = signal.SIGINT
+        start_time = context.asyncio_loop.time()
+        sigterm_timeout = self.__sigterm_timeout_value
+        sigkill_timeout = self.__sigterm_timeout_value + self.__sigkill_timeout_value
+        process_pid = self.process_details['pid']
+        process_name = self.process_details['name']
+        log_prefix_format = (
+            'subprocess[pid={}] of process['
+            f'{process_name}, pid={process_pid}]: ')
+        next_signals = iter(((signal.SIGTERM, sigterm_timeout), (signal.SIGKILL, sigkill_timeout)))
+        while True:
+            for p in to_signal:
+                try:
+                    p.send_signal(sig)
+                except psutil.NoSuchProcess:
+                    continue
+                log_prefix = log_prefix_format.format(p.pid)
+                self.__logger.info(
+                    f'{log_prefix}sending {sig.name} to subprocess directly.'
+                )
+                signaled.append(p)
+            try:
+                sig, timeout = next(next_signals)
+            except StopIteration:
+                return
+            current_time = context.asyncio_loop.time()
+            while current_time < start_time + timeout:
+                await asyncio.sleep(min(0.5, start_time + timeout - current_time))
+                for p in list(signaled):
+                    if not p.is_running():
+                        log_prefix = log_prefix_format.format(p.pid)
+                        self.__logger.info(f'{log_prefix}exited')
+                        signaled.remove(p)
+                if not signaled:
+                    return
+                current_time = context.asyncio_loop.time()
+            to_signal = signaled
+            signaled = []
 
     async def __execute_process(self, context: LaunchContext) -> None:
         process_event_args = self.__process_event_args
@@ -619,8 +685,13 @@ class ExecuteLocal(Action):
                     timeout=self.__respawn_delay
                 )
             if not self.__shutdown_future.done():
+                if self.__signal_lingering_subprocesses_value:
+                    await self._signal_subprocesses(context)
                 context.asyncio_loop.create_task(self.__execute_process(context))
                 return
+        self.__cleanup_timers()
+        if self.__signal_lingering_subprocesses_value:
+            await self._signal_subprocesses(context)
         self.__cleanup()
 
     def prepare(self, context: LaunchContext) -> None:
@@ -703,6 +774,15 @@ class ExecuteLocal(Action):
         ]
         for event_handler in event_handlers:
             context.register_event_handler(event_handler)
+        self.__sigterm_timeout_value = cast(
+            float, perform_typed_substitution(context, self.__sigterm_timeout, float)
+        )
+        self.__sigkill_timeout_value = cast(
+            float, perform_typed_substitution(context, self.__sigkill_timeout, float)
+        )
+        self.__signal_lingering_subprocesses_value = perform_typed_substitution(
+            context, self.__signal_lingering_subprocesses, bool
+        )
 
         try:
             self.__completed_future = context.asyncio_loop.create_future()
