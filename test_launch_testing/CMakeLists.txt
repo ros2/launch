@@ -2,21 +2,13 @@ cmake_minimum_required(VERSION 3.20)
 
 project(test_launch_testing)
 
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
-
-# Default to C++17
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
-
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 find_package(ament_cmake REQUIRED)
+# Provides the ament_ros_cxx_standard interface target (C++20 by default).
+find_package(ament_cmake_ros_core REQUIRED)
 
 ament_export_dependencies(ament_cmake)
 
@@ -27,7 +19,9 @@ if(BUILD_TESTING)
 
   find_package(ament_cmake_gtest REQUIRED)
   add_executable(locking test/dummy_tests/locking.cpp)
+  target_link_libraries(locking ament_cmake_ros_core::ament_ros_cxx_standard)
   ament_add_gtest_executable(dummy test/dummy_tests/dummy.cpp)
+  target_link_libraries(dummy ament_cmake_ros_core::ament_ros_cxx_standard)
 
   # pytest scripts are to be found in the source tree.
   ament_add_pytest_test(test_pytest_py "test/test_launch_testing/actions/test_pytest.py"
