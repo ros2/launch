@@ -93,8 +93,10 @@ class GroupAction(Action):
               ) -> Tuple[Type['GroupAction'], Dict[str, Any]]:
         """Return `GroupAction` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        scoped = entity.get_attr('scoped', data_type=bool, optional=True)
-        forwarding = entity.get_attr('forwarding', data_type=bool, optional=True)
+        scoped = entity.get_attr(
+            'scoped', data_type=bool, optional=True, can_be_str=False)
+        forwarding = entity.get_attr(
+            'forwarding', data_type=bool, optional=True, can_be_str=False)
         keeps = entity.get_attr('keep', data_type=List[Entity], optional=True)
         if scoped is not None:
             kwargs['scoped'] = scoped

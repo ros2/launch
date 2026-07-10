@@ -28,6 +28,7 @@ from launch.actions import SetLaunchConfiguration
 from launch.launch_context import LaunchContext
 
 from parser_no_extensions import load_no_extensions
+import pytest
 
 
 def test_group():
@@ -96,6 +97,20 @@ def test_group():
     actions[5].visit(lc)
     actions[6].visit(lc)
     actions[7].visit(lc)
+
+
+@pytest.mark.parametrize('attribute', ('scoped', 'forwarding'))
+def test_group_rejects_invalid_boolean_attributes(attribute):
+    yaml_file = f"""\
+    launch:
+    -   group:
+            {attribute}: invalid
+    """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+
+    with pytest.raises(TypeError, match=f"Attribute '{attribute}'"):
+        parser.parse_description(root_entity)
 
 
 if __name__ == '__main__':
