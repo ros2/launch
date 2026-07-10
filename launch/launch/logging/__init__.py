@@ -104,7 +104,7 @@ def _renew_latest_log_dir(*, log_dir: str) -> bool:
         if not os.path.islink(latest_dir):
             return False
         os.unlink(latest_dir)
-    os.symlink(log_dir, latest_dir, target_is_directory=True)
+    os.symlink(os.path.basename(log_dir), latest_dir, target_is_directory=True)
     return True
 
 
