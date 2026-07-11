@@ -85,5 +85,14 @@ def test_executable_on_exit():
     assert isinstance(sub_entities[0], Shutdown)
 
 
+@pytest.mark.parametrize('attribute', ('shell', 'emulate_tty'))
+def test_executable_rejects_invalid_boolean_attributes(attribute):
+    xml_file = f'<launch><executable cmd="echo" {attribute}="invalid"/></launch>'
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+
+    with pytest.raises(TypeError, match=f"Attribute '{attribute}'"):
+        parser.parse_description(root_entity)
+
+
 if __name__ == '__main__':
     test_executable()

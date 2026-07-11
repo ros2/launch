@@ -398,12 +398,14 @@ class ExecuteProcess(ExecuteLocal):
                 kwargs['sigterm_timeout'] = str(sigterm_timeout)
 
         if 'shell' not in ignore:
-            shell = entity.get_attr('shell', data_type=bool, optional=True)
+            shell = entity.get_attr(
+                'shell', data_type=bool, optional=True, can_be_str=False)
             if shell is not None:
                 kwargs['shell'] = shell
 
         if 'emulate_tty' not in ignore:
-            emulate_tty = entity.get_attr('emulate_tty', data_type=bool, optional=True)
+            emulate_tty = entity.get_attr(
+                'emulate_tty', data_type=bool, optional=True, can_be_str=False)
             if emulate_tty is not None:
                 kwargs['emulate_tty'] = emulate_tty
 

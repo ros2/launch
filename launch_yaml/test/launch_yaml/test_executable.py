@@ -22,6 +22,8 @@ from launch.actions import Shutdown
 
 from parser_no_extensions import load_no_extensions
 
+import pytest
+
 
 def test_executable():
     """Parse executable yaml example."""
@@ -80,6 +82,21 @@ def test_executable_on_exit():
     sub_entities = executable.get_sub_entities()
     assert len(sub_entities) == 1
     assert isinstance(sub_entities[0], Shutdown)
+
+
+@pytest.mark.parametrize('attribute', ('shell', 'emulate_tty'))
+def test_executable_rejects_invalid_boolean_attributes(attribute):
+    yaml_file = f"""\
+    launch:
+    -   executable:
+            cmd: echo
+            {attribute}: invalid
+    """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+
+    with pytest.raises(TypeError, match=f"Attribute '{attribute}'"):
+        parser.parse_description(root_entity)
 
 
 if __name__ == '__main__':
