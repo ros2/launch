@@ -377,25 +377,28 @@ class ExecuteProcess(ExecuteLocal):
                     )
                 kwargs['respawn_delay'] = respawn_delay
 
-        if 'sigkill_timeout' not in ignore:
-            sigkill_timeout = entity.get_attr('sigkill_timeout', data_type=float, optional=True)
-            if sigkill_timeout is not None:
-                if sigkill_timeout < 0.0:
-                    raise ValueError(
-                        'Attribute sigkill_timeout of Entity node expected to be '
-                        'a non-negative value but got `{}`'.format(sigkill_timeout)
+        for timeout_name in ('sigkill_timeout', 'sigterm_timeout'):
+            if timeout_name in ignore:
+                continue
+            timeout = entity.get_attr(
+                timeout_name, data_type=float, optional=True, can_be_str=True)
+            if timeout is None:
+                continue
+            if isinstance(timeout, str):
+                parsed_timeout = parser.parse_if_substitutions(timeout)
+                if isinstance(parsed_timeout, str):
+                    raise TypeError(
+                        'Attribute {} of Entity node expected to be a float or substitution '
+                        'but got `{}`'.format(timeout_name, parsed_timeout)
                     )
-                kwargs['sigkill_timeout'] = str(sigkill_timeout)
-
-        if 'sigterm_timeout' not in ignore:
-            sigterm_timeout = entity.get_attr('sigterm_timeout', data_type=float, optional=True)
-            if sigterm_timeout is not None:
-                if sigterm_timeout < 0.0:
+                kwargs[timeout_name] = parsed_timeout
+            else:
+                if timeout < 0.0:
                     raise ValueError(
-                        'Attribute sigterm_timeout of Entity node expected to be '
-                        'a non-negative value but got `{}`'.format(sigterm_timeout)
+                        'Attribute {} of Entity node expected to be a non-negative value '
+                        'but got `{}`'.format(timeout_name, timeout)
                     )
-                kwargs['sigterm_timeout'] = str(sigterm_timeout)
+                kwargs[timeout_name] = str(timeout)
 
         if 'shell' not in ignore:
             shell = entity.get_attr('shell', data_type=bool, optional=True)

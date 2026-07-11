@@ -18,6 +18,7 @@ import io
 from pathlib import Path
 import textwrap
 
+from launch import LaunchContext
 from launch import LaunchService
 from launch.actions import Shutdown
 
@@ -83,6 +84,31 @@ def test_executable_on_exit():
     sub_entities = executable.get_sub_entities()
     assert len(sub_entities) == 1
     assert isinstance(sub_entities[0], Shutdown)
+
+
+def test_executable_timeout_substitutions():
+    xml_file = \
+        """\
+        <launch>
+            <executable cmd="echo" sigkill_timeout="$(var timeout)" sigterm_timeout="$(var timeout)"/>
+        </launch>
+        """  # noqa, line too long
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    ld = parser.parse_description(root_entity)
+    executable = ld.entities[0]
+    context = LaunchContext()
+    context.launch_configurations['timeout'] = '3.5'
+    assert executable.sigkill_timeout[0].perform(context) == '3.5'
+    assert executable.sigterm_timeout[0].perform(context) == '3.5'
+
+
+@pytest.mark.parametrize('timeout_name', ('sigkill_timeout', 'sigterm_timeout'))
+def test_executable_invalid_timeout(timeout_name):
+    xml_file = '<launch><executable cmd="echo" {}="invalid"/></launch>'.format(timeout_name)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    with pytest.raises(TypeError, match=timeout_name):
+        parser.parse_description(root_entity)
 
 
 if __name__ == '__main__':
