@@ -45,6 +45,14 @@ def test_cmd_multiple_arguments_in_string():
     assert all(a == b for a, b in zip(exe.final_cmd, ['ls', '-opt1', '-opt2', '-opt3']))
 
 
+def test_arguments_generator_is_preserved():
+    arguments = (value for value in ['--flag', 'value'])
+    exe = Executable(cmd=['test'], arguments=arguments)
+    exe.prepare(LaunchContext(), None)
+    assert exe.final_cmd == ['test', '--flag', 'value']
+    assert list(exe.arguments) == ['--flag', 'value']
+
+
 def test_passthrough_properties():
     name = 'name'
     cwd = 'cwd'

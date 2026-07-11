@@ -74,9 +74,10 @@ class Executable:
             additional_env.
         :param arguments: list of extra arguments for the executable
         """
+        self.__arguments = None if arguments is None else list(arguments)
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
-        self.__cmd += ([] if arguments is None
-                       else [normalize_to_list_of_substitutions(x) for x in arguments])
+        self.__cmd += ([] if self.__arguments is None
+                       else [normalize_to_list_of_substitutions(x) for x in self.__arguments])
         self.__prefix = normalize_to_list_of_substitutions(
             LaunchConfiguration('launch-prefix', default='') if prefix is None else prefix
         )
@@ -99,7 +100,6 @@ class Executable:
                 self.__additional_env.append((
                     normalize_to_list_of_substitutions(key),
                     normalize_to_list_of_substitutions(value)))
-        self.__arguments = arguments
         self.__final_cmd: Optional[List[str]] = None
         self.__final_cwd: Optional[str] = None
         self.__final_env: Optional[Dict[str, str]] = None
