@@ -18,6 +18,7 @@
 """Module for a description of an Executable."""
 
 import os
+import pathlib
 import re
 import shlex
 import threading
@@ -74,7 +75,10 @@ class Executable:
             additional_env.
         :param arguments: list of extra arguments for the executable
         """
-        self.__arguments = None if arguments is None else list(arguments)
+        self.__arguments = None if arguments is None else [
+            argument if isinstance(argument, (str, pathlib.Path, Substitution)) else list(argument)
+            for argument in arguments
+        ]
         self.__cmd = [normalize_to_list_of_substitutions(x) for x in cmd]
         self.__cmd += ([] if self.__arguments is None
                        else [normalize_to_list_of_substitutions(x) for x in self.__arguments])

@@ -53,6 +53,14 @@ def test_arguments_generator_is_preserved():
     assert list(exe.arguments) == ['--flag', 'value']
 
 
+def test_nested_argument_generator_is_preserved():
+    argument = (value for value in ['--', 'flag'])
+    exe = Executable(cmd=['test'], arguments=[argument])
+    exe.prepare(LaunchContext(), None)
+    assert exe.final_cmd == ['test', '--flag']
+    assert exe.arguments == [['--', 'flag']]
+
+
 def test_passthrough_properties():
     name = 'name'
     cwd = 'cwd'
