@@ -19,8 +19,10 @@ import textwrap
 
 from launch import LaunchService
 from launch.actions import Shutdown
+from launch.actions.execute_process import ExecuteProcess
 
 from parser_no_extensions import load_no_extensions
+import pytest
 
 
 def test_executable():
@@ -80,6 +82,38 @@ def test_executable_on_exit():
     sub_entities = executable.get_sub_entities()
     assert len(sub_entities) == 1
     assert isinstance(sub_entities[0], Shutdown)
+
+
+def test_executable_respawn_delay_string():
+    yaml_file = textwrap.dedent(
+        """
+        launch:
+        -   executable:
+                cmd: echo test
+                respawn_delay: '2.0'
+        """
+    )
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+
+    _, kwargs = ExecuteProcess.parse(root_entity.children[0], parser)
+
+    assert kwargs['respawn_delay'] == 2.0
+    assert isinstance(kwargs['respawn_delay'], float)
+
+
+def test_executable_respawn_delay_invalid_string():
+    yaml_file = textwrap.dedent(
+        """
+        launch:
+        -   executable:
+                cmd: echo test
+                respawn_delay: ''
+        """
+    )
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+
+    with pytest.raises(ValueError, match='respawn_delay'):
+        ExecuteProcess.parse(root_entity.children[0], parser)
 
 
 if __name__ == '__main__':

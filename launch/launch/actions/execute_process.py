@@ -370,6 +370,15 @@ class ExecuteProcess(ExecuteLocal):
         if 'respawn_delay' not in ignore:
             respawn_delay = entity.get_attr('respawn_delay', data_type=float, optional=True)
             if respawn_delay is not None:
+                if isinstance(respawn_delay, str):
+                    try:
+                        respawn_delay = float(respawn_delay)
+                    except ValueError:
+                        raise ValueError(
+                            'Attribute respawn_delay of Entity node expected to be '
+                            'a non-negative floating-point value but got `{}`'.format(
+                                respawn_delay)
+                        ) from None
                 if respawn_delay < 0.0:
                     raise ValueError(
                         'Attribute respawn_delay of Entity node expected to be '
