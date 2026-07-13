@@ -44,6 +44,7 @@ from ..action import Action
 from ..conditions import evaluate_condition_expression
 from ..descriptions import Executable
 from ..event import Event
+from ..event_handler import BaseEventHandler
 from ..event_handler import EventHandler
 from ..event_handlers import OnProcessExit
 from ..event_handlers import OnProcessIO
@@ -223,6 +224,9 @@ class ExecuteLocal(Action):
         self.__stderr_buffer = io.StringIO()
 
         self.__executed = False
+        self.__registered_event_handlers: List[BaseEventHandler] = []
+        self.__context: Optional[LaunchContext] = None
+        self.__deferred_shutdown_handler: Optional[BaseEventHandler] = None
 
     @property
     def process_description(self) -> Executable:
@@ -283,10 +287,16 @@ class ExecuteLocal(Action):
         # Defer shut down if the process is scheduled to be started
         if (self.process_details is None or self._subprocess_transport is None):
             # Do not set shutdown result, as event is postponed
-            context.register_event_handler(
-                OnProcessStart(
-                    on_start=lambda event, context:
-                    self._shutdown_process(context, send_sigint=send_sigint)))
+            # Remove previously registered deferred shutdown handler to avoid accumulation
+            if self.__deferred_shutdown_handler is not None:
+                try:
+                    context.unregister_event_handler(self.__deferred_shutdown_handler)
+                except ValueError:
+                    pass
+            self.__deferred_shutdown_handler = OnProcessStart(
+                on_start=lambda event, context:
+                self._shutdown_process(context, send_sigint=send_sigint))
+            context.register_event_handler(self.__deferred_shutdown_handler)
             return None
 
         self.__shutdown_future.set_result(None)
@@ -413,6 +423,13 @@ class ExecuteLocal(Action):
             self.__stderr_buffer.seek(0)
             self.__stderr_buffer.truncate(0)
 
+        # Unregister event handlers if the action is complete (not respawning).
+        # This is done here rather than in __cleanup() because __cleanup() runs
+        # before the ProcessExited event is processed from the queue, and
+        # unregistering there would prevent on_exit callbacks from firing.
+        if self.__completed_future is not None and self.__completed_future.done():
+            self.__unregister_event_handlers()
+
     def __on_process_output_cached(
         self, event: ProcessIO, buffer, logger
     ) -> None:
@@ -441,6 +458,10 @@ class ExecuteLocal(Action):
             self.__stderr_logger.info(
                 self.__output_format.format(line=line, this=self)
             )
+
+        # Unregister event handlers if the action is complete (not respawning).
+        if self.__completed_future is not None and self.__completed_future.done():
+            self.__unregister_event_handlers()
 
     def __on_shutdown(self, event: Event, context: LaunchContext) -> Optional[SomeEntitiesType]:
         due_to_sigint = cast(Shutdown, event).due_to_sigint
@@ -504,6 +525,24 @@ class ExecuteLocal(Action):
             process_matcher=matches_action(self),
         ))
 
+    def __unregister_event_handlers(self) -> None:
+        """Unregister all event handlers registered by this action."""
+        context = self.__context
+        if context is None:
+            return
+        for event_handler in self.__registered_event_handlers:
+            try:
+                context.unregister_event_handler(event_handler)
+            except ValueError:
+                pass
+        self.__registered_event_handlers.clear()
+        if self.__deferred_shutdown_handler is not None:
+            try:
+                context.unregister_event_handler(self.__deferred_shutdown_handler)
+            except ValueError:
+                pass
+            self.__deferred_shutdown_handler = None
+
     def __cleanup(self) -> None:
         # Cancel any pending timers we started.
         if self.__sigterm_timer is not None:
@@ -514,6 +553,8 @@ class ExecuteLocal(Action):
         if self._subprocess_transport is not None:
             self._subprocess_transport.close()
         # Signal that we're done to the launch system.
+        # Event handlers are unregistered in __flush_buffers/__flush_cached_buffers
+        # after all ProcessExited handlers (including on_exit) have had a chance to fire.
         if self.__completed_future is not None:
             self.__completed_future.set_result(None)
 
@@ -583,6 +624,8 @@ class ExecuteLocal(Action):
             self.__logger.error('exception occurred while executing process:\n{}'.format(
                 traceback.format_exc()
             ))
+            # No ProcessExited event will be emitted, so unregister handlers directly.
+            self.__unregister_event_handlers()
             self.__cleanup()
             return
 
@@ -703,6 +746,8 @@ class ExecuteLocal(Action):
         ]
         for event_handler in event_handlers:
             context.register_event_handler(event_handler)
+        self.__registered_event_handlers = list(event_handlers)
+        self.__context = context
 
         try:
             self.__completed_future = context.asyncio_loop.create_future()
@@ -720,8 +765,7 @@ class ExecuteLocal(Action):
                     launch.logging.get_output_loggers(name, self.__output)
             context.asyncio_loop.create_task(self.__execute_process(context))
         except Exception:
-            for event_handler in event_handlers:
-                context.unregister_event_handler(event_handler)
+            self.__unregister_event_handlers()
             raise
         return None
 
