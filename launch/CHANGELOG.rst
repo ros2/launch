@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.8 (2026-07-14)
+------------------
+* Fix Pytest 8/9 compatibility in hooks (backport `#972 <https://github.com/ros2/launch//issues/972>`_) (`#973 <https://github.com/ros2/launch//issues/973>`_)
+* Contributors: mergify[bot]
+
 3.9.7 (2026-04-09)
 ------------------
 * Correct typos (`#961 <https://github.com/ros2/launch/issues/961>`_)

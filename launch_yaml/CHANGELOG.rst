@@ -2,6 +2,9 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.8 (2026-07-14)
+------------------
+
 3.9.7 (2026-04-09)
 ------------------
 * Correct typos (`#961 <https://github.com/ros2/launch/issues/961>`_)
