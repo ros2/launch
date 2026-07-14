@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.8 (2026-07-14)
+------------------
+* Correct typos (backport `#961 <https://github.com/ros2/launch//issues/961>`_) (`#962 <https://github.com/ros2/launch//issues/962>`_)
+* Contributors: mergify[bot]
+
 3.8.7 (2026-01-12)
 ------------------
 * Merge pull request `#928 <https://github.com/ros2/launch/issues/928>`_ from ros2/mergify/bp/kilted/pr-873

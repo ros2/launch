@@ -2,6 +2,9 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.8 (2026-07-14)
+------------------
+
 3.8.7 (2026-01-12)
 ------------------
 * Merge pull request `#928 <https://github.com/ros2/launch/issues/928>`_ from ros2/mergify/bp/kilted/pr-873

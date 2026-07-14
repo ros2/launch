@@ -2,6 +2,11 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.8.8 (2026-07-14)
+------------------
+* Correct typos (backport `#961 <https://github.com/ros2/launch//issues/961>`_) (`#962 <https://github.com/ros2/launch//issues/962>`_)
+* Contributors: mergify[bot]
+
 3.8.7 (2026-01-12)
 ------------------
 * Remove importlib metadata (backport `#932 <https://github.com/ros2/launch/issues/932>`_) (`#934 <https://github.com/ros2/launch/issues/934>`_)
