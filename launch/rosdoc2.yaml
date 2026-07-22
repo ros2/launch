@@ -1,0 +1,6 @@
+type: "rosdoc2 config"
+version: 1
+---
+settings: {}
+builders:
+  - sphinx: { sphinx_sourcedir: "doc" }
