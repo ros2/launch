@@ -94,7 +94,8 @@ class LaunchService:
         # it being set to None by run() as it exits.
         self.__loop_from_run_thread_lock = threading.RLock()
         self.__loop_from_run_thread = None
-        self.__this_task: Optional[asyncio.Future[None]] = None
+        self.__this_task: Optional[asyncio.Task[None]] = None
+        self.__process_one_event_task: Optional[asyncio.Task[None]] = None
 
         # Used to indicate when shutdown() has been called.
         self.__shutting_down = False
@@ -156,7 +157,17 @@ class LaunchService:
     def _is_idle(self) -> bool:
         number_of_entity_future_pairs = self._prune_and_count_entity_future_pairs()
         number_of_entity_future_pairs += self._prune_and_count_context_completion_futures()
-        return number_of_entity_future_pairs == 0 and self.__context._event_queue.empty()
+        if self.event_loop is not None:
+            tasks_to_ignore = {self.__this_task, self.__process_one_event_task}
+            active_tasks = [
+                task for task in asyncio.all_tasks(self.event_loop)
+                if task not in tasks_to_ignore and not task.done()
+            ]
+        else:
+            active_tasks = []
+        return (number_of_entity_future_pairs == 0 and
+                self.__context._event_queue.empty() and
+                len(active_tasks) == 0)
 
     @contextlib.contextmanager
     def _prepare_run_loop(
@@ -234,6 +245,8 @@ class LaunchService:
             with self.__loop_from_run_thread_lock:
                 self.__context._set_asyncio_loop(None)
                 self.__loop_from_run_thread = None
+                self.__this_task = None
+                self.__process_one_event_task = None
                 self.__shutting_down = False
 
     async def _process_one_event(self) -> None:
@@ -328,6 +341,7 @@ class LaunchService:
                     # in the queue
                     if process_one_event_task is None or process_one_event_task.done():
                         process_one_event_task = this_loop.create_task(self._process_one_event())
+                        self.__process_one_event_task = process_one_event_task
 
                     # Add the process event task to the list of awaitables
                     entity_futures.append(process_one_event_task)
