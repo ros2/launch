@@ -149,6 +149,17 @@ There are many possible variations of a substitution, but here are some of the c
 
   - This substitution locates the full path to an executable on the PATH if it exists.
 
+- :class:`launch.substitutions.IsEmptySubstitution`
+
+  - This substitution checks whether a string is empty, returning 'true' or 'false'.
+  - For example, ``$(is-empty $(var arg))`` returns 'true' if the launch configuration is empty.
+
+- :class:`launch.substitutions.NotEmptySubstitution`
+
+  - This substitution checks whether a string is not empty, returning 'true' or 'false'.
+  - For example, ``$(not-empty $(var arg))`` returns 'true' if the launch configuration has content.
+  - This is the inverse of :class:`launch.substitutions.IsEmptySubstitution`.
+
 The base substitution class provides some common introspection interfaces (which the specific derived substitutions may influence).
 
 The Launch Service
