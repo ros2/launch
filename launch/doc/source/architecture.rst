@@ -128,6 +128,11 @@ There are many possible variations of a substitution, but here are some of the c
   - This substitution will evaluate a python expression and get the result as a string.
   - You may pass a list of Python modules to the constructor to allow the use of those modules in the evaluated expression.
 
+- :class:`launch.substitutions.StringStripSubstitution`
+
+  - This substitution removes leading and trailing whitespace from the result of one or more substitutions.
+  - It can remove a newline terminator from command output before composition, for example ``$(string-strip $(command 'hostname'))``.
+
 - :class:`launch.substitutions.LaunchConfiguration`
 
   - This substitution gets a launch configuration value, as a string, by name.

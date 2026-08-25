@@ -36,6 +36,7 @@ from .path_join_substitution import PathJoinSubstitution
 from .path_join_substitution import PathSubstitution
 from .python_expression import PythonExpression
 from .string_join_substitution import StringJoinSubstitution
+from .string_strip_substitution import StringStripSubstitution
 from .substitution_failure import SubstitutionFailure
 from .text_substitution import TextSubstitution
 from .this_launch_file import ThisLaunchFile
@@ -64,6 +65,7 @@ __all__ = [
     'PathSubstitution',
     'PythonExpression',
     'StringJoinSubstitution',
+    'StringStripSubstitution',
     'SubstitutionFailure',
     'TextSubstitution',
     'ThisLaunchFile',

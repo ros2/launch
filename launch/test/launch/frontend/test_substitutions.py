@@ -27,6 +27,7 @@ from launch.frontend.parse_substitution import parse_if_substitutions
 from launch.frontend.parse_substitution import parse_substitution
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import PythonExpression
+from launch.substitutions import StringStripSubstitution
 from launch.substitutions import TextSubstitution
 from launch.substitutions import ThisLaunchFileDir
 from launch.utilities import normalize_to_list_of_substitutions
@@ -206,6 +207,14 @@ def test_eval_subst():
     expr = subst[0]
     assert isinstance(expr, PythonExpression)
     assert 'asdbsd' == expr.perform(LaunchContext())
+
+
+def test_string_strip_subst():
+    subst = parse_substitution("$(string-strip '  $(test asd)  ')")
+    assert len(subst) == 1
+    string_strip = subst[0]
+    assert isinstance(string_strip, StringStripSubstitution)
+    assert string_strip.perform(LaunchContext()) == 'asd'
 
 
 def test_eval_subst_of_math_expr():
