@@ -73,7 +73,7 @@ class OpaqueCoroutine(Action):
         if not asyncio.iscoroutinefunction(coroutine):
             raise TypeError(
                 "OpaqueCoroutine expected a coroutine function for 'coroutine', got '{}'".format(
-                    type(coroutine)
+                    type(coroutine).__name__
                 )
             )
         ensure_argument_type(
