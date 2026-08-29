@@ -15,11 +15,18 @@
 """Module for the PushEnvironment action."""
 
 from typing import Any
+from typing import Dict
+from typing import Tuple
+from typing import Type
 
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 
 
+@expose_action('push_env')
 class PushEnvironment(Action):
     """
     Action that pushes the current environment to a stack.
@@ -31,6 +38,13 @@ class PushEnvironment(Action):
     def __init__(self, **kwargs: Any) -> None:
         """Create a PushEnvironment action."""
         super().__init__(**kwargs)
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['PushEnvironment'], Dict[str, Any]]:
+        """Return ``PushEnvironment`` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+        return cls, kwargs
 
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
