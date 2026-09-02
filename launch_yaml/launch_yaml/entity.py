@@ -26,6 +26,12 @@ from launch.utilities.type_utils import AllowedValueType
 from launch.utilities.type_utils import is_instance_of
 
 
+def _stringify_scalar(value: AllowedValueType) -> str:
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
+    return str(value)
+
+
 class Entity(BaseEntity):
     """Single item in the intermediate YAML front_end representation."""
 
@@ -130,6 +136,8 @@ class Entity(BaseEntity):
                     name, self.type_name
                 )
             )
+        if data_type is str and isinstance(data, (bool, int, float)):
+            return _stringify_scalar(data)
         if not is_instance_of(data, data_type, can_be_str=can_be_str):
             raise TypeError(
                 "Attribute '{}' of Entity '{}' expected to be of type '{}', got '{}'".format(

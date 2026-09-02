@@ -15,7 +15,10 @@
 import io
 import textwrap
 
+from launch.actions import GroupAction
+from launch.actions import SetLaunchConfiguration
 from launch import LaunchService
+from launch import LaunchContext
 from launch.utilities import perform_substitutions
 
 from parser_no_extensions import load_no_extensions
@@ -113,3 +116,30 @@ def check_boolean_substitution(file):
     assert perform(any_true_false.value) == 'true'
     assert perform(any_false_true.value) == 'true'
     assert perform(any_false_false.value) == 'false'
+
+
+def test_native_yaml_scalar_values():
+    yaml_file = textwrap.dedent(
+        r"""
+        launch:
+            - let: { name: int_value, value: 42 }
+            - let: { name: float_value, value: 3.5 }
+            - let: { name: bool_value, value: false }
+            - group:
+                if: false
+                children:
+                    - let: { name: skipped_value, value: unreachable }
+        """
+    )
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    ld = parser.parse_description(root_entity)
+    launch_context = LaunchContext()
+
+    assert isinstance(ld.entities[0], SetLaunchConfiguration)
+    assert perform_substitutions(launch_context, ld.entities[0].value) == '42'
+    assert isinstance(ld.entities[1], SetLaunchConfiguration)
+    assert perform_substitutions(launch_context, ld.entities[1].value) == '3.5'
+    assert isinstance(ld.entities[2], SetLaunchConfiguration)
+    assert perform_substitutions(launch_context, ld.entities[2].value) == 'false'
+    assert isinstance(ld.entities[3], GroupAction)
+    assert ld.entities[3].visit(launch_context) is None
