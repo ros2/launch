@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.1 (2026-09-02)
+-------------------
+* Add string strip substitution (`#997 <https://github.com/ros2/launch/issues/997>`_)
+* Contributors: Dylan Gallagher
+
 3.10.0 (2026-05-07)
 -------------------
 

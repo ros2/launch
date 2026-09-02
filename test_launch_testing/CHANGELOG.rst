@@ -2,6 +2,11 @@
 Changelog for package test_launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.1 (2026-09-02)
+-------------------
+* use C++ 20 in default. (`#980 <https://github.com/ros2/launch/issues/980>`_)
+* Contributors: Tomoya Fujita
+
 3.10.0 (2026-05-07)
 -------------------
 

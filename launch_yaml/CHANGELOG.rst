@@ -2,6 +2,12 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.1 (2026-09-02)
+-------------------
+* Add string strip substitution (`#997 <https://github.com/ros2/launch/issues/997>`_)
+* fix: parse respawn_max_retries YAML strings (`#969 <https://github.com/ros2/launch/issues/969>`_)
+* Contributors: Dylan Gallagher, Lidang Jiang
+
 3.10.0 (2026-05-07)
 -------------------
 

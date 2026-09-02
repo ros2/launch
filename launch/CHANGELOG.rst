@@ -2,6 +2,14 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.1 (2026-09-02)
+-------------------
+* Apply launch prefix without overwriting the logger name (`#976 <https://github.com/ros2/launch/issues/976>`_)
+* Add string strip substitution (`#997 <https://github.com/ros2/launch/issues/997>`_)
+* fix: parse respawn_max_retries YAML strings (`#969 <https://github.com/ros2/launch/issues/969>`_)
+* Fix LaunchService._is_idle() to consider active background tasks (`#996 <https://github.com/ros2/launch/issues/996>`_)
+* Contributors: Dylan Gallagher, Lidang Jiang, Mosiwon, William Woodall
+
 3.10.0 (2026-05-07)
 -------------------
 * Robust pytest_ignore_collect for multi-version Pytest compatibility (`#974 <https://github.com/ros2/launch/issues/974>`_)

@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.1 (2026-09-02)
+-------------------
+
 3.10.0 (2026-05-07)
 -------------------
 * Robust pytest_ignore_collect for multi-version Pytest compatibility (`#974 <https://github.com/ros2/launch/issues/974>`_)
