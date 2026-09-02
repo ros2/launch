@@ -56,6 +56,16 @@ def test_passthrough_properties():
     assert exe.final_env == env
 
 
+def test_prefix_does_not_overwrite_logger_name():
+    # Regression test for https://github.com/ros2/launch/issues/938
+    # ``final_name`` (used as the log output prefix) must be derived from the
+    # user's command, not from the launch ``prefix=`` token that gets prepended.
+    exe = Executable(cmd=['my_program'], prefix='gdb -ex run --args')
+    exe.prepare(LaunchContext(), None)
+    assert exe.final_cmd[0] == 'gdb'
+    assert exe.final_name.startswith('my_program')
+
+
 def test_substituted_properties():
     os.environ['EXECUTABLE_NAME'] = 'name'
     os.environ['EXECUTABLE_CWD'] = 'cwd'
