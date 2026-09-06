@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.15 (2026-09-06)
+-------------------
 * Correct typos (backport `#961 <https://github.com/ros2/launch/issues/961>`_) (`#964 <https://github.com/ros2/launch/issues/964>`_)
 * Contributors: mergify[bot]
 
