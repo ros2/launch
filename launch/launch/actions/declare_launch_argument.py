@@ -204,6 +204,18 @@ class DeclareLaunchArgument(Action):
         """Getter for self.__choices."""
         return self.__choices
 
+    def __repr__(self) -> Text:
+        """Return a description of this DeclareLaunchArgument as a string."""
+        parts = [f'name={self.name!r}']
+        if self.default_value is not None:
+            default = ''.join(sub.describe() for sub in self.default_value)
+            parts.append(f'default_value={default}')
+        if self.description:
+            parts.append(f'description={self.description!r}')
+        if self.choices is not None:
+            parts.append(f'choices={self.choices!r}')
+        return 'DeclareLaunchArgument({})'.format(', '.join(parts))
+
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         if self.name not in context.launch_configurations:
