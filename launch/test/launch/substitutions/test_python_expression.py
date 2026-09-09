@@ -137,3 +137,20 @@ def test_python_substitution_submodule():
 
     # The expression should evaluate to True
     assert result
+
+
+def test_python_substitution_parse_multiple_arguments():
+    """Check that parse() joins an expression split across multiple arguments."""
+    lc = LaunchContext()
+
+    # The frontend splits an expression containing spaces, e.g. `$(eval 1 == 1)`
+    cls, kwargs = PythonExpression.parse(['1', '==', '1'])
+    subst = cls(**kwargs)
+    result = subst.perform(lc)
+
+    assert result == 'True'
+
+    # Test the describe() method
+    assert subst.describe() == (
+        "PythonExpr('1' + ' ' + '==' + ' ' + '1', ['math'])"
+    )
