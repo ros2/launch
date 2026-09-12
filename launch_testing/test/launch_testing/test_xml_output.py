@@ -47,7 +47,8 @@ class TestGoodXmlOutput(unittest.TestCase):
                 'launch_test',
                 path,
                 '--junit-xml', os.path.join(cls.tmpdir.name, 'junit.xml'),
-                '--package-name', 'test_xml_output'
+                '--package-name', 'test_xml_output',
+                '--test-name', 'unique_ctest_target'
             ],
         ).returncode
 
@@ -73,6 +74,10 @@ class TestGoodXmlOutput(unittest.TestCase):
         case_names = [case.attrib['name'] for case in test_suite]
         self.assertIn('test_count_to_four', case_names)
         self.assertIn('test_full_output', case_names)
+        self.assertTrue(all(
+            case.attrib['classname'].startswith('unique_ctest_target.')
+            for case in test_suite
+        ))
 
 
 @pytest.mark.usefixtures('source_test_loader_class_fixture')
