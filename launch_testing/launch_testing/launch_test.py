@@ -42,6 +42,10 @@ def add_arguments(parser):
         help='Name of the package the test is in. Useful to aggregate xUnit reports.'
     )
     parser.add_argument(
+        '--test-name', action='store', default=None,
+        help='Unique test name to include in xUnit test case class names.'
+    )
+    parser.add_argument(
         '-v', '--verbose', action='store_true', default=False, help='Run with verbose output'
     )
     parser.add_argument(
@@ -116,7 +120,7 @@ def run(parser, args, test_runner_cls=LaunchTestRunner):
         xml_report = unittestResultsToXml(
             test_results=results, name='{}.{}'.format(
                 args.package_name, launch_test_file_basename
-            )
+            ), classname_prefix=args.test_name
         )
         xml_report.write(args.xmlpath, encoding='utf-8', xml_declaration=True)
 

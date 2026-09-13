@@ -16,7 +16,7 @@
 import xml.etree.ElementTree as ET
 
 
-def unittestResultsToXml(*, name='launch_test', test_results={}):
+def unittestResultsToXml(*, name='launch_test', test_results={}, classname_prefix=None):
     """
     Serialize multiple unittest.TestResult objects into an XML document.
 
@@ -46,12 +46,12 @@ def unittestResultsToXml(*, name='launch_test', test_results={}):
     test_suites.set('time', str(round(time, 3)))
 
     for (name, test_result) in test_results.items():
-        test_suites.append(unittestResultToXml(str(name), test_result))
+        test_suites.append(unittestResultToXml(str(name), test_result, classname_prefix))
 
     return ET.ElementTree(test_suites)
 
 
-def unittestResultToXml(name, test_result):
+def unittestResultToXml(name, test_result, classname_prefix=None):
     """
     Serialize a single unittest.TestResult to an XML element.
 
@@ -68,12 +68,12 @@ def unittestResultToXml(name, test_result):
     test_suite.set('time', str(round(sum(test_result.testTimes.values()), 3)))
 
     for case in test_result.testCases:
-        test_suite.append(unittestCaseToXml(test_result, case))
+        test_suite.append(unittestCaseToXml(test_result, case, classname_prefix))
 
     return test_suite
 
 
-def unittestCaseToXml(test_result, test_case):
+def unittestCaseToXml(test_result, test_case, classname_prefix=None):
     """
     Serialize a unittest.TestCase into an XML element.
 
@@ -85,6 +85,8 @@ def unittestCaseToXml(test_result, test_case):
     case_xml = ET.Element('testcase')
     full_methodname, _, qualifiers = test_case.id().partition(' ')
     full_classname, _, methodname = full_methodname.rpartition('.')
+    if classname_prefix:
+        full_classname = '{}.{}'.format(classname_prefix, full_classname)
     case_xml.set('classname', full_classname)
     case_xml.set('name', (methodname + ' ' + qualifiers).strip())
     case_xml.set('time', str(round(test_result.testTimes[test_case], 3)))
