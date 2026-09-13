@@ -19,6 +19,7 @@ import unittest
 import xml.etree.ElementTree as ET
 
 import ament_index_python
+from launch_testing.junitxml import unittestResultToXml
 from launch_testing.junitxml import unittestResultsToXml
 from launch_testing.test_result import FailResult
 from launch_testing.test_result import SkipResult
@@ -203,6 +204,19 @@ class TestXmlFunctions(unittest.TestCase):
 
         child_names = [chld.attrib['name'] for chld in xml_tree.getroot()]
         self.assertEqual(set(child_names), {'launch_1', 'launch_2', 'launch_3'})
+
+    def test_classname_prefix_keeps_same_cases_unique(self):
+        test_result = self.unit_test_result_factory([lambda self: None])
+        first = unittestResultToXml('launch_1', test_result, 'ctest_target_1')
+        second = unittestResultToXml('launch_2', test_result, 'ctest_target_2')
+        self.assertEqual(
+            'ctest_target_1.test_xml_output.TestHost',
+            first.find('testcase').attrib['classname'],
+        )
+        self.assertEqual(
+            'ctest_target_2.test_xml_output.TestHost',
+            second.find('testcase').attrib['classname'],
+        )
 
     def test_result_that_ran(self):
         """
