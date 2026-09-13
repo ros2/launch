@@ -29,6 +29,21 @@ from launch.launch_context import LaunchContext
 
 from parser_no_extensions import load_no_extensions
 
+import pytest
+
+
+@pytest.mark.parametrize('attribute', ['scoped', 'forwarding'])
+def test_group_rejects_arbitrary_boolean_strings(attribute):
+    """Reject arbitrary strings for boolean GroupAction attributes."""
+    xml_file = textwrap.dedent(f"""\
+        <launch>
+            <group {attribute}="not-a-boolean" />
+        </launch>
+    """)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    with pytest.raises(TypeError, match=attribute):
+        parser.parse_description(root_entity)
+
 
 def test_group():
     xml_file = \
