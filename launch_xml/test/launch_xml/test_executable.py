@@ -69,6 +69,19 @@ def test_executable_wrong_subtag():
     assert 'whats_this' in str(excinfo.value)
 
 
+@pytest.mark.parametrize('attribute', ['shell', 'emulate_tty'])
+def test_executable_rejects_arbitrary_boolean_strings(attribute):
+    """Reject arbitrary strings for boolean executable attributes."""
+    xml_file = textwrap.dedent(f"""
+        <launch>
+            <executable cmd="echo test" {attribute}="not-a-boolean" />
+        </launch>
+    """)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    with pytest.raises(TypeError, match=attribute):
+        parser.parse_description(root_entity)
+
+
 def test_executable_on_exit():
     xml_file = \
         """\
