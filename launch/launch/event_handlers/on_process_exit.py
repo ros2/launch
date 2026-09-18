@@ -26,7 +26,6 @@ from ..events.process import ProcessExited
 from ..launch_context import LaunchContext
 from ..some_entities_type import SomeEntitiesType
 
-
 if TYPE_CHECKING:
     from ..action import Action  # noqa: F401
     from ..actions import ExecuteLocal  # noqa: F401
