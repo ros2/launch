@@ -2,8 +2,8 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.8.9 (2026-09-18)
+------------------
 * Robust pytest_ignore_collect for multi-version Pytest compatibility (`#974 <https://github.com/ros2/launch/issues/974>`_) (`#1005 <https://github.com/ros2/launch/issues/1005>`_)
 * Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (`#972 <https://github.com/ros2/launch/issues/972>`_) (`#1007 <https://github.com/ros2/launch/issues/1007>`_)
 * Contributors: Guilhem Saurel
