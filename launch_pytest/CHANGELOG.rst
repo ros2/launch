@@ -2,6 +2,11 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (`#972 <https://github.com/ros2/launch/issues/972>`_) (`#1007 <https://github.com/ros2/launch/issues/1007>`_)
+* Contributors: Guilhem Saurel
+
 3.8.8 (2026-07-14)
 ------------------
 * Backport `#949 <https://github.com/ros2/launch//issues/949>`_ (`#966 <https://github.com/ros2/launch//issues/966>`_)
