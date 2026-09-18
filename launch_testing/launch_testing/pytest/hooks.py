@@ -189,12 +189,20 @@ def find_launch_test_entrypoint(path):
         return None
 
 
-def pytest_pycollect_makemodule(path, parent):
+if _pytest_version_ge(8):
+    def pytest_pycollect_makemodule(module_path, parent):
+        return _pytest_pycollect_makemodule(module_path, parent)
+else:
+    def pytest_pycollect_makemodule(path, parent):
+        return _pytest_pycollect_makemodule(path, parent)
+
+
+def _pytest_pycollect_makemodule(path, parent):
     entrypoint = find_launch_test_entrypoint(path)
     if entrypoint is not None:
         ihook = parent.session.gethookproxy(path)
         module = ihook.pytest_launch_collect_makemodule(
-            path=path, parent=parent, entrypoint=entrypoint
+            module_path=path, parent=parent, entrypoint=entrypoint
         )
         if module is not None:
             return module
@@ -216,14 +224,14 @@ def pytest_pycollect_makemodule(path, parent):
 
 
 @pytest.hookimpl(trylast=True)
-def pytest_launch_collect_makemodule(path, parent, entrypoint):
+def pytest_launch_collect_makemodule(module_path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
     if marks and any(m.name == 'launch_test' for m in marks):
         if _pytest_version_ge(7):
-            path = pathlib.Path(path)
+            path = pathlib.Path(module_path)
             module = LaunchTestModule.from_parent(parent=parent, path=path)
         else:
-            module = LaunchTestModule.from_parent(parent=parent, fspath=path)
+            module = LaunchTestModule.from_parent(parent=parent, fspath=module_path)
         for mark in marks:
             decorator = getattr(pytest.mark, mark.name)
             decorator = decorator.with_args(*mark.args, **mark.kwargs)
