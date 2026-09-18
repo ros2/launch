@@ -69,6 +69,35 @@ def test_executable_wrong_subtag():
     assert 'whats_this' in str(excinfo.value)
 
 
+@pytest.mark.parametrize(
+    'value', ['true', 'false', 'True', 'False', 'yes', 'no', 'on', 'off', '1', '0'])
+@pytest.mark.parametrize('attribute', ['shell', 'emulate_tty'])
+def test_executable_accepts_boolean_values(attribute, value):
+    """Accept the boolean spellings supported by the XML type converter."""
+    xml_file = textwrap.dedent(f"""
+        <launch>
+            <executable cmd="echo test" {attribute}="{value}" />
+        </launch>
+    """)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    executable = parser.parse_description(root_entity).entities[0]
+    assert getattr(executable, attribute) is (value.lower() in ('true', 'yes', 'on', '1'))
+
+
+@pytest.mark.parametrize('attribute', ['shell', 'emulate_tty'])
+def test_executable_rejects_arbitrary_boolean_strings(attribute):
+    """Reject arbitrary strings for boolean executable attributes."""
+    for value in ('', ' ', 'not-a-boolean', '$(var flag)'):
+        xml_file = textwrap.dedent(f"""
+            <launch>
+                <executable cmd="echo test" {attribute}="{value}" />
+            </launch>
+        """)
+        root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+        with pytest.raises(TypeError, match=attribute):
+            parser.parse_description(root_entity)
+
+
 def test_executable_on_exit():
     xml_file = \
         """\

@@ -198,7 +198,8 @@ class ExecuteProcess(ExecuteLocal):
         :param: additional_env dictionary of environment variables to be added.
             If 'env' was None, they are added to the current environment.
             If not, 'env' is updated with additional_env.
-        :param: shell if True, a shell is used to execute the cmd
+        :param: shell if True, a shell is used to execute the cmd. This must be
+            a boolean value in XML launch files; substitutions are not supported.
         :param: sigterm_timeout time until shutdown should escalate to SIGTERM,
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
@@ -211,6 +212,8 @@ class ExecuteProcess(ExecuteLocal):
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
             :py:func:`evaluate_condition_expression`.
+            In XML launch files, this attribute must be a boolean value;
+            substitutions are not supported.
             Throws :py:exc:`InvalidConditionExpressionError` if the
             'emulate_tty' configuration does not represent a boolean.
         :param: prefix a set of commands/arguments to precede the cmd, used for
@@ -411,12 +414,13 @@ class ExecuteProcess(ExecuteLocal):
                 kwargs['sigterm_timeout'] = str(sigterm_timeout)
 
         if 'shell' not in ignore:
-            shell = entity.get_attr('shell', data_type=bool, optional=True)
+            shell = entity.get_attr('shell', data_type=bool, optional=True, can_be_str=False)
             if shell is not None:
                 kwargs['shell'] = shell
 
         if 'emulate_tty' not in ignore:
-            emulate_tty = entity.get_attr('emulate_tty', data_type=bool, optional=True)
+            emulate_tty = entity.get_attr(
+                'emulate_tty', data_type=bool, optional=True, can_be_str=False)
             if emulate_tty is not None:
                 kwargs['emulate_tty'] = emulate_tty
 
