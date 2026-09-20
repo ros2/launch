@@ -11,8 +11,19 @@ Welcome to launch's documentation!
    :caption: Contents:
 
    architecture
-   modules
+   Links <__links>
+   Python API <modules>
+   Standard Documents <__standards>
+   ROS Package Dependencies <__ros_package_dependencies>
 
+
+Indices and tables
+   ROS Package Dependencies <__ros_package_dependencies>
+
+.. toctree::
+   :hidden:
+
+   doc/source/architecture
 
 Indices and tables
 ==================
