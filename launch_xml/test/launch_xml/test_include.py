@@ -54,5 +54,78 @@ def test_include():
     assert ls.context.launch_configurations['baz'] == 'BAZ'
 
 
+def test_include_scoped_true():
+    """Parse include with scoped="true" — child configs do not leak to parent."""
+    path = (Path(__file__).parent / 'executable.xml').as_posix()
+    xml_file = \
+        """\
+        <launch>
+            <let name="bar" value="BAR" />
+            <include file="{}" scoped="true">
+                <let name="foo" value="FOO" />
+            </include>
+        </launch>
+        """.format(path)  # noqa: E501
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    ld = parser.parse_description(root_entity)
+    include = ld.entities[1]
+    assert isinstance(include, IncludeLaunchDescription)
+    ls = LaunchService(debug=True)
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    # bar persists, but foo from scoped include does not leak
+    assert ls.context.launch_configurations['bar'] == 'BAR'
+    assert 'foo' not in ls.context.launch_configurations
+
+
+def test_include_scoped_false():
+    """Parse include with scoped="false" — child configs leak to parent (default behavior)."""
+    path = (Path(__file__).parent / 'executable.xml').as_posix()
+    xml_file = \
+        """\
+        <launch>
+            <let name="bar" value="BAR" />
+            <include file="{}" scoped="false">
+                <let name="foo" value="FOO" />
+            </include>
+        </launch>
+        """.format(path)  # noqa: E501
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    ld = parser.parse_description(root_entity)
+    include = ld.entities[1]
+    assert isinstance(include, IncludeLaunchDescription)
+    ls = LaunchService(debug=True)
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    # Both bar and foo are visible
+    assert ls.context.launch_configurations['bar'] == 'BAR'
+    assert ls.context.launch_configurations['foo'] == 'FOO'
+
+
+def test_include_default_is_unscoped():
+    """Parse include without scoped attribute — defaults to unscoped (backward compatible)."""
+    path = (Path(__file__).parent / 'executable.xml').as_posix()
+    xml_file = \
+        """\
+        <launch>
+            <include file="{}">
+                <let name="foo" value="FOO" />
+            </include>
+        </launch>
+        """.format(path)  # noqa: E501
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    ld = parser.parse_description(root_entity)
+    include = ld.entities[0]
+    assert isinstance(include, IncludeLaunchDescription)
+    ls = LaunchService(debug=True)
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    # foo leaks, same as before
+    assert ls.context.launch_configurations['foo'] == 'FOO'
+
+
 if __name__ == '__main__':
     test_include()
