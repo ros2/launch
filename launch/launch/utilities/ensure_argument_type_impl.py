@@ -43,7 +43,7 @@ def ensure_argument_type(
             'types',
             'type, collections.abc.Iterable of type',
             types,
-            type(types),
+            type(types).__name__,
         ))
     if not isinstance(argument_name, str):
         raise TypeError(error_msg_template.format(
@@ -51,7 +51,7 @@ def ensure_argument_type(
             'argument_name',
             'str',
             argument_name,
-            type(argument_name),
+            type(argument_name).__name__,
         ))
     if caller is not None and not isinstance(caller, str):
         raise TypeError(error_msg_template.format(
@@ -59,7 +59,7 @@ def ensure_argument_type(
             'caller',
             'str, None',
             caller,
-            type(caller),
+            type(caller).__name__,
         ))
 
     def check_argument(argument: Any, type_var: Type[Any]) -> bool:
@@ -76,5 +76,5 @@ def ensure_argument_type(
             argument_name,
             ', '.join([str(x) for x in list_of_types]),
             argument,
-            type(argument),
+            type(argument).__name__,
         ))

@@ -92,7 +92,7 @@ class Entity(BaseEntity):
         """
         attr_error = AttributeError(
             "Attribute '{}' of type '{}' not found in Entity '{}'".format(
-                name, data_type, self.type_name
+                name, data_type.__name__, self.type_name
             )
         )
         if check_is_list_entity(data_type):
@@ -125,7 +125,7 @@ class Entity(BaseEntity):
             raise TypeError(
                 "Attribute '{}' of Entity '{}' expected to be of type '{}'."
                 "'{}' can not be converted to one of those types".format(
-                    name, self.type_name, data_type, value
+                    name, self.type_name, data_type.__name__, value
                 )
             )
         return value
