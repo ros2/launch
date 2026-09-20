@@ -25,6 +25,24 @@ import launch.logging
 import pytest
 
 
+def contains_ansicode(str_to_check: str) -> bool:
+    """
+    Check if given string contains an ANSI code sequence.
+
+    :param str_to_check: Given string to check for ANSI codes.
+    :return: True if the given string contains any ANSI code sequence,
+    False otherwise.
+    """
+    ansi_regex = re.compile(r"""
+        \x1b     # literal ESC
+        \[       # literal [
+        [;\d]*   # zero or more digits or semicolons
+        [A-Za-z] # a letter
+        """, re.VERBOSE)
+
+    return bool(ansi_regex.search(str_to_check))
+
+
 @pytest.fixture
 def log_dir(tmpdir_factory):
     """Test fixture that generates a temporary directory for log files."""
@@ -95,6 +113,111 @@ params = [
     for (config, checks) in configs
     for log_file_name in log_file_names
 ]
+
+
+def test_colorized_output_with_tty(capsys, monkeypatch, mock_clean_env):
+    """
+    Test color output with TTY.
+
+    Colors should be enabled when stdout is set to a TTY and
+    RCUTILS_COLORIZED_OUTPUT is unset.
+    """
+    monkeypatch.setattr('sys.stdout.isatty', lambda: True)
+    monkeypatch.delenv('RCUTILS_COLORIZED_OUTPUT', raising=False)
+
+    launch.logging.reset()
+    logger = launch.logging.get_logger()
+    logger.setLevel(logging.INFO)
+    logger.info('Test message with TTY')
+
+    capture = capsys.readouterr()
+    assert contains_ansicode(capture.out), \
+        'Expected ANSI color codes in output with TTY'
+
+
+def test_colorized_output_disabled_by_env(capsys, monkeypatch, mock_clean_env):
+    """
+    Test color output disabled by env var.
+
+    Colors should be disabled when stdout is a TTY but
+    RCUTILS_COLORIZED_OUTPUT=0.
+    """
+    monkeypatch.setattr('sys.stdout.isatty', lambda: True)
+    monkeypatch.setenv('RCUTILS_COLORIZED_OUTPUT', '0')
+
+    launch.logging.reset()
+    logger = launch.logging.get_logger()
+    logger.setLevel(logging.INFO)
+    logger.info('Test message with colors disabled')
+
+    capture = capsys.readouterr()
+    assert not contains_ansicode(capture.out), \
+        'Expected no ANSI color codes when disabled by env var'
+
+
+def test_colorized_output_forced_by_env(capsys, monkeypatch, mock_clean_env):
+    """
+    Test color output forced by env var in non TTY.
+
+    Colors should be forced on when RCUTILS_COLORIZED_OUTPUT=1
+    even without TTY.
+    """
+    monkeypatch.setattr('sys.stdout.isatty', lambda: False)
+    monkeypatch.setenv('RCUTILS_COLORIZED_OUTPUT', '1')
+
+    launch.logging.reset()
+    logger = launch.logging.get_logger()
+    logger.setLevel(logging.INFO)
+    logger.info('Test message with forced colors')
+
+    capture = capsys.readouterr()
+    assert contains_ansicode(capture.out), \
+        'Expected ANSI color codes when forced by env var'
+
+
+def test_file_logs_not_colorized(log_dir, monkeypatch, mock_clean_env):
+    """
+    Test that file logs are not colorized.
+
+    File logs should never contain ANSI color codes even if
+    RCUTILS_COLORIZED_OUTPUT=1.
+    """
+    monkeypatch.setenv('RCUTILS_COLORIZED_OUTPUT', '1')
+
+    launch.logging.reset()
+    launch.logging.launch_config.log_dir = log_dir
+    logger = launch.logging.get_logger()
+    logger.setLevel(logging.INFO)
+    logger.info('Test message for file logging')
+
+    log_file = pathlib.Path(log_dir) / 'launch.log'
+    assert log_file.exists(), 'Log file should exist'
+    file_contents = log_file.read_text()
+
+    assert not contains_ansicode(file_contents), \
+        'File logs should never contain ANSI color codes'
+    assert 'Test message for file logging' in file_contents, \
+        'Message should be in log file'
+
+
+def test_colorized_output_no_tty(capsys, monkeypatch, mock_clean_env):
+    """
+    Test color output without a TTY and no env var.
+
+    Colors should be disabled when stdout is not a TTY and
+    RCUTILS_COLORIZED_OUTPUT is unset.
+    """
+    monkeypatch.setattr('sys.stdout.isatty', lambda: False)
+    monkeypatch.delenv('RCUTILS_COLORIZED_OUTPUT', raising=False)
+
+    launch.logging.reset()
+    logger = launch.logging.get_logger()
+    logger.setLevel(logging.INFO)
+    logger.info('Test message without TTY')
+
+    capture = capsys.readouterr()
+    assert not contains_ansicode(capture.out), \
+        'Expected no ANSI color codes without TTY'
 
 
 @pytest.mark.parametrize('config,checks,main_log_file_name', params)

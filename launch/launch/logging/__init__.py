@@ -25,6 +25,8 @@ import sys
 from typing import (Any, Dict, List, Literal, Optional, Protocol, Set, Tuple,
                     Union)
 
+import colorlog
+
 from typing_extensions import TypeAlias
 
 from . import handlers
@@ -125,6 +127,27 @@ class LaunchConfig:
         logging.root.setLevel(logging.INFO)
         self.set_screen_format('default')
         self.set_log_format('default')
+
+    def _logging_colors_enabled(self) -> bool:
+        """
+        Determine if colored output should be used for console logging.
+
+        Colors are enabled when:
+        - RCUTILS_COLORIZED_OUTPUT=1 is explicitly set, OR
+        - RCUTILS_COLORIZED_OUTPUT is unset AND stdout is a TTY
+
+        Colors are disabled when:
+        - RCUTILS_COLORIZED_OUTPUT=0 is explicitly set
+
+        :return: True if colors should be used, False otherwise
+        """
+        colorized_output = os.environ.get('RCUTILS_COLORIZED_OUTPUT')
+        if colorized_output == '0':
+            return False
+        elif colorized_output == '1':
+            return True
+        else:
+            return sys.stdout.isatty()
 
     @property
     def level(self) -> int:
@@ -262,9 +285,13 @@ class LaunchConfig:
                     )
             if screen_style is None:
                 screen_style = '{'
-            self.screen_formatter = logging.Formatter(
-                screen_format, style=screen_style
-            )
+            if self._logging_colors_enabled():
+                self.screen_formatter = colorlog.ColoredFormatter(
+                    '{log_color}' + screen_format,
+                    style=screen_style
+                )
+            else:
+                self.screen_formatter = logging.Formatter(screen_format, style=screen_style)
             if self.screen_handler is not None:
                 self.screen_handler.setFormatter(self.screen_formatter)
         else:
