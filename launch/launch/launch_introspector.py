@@ -128,7 +128,9 @@ def format_action(action: Action) -> List[Text]:
         result.extend(indent(format_event_handler(typed_action2.event_handler)))
         return result
     else:
-        return ["Action('{}')".format(action)]
+        # Use describe() so actions with a useful representation show names
+        # instead of the default object id.
+        return [action.describe()]
 
 
 class LaunchIntrospector:
