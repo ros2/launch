@@ -31,7 +31,7 @@ setup(
     long_description=(
         'This package provides YAML parsing ability to `launch-frontend` package.'
     ),
-    license='Apache License, Version 2.0',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

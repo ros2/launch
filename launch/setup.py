@@ -32,7 +32,7 @@ setup(
     long_description=(
         'This package provides the ability to run multiple '
         'processes and react on individual processes exiting.'),
-    license='Apache License, Version 2.0',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

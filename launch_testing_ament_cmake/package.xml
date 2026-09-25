@@ -9,7 +9,7 @@
   <maintainer email="brandon@openrobotics.org">Brandon Ong</maintainer>
   <maintainer email="william@openrobotics.org">William Woodall</maintainer>
 
-  <license>Apache License 2.0</license>
+  <license>Apache-2.0</license>
   <!-- Some of the files in this package were based on files from roslaunch from ROS 1, -->
   <!-- which is why this is also licensed under BSD. -->
   <license>BSD</license>

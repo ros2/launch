@@ -45,7 +45,7 @@ setup(
     description='Create tests which involve launch files and multiple processes.',
     long_description=('A package to create tests which involve'
                       ' launch files and multiple processes.'),
-    license='Apache License, Version 2.0',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

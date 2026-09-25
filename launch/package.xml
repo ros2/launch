@@ -9,7 +9,7 @@
   <maintainer email="brandon@openrobotics.org">Brandon Ong</maintainer>
   <maintainer email="william@openrobotics.org">William Woodall</maintainer>
 
-  <license>Apache License 2.0</license>
+  <license>Apache-2.0</license>
 
   <author email="dthomas@osrfoundation.org">Dirk Thomas</author>
   <author email="michel@ekumenlabs.com">Michel Hidalgo</author>
