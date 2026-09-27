@@ -123,7 +123,7 @@ class Entity(BaseEntity):
         self.__read_keys.add(name)
         data = self.__element[name]
         if check_is_list_entity(data_type):
-            if isinstance(data, list) and isinstance(data[0], dict):
+            if isinstance(data, list) and (not data or isinstance(data[0], dict)):
                 return [Entity(child, name) for child in data]
             raise TypeError(
                 "Attribute '{}' of Entity '{}' expected to be a list of dictionaries.".format(
