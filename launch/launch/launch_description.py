@@ -93,7 +93,8 @@ class LaunchDescription(LaunchDescriptionEntity):
         ]
 
     def get_launch_arguments_with_include_launch_description_actions(
-        self, conditional_inclusion: bool = False
+        self, conditional_inclusion: bool = False,
+        only_search_local: bool = False
     ) -> List[Tuple[DeclareLaunchArgument, List['IncludeLaunchDescription']]]:
         """
         Return a list of launch arguments with its associated include launch descriptions actions.
@@ -130,7 +131,12 @@ class LaunchDescription(LaunchDescriptionEntity):
             Tuple[DeclareLaunchArgument, List[IncludeLaunchDescription]]] = []
         from .actions import ResetLaunchConfigurations
 
-        def process_entities(entities, *, _conditional_inclusion: bool, nested_ild_actions=None):
+        def process_entities(
+                entities,
+                *,
+                _conditional_inclusion: bool,
+                nested_ild_actions=None,
+                only_search_local: bool = False):
             for entity in entities:
                 if isinstance(entity, DeclareLaunchArgument):
                     # Avoid duplicate entries with the same name.
@@ -141,6 +147,9 @@ class LaunchDescription(LaunchDescriptionEntity):
                     entity._conditionally_included = _conditional_inclusion
                     entity._conditionally_included |= entity.condition is not None
                     declared_launch_arguments.append((entity, nested_ild_actions))
+                if only_search_local:
+                    if isinstance(entity, IncludeLaunchDescription):
+                        continue
                 if isinstance(entity, ResetLaunchConfigurations):
                     # Launch arguments after this cannot be set directly by top level arguments
                     return
@@ -152,9 +161,10 @@ class LaunchDescription(LaunchDescriptionEntity):
                         next_nested_ild_actions.append(entity)
                     try:
                         process_entities(
-                            entity.describe_sub_entities(),
-                            _conditional_inclusion=False,
-                            nested_ild_actions=next_nested_ild_actions)
+                          entity.describe_sub_entities(),
+                          _conditional_inclusion=False,
+                          nested_ild_actions=next_nested_ild_actions,
+                          only_search_local=only_search_local)
                     except Exception as e:
                         if sys.version_info >= (3, 11):
                             e.add_note(f'processing sub-entities of entity: {entity}')
@@ -163,9 +173,11 @@ class LaunchDescription(LaunchDescriptionEntity):
                         process_entities(
                             conditional_sub_entity[1],
                             _conditional_inclusion=True,
-                            nested_ild_actions=next_nested_ild_actions)
+                            nested_ild_actions=next_nested_ild_actions,
+                            only_search_local=only_search_local)
 
-        process_entities(self.entities, _conditional_inclusion=conditional_inclusion)
+        process_entities(self.entities, _conditional_inclusion=conditional_inclusion,
+                         only_search_local=only_search_local)
 
         return declared_launch_arguments
 
