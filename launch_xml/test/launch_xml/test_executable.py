@@ -20,15 +20,16 @@ import textwrap
 
 from launch import LaunchService
 from launch.actions import Shutdown
-from launch.frontend import Parser
+
+from parser_no_extensions import load_no_extensions
 
 import pytest
 
 
 def test_executable():
     """Parse node xml example."""
-    xml_file = str(Path(__file__).parent / 'executable.xml')
-    root_entity, parser = Parser.load(xml_file)
+    xml_file = Path(__file__).parent / 'executable.xml'
+    root_entity, parser = load_no_extensions(xml_file)
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
@@ -61,11 +62,40 @@ def test_executable_wrong_subtag():
         </launch>
         """  # noqa, line too long
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     with pytest.raises(ValueError) as excinfo:
         parser.parse_description(root_entity)
     assert '`executable`' in str(excinfo.value)
     assert 'whats_this' in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    'value', ['true', 'false', 'True', 'False', 'yes', 'no', 'on', 'off', '1', '0'])
+@pytest.mark.parametrize('attribute', ['shell', 'emulate_tty'])
+def test_executable_accepts_boolean_values(attribute, value):
+    """Accept the boolean spellings supported by the XML type converter."""
+    xml_file = textwrap.dedent(f"""
+        <launch>
+            <executable cmd="echo test" {attribute}="{value}" />
+        </launch>
+    """)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    executable = parser.parse_description(root_entity).entities[0]
+    assert getattr(executable, attribute) is (value.lower() in ('true', 'yes', 'on', '1'))
+
+
+@pytest.mark.parametrize('attribute', ['shell', 'emulate_tty'])
+def test_executable_rejects_arbitrary_boolean_strings(attribute):
+    """Reject arbitrary strings for boolean executable attributes."""
+    for value in ('', ' ', 'not-a-boolean', '$(var flag)'):
+        xml_file = textwrap.dedent(f"""
+            <launch>
+                <executable cmd="echo test" {attribute}="{value}" />
+            </launch>
+        """)
+        root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+        with pytest.raises(TypeError, match=attribute):
+            parser.parse_description(root_entity)
 
 
 def test_executable_on_exit():
@@ -76,7 +106,7 @@ def test_executable_on_exit():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     sub_entities = executable.get_sub_entities()

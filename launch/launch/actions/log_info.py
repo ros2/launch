@@ -14,50 +14,9 @@
 
 """Module for the LogInfo action."""
 
-from typing import List
+import warnings
 
-import launch.logging
+from .log import LogInfo as LogInfo  # noqa: F401
 
-from ..action import Action
-from ..frontend import Entity
-from ..frontend import expose_action
-from ..frontend import Parser  # noqa: F401
-from ..launch_context import LaunchContext
-from ..some_substitutions_type import SomeSubstitutionsType
-from ..substitution import Substitution
-from ..utilities import normalize_to_list_of_substitutions
-
-
-@expose_action('log')
-class LogInfo(Action):
-    """Action that logs a message when executed."""
-
-    def __init__(self, *, msg: SomeSubstitutionsType, **kwargs):
-        """Create a LogInfo action."""
-        super().__init__(**kwargs)
-
-        self.__msg = normalize_to_list_of_substitutions(msg)
-        self.__logger = launch.logging.get_logger('launch.user')
-
-    @classmethod
-    def parse(
-        cls,
-        entity: Entity,
-        parser: 'Parser'
-    ):
-        """Parse `log` tag."""
-        _, kwargs = super().parse(entity, parser)
-        kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
-        return cls, kwargs
-
-    @property
-    def msg(self) -> List[Substitution]:
-        """Getter for self.__msg."""
-        return self.__msg
-
-    def execute(self, context: LaunchContext) -> None:
-        """Execute the action."""
-        self.__logger.info(
-            ''.join([context.perform_substitution(sub) for sub in self.msg])
-        )
-        return None
+# TODO: Remove log_info.py for Release after L-turtle release
+warnings.warn('importing from log_info.py is deprecated; import LogInfo from log.py instead.')

@@ -32,6 +32,6 @@ class TimerEvent(Event):
         self.__timer_action = timer_action
 
     @property
-    def timer_action(self):
+    def timer_action(self) -> 'TimerAction':
         """Getter for timer_action."""
         return self.__timer_action

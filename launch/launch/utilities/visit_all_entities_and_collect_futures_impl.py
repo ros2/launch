@@ -25,7 +25,7 @@ from ..launch_description_entity import LaunchDescriptionEntity
 def visit_all_entities_and_collect_futures(
     entity: LaunchDescriptionEntity,
     context: LaunchContext
-) -> List[Tuple[LaunchDescriptionEntity, asyncio.Future]]:
+) -> List[Tuple[LaunchDescriptionEntity, asyncio.Future[None]]]:
     """
     Visit given entity, as well as all sub-entities, and collect any futures.
 
@@ -37,7 +37,7 @@ def visit_all_entities_and_collect_futures(
     """
     sub_entities = entity.visit(context)
     entity_future = entity.get_asyncio_future()
-    futures_to_return = []
+    futures_to_return: List[Tuple[LaunchDescriptionEntity, asyncio.Future[None]]] = []
     if entity_future is not None:
         futures_to_return.append((entity, entity_future))
     if sub_entities is not None:

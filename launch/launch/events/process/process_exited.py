@@ -14,6 +14,8 @@
 
 """Module for ProcessExited event."""
 
+from typing import Any
+
 from .running_process_event import RunningProcessEvent
 
 
@@ -26,7 +28,7 @@ class ProcessExited(RunningProcessEvent):
         self,
         *,
         returncode: int,
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """
         Create a ProcessExited event.

@@ -15,16 +15,22 @@
 """Module for the Shutdown action."""
 
 import logging
+from typing import Any
+from typing import Dict
 from typing import Text
+from typing import Tuple
+from typing import Type
 
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
 
+
 from .emit_event import EmitEvent
 from ..events import Shutdown as ShutdownEvent
 from ..events.process import ProcessExited
 from ..launch_context import LaunchContext
+
 
 _logger = logging.getLogger(name='launch')
 
@@ -33,19 +39,21 @@ _logger = logging.getLogger(name='launch')
 class Shutdown(EmitEvent):
     """Action that shuts down a launched system by emitting Shutdown when executed."""
 
-    def __init__(self, *, reason: Text = 'reason not given', **kwargs):
+    def __init__(self, *, reason: Text = 'reason not given', **kwargs: Any):
         super().__init__(event=ShutdownEvent(reason=reason), **kwargs)
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['Shutdown'], Dict[str, Any]]:
         """Return `Shutdown` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         reason = entity.get_attr('reason', optional=True)
+
         if reason:
             kwargs['reason'] = parser.parse_substitution(reason)
         return cls, kwargs
 
-    def execute(self, context: LaunchContext):
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         try:
             event = context.locals.event

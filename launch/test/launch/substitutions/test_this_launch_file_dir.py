@@ -14,6 +14,8 @@
 
 """Tests for the ThisLaunchFileDir substitution class."""
 
+import os
+
 from launch import LaunchContext
 from launch.substitutions import SubstitutionFailure
 from launch.substitutions import ThisLaunchFileDir
@@ -35,3 +37,10 @@ def test_this_launch_file_path_methods():
         tlfp.perform(lc)
     lc.extend_locals({'current_launch_file_directory': 'foo'})
     assert tlfp.perform(lc) == 'foo'
+
+
+def test_this_launch_file_dir_pathing():
+    test_file = ThisLaunchFileDir() / 'some_launch.xml'
+    lc = LaunchContext()
+    lc.extend_locals({'current_launch_file_directory': 'foo'})
+    assert test_file.perform(lc) == os.path.join('foo', 'some_launch.xml')

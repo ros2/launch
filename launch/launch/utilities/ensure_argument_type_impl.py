@@ -20,6 +20,7 @@ from typing import Any
 from typing import Iterable
 from typing import Optional
 from typing import Text
+from typing import Type
 from typing import Union
 
 
@@ -61,7 +62,7 @@ def ensure_argument_type(
             type(caller),
         ))
 
-    def check_argument(argument, type_var) -> bool:
+    def check_argument(argument: Any, type_var: Type[Any]) -> bool:
         result = False
         result |= isinstance(argument, type_var)
         if hasattr(argument, '__class__') and inspect.isclass(type_var):

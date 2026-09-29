@@ -225,7 +225,7 @@ class LaunchTestRunner(object):
         """
         Create an LaunchTestRunner object.
 
-        :param callable gen_launch_description_fn: A function that returns a ros2 LaunchDesription
+        :param callable gen_launch_description_fn: A function that returns a ros2 LaunchDescription
         for launching the processes under test.  This function should take a callable as a
         parameter which will be called when the processes under test are ready for the test to
         start

@@ -108,7 +108,7 @@ class Entity:
         """
         raise NotImplementedError()
 
-    def assert_entity_completely_parsed(self):
+    def assert_entity_completely_parsed(self) -> None:
         """
         Assert that all attributes and children of the entity were parsed.
 

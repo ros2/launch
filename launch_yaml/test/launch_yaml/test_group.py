@@ -25,8 +25,9 @@ from launch.actions import PushLaunchConfigurations
 from launch.actions import ResetEnvironment
 from launch.actions import ResetLaunchConfigurations
 from launch.actions import SetLaunchConfiguration
-from launch.frontend import Parser
 from launch.launch_context import LaunchContext
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_group():
@@ -56,7 +57,7 @@ def test_group():
                         value: 'asd'
         """  # noqa: E501
     yaml_file = textwrap.dedent(yaml_file)
-    root_entity, parser = Parser.load(io.StringIO(yaml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
 
     assert isinstance(ld.entities[0], SetLaunchConfiguration)

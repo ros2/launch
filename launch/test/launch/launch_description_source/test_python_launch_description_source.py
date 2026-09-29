@@ -14,7 +14,7 @@
 
 """Tests for the PythonLaunchDescriptionSource class."""
 
-import os
+from pathlib import Path
 
 from launch import LaunchContext
 from launch.launch_description_sources import InvalidPythonLaunchFileError
@@ -25,17 +25,17 @@ import pytest
 
 def test_python_launch_description_source():
     """Test the PythonLaunchDescriptionSource class."""
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    simple_launch_file_path = os.path.join(this_dir, 'simple.launch.py')
+    this_dir = Path(__file__).parent
+    simple_launch_file_path = this_dir / 'simple.launch.py'
     plds = PythonLaunchDescriptionSource(simple_launch_file_path)
     assert 'python launch file' in plds.method
     assert 'launch.substitutions.text_substitution.TextSubstitution' in plds.location
     ld = plds.get_launch_description(LaunchContext())
-    assert plds.location == simple_launch_file_path
+    assert plds.location == str(simple_launch_file_path)
     assert 0 == len(ld.entities)
 
     with pytest.raises(InvalidPythonLaunchFileError):
-        plds = PythonLaunchDescriptionSource(os.path.join(this_dir, 'loadable_python_module.py'))
+        plds = PythonLaunchDescriptionSource(this_dir / 'loadable_python_module.py')
         ld = plds.get_launch_description(LaunchContext())
 
     with pytest.raises(FileNotFoundError):

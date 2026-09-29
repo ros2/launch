@@ -195,7 +195,6 @@ class LaunchTestService():
         assert any(match_patterns)
 
         def on_process_exit(event, context):
-            nonlocal match_patterns
             if any(match_patterns):
                 # Finish test instead of failing to prevent process exit
                 # and process output event handlers from racing.
@@ -208,7 +207,6 @@ class LaunchTestService():
         )
 
         def on_shutdown(event, context):
-            nonlocal match_patterns
             if any(match_patterns):
                 process_name = action.process_details['name']
                 reason = 'not all {} output matched!'.format(process_name)

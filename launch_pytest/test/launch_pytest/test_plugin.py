@@ -327,6 +327,6 @@ def test_examples(testdir):
         if example.is_file() and example.name != 'check_node_msgs.py':
             copied_example = Path(testdir.copy_example(example))
             copied_example.rename(copied_example.parent / f'test_{copied_example.name}')
-    shutil.copytree(examples_dir / 'executables', Path(str(testdir.tmpdir)) / 'executables')
+    shutil.copytree(examples_dir / 'executables', Path(testdir.tmpdir) / 'executables')
     result = testdir.runpytest()
     result.assert_outcomes(passed=22)

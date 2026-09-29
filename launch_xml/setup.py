@@ -5,13 +5,14 @@ package_name = 'launch_xml'
 
 setup(
     name=package_name,
-    version='3.5.0',
+    version='3.10.1',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/' + package_name, ['package.xml']),
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
     ],
+    package_data={'': ['py.typed']},
     install_requires=['setuptools'],
     zip_safe=True,
     author='Ivan Paunovic',
@@ -23,7 +24,6 @@ setup(
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
@@ -31,8 +31,12 @@ setup(
     long_description=(
         'This package provides XML parsing ability to `launch-frontend` package.'
     ),
-    license='Apache License, Version 2.0',
-    tests_require=['pytest'],
+    license='Apache-2.0',
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
     entry_points={
         'launch.frontend.parser': [
             'xml = launch_xml:Parser',

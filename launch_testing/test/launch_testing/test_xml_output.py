@@ -20,6 +20,7 @@ import xml.etree.ElementTree as ET
 
 import ament_index_python
 from launch_testing.junitxml import unittestResultsToXml
+from launch_testing.junitxml import unittestResultToXml
 from launch_testing.test_result import FailResult
 from launch_testing.test_result import SkipResult
 from launch_testing.test_result import TestResult as TR
@@ -47,7 +48,8 @@ class TestGoodXmlOutput(unittest.TestCase):
                 'launch_test',
                 path,
                 '--junit-xml', os.path.join(cls.tmpdir.name, 'junit.xml'),
-                '--package-name', 'test_xml_output'
+                '--package-name', 'test_xml_output',
+                '--test-name', 'unique_ctest_target'
             ],
         ).returncode
 
@@ -73,6 +75,10 @@ class TestGoodXmlOutput(unittest.TestCase):
         case_names = [case.attrib['name'] for case in test_suite]
         self.assertIn('test_count_to_four', case_names)
         self.assertIn('test_full_output', case_names)
+        self.assertTrue(all(
+            case.attrib['classname'].endswith('__unique_ctest_target')
+            for case in test_suite
+        ))
 
 
 @pytest.mark.usefixtures('source_test_loader_class_fixture')
@@ -198,6 +204,35 @@ class TestXmlFunctions(unittest.TestCase):
 
         child_names = [chld.attrib['name'] for chld in xml_tree.getroot()]
         self.assertEqual(set(child_names), {'launch_1', 'launch_2', 'launch_3'})
+
+    def test_classname_suffix_keeps_same_cases_unique(self):
+        test_result = self.unit_test_result_factory([lambda self: None])
+        first = unittestResultToXml('launch_1', test_result, 'ctest_target_1')
+        second = unittestResultToXml('launch_2', test_result, 'ctest_target_2')
+        self.assertEqual(
+            'test_xml_output.TestHost__ctest_target_1',
+            first.find('testcase').attrib['classname'],
+        )
+        self.assertEqual(
+            'test_xml_output.TestHost__ctest_target_2',
+            second.find('testcase').attrib['classname'],
+        )
+
+    def test_classname_suffix_keeps_package_grouping(self):
+        """
+        Check the CTest target never moves the Jenkins package name.
+
+        Jenkins splits the classname on the last '.', so the target must not
+        introduce one.  A target that reaches the serializer as a file name
+        carries a '.py' extension.
+        """
+        test_result = self.unit_test_result_factory([lambda self: None])
+        case = unittestResultToXml(
+            'launch_1', test_result, 'test_foo.py'
+        ).find('testcase')
+        classname = case.attrib['classname']
+        self.assertEqual('test_xml_output.TestHost__test_foo_py', classname)
+        self.assertEqual('test_xml_output', classname.rpartition('.')[0])
 
     def test_result_that_ran(self):
         """

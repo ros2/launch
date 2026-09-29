@@ -67,7 +67,7 @@ def test_output_loggers_bad_configuration(log_dir):
         launch.logging.get_output_loggers('some-proc', {'stdout': {'garbage'}})
 
 
-@pytest.mark.parametrize('config,checks', [
+configs = [
     ('screen', {'stdout': {'screen'}, 'stderr': {'screen'}}),
     ('log', {'stdout': {'log'}, 'stderr': {'log', 'screen'}}),
     ('both', {'both': {'log', 'screen'}}),
@@ -88,16 +88,33 @@ def test_output_loggers_bad_configuration(log_dir):
             'stderr': {'own_log'}
         },
     )
-])
-def test_output_loggers_configuration(capsys, log_dir, config, checks, mock_clean_env):
+]
+log_file_names = ['custom-log-name.log', None]
+params = [
+    (config, checks, log_file_name)
+    for (config, checks) in configs
+    for log_file_name in log_file_names
+]
+
+
+@pytest.mark.parametrize('config,checks,main_log_file_name', params)
+def test_output_loggers_configuration(
+    capsys, log_dir, config, checks, main_log_file_name, mock_clean_env
+):
     checks = {'stdout': set(), 'stderr': set(), 'both': set(), **checks}
     launch.logging.reset()
     launch.logging.launch_config.log_dir = log_dir
-    logger = launch.logging.get_logger('some-proc')
+    if main_log_file_name is None:
+        main_log_file_name = launch.logging.launch_config.log_file_name
+    else:
+        launch.logging.launch_config.log_file_name = main_log_file_name
+    logger_name = main_log_file_name.removesuffix('.log')
+    logger = launch.logging.get_logger(logger_name)
     logger.addHandler(launch.logging.launch_config.get_screen_handler())
-    logger.addHandler(launch.logging.launch_config.get_log_file_handler())
+    logger.addHandler(launch.logging.launch_config.get_log_file_handler(main_log_file_name))
     logger.setLevel(logging.ERROR)
-    stdout_logger, stderr_logger = launch.logging.get_output_loggers('some-proc', config)
+    stdout_logger, stderr_logger = launch.logging.get_output_loggers(
+        'some-proc', config, main_log_file_name)
 
     logger.debug('oops')
     logger.error('baz')
@@ -106,7 +123,7 @@ def test_output_loggers_configuration(capsys, log_dir, config, checks, mock_clea
 
     capture = capsys.readouterr()
     lines = list(reversed(capture.out.splitlines()))
-    assert '[ERROR] [some-proc]: baz' == lines.pop()
+    assert f'[ERROR] [{logger_name}]: baz' == lines.pop()
     if 'screen' in (checks['stdout'] | checks['both']):
         assert 'foo' == lines.pop()
     if 'screen' in (checks['stderr'] | checks['both']):
@@ -114,13 +131,14 @@ def test_output_loggers_configuration(capsys, log_dir, config, checks, mock_clea
     assert 0 == len(lines)
     assert 0 == len(capture.err)
 
-    launch.logging.launch_config.get_log_file_handler().flush()
-    main_log_path = launch.logging.launch_config.get_log_file_path()
+    launch.logging.launch_config.get_log_file_handler(main_log_file_name).flush()
+    main_log_path = launch.logging.launch_config.get_log_file_path(main_log_file_name)
     assert os.path.exists(main_log_path)
     assert 0 != os.stat(main_log_path).st_size
     with open(main_log_path, 'r') as f:
         lines = list(reversed(f.readlines()))
-        assert re.match(r'[0-9]+\.[0-9]+ \[ERROR\] \[some-proc\]: baz', lines.pop()) is not None
+        assert re.match(rf'[0-9]+\.[0-9]+ \[ERROR\] \[{logger_name}\]: baz',
+                        lines.pop()) is not None
         if 'log' in (checks['stdout'] | checks['both']):
             assert re.match(r'[0-9]+\.[0-9]+ foo', lines.pop()) is not None
         if 'log' in (checks['stderr'] | checks['both']):

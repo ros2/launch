@@ -94,6 +94,14 @@ def test_equals_substitution():
     _permute_assertion('inf', '-inf', lc, 'false')
     _permute_assertion('-inf', '-inf', lc, 'true')
 
+    # Numerics (scientific E notation)
+    _permute_assertion('1234e1', '12340', lc, 'true')
+    _permute_assertion('1234E2', '123400', lc, 'true')
+    _permute_assertion('1234E2', '1234E2', lc, 'true')
+    _permute_assertion("'1234E2'", '123400', lc, 'false')
+    _permute_assertion("'1234E2'", '1234E2', lc, 'false')
+    _permute_assertion("'1234E2'", "'1234E2'", lc, 'true')
+
     # Strings
     _permute_assertion('wow', 'wow', lc, 'true')
     _permute_assertion('wow', True, lc, 'false')

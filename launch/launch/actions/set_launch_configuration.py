@@ -14,7 +14,12 @@
 
 """Module for the SetLaunchConfiguration action."""
 
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Tuple
+from typing import Type
+
 
 from ..action import Action
 from ..frontend import Entity
@@ -41,7 +46,7 @@ class SetLaunchConfiguration(Action):
         self,
         name: SomeSubstitutionsType,
         value: SomeSubstitutionsType,
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """Create a SetLaunchConfiguration action."""
         super().__init__(**kwargs)
@@ -49,7 +54,8 @@ class SetLaunchConfiguration(Action):
         self.__value = normalize_to_list_of_substitutions(value)
 
     @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['SetLaunchConfiguration'], Dict[str, Any]]:
         """Return `SetLaunchConfiguration` action and kwargs for constructing it."""
         name = parser.parse_substitution(entity.get_attr('name'))
         value = parser.parse_substitution(entity.get_attr('value'))
@@ -68,7 +74,7 @@ class SetLaunchConfiguration(Action):
         """Getter for self.__value."""
         return self.__value
 
-    def execute(self, context: LaunchContext):
+    def execute(self, context: LaunchContext) -> None:
         """Execute the action."""
         context.launch_configurations[perform_substitutions(context, self.name)] = \
             perform_substitutions(context, self.value)

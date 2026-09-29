@@ -17,7 +17,7 @@
 import io
 import textwrap
 
-from launch.frontend import Parser
+from parser_no_extensions import load_no_extensions
 
 import pytest
 
@@ -30,7 +30,7 @@ def test_arg():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     arg = ld.entities[0]
     assert 'my_arg' == arg.name
@@ -49,7 +49,7 @@ def test_arg_with_choices():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     arg = ld.entities[0]
     assert 'my_arg' == arg.name
@@ -66,7 +66,7 @@ def test_arg_wrong_attribute():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     with pytest.raises(ValueError) as excinfo:
         parser.parse_description(root_entity)
     assert '`arg`' in str(excinfo.value)
@@ -83,7 +83,7 @@ def test_arg_with_subtag():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     with pytest.raises(ValueError) as excinfo:
         parser.parse_description(root_entity)
     assert '`arg`' in str(excinfo.value)

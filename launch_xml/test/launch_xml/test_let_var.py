@@ -18,7 +18,8 @@ import io
 import textwrap
 
 from launch import LaunchContext
-from launch.frontend import Parser
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_let_var():
@@ -31,7 +32,7 @@ def test_let_var():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     context = LaunchContext()
     assert len(ld.entities) == 2

@@ -19,6 +19,8 @@ import pathlib
 
 from launch.launch_context import LaunchContext
 from launch.substitutions import Command
+from launch.substitutions import PythonExpression
+from launch.substitutions import StringStripSubstitution
 from launch.substitutions.substitution_failure import SubstitutionFailure
 
 import pytest
@@ -29,14 +31,14 @@ def commands():
     this_dir = pathlib.Path(__file__).parent
 
     commands = {
-        'normal': str(this_dir / 'test_command' / 'normal_command.bash'),
-        'failing': str(this_dir / 'test_command' / 'failing_command.bash'),
-        'with_stderr': str(this_dir / 'test_command' / 'command_with_stderr.bash')
+        'normal': this_dir / 'test_command' / 'normal_command.bash',
+        'failing': this_dir / 'test_command' / 'failing_command.bash',
+        'with_stderr': this_dir / 'test_command' / 'command_with_stderr.bash'
     }
 
     if os.name == 'nt':
         for key, value in commands.items():
-            commands[key] = value.replace('bash', 'bat')
+            commands[key] = value.with_suffix('.bat')
     return commands
 
 
@@ -46,6 +48,18 @@ def test_command(commands):
     command = Command(commands['normal'])
     output = command.perform(context)
     assert output == 'asd bsd csd\n'
+
+
+def test_command_output_can_be_stripped_in_python_expression(commands):
+    """Test composing a newline-emitting command with a Python expression."""
+    context = LaunchContext()
+    command = StringStripSubstitution(Command(commands['normal']))
+    expression = PythonExpression([
+        "'",
+        command,
+        "' == 'asd bsd csd'",
+    ])
+    assert expression.perform(context) == 'True'
 
 
 def test_missing_command_raises(commands):

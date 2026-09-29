@@ -9,7 +9,7 @@ package_name = 'launch_pytest'
 
 setup(
     name=package_name,
-    version='3.5.0',
+    version='3.10.1',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages', [f'resource/{package_name}']),
@@ -24,6 +24,7 @@ setup(
             glob.glob(f'test/{package_name}/examples/executables/[!_]*')
         ),
     ],
+    package_data={'': ['py.typed']},
     entry_points={
         'pytest11': ['launch_pytest = launch_pytest.plugin'],
     },
@@ -38,13 +39,16 @@ setup(
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
     description='Create tests which involve launch files and multiple processes.',
     long_description=('A package to create tests which involve'
                       ' launch files and multiple processes.'),
-    license='Apache License, Version 2.0',
-    tests_require=['pytest'],
+    license='Apache-2.0',
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
 )

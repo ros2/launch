@@ -22,6 +22,7 @@ from typing import Tuple
 from typing import TYPE_CHECKING
 
 from .event import Event
+from .launch_description_entity import LaunchDescriptionEntity
 from .some_entities_type import SomeEntitiesType
 
 if TYPE_CHECKING:
@@ -51,27 +52,27 @@ class BaseEventHandler:
         self.__handle_once = handle_once
 
     @property
-    def handle_once(self):
+    def handle_once(self) -> bool:
         """Getter for handle_once flag."""
         return self.__handle_once
 
     @property
-    def handler_description(self):
+    def handler_description(self) -> Text:
         """
         Return the string description of the handler.
 
         This should be overridden.
         """
-        return None
+        return ''
 
     @property
-    def matcher_description(self):
+    def matcher_description(self) -> Text:
         """
         Return the string description of the matcher.
 
         This should be overridden.
         """
-        return None
+        return ''
 
     def matches(self, event: Event) -> bool:
         """Return True if the given event should be handled by this event handler."""
@@ -125,7 +126,7 @@ class EventHandler(BaseEventHandler):
         self.__entities = entities
 
     @property
-    def entities(self):
+    def entities(self) -> Optional[SomeEntitiesType]:
         """Getter for entities."""
         return self.__entities
 
@@ -133,7 +134,10 @@ class EventHandler(BaseEventHandler):
         """Return the description list with 0 as a string, and then LaunchDescriptionEntity's."""
         text, actions = super().describe()
         if self.entities:
-            actions.extend(self.entities)
+            if isinstance(self.entities, LaunchDescriptionEntity):
+                actions.append(self.entities)
+            else:
+                actions.extend(self.entities)
         return (text, actions)
 
     def handle(self, event: Event, context: 'LaunchContext') -> Optional[SomeEntitiesType]:

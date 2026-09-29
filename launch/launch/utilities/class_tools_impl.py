@@ -16,13 +16,17 @@
 
 import inspect
 
+from typing import Any
+from typing import Type
 
-def isclassinstance(obj):
+
+# Can be redone properly with TypeIs once mypy version 1.10+ is available on all platforms
+def isclassinstance(obj: object) -> bool:
     """Return True if obj is an instance of a class."""
     return hasattr(obj, '__class__')
 
 
-def is_a(obj, entity_type):
+def is_a(obj: object, entity_type: Type[Any]) -> bool:
     """Return True if obj is an instance of the entity_type class."""
     if not isclassinstance(obj):
         raise RuntimeError("obj '{}' is not a class instance".format(obj))
@@ -31,7 +35,7 @@ def is_a(obj, entity_type):
     return isinstance(obj, entity_type)
 
 
-def is_a_subclass(obj, entity_type):
+def is_a_subclass(obj, entity_type: Type[Any]) -> bool:
     """Return True if obj is an instance of the entity_type class or one of its subclass types."""
     if is_a(obj, entity_type):
         return True

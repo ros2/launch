@@ -18,7 +18,8 @@ import io
 import textwrap
 
 from launch.actions import UnsetEnvironmentVariable
-from launch.frontend import Parser
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_unset_env():
@@ -29,7 +30,7 @@ def test_unset_env():
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
-    root_entity, parser = Parser.load(io.StringIO(xml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
     ld = parser.parse_description(root_entity)
     assert len(ld.entities) == 1
     unset_env = ld.entities[0]

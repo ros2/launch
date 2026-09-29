@@ -221,6 +221,8 @@ def test_coercions_given_specific_type(coerce_to_type_impl):
     assert coerce_to_type_impl("'off'", data_type=str) == "'off'"
     assert coerce_to_type_impl("''1''", data_type=str) == "''1''"
     assert coerce_to_type_impl('{1}', data_type=str) == '{1}'
+    assert coerce_to_type_impl("'1e1'", data_type=str) == "'1e1'"
+    assert coerce_to_type_impl("'1E1'", data_type=str) == "'1E1'"
 
     assert coerce_to_type_impl('1', data_type=int) == 1
     assert coerce_to_type_impl('1000', data_type=int) == 1000
@@ -230,6 +232,7 @@ def test_coercions_given_specific_type(coerce_to_type_impl):
     assert coerce_to_type_impl('1000.0', data_type=float) == 1000.
     assert coerce_to_type_impl('0.2', data_type=float) == .2
     assert coerce_to_type_impl('.3', data_type=float) == 0.3
+    assert coerce_to_type_impl('2e1', data_type=float) == 20.0
 
     assert coerce_to_type_impl('on', data_type=bool) is True
     assert coerce_to_type_impl('off', data_type=bool) is False
@@ -543,6 +546,8 @@ def test_perform_typed_substitution():
 
     assert perform_typed_substitution(lc, 1, int) == 1
     assert perform_typed_substitution(lc, [TextSubstitution(text='1')], int) == 1
+    assert perform_typed_substitution(lc, [TextSubstitution(text='1e1')], float) == 10
+    assert perform_typed_substitution(lc, [TextSubstitution(text='1e1')], str) == '1e1'
     assert perform_typed_substitution(
         lc, [TextSubstitution(text='[1, 2, 3]')], List[int]) == [1, 2, 3]
     assert perform_typed_substitution(

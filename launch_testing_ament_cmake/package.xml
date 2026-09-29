@@ -2,14 +2,14 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>launch_testing_ament_cmake</name>
-  <version>3.5.0</version>
+  <version>3.10.1</version>
   <description>A package providing cmake functions for running launch tests from the build.</description>
 
   <maintainer email="aditya.pande@openrobotics.org">Aditya Pande</maintainer>
   <maintainer email="brandon@openrobotics.org">Brandon Ong</maintainer>
   <maintainer email="william@openrobotics.org">William Woodall</maintainer>
 
-  <license>Apache License 2.0</license>
+  <license>Apache-2.0</license>
   <!-- Some of the files in this package were based on files from roslaunch from ROS 1, -->
   <!-- which is why this is also licensed under BSD. -->
   <license>BSD</license>
@@ -21,12 +21,10 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <buildtool_export_depend>ament_cmake_test</buildtool_export_depend>
-  <buildtool_export_depend>python_cmake_module</buildtool_export_depend>
   <buildtool_export_depend>launch_testing</buildtool_export_depend>
 
   <test_depend>ament_cmake_copyright</test_depend>
   <test_depend>launch_testing</test_depend>
-  <test_depend>python_cmake_module</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

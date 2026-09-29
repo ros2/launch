@@ -14,7 +14,10 @@
 
 """Module for the PythonLaunchDescriptionSource class."""
 
+from typing import Text
+
 from .python_launch_file_utilities import get_launch_description_from_python_launch_file
+from ..launch_description import LaunchDescription
 from ..launch_description_source import LaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
 
@@ -46,6 +49,6 @@ class PythonLaunchDescriptionSource(LaunchDescriptionSource):
             'interpreted python launch file'
         )
 
-    def _get_launch_description(self, location):
+    def _get_launch_description(self, location: Text) -> LaunchDescription:
         """Get the LaunchDescription from location."""
         return get_launch_description_from_python_launch_file(location)

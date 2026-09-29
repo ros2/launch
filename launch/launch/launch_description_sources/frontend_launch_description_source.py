@@ -14,10 +14,12 @@
 
 """Module for the FrontendLaunchDescriptionSource class."""
 
+from typing import Text
 from typing import Type
 
 from .frontend_launch_file_utilities import get_launch_description_from_frontend_launch_file
 from ..frontend import Parser
+from ..launch_description import LaunchDescription
 from ..launch_description_source import LaunchDescriptionSource
 from ..some_substitutions_type import SomeSubstitutionsType
 
@@ -54,6 +56,6 @@ class FrontendLaunchDescriptionSource(LaunchDescriptionSource):
         )
         self._parser = Parser
 
-    def _get_launch_description(self, location):
+    def _get_launch_description(self, location: Text) -> LaunchDescription:
         """Get the LaunchDescription from location."""
         return get_launch_description_from_frontend_launch_file(location, parser=self._parser)

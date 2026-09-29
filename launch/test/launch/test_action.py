@@ -43,7 +43,7 @@ def test_action_methods():
             super().__init__(**kwargs)
             self.execute_called = False
 
-        def execute(self, context):
+        def execute(self, context: LaunchContext) -> None:
             self.execute_called = True
 
     custom_action = CustomAction()

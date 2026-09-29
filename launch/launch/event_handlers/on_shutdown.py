@@ -14,6 +14,7 @@
 
 """Module for OnShutdown class."""
 
+from typing import Any
 from typing import Callable
 from typing import cast
 from typing import Optional
@@ -47,7 +48,7 @@ class OnShutdown(BaseEventHandler):
         *,
         on_shutdown: Union[SomeEntitiesType,
                            Callable[[Shutdown, 'LaunchContext'], Optional[SomeEntitiesType]]],
-        **kwargs
+        **kwargs: Any
     ) -> None:
         """Create an OnShutdown event handler."""
         super().__init__(
@@ -73,6 +74,6 @@ class OnShutdown(BaseEventHandler):
         return '{}'.format(self.__on_shutdown)
 
     @property
-    def matcher_description(self):
+    def matcher_description(self) -> Text:
         """Return the string description of the matcher."""
         return 'event issubclass of launch.events.Shutdown'

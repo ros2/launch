@@ -32,6 +32,14 @@ def test_launch_log_dir_methods():
     assert lld.perform(lc)
 
 
+def test_launch_log_dir_path():
+    test_dir = LaunchLogDir() / 'subdir'
+    lc = LaunchContext()
+    result = test_dir.perform(lc)
+    assert result
+    assert result.endswith('subdir')
+
+
 def test_launch_log_dir_frontend():
     """Test launch_log_dir/log_dir frontend substitutions."""
     for sub in ('launch_log_dir', 'log_dir'):

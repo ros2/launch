@@ -26,7 +26,18 @@ import osrf_pycommon
 
 def test_launch_service_constructors():
     """Test the constructors for LaunchService class."""
-    LaunchService()
+    # When no name is provided for log file
+    ls = LaunchService()
+    assert ls._log_file_name == 'launch.log'
+    assert ls._logger_name == 'launch'
+    # WHen log file name is provided without .log
+    ls = LaunchService(log_file_name='custom_logger')
+    assert ls._log_file_name == 'custom_logger.log'
+    assert ls._logger_name == 'custom_logger'
+    # When log file name is provided with .log
+    ls = LaunchService(log_file_name='custom_logger.log')
+    assert ls._log_file_name == 'custom_logger.log'
+    assert ls._logger_name == 'custom_logger'
     LaunchService(debug=True)
     LaunchService(debug=False)
 

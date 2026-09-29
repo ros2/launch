@@ -15,6 +15,7 @@
 """Module for SomeSubstitutionsType type."""
 
 import collections.abc
+from pathlib import Path
 from typing import Iterable
 from typing import Text
 from typing import Union
@@ -23,12 +24,14 @@ from .substitution import Substitution
 
 SomeSubstitutionsType = Union[
     Text,
+    Path,
     Substitution,
-    Iterable[Union[Text, Substitution]],
+    Iterable[Union[Text, Path, Substitution]],
 ]
 
 SomeSubstitutionsType_types_tuple = (
     str,
+    Path,
     Substitution,
     collections.abc.Iterable,
 )

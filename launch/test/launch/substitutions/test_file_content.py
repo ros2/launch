@@ -28,8 +28,8 @@ def files():
     this_dir = pathlib.Path(__file__).parent
 
     files = {
-        'foo': str(this_dir / 'test_file_content' / 'foo.txt'),
-        'bar': str(this_dir / 'test_file_content' / 'bar.txt'),
+        'foo': this_dir / 'test_file_content' / 'foo.txt',
+        'bar': this_dir / 'test_file_content' / 'bar.txt',
     }
 
     return files

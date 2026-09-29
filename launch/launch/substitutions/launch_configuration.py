@@ -16,12 +16,16 @@
 
 import collections.abc
 from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Sequence
 from typing import Text
+from typing import Tuple
+from typing import Type
 from typing import Union
+
 
 from .substitution_failure import SubstitutionFailure
 from ..frontend import expose_substitution
@@ -65,12 +69,12 @@ class LaunchConfiguration(Substitution):
             self.__default = normalize_to_list_of_substitutions(str_normalized_default)
 
     @classmethod
-    def parse(cls, data: Sequence[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]
+              ) -> Tuple[Type['LaunchConfiguration'], Dict[str, Any]]:
         """Parse `FindExecutable` substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('var substitution expects 1 or 2 arguments')
-        kwargs = {}
-        kwargs['variable_name'] = data[0]
+        kwargs = {'variable_name': data[0]}
         if len(data) == 2:
             kwargs['default'] = data[1]
         return cls, kwargs

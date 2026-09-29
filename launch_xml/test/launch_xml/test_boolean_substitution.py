@@ -16,8 +16,9 @@ import io
 import textwrap
 
 from launch import LaunchService
-from launch.frontend import Parser
 from launch.utilities import perform_substitutions
+
+from parser_no_extensions import load_no_extensions
 
 
 def test_boolean_substitution_xml():
@@ -39,6 +40,16 @@ def test_boolean_substitution_xml():
             <let name="or_true_false" value="$(or $(var true_value) $(var false_value))" />
             <let name="or_false_true" value="$(or $(var false_value) $(var true_value))" />
             <let name="or_false_false" value="$(or $(var false_value) $(var false_value))" />
+
+            <let name="all_true_true" value="$(all $(var true_value) $(var true_value))" />
+            <let name="all_true_false" value="$(all $(var true_value) $(var false_value))" />
+            <let name="all_false_true" value="$(all $(var false_value) $(var true_value))" />
+            <let name="all_false_false" value="$(all $(var false_value) $(var false_value))" />
+
+            <let name="any_true_true" value="$(any $(var true_value) $(var true_value))" />
+            <let name="any_true_false" value="$(any $(var true_value) $(var false_value))" />
+            <let name="any_false_true" value="$(any $(var false_value) $(var true_value))" />
+            <let name="any_false_false" value="$(any $(var false_value) $(var false_value))" />
         </launch>
         """
     )
@@ -47,7 +58,7 @@ def test_boolean_substitution_xml():
 
 
 def check_boolean_substitution(file):
-    root_entity, parser = Parser.load(file)
+    root_entity, parser = load_no_extensions(file)
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
     ls.include_launch_description(ld)
@@ -71,6 +82,16 @@ def check_boolean_substitution(file):
     or_false_true = sub_entries[10]
     or_false_false = sub_entries[11]
 
+    all_true_true = sub_entries[12]
+    all_true_false = sub_entries[13]
+    all_false_true = sub_entries[14]
+    all_false_false = sub_entries[15]
+
+    any_true_true = sub_entries[16]
+    any_true_false = sub_entries[17]
+    any_false_true = sub_entries[18]
+    any_false_false = sub_entries[19]
+
     assert perform(not_true.value) == 'false'
     assert perform(not_false.value) == 'true'
 
@@ -83,3 +104,13 @@ def check_boolean_substitution(file):
     assert perform(or_true_false.value) == 'true'
     assert perform(or_false_true.value) == 'true'
     assert perform(or_false_false.value) == 'false'
+
+    assert perform(all_true_true.value) == 'true'
+    assert perform(all_true_false.value) == 'false'
+    assert perform(all_false_true.value) == 'false'
+    assert perform(all_false_false.value) == 'false'
+
+    assert perform(any_true_true.value) == 'true'
+    assert perform(any_true_false.value) == 'true'
+    assert perform(any_false_true.value) == 'true'
+    assert perform(any_false_false.value) == 'false'

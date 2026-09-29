@@ -36,7 +36,7 @@ def generate_test_description():
     return launch.LaunchDescription([
         launch_ros.actions.Node(
             executable=sys.executable,
-            arguments=[str(path_to_test / 'executables' / 'talker.py')],
+            arguments=[path_to_test / 'executables' / 'talker.py'],
             additional_env={'PYTHONUNBUFFERED': '1'},
             name='demo_node_1',
             output='screen',
@@ -46,14 +46,11 @@ def generate_test_description():
 
 @pytest.mark.launch(fixture=generate_test_description)
 def test_check_if_msgs_published():
-    rclpy.init()
-    try:
+    with rclpy.init():
         node = MakeTestNode('test_node')
         node.start_subscriber()
         msgs_received_flag = node.msg_event_object.wait(timeout=5.0)
         assert msgs_received_flag, 'Did not receive msgs !'
-    finally:
-        rclpy.shutdown()
 
 
 class MakeTestNode(Node):

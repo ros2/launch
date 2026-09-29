@@ -95,7 +95,7 @@ class ExtractSubstitution(Transformer):
     double_quoted_template = template
 
 
-def get_grammar_path():
+def get_grammar_path() -> str:
     return os.path.join(
         get_package_share_directory('launch'), 'frontend', 'grammar.lark')
 

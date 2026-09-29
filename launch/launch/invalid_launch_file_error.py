@@ -14,11 +14,14 @@
 
 """Implementation of `InvalidLaunchFileError` class."""
 
+from typing import List
+from typing import Optional
+
 
 class InvalidLaunchFileError(Exception):
     """Exception raised when the given launch file is not valid."""
 
-    def __init__(self, extension='', *, likely_errors=None):
+    def __init__(self, extension: str = '', *, likely_errors: Optional[List[Exception]] = None):
         """Create an InvalidLaunchFileError."""
         self._extension = extension
         self._likely_errors = likely_errors
@@ -36,6 +39,6 @@ class InvalidLaunchFileError(Exception):
 
             self.__cause__ = self._likely_errors[0]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Pretty print."""
         return self._error_message

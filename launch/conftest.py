@@ -12,14 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import PurePath
+import pathlib
+
+import pytest
 
 
-def pytest_ignore_collect(path):
-    # pytest doctest messes up when trying to import .launch.py packages, ignore them.
-    # It also messes up when trying to import launch.logging.handlers due to conflicts with
-    # logging.handlers, ignore that as well.
-    return str(path).endswith((
-        '.launch.py',
-        str(PurePath('logging') / 'handlers.py'),
-    ))
+def _pytest_version_ge(major, minor=0, patch=0):
+    """Return True if pytest version is >= the given version."""
+    pytest_version = tuple(int(v) for v in pytest.__version__.split('.'))
+    return pytest_version >= (major, minor, patch)
+
+
+def _should_ignore(p):
+    if p is None:
+        return False
+    path = pathlib.Path(p)
+    # Ignore .launch.py files — not valid Python module names.
+    if path.name.endswith('.launch.py'):
+        return True
+    # Ignore launch.logging.handlers — collides with stdlib logging.handlers.
+    if path.name == 'handlers.py' and path.parent.name == 'logging':
+        return True
+    return False
+
+
+if _pytest_version_ge(8):
+    def pytest_ignore_collect(collection_path, config):
+        return _should_ignore(collection_path)
+else:
+    def pytest_ignore_collect(path, config):
+        return _should_ignore(path)

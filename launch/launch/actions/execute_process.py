@@ -15,11 +15,16 @@
 """Module for the ExecuteProcess action."""
 
 import shlex
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text
+from typing import Tuple
+from typing import Type
+from typing import Union
+
 
 from .execute_local import ExecuteLocal
 from .shutdown_action import Shutdown
@@ -124,15 +129,15 @@ class ExecuteProcess(ExecuteLocal):
     """
 
     def __init__(
-            self,
-            *,
-            cmd: Iterable[SomeSubstitutionsType],
-            prefix: Optional[SomeSubstitutionsType] = None,
-            name: Optional[SomeSubstitutionsType] = None,
-            cwd: Optional[SomeSubstitutionsType] = None,
-            env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-            additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
-            **kwargs
+        self,
+        *,
+        cmd: Iterable[SomeSubstitutionsType],
+        prefix: Optional[SomeSubstitutionsType] = None,
+        name: Optional[SomeSubstitutionsType] = None,
+        cwd: Optional[SomeSubstitutionsType] = None,
+        env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
+        **kwargs: Any
     ) -> None:
         """
         Construct an ExecuteProcess action.
@@ -193,7 +198,8 @@ class ExecuteProcess(ExecuteLocal):
         :param: additional_env dictionary of environment variables to be added.
             If 'env' was None, they are added to the current environment.
             If not, 'env' is updated with additional_env.
-        :param: shell if True, a shell is used to execute the cmd
+        :param: shell if True, a shell is used to execute the cmd. This must be
+            a boolean value in XML launch files; substitutions are not supported.
         :param: sigterm_timeout time until shutdown should escalate to SIGTERM,
             as a string or a list of strings and Substitutions to be resolved
             at runtime, defaults to the LaunchConfiguration called
@@ -206,6 +212,8 @@ class ExecuteProcess(ExecuteLocal):
             be overridden with the LaunchConfiguration called 'emulate_tty',
             the value of which is evaluated as true or false according to
             :py:func:`evaluate_condition_expression`.
+            In XML launch files, this attribute must be a boolean value;
+            substitutions are not supported.
             Throws :py:exc:`InvalidConditionExpressionError` if the
             'emulate_tty' configuration does not represent a boolean.
         :param: prefix a set of commands/arguments to precede the cmd, used for
@@ -253,10 +261,10 @@ class ExecuteProcess(ExecuteLocal):
            list again as a `TextSubstitution`.
         :returns: a list of command line arguments.
         """
-        result_args = []
+        result_args: List[SomeSubstitutionsType] = []
         arg: List[Substitution] = []
 
-        def _append_arg():
+        def _append_arg() -> None:
             nonlocal arg
             result_args.append(arg)
             arg = []
@@ -306,7 +314,7 @@ class ExecuteProcess(ExecuteLocal):
         entity: Entity,
         parser: Parser,
         ignore: Optional[List[str]] = None
-    ):
+    ) -> Tuple[Type['ExecuteProcess'], Dict[str, Any]]:
         """
         Return the `ExecuteProcess` action and kwargs for constructing it.
 
@@ -360,6 +368,19 @@ class ExecuteProcess(ExecuteLocal):
             respawn_max_retries = entity.get_attr('respawn_max_retries', data_type=int,
                                                   optional=True)
             if respawn_max_retries is not None:
+                if isinstance(respawn_max_retries, bool):
+                    raise ValueError(
+                        'Attribute respawn_max_retries of Entity `{}` expected to be '
+                        'an integer but got `{}`'.format(entity.type_name, respawn_max_retries)
+                    )
+                if isinstance(respawn_max_retries, str):
+                    try:
+                        respawn_max_retries = int(respawn_max_retries)
+                    except ValueError:
+                        raise ValueError(
+                            'Attribute respawn_max_retries of Entity `{}` expected to be '
+                            'an integer but got `{}`'.format(entity.type_name, respawn_max_retries)
+                        ) from None
                 kwargs['respawn_max_retries'] = respawn_max_retries
 
         if 'respawn_delay' not in ignore:
@@ -393,19 +414,20 @@ class ExecuteProcess(ExecuteLocal):
                 kwargs['sigterm_timeout'] = str(sigterm_timeout)
 
         if 'shell' not in ignore:
-            shell = entity.get_attr('shell', data_type=bool, optional=True)
+            shell = entity.get_attr('shell', data_type=bool, optional=True, can_be_str=False)
             if shell is not None:
                 kwargs['shell'] = shell
 
         if 'emulate_tty' not in ignore:
-            emulate_tty = entity.get_attr('emulate_tty', data_type=bool, optional=True)
+            emulate_tty = entity.get_attr(
+                'emulate_tty', data_type=bool, optional=True, can_be_str=False)
             if emulate_tty is not None:
                 kwargs['emulate_tty'] = emulate_tty
 
         if 'additional_env' not in ignore:
             # Conditions won't be allowed in the `env` tag.
-            # If that feature is needed, `set_enviroment_variable` and
-            # `unset_enviroment_variable` actions should be used.
+            # If that feature is needed, `set_environment_variable` and
+            # `unset_environment_variable` actions should be used.
             env = entity.get_attr('env', data_type=List[Entity], optional=True)
             if env is not None:
                 kwargs['additional_env'] = {
@@ -417,34 +439,35 @@ class ExecuteProcess(ExecuteLocal):
         return cls, kwargs
 
     @property
-    def name(self):
+    def name(self) -> Union[str, List[Substitution], None]:
         """Getter for name."""
         if self.process_description.final_name is not None:
             return self.process_description.final_name
         return self.process_description.name
 
     @property
-    def cmd(self):
+    def cmd(self) -> Union[List[str], List[List[Substitution]]]:
         """Getter for cmd."""
         if self.process_description.final_cmd is not None:
             return self.process_description.final_cmd
         return self.process_description.cmd
 
     @property
-    def cwd(self):
+    def cwd(self) -> Union[str, List[Substitution], None]:
         """Getter for cwd."""
         if self.process_description.final_cwd is not None:
             return self.process_description.final_cwd
         return self.process_description.cwd
 
     @property
-    def env(self):
+    def env(self) -> Union[Dict[str, str],
+                           List[Tuple[List[Substitution], List[Substitution]]], None]:
         """Getter for env."""
         if self.process_description.final_env is not None:
             return self.process_description.final_env
         return self.process_description.env
 
     @property
-    def additional_env(self):
+    def additional_env(self) -> Optional[List[Tuple[List[Substitution], List[Substitution]]]]:
         """Getter for additional_env."""
         return self.process_description.additional_env

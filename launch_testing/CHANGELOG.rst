@@ -2,6 +2,80 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.1 (2026-09-02)
+-------------------
+
+3.10.0 (2026-05-07)
+-------------------
+* Robust pytest_ignore_collect for multi-version Pytest compatibility (`#974 <https://github.com/ros2/launch/issues/974>`_)
+* Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (`#972 <https://github.com/ros2/launch/issues/972>`_)
+* Contributors: Michael Carroll
+
+3.9.7 (2026-04-09)
+------------------
+* Correct typos (`#961 <https://github.com/ros2/launch/issues/961>`_)
+* Fix test_io_tests for Ubuntu26 (`#960 <https://github.com/ros2/launch/issues/960>`_)
+* Fix flake8 (`#952 <https://github.com/ros2/launch/issues/952>`_)
+* Contributors: Auguste Lalande, Michael Carlstrom
+
+3.9.6 (2026-01-12)
+------------------
+
+3.9.5 (2025-11-07)
+------------------
+
+3.9.4 (2025-10-17)
+------------------
+* Switch osrf_pycommon dependency to system package (`#817 <https://github.com/ros2/launch/issues/817>`_)
+* Contributors: Scott K Logan
+
+3.9.3 (2025-10-06)
+------------------
+
+3.9.2 (2025-07-29)
+------------------
+* Fix Setuptoolsdeprecations (`#898 <https://github.com/ros2/launch/issues/898>`_)
+* Contributors: mosfet80
+
+3.9.1 (2025-06-19)
+------------------
+* Make sure to install py.typed files (`#886 <https://github.com/ros2/launch/issues/886>`_)
+* Add remaining `py.typed` (`#884 <https://github.com/ros2/launch/issues/884>`_)
+* Updated `launch` typings (`#831 <https://github.com/ros2/launch/issues/831>`_)
+* Contributors: Christophe Bedard, Michael Carlstrom
+
+3.9.0 (2025-04-24)
+------------------
+
+3.8.1 (2025-04-18)
+------------------
+* Fix function params indentation (`#833 <https://github.com/ros2/launch/issues/833>`_)
+* Contributors: Christophe Bedard
+
+3.8.0 (2025-02-27)
+------------------
+* Cleanup the launch dependencies. (`#819 <https://github.com/ros2/launch/issues/819>`_)
+* Contributors: Chris Lalancette
+
+3.7.1 (2024-12-20)
+------------------
+
+3.7.0 (2024-11-20)
+------------------
+* Add test_xmllint to all of the ament_python packages. (`#804 <https://github.com/ros2/launch/issues/804>`_)
+* Contributors: Chris Lalancette
+
+3.6.1 (2024-07-29)
+------------------
+
+3.6.0 (2024-06-25)
+------------------
+
+3.5.1 (2024-06-17)
+------------------
+* Add mechanism to disable workaround for dependency groups (`#775 <https://github.com/ros2/launch/issues/775>`_)
+* Contributors: Scott K Logan
+
 3.5.0 (2024-04-26)
 ------------------
 

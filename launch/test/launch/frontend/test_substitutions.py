@@ -27,6 +27,7 @@ from launch.frontend.parse_substitution import parse_if_substitutions
 from launch.frontend.parse_substitution import parse_substitution
 from launch.substitutions import EnvironmentVariable
 from launch.substitutions import PythonExpression
+from launch.substitutions import StringStripSubstitution
 from launch.substitutions import TextSubstitution
 from launch.substitutions import ThisLaunchFileDir
 from launch.utilities import normalize_to_list_of_substitutions
@@ -208,6 +209,14 @@ def test_eval_subst():
     assert 'asdbsd' == expr.perform(LaunchContext())
 
 
+def test_string_strip_subst():
+    subst = parse_substitution("$(string-strip '  $(test asd)  ')")
+    assert len(subst) == 1
+    string_strip = subst[0]
+    assert isinstance(string_strip, StringStripSubstitution)
+    assert string_strip.perform(LaunchContext()) == 'asd'
+
+
 def test_eval_subst_of_math_expr():
     # Math module is included by default
     subst = parse_substitution(r'$(eval "ceil(1.3)")')
@@ -367,3 +376,13 @@ def test_execute_process_parse_cmd_line() -> None:
     cmd_subs = ExecuteProcess._parse_cmdline(cmd_text, parser)
     cmd_performed = expand_cmd_subs(cmd_subs)
     assert cmd_performed == ['that', 'this']
+
+
+def test_eval_subst_submodule():
+    # Case where a submodule is used
+    subst = parse_substitution(
+        r'$(eval "os.path.exists(\'/\')" "os")')
+    assert len(subst) == 1
+    expr = subst[0]
+    assert isinstance(expr, PythonExpression)
+    assert expr.perform(LaunchContext())

@@ -30,7 +30,7 @@ def retry_on_failure(*, times, delay=None):
     """
     Mark a test case to be retried up to `times` on AssertionError.
 
-    :param times: The number of times to rety the test.
+    :param times: The number of times to retry the test.
     :param delay: The time to wait between retries, in seconds.
       A value of None will result in zero delay.
     """

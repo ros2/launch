@@ -19,7 +19,11 @@ import textwrap
 
 from launch import LaunchService
 from launch.actions import Shutdown
-from launch.frontend import Parser
+from launch.actions.execute_process import ExecuteProcess
+
+from parser_no_extensions import load_no_extensions
+
+import pytest
 
 
 def test_executable():
@@ -42,7 +46,7 @@ def test_executable():
                         value: '1'
         """
     yaml_file = textwrap.dedent(yaml_file)
-    root_entity, parser = Parser.load(io.StringIO(yaml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     cmd = [i[0].perform(None) for i in executable.cmd]
@@ -73,12 +77,58 @@ def test_executable_on_exit():
                 on_exit: shutdown
         """
     yaml_file = textwrap.dedent(yaml_file)
-    root_entity, parser = Parser.load(io.StringIO(yaml_file))
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     executable = ld.entities[0]
     sub_entities = executable.get_sub_entities()
     assert len(sub_entities) == 1
     assert isinstance(sub_entities[0], Shutdown)
+
+
+def test_executable_respawn_max_retries_string_zero():
+    yaml_file = \
+        """\
+        launch:
+        -   executable:
+                cmd: echo test
+                respawn_max_retries: '0'
+        """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    _, kwargs = ExecuteProcess.parse(root_entity.children[0], parser)
+
+    assert kwargs['respawn_max_retries'] == 0
+    assert isinstance(kwargs['respawn_max_retries'], int)
+
+
+def test_executable_respawn_max_retries_empty_string_error():
+    yaml_file = \
+        """\
+        launch:
+        -   executable:
+                cmd: echo test
+                respawn_max_retries: ''
+        """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+
+    with pytest.raises(ValueError, match='respawn_max_retries'):
+        ExecuteProcess.parse(root_entity.children[0], parser)
+
+
+def test_executable_respawn_max_retries_bool_error():
+    yaml_file = \
+        """\
+        launch:
+        -   executable:
+                cmd: echo test
+                respawn_max_retries: true
+        """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+
+    with pytest.raises(ValueError, match='respawn_max_retries'):
+        ExecuteProcess.parse(root_entity.children[0], parser)
 
 
 if __name__ == '__main__':
