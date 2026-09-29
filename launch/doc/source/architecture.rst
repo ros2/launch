@@ -118,41 +118,13 @@ Events and Event Handlers
 A :class:`launch.Event` represents an occurrence to which the launch system may react.
 It may carry information about that occurrence for use by event handlers.
 Events are the only entry point by which a :class:`launch.LaunchService` begins runtime visitation of entities.
-Entities do not execute themselves, and the launch service does not visit an entity merely because it has been constructed or added to a launch description.
+See :ref:`launch-service-execution-model` for details.
 
-Emitting an event places it in the launch context's event queue.
-Emission does not immediately invoke event handlers.
-The launch service takes events from the queue one at a time and checks each event against all registered event handlers.
-Every matching handler is invoked and may perform side effects or return one or more entities.
-The event itself does not return entities; its matching handlers do.
-
-Entities returned by a handler form the roots of entity-visitation chains.
-The launch service visits each root and all entities returned by it recursively and depth-first.
-A separate event is not required between a parent entity and each of its returned entities.
-
-While being visited, an entity may emit another event directly or arrange for asynchronous activity to emit one later.
-The emitted event is queued for later processing, so the current depth-first entity visitation completes before the new event is handled.
-This creates the central execution cycle:
-
-.. code-block:: text
-
-   event
-       |
-       v
-   matching event handlers
-       |
-       v
-   returned entity trees
-       |
-       v
-   depth-first visitation
-       |
-       `-- emitted events -> event queue
-
-Event handlers are represented by the :class:`launch.EventHandler` base class.
-They define two main methods: :meth:`launch.EventHandler.matches` and :meth:`launch.EventHandler.handle`.
+Event handlers are represented by the :class:`launch.BaseEventHandler` base class.
+They define two main methods: :meth:`launch.BaseEventHandler.matches` and :meth:`launch.BaseEventHandler.handle`.
 The ``matches()`` method receives the event and returns ``True`` if the handler should handle it.
 The ``handle()`` method receives the event and launch context, and may perform side effects or return entities for the launch service to visit.
+The base implementation of ``handle()`` stores the event in ``context.locals.event``, making it available to entities returned by the handler while they are visited.
 Event handlers do not inherit from :class:`launch.LaunchDescriptionEntity` and are not visited through the entity visitation protocol.
 
 Several actions connect entity visitation to this event system:
@@ -253,13 +225,14 @@ There are two similarly named include mechanisms:
 Execution Model
 ^^^^^^^^^^^^^^^
 
+Entities do not execute themselves, and the launch service does not visit an entity merely because it has been constructed or added to a launch description.
 The launch service coordinates event processing and entity visitation as follows:
 
-#. Events are placed in the launch context's event queue.
-#. The launch service takes one event from the queue and checks it against the registered event handlers.
-#. Every matching event handler is invoked and may return launch description entities.
-#. Returned entities are visited synchronously and depth-first.
-#. Visiting an entity may perform an immediate side effect, return sub-entities for immediate visitation, start asynchronous work represented by a future, or emit another event.
+#. Emitting an event places it in the launch context's event queue; emission does not immediately invoke event handlers.
+#. The launch service takes one event from the queue and checks it against all registered event handlers.
+#. Every matching event handler is invoked and may perform side effects or return launch description entities; the event itself does not return entities.
+#. Entities returned by a handler form the roots of entity-visitation chains. The launch service visits each root and all entities returned by it synchronously and depth-first, without requiring a separate event between parent and child entities.
+#. Visiting an entity may perform an immediate side effect, return sub-entities for immediate visitation, start asynchronous work represented by a future, or emit another event directly. Asynchronous work may also emit events later.
 #. The launch service tracks asynchronous work and waits for another event or for tracked work to complete.
 #. When no events or asynchronous work remain, the default behavior is to emit a shutdown event. The service exits after the shutdown event and any work it produces has completed.
 
