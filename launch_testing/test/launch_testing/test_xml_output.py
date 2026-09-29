@@ -19,8 +19,8 @@ import unittest
 import xml.etree.ElementTree as ET
 
 import ament_index_python
-from launch_testing.junitxml import unittestResultToXml
 from launch_testing.junitxml import unittestResultsToXml
+from launch_testing.junitxml import unittestResultToXml
 from launch_testing.test_result import FailResult
 from launch_testing.test_result import SkipResult
 from launch_testing.test_result import TestResult as TR
@@ -219,7 +219,8 @@ class TestXmlFunctions(unittest.TestCase):
         )
 
     def test_classname_suffix_keeps_package_grouping(self):
-        """Check the CTest target never moves the Jenkins package name.
+        """
+        Check the CTest target never moves the Jenkins package name.
 
         Jenkins splits the classname on the last '.', so the target must not
         introduce one.  A target that reaches the serializer as a file name
