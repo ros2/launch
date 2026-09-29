@@ -35,7 +35,7 @@ def test_log():
         """\
         <launch>
             <log level="INFO" message="Hello world!" />
-            <log message="Hello world!" />
+            <log level="DEBUG" message="Hello world!" />
             <log_info message="Hello world!" />
             <log_debug message="Hello world debug!" />
             <log_warning message="Hello world warning!" />
@@ -44,10 +44,7 @@ def test_log():
         """
     xml_file = textwrap.dedent(xml_file)
     root_entity, parser = load_no_extensions(io.StringIO(xml_file))
-    with pytest.warns(Warning) as record:
-        launch_description = parser.parse_description(root_entity)
-
-    assert len(record) == 1
+    launch_description = parser.parse_description(root_entity)
 
     log = launch_description.entities[0]
     assert isinstance(log, Log)
@@ -56,6 +53,7 @@ def test_log():
     log2 = launch_description.entities[1]
     assert isinstance(log2, Log)
     assert perform_substitutions(launch_context, log2.msg) == 'Hello world!'
+    assert perform_substitutions(launch_context, log2.level) == 'DEBUG'
 
     log_info = launch_description.entities[2]
     assert isinstance(log_info, LogInfo)
@@ -72,3 +70,10 @@ def test_log():
     log_error = launch_description.entities[5]
     assert isinstance(log_error, LogError)
     assert perform_substitutions(launch_context, log_error.msg) == 'Hello world error!'
+
+
+def test_log_level_required():
+    xml_file = '<launch><log message="Hello world!" /></launch>'
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    with pytest.raises(AttributeError):
+        parser.parse_description(root_entity)

@@ -21,7 +21,6 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 from typing import Type
-import warnings
 
 import launch.logging
 
@@ -98,17 +97,7 @@ class Log(LogInterface):
         _, kwargs = super().parse(entity, parser)
         kwargs['msg'] = parser.parse_substitution(entity.get_attr('message'))
 
-        # Check if still using old log action
-        level = entity.get_attr('level', optional=True)
-        # TODO: Remove optional level for Release after L-turtle release
-        if level is None:
-            warnings.warn(
-                'The action log now expects a log level.'
-                ' Either provide one or switch to using the log_info action',
-                stacklevel=2)
-            level = 'INFO'
-
-        kwargs['level'] = parser.parse_substitution(level)
+        kwargs['level'] = parser.parse_substitution(entity.get_attr('level'))
         return cls, kwargs
 
 

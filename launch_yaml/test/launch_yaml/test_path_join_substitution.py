@@ -44,6 +44,7 @@ def test_path_join_substitution():
             name: 'ver'
             value: '1.0'
         - log:
+            level: INFO
             message: file=$(path-join "robot$(var id)" $(var model) "ur df" v_$(var ver).xacro)
         """
     yaml_file = textwrap.dedent(yaml_file)
@@ -66,6 +67,7 @@ def test_path_join_substitution_empty():
         """\
         launch:
         - log:
+            level: INFO
             message: file=$(path-join)
         """
     yaml_file = textwrap.dedent(yaml_file)

@@ -38,6 +38,7 @@ def test_path_join_substitution():
           <let name="id" value="2" />
           <let name="ver" value="1.0" />
           <log
+            level="INFO"
             message="file=$(path-join 'robot$(var id)' $(var model) 'ur df' v_$(var ver).xacro)"
           />
         </launch>
@@ -61,7 +62,7 @@ def test_path_join_substitution_empty():
     xml_file = \
         """\
         <launch>
-          <log message="file=$(path-join)" />
+          <log level="INFO" message="file=$(path-join)" />
         </launch>
         """
     xml_file = textwrap.dedent(xml_file)
