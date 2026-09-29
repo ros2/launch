@@ -67,6 +67,10 @@ This is a non-exhaustive list of actions that `launch` may provide:
 
   - This action will yield other actions, but can be associated with conditionals (allowing you to use the conditional on the group action rather than on each sub-action individually) and can optionally scope the launch configurations.
 
+- :class:`launch.actions.OpaqueFunction`
+
+  - This action will execute a Python function with the launch context, and the function may return additional launch description entities.
+
 - :class:`launch.actions.TimerAction`
 
   - This action will yield other actions after a period of time has passed without being canceled.
