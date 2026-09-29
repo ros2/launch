@@ -36,26 +36,17 @@ def test_invalid_launch_file_errors():
         assert 'BufferError' in ex.__str__()
 
 
-def test_invalid_launch_file_error_includes_path(tmp_path, monkeypatch):
+def test_invalid_launch_file_error_includes_path(tmp_path):
     """The error for a failed launch file load identifies the file path."""
-    launch_file_path = str(tmp_path / 'broken.launch.xml')
-
-    def fail_to_load(_launch_file_path):
-        raise ValueError('fixture parser error')
-
-    monkeypatch.setattr(
-        any_launch_file_utilities,
-        'get_launch_description_from_frontend_launch_file',
-        fail_to_load,
-    )
-    monkeypatch.setattr(
-        any_launch_file_utilities,
-        'get_launch_description_from_python_launch_file',
-        fail_to_load,
+    launch_file_path = tmp_path / 'broken.launch.py'
+    launch_file_path.write_text(
+        'def generate_launch_description(:\n    pass\n',
+        encoding='utf-8',
     )
 
     with pytest.raises(InvalidLaunchFileError) as exc_info:
-        any_launch_file_utilities.get_launch_description_from_any_launch_file(launch_file_path)
+        any_launch_file_utilities.get_launch_description_from_any_launch_file(
+            str(launch_file_path))
 
-    assert launch_file_path in str(exc_info.value)
-    assert 'fixture parser error' in str(exc_info.value)
+    assert str(launch_file_path) in str(exc_info.value)
+    assert 'SyntaxError' in str(exc_info.value)
