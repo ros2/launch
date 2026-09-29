@@ -76,7 +76,7 @@ class TestGoodXmlOutput(unittest.TestCase):
         self.assertIn('test_count_to_four', case_names)
         self.assertIn('test_full_output', case_names)
         self.assertTrue(all(
-            case.attrib['classname'].startswith('unique_ctest_target.')
+            case.attrib['classname'].endswith('__unique_ctest_target')
             for case in test_suite
         ))
 
@@ -205,18 +205,33 @@ class TestXmlFunctions(unittest.TestCase):
         child_names = [chld.attrib['name'] for chld in xml_tree.getroot()]
         self.assertEqual(set(child_names), {'launch_1', 'launch_2', 'launch_3'})
 
-    def test_classname_prefix_keeps_same_cases_unique(self):
+    def test_classname_suffix_keeps_same_cases_unique(self):
         test_result = self.unit_test_result_factory([lambda self: None])
         first = unittestResultToXml('launch_1', test_result, 'ctest_target_1')
         second = unittestResultToXml('launch_2', test_result, 'ctest_target_2')
         self.assertEqual(
-            'ctest_target_1.test_xml_output.TestHost',
+            'test_xml_output.TestHost__ctest_target_1',
             first.find('testcase').attrib['classname'],
         )
         self.assertEqual(
-            'ctest_target_2.test_xml_output.TestHost',
+            'test_xml_output.TestHost__ctest_target_2',
             second.find('testcase').attrib['classname'],
         )
+
+    def test_classname_suffix_keeps_package_grouping(self):
+        """Check the CTest target never moves the Jenkins package name.
+
+        Jenkins splits the classname on the last '.', so the target must not
+        introduce one.  A target that reaches the serializer as a file name
+        carries a '.py' extension.
+        """
+        test_result = self.unit_test_result_factory([lambda self: None])
+        case = unittestResultToXml(
+            'launch_1', test_result, 'test_foo.py'
+        ).find('testcase')
+        classname = case.attrib['classname']
+        self.assertEqual('test_xml_output.TestHost__test_foo_py', classname)
+        self.assertEqual('test_xml_output', classname.rpartition('.')[0])
 
     def test_result_that_ran(self):
         """

@@ -120,7 +120,7 @@ def run(parser, args, test_runner_cls=LaunchTestRunner):
         xml_report = unittestResultsToXml(
             test_results=results, name='{}.{}'.format(
                 args.package_name, launch_test_file_basename
-            ), classname_prefix=args.test_name
+            ), classname_suffix=args.test_name
         )
         xml_report.write(args.xmlpath, encoding='utf-8', xml_declaration=True)
 
