@@ -34,9 +34,9 @@ class Talker(Node):
         self.count += 1
 
 
-def main(args=None):
+def main():
     try:
-        with rclpy.init(args=args):
+        with rclpy.init():
             node = Talker()
             rclpy.spin(node)
     except (KeyboardInterrupt, ExternalShutdownException):
