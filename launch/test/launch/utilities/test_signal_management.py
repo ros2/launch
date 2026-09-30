@@ -25,19 +25,19 @@ import osrf_pycommon.process_utils
 
 
 def cap_signals(*signals):
+    def _noop(*args):
+        pass
+
     def _decorator(func):
         @functools.wraps(func)
         def _wrapper(*args, **kwargs):
             handlers = {}
             try:
                 for s in signals:
-                    handlers[s] = signal.signal(s, signal.default_int_handler)
+                    handlers[s] = signal.signal(s, _noop)
                 return func(*args, **kwargs)
-            except KeyboardInterrupt:
-                pass
             finally:
-                assert all(signal.signal(s, h) is signal.default_int_handler
-                           for s, h in handlers.items())
+                assert all(signal.signal(s, h) is _noop for s, h in handlers.items())
         return _wrapper
 
     return _decorator
@@ -113,3 +113,28 @@ def test_async_safe_signal_manager():
         ))
         assert got_another_signal.done()
         assert got_another_signal.result() == ANOTHER_SIGNAL
+
+
+def test_async_safe_signal_manager_default_disposition():
+    """Test AsyncSafeSignalManager with a signal that has default OS disposition (SIG_DFL)."""
+    loop = osrf_pycommon.process_utils.get_loop()
+    prev_handler = signal.signal(SIGNAL, signal.SIG_DFL)
+    try:
+        manager = AsyncSafeSignalManager(loop)
+
+        got_signal = asyncio.Future(loop=loop)
+        manager.handle(SIGNAL, got_signal.set_result)
+        assert signal.getsignal(SIGNAL) == signal.SIG_DFL
+
+        with manager:
+            assert callable(signal.getsignal(SIGNAL))
+            loop.call_soon(raise_signal, SIGNAL)
+            loop.run_until_complete(asyncio.wait(
+                [got_signal], timeout=1.0
+            ))
+            assert got_signal.done()
+            assert got_signal.result() == SIGNAL
+
+        assert signal.getsignal(SIGNAL) == signal.SIG_DFL
+    finally:
+        signal.signal(SIGNAL, prev_handler)

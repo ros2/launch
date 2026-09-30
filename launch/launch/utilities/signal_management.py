@@ -22,7 +22,9 @@ import signal
 import socket
 import threading
 
+from types import FrameType
 from types import TracebackType
+from typing import Any
 from typing import Callable
 from typing import ClassVar
 from typing import Dict
@@ -81,6 +83,7 @@ class AsyncSafeSignalManager:
         self.__loop: asyncio.AbstractEventLoop = loop
         self.__background_loop: Optional[asyncio.AbstractEventLoop] = None
         self.__handlers: Dict[int, Callable[[int], None]] = {}
+        self.__prev_signal_handlers: Dict[signal.Signals, Any] = {}
         self.__prev_wakeup_handle: Union[int, socket.socket] = -1
         self.__wsock: Optional[socket.socket] = None
         self.__rsock: Optional[socket.socket] = None
@@ -162,21 +165,44 @@ class AsyncSafeSignalManager:
             if self.__rsock:
                 self.__loop.remove_reader(self.__rsock.fileno())
 
+    def __acquire_signal(self, signum: signal.Signals) -> None:
+        if signum not in self.__prev_signal_handlers:
+            prev_handler = signal.getsignal(signum)
+            if callable(prev_handler):
+                def chain_handler(signum: int, frame: Optional[FrameType]) -> Any:
+                    return prev_handler(signum, frame)
+                signal.signal(signum, chain_handler)
+            else:
+                signal.signal(signum, lambda signum, frame: None)
+            self.__prev_signal_handlers[signum] = prev_handler
+
+    def __release_signal(self, signum: signal.Signals) -> None:
+        if signum in self.__prev_signal_handlers:
+            signal.signal(signum, self.__prev_signal_handlers.pop(signum))
+
     def __install_signal_writers(self) -> None:
         if self.__wsock is None:
             raise RuntimeError('AsyncSafeSignalManager has not been initialized.')
         prev_wakeup_handle = AsyncSafeSignalManager.__set_wakeup_fd(self.__wsock.fileno())
         try:
             self.__chain_wakeup_handle(prev_wakeup_handle)
+            for signum in self.__handlers:
+                self.__acquire_signal(signal.Signals(signum))
         except Exception:
+            for signum in reversed(list(self.__prev_signal_handlers)):
+                self.__release_signal(signum)
             own_wakeup_handle = AsyncSafeSignalManager.__set_wakeup_fd(prev_wakeup_handle)
             assert self.__wsock.fileno() == own_wakeup_handle
             raise
 
     def __uninstall_signal_writers(self) -> None:
-        prev_wakeup_handle = self.__chain_wakeup_handle(-1)
-        own_wakeup_handle = AsyncSafeSignalManager.__set_wakeup_fd(prev_wakeup_handle)
-        assert self.__wsock and self.__wsock.fileno() == own_wakeup_handle
+        try:
+            for signum in reversed(list(self.__prev_signal_handlers)):
+                self.__release_signal(signum)
+        finally:
+            prev_wakeup_handle = self.__chain_wakeup_handle(-1)
+            own_wakeup_handle = AsyncSafeSignalManager.__set_wakeup_fd(prev_wakeup_handle)
+            assert self.__wsock and self.__wsock.fileno() == own_wakeup_handle
 
     def __chain(self) -> None:
         self.__parent = AsyncSafeSignalManager.__current
@@ -249,12 +275,15 @@ class AsyncSafeSignalManager:
         :return: previous handler if any, otherwise None
         """
         signum = signal.Signals(signum)
-        signal.signal(signum, signal.default_int_handler)
         if handler is not None:
             if not callable(handler):
                 raise ValueError('signal handler must be a callable')
             old_handler = self.__handlers.get(signum, None)
             self.__handlers[signum] = handler
+            if self.__wsock is not None:
+                self.__acquire_signal(signum)
         else:
             old_handler = self.__handlers.pop(signum, None)
+            if self.__wsock is not None:
+                self.__release_signal(signum)
         return old_handler
