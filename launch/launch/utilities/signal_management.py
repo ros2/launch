@@ -52,11 +52,17 @@ class AsyncSafeSignalManager:
 
     If used outside of the main thread, a ValueError is raised.
 
-    The underlying mechanism is built around :func:`signal.set_wakeup_fd`
-    so as to not interfere with regular handlers installed via
-    :func:`signal.signal`.
+    The underlying mechanism is built around :func:`signal.set_wakeup_fd`.
     All signals received are forwarded to the previously setup file
     descriptor, if any.
+
+    Since :func:`signal.set_wakeup_fd` only works for signals that have a
+    Python handler, while a manager context is active, a handler is set with
+    :func:`signal.signal` for each signal that has a registered handler.
+    If the signal already had a Python handler, the new handler calls it,
+    otherwise, e.g. for ``SIG_DFL`` or ``SIG_IGN``, the new handler does nothing.
+    The previous handlers are restored when the context exits, or when the
+    signal's handler is unregistered.
 
     ..warning::
         Within (potentially nested) contexts, :func:`signal.set_wakeup_fd`
