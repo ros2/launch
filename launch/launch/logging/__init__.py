@@ -248,13 +248,13 @@ class LaunchConfig:
             screen_style = '{'
         if screen_format is not None:
             if screen_format == 'default':
-                screen_format = '[{levelname}] [{name}]: {msg}'
+                screen_format = '[{levelname}] [{name}]: {message}'
                 if screen_style is not None:
                     raise ValueError(
                         'Cannot set a custom format style for the "default" screen format.'
                     )
             if screen_format == 'default_with_timestamp':
-                screen_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
+                screen_format = '{created:.7f} [{levelname}] [{name}]: {message}'
                 if screen_style is not None:
                     raise ValueError(
                         'Cannot set a custom format style for the '
@@ -310,7 +310,7 @@ class LaunchConfig:
             log_style = '{'
         if log_format is not None:
             if log_format == 'default':
-                log_format = '{created:.7f} [{levelname}] [{name}]: {msg}'
+                log_format = '{created:.7f} [{levelname}] [{name}]: {message}'
                 if log_style is not None:
                     raise ValueError(
                         'Cannot set a custom format style for the "default" log format.'
@@ -497,7 +497,7 @@ def get_output_loggers(process_name: str, output_config: Union[str, Dict[str, An
             # Add screen handler if necessary.
             if screen_handler not in logger.handlers:
                 screen_handler.setFormatterFor(
-                    logger, logging.Formatter('{msg}', style='{')
+                    logger, logging.Formatter('{message}', style='{')
                 )
                 logger.addHandler(screen_handler)
 
@@ -508,7 +508,7 @@ def get_output_loggers(process_name: str, output_config: Union[str, Dict[str, An
             # Add launch main log file handler if necessary.
             if launch_log_file_handler not in logger.handlers:
                 launch_log_file_handler.setFormatterFor(
-                    logger, logging.Formatter('{created:.7f} {msg}', style='{')
+                    logger, logging.Formatter('{created:.7f} {message}', style='{')
                 )
                 logger.addHandler(launch_log_file_handler)
 
@@ -526,7 +526,7 @@ def get_output_loggers(process_name: str, output_config: Union[str, Dict[str, An
         # this logger should output to a combined log file.
         if 'own_log' in output_config['both']:
             combined_log_file_handler = launch_config.get_log_file_handler(process_name + '.log')
-            combined_log_file_handler.setFormatter(logging.Formatter('{msg}', style='{'))
+            combined_log_file_handler.setFormatter(logging.Formatter('{message}', style='{'))
             # Add combined log file handler if necessary.
             if combined_log_file_handler not in logger.handlers:
                 logger.addHandler(combined_log_file_handler)

@@ -221,6 +221,43 @@ def test_screen_default_format(capsys, mock_clean_env):
     assert 0 == len(capture.err)
 
 
+def test_logging_formats_lazy_arguments(capsys, log_dir, mock_clean_env):
+    """Test default and process-output formatters interpolate logging arguments."""
+    launch.logging.reset()
+    launch.logging.launch_config.log_dir = log_dir
+
+    logger = launch.logging.get_logger('some-proc')
+    logger.warning('code %d skipping %s.', 7, 'the batch')
+
+    capture = capsys.readouterr()
+    assert '[WARNING] [some-proc]: code 7 skipping the batch.' in capture.out
+
+    launch.logging.launch_config.get_log_file_handler().flush()
+    with open(launch.logging.launch_config.get_log_file_path(), 'r') as f:
+        assert 'code 7 skipping the batch.' in f.read()
+
+    stdout_logger, _ = launch.logging.get_output_loggers('child', 'full')
+    stdout_logger.setLevel(logging.INFO)
+    stdout_logger.info('code %d skipping %s.', 8, 'the next batch')
+    stdout_logger.info('progress is 100%')
+
+    capture = capsys.readouterr()
+    assert 'code 8 skipping the next batch.' in capture.out
+    assert 'progress is 100%' in capture.out
+
+    launch.logging.launch_config.get_log_file_handler().flush()
+    with open(launch.logging.launch_config.get_log_file_path(), 'r') as f:
+        assert 'code 8 skipping the next batch.' in f.read()
+
+    combined_log_handler = launch.logging.launch_config.get_log_file_handler('child.log')
+    combined_log_handler.flush()
+    with open(launch.logging.launch_config.get_log_file_path('child.log'), 'r') as f:
+        assert f.read().splitlines() == [
+            'code 8 skipping the next batch.',
+            'progress is 100%',
+        ]
+
+
 def test_log_default_format(log_dir):
     """Test logging to the main log file when using the default logs format."""
     launch.logging.reset()
