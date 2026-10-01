@@ -96,6 +96,10 @@ This is a non-exhaustive list of actions that `launch` may provide:
 
   - This action will stop execution of the launch system and provide a user defined error message.
 
+- :class:`launch.actions.OpaqueFunction`
+
+  - This action will execute a user defined function, the return value of which is used as additional launch entities, allowing a launch description to be generated dynamically at run time.
+
 More actions can always be defined via extension, and there may even be additional actions defined by `launch` itself, but they are more situational and would likely be built on top of the above actions anyways.
 
 Base Action
