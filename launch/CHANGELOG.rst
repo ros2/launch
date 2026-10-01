@@ -2,8 +2,8 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.10.2 (2026-10-01)
+-------------------
 * Add documentation for signal handling in launch (`#1025 <https://github.com/ros2/launch/issues/1025>`_)
 * Fix `#666 <https://github.com/ros2/launch/issues/666>`_ handle SIGTERM (`#712 <https://github.com/ros2/launch/issues/712>`_)
 * Describe nested substitutions in conditional expressions (`#1012 <https://github.com/ros2/launch/issues/1012>`_)

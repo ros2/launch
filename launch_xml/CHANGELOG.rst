@@ -2,8 +2,8 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.10.2 (2026-10-01)
+-------------------
 * Make level attribute required on log action and remove log_info.py (`#1024 <https://github.com/ros2/launch/issues/1024>`_)
 * Reject invalid executable boolean attributes (`#1004 <https://github.com/ros2/launch/issues/1004>`_)
 * Use the SPDX identifier Apache-2.0 in license declarations (`#1013 <https://github.com/ros2/launch/issues/1013>`_)
