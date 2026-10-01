@@ -18,7 +18,6 @@ import asyncio
 import collections.abc
 import contextlib
 import logging
-import platform
 import signal
 import sys
 import threading
@@ -28,6 +27,7 @@ from typing import Generator
 from typing import Iterable
 from typing import List  # noqa: F401
 from typing import Optional
+from typing import Set  # noqa: F401
 from typing import Text
 from typing import Tuple  # noqa: F401
 
@@ -206,38 +206,27 @@ class LaunchService:
                 this_task = asyncio.Task.current_task(this_loop)
 
             self.__this_task = this_task
-            # Setup custom signal handlers for SIGINT, SIGTERM and maybe SIGQUIT.
-            sigint_received = False
+            # Setup custom signal handlers for SIGINT & SIGTERM
+            signals_received: Set[str] = set()
 
-            def _on_sigint(signum: int) -> None:
-                nonlocal sigint_received
-                base_msg = 'user interrupted with ctrl-c (SIGINT)'
-                if not sigint_received:
+            def _on_signal(signum: int) -> None:
+                signal_name = signal.Signals(signum).name
+                base_msg = 'caught ' + signal_name
+                if signal_name not in signals_received:
+                    signals_received.add(signal_name)
+                    due_to_sigint = True if signal_name == 'SIGINT' else False
                     self.__logger.warning(base_msg)
                     ret = self._shutdown(
-                        reason='ctrl-c (SIGINT)', due_to_sigint=True, force_sync=True
+                        reason=base_msg, due_to_sigint=due_to_sigint, force_sync=True
                     )
                     assert ret is None, ret
-                    sigint_received = True
                 else:
                     self.__logger.warning('{} again, ignoring...'.format(base_msg))
 
-            def _on_sigterm(signum: int) -> None:
-                signame = signal.Signals(signum).name
-                self.__logger.error(
-                    'user interrupted with ctrl-\\ ({}), terminating...'.format(signame))
-                # TODO(wjwwood): try to terminate running subprocesses before exiting.
-                self.__logger.error('using {} can result in orphaned processes'.format(signame))
-                self.__logger.error('make sure no processes launched are still running')
-                if this_task:
-                    this_loop.call_soon(this_task.cancel)
-
             with AsyncSafeSignalManager(this_loop) as manager:
                 # Setup signal handlers
-                manager.handle(signal.SIGINT, _on_sigint)
-                manager.handle(signal.SIGTERM, _on_sigterm)
-                if platform.system() != 'Windows':
-                    manager.handle(signal.SIGQUIT, _on_sigterm)  # type: ignore
+                manager.handle(signal.SIGINT, _on_signal)
+                manager.handle(signal.SIGTERM, _on_signal)
                 # Yield asyncio loop and current task.
                 yield this_loop, this_task
         finally:

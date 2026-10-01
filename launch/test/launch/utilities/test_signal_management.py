@@ -113,3 +113,28 @@ def test_async_safe_signal_manager():
         ))
         assert got_another_signal.done()
         assert got_another_signal.result() == ANOTHER_SIGNAL
+
+
+def test_async_safe_signal_manager_default_disposition():
+    """Test AsyncSafeSignalManager with a signal that has default OS disposition (SIG_DFL)."""
+    loop = osrf_pycommon.process_utils.get_loop()
+    prev_handler = signal.signal(SIGNAL, signal.SIG_DFL)
+    try:
+        manager = AsyncSafeSignalManager(loop)
+
+        got_signal = asyncio.Future(loop=loop)
+        manager.handle(SIGNAL, got_signal.set_result)
+        assert signal.getsignal(SIGNAL) == signal.SIG_DFL
+
+        with manager:
+            assert callable(signal.getsignal(SIGNAL))
+            loop.call_soon(raise_signal, SIGNAL)
+            loop.run_until_complete(asyncio.wait(
+                [got_signal], timeout=1.0
+            ))
+            assert got_signal.done()
+            assert got_signal.result() == SIGNAL
+
+        assert signal.getsignal(SIGNAL) == signal.SIG_DFL
+    finally:
+        signal.signal(SIGNAL, prev_handler)
