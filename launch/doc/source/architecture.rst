@@ -1,14 +1,14 @@
-Architecture of `launch`
-========================
+Architecture of ``launch``
+==========================
 
-`launch` is designed to provide core features like describing actions (e.g. executing a process or including another launch description), generating events, introspecting launch descriptions, and executing launch descriptions.
+``launch`` is designed to provide core features like describing actions (e.g. executing a process or including another launch description), generating events, introspecting launch descriptions, and executing launch descriptions.
 At the same time, it provides extension points so that the set of things that these core features can operate on, or integrate with, can be expanded with additional packages.
 
 Launch Entities and Launch Descriptions
 ---------------------------------------
 
-The main object in `launch` is the :class:`launch.LaunchDescriptionEntity`, from which other entities that are "launched" inherit.
-This class, or more specifically classes derived from this class, are responsible for capturing the system architect's (a.k.a. the user's) intent for how the system should be launched, as well as how `launch` itself should react to asynchronous events in the system during launch.
+The main object in ``launch`` is the :class:`launch.LaunchDescriptionEntity`, from which other entities that are "launched" inherit.
+This class, or more specifically classes derived from this class, are responsible for capturing the system architect's (a.k.a. the user's) intent for how the system should be launched, as well as how ``launch`` itself should react to asynchronous events in the system during launch.
 A launch description entity has its :meth:`launch.LaunchDescriptionEntity.visit` method called during "launching", and has any of the "describe" methods called during "introspection".
 It may also provide a :class:`asyncio.Future` with the :meth:`launch.LaunchDescriptionEntity.get_asyncio_future` method, if it has on-going asynchronous activity after returning from visit.
 
@@ -38,8 +38,8 @@ These arguments are where :class:`launch.Substitution`'s can be used to provide 
 Basic Actions
 ^^^^^^^^^^^^^
 
-`launch` provides the foundational actions on which other more sophisticated actions may be built.
-This is a non-exhaustive list of actions that `launch` may provide:
+``launch`` provides the foundational actions on which other more sophisticated actions may be built.
+This is a non-exhaustive list of actions that ``launch`` may provide:
 
 - :class:`launch.actions.IncludeLaunchDescription`
 
@@ -101,7 +101,7 @@ This is a non-exhaustive list of actions that `launch` may provide:
 
   - This action will execute a user defined function, the return value of which is used as additional launch entities, allowing a launch description to be generated dynamically at run time.
 
-More actions can always be defined via extension, and there may even be additional actions defined by `launch` itself, but they are more situational and would likely be built on top of the above actions anyways.
+More actions can always be defined via extension, and there may even be additional actions defined by ``launch`` itself, but they are more situational and would likely be built on top of the above actions anyways.
 
 Base Action
 ^^^^^^^^^^^
@@ -141,7 +141,7 @@ Substitutions
 -------------
 
 A substitution is something that cannot, or should not, be evaluated until it's time to execute the launch description that they are used in.
-There are many possible variations of a substitution, but here are some of the core ones implemented by `launch` (all of which inherit from :class:`launch.Substitution`):
+There are many possible variations of a substitution, but here are some of the core ones implemented by ``launch`` (all of which inherit from :class:`launch.Substitution`):
 
 - :class:`launch.substitutions.Text`
 
@@ -273,6 +273,9 @@ A typical embedding application would:
 - create a launch service
 - include the launch description in the launch service
 - run the launch service
+
+  - this also installs signal handlers for ``SIGINT`` and ``SIGTERM`` which shut down the launch service, see :doc:`signal_handling`
+
 - call shutdown when external circumstances require it
 
 An application may also host an external control interface in another thread.
@@ -282,7 +285,7 @@ A launch description can itself contain actions that register event handlers, em
 Extension Points
 ----------------
 
-In order to allow customization of how `launch` is used in specific domains, extension of the core categories of features is provided.
+In order to allow customization of how ``launch`` is used in specific domains, extension of the core categories of features is provided.
 External Python packages, through extension points, may add:
 
 - new actions

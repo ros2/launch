@@ -11,6 +11,7 @@ Welcome to launch's documentation!
    :caption: Contents:
 
    architecture
+   signal_handling
    modules
 
 
