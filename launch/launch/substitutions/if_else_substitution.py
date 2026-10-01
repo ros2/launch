@@ -108,7 +108,10 @@ class IfElseSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'IfElseSubstitution({self.condition}, {self.if_value}, {self.else_value})'
+        condition = ' + '.join(sub.describe() for sub in self.condition)
+        if_value = ' + '.join(sub.describe() for sub in self.if_value)
+        else_value = ' + '.join(sub.describe() for sub in self.else_value)
+        return f'IfElseSubstitution({condition}, {if_value}, {else_value})'
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by evaluating the condition."""
