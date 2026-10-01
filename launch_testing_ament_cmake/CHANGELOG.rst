@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ament_cmake
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Preserve CTest target identity in JUnit results (`#1002 <https://github.com/ros2/launch/issues/1002>`_)
+* Use the SPDX identifier Apache-2.0 in license declarations (`#1013 <https://github.com/ros2/launch/issues/1013>`_)
+* Contributors: Michael Carroll, 渠超胜
+
 3.10.1 (2026-09-02)
 -------------------
 

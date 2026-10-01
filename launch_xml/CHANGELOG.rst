@@ -2,6 +2,15 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Make level attribute required on log action and remove log_info.py (`#1024 <https://github.com/ros2/launch/issues/1024>`_)
+* Reject invalid executable boolean attributes (`#1004 <https://github.com/ros2/launch/issues/1004>`_)
+* Use the SPDX identifier Apache-2.0 in license declarations (`#1013 <https://github.com/ros2/launch/issues/1013>`_)
+* Reject invalid GroupAction boolean attributes (`#1003 <https://github.com/ros2/launch/issues/1003>`_)
+* Sandbox environment variables in launch_xml/launch_yaml tests (`#1001 <https://github.com/ros2/launch/issues/1001>`_)
+* Contributors: Michael Carroll, Peace. A, 渠超胜
+
 3.10.1 (2026-09-02)
 -------------------
 * Add string strip substitution (`#997 <https://github.com/ros2/launch/issues/997>`_)

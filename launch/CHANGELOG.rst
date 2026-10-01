@@ -2,6 +2,19 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add documentation for signal handling in launch (`#1025 <https://github.com/ros2/launch/issues/1025>`_)
+* Fix `#666 <https://github.com/ros2/launch/issues/666>`_ handle SIGTERM (`#712 <https://github.com/ros2/launch/issues/712>`_)
+* Describe nested substitutions in conditional expressions (`#1012 <https://github.com/ros2/launch/issues/1012>`_)
+* Add OpaqueFunction to the Basic Actions documentation (`#826 <https://github.com/ros2/launch/issues/826>`_) (`#1017 <https://github.com/ros2/launch/issues/1017>`_)
+* Make level attribute required on log action and remove log_info.py (`#1024 <https://github.com/ros2/launch/issues/1024>`_)
+* Document how the event system works more explicitly (`#1016 <https://github.com/ros2/launch/issues/1016>`_)
+* Reject invalid executable boolean attributes (`#1004 <https://github.com/ros2/launch/issues/1004>`_)
+* Use the SPDX identifier Apache-2.0 in license declarations (`#1013 <https://github.com/ros2/launch/issues/1013>`_)
+* Reject invalid GroupAction boolean attributes (`#1003 <https://github.com/ros2/launch/issues/1003>`_)
+* Contributors: Alistair English, Cian Donovan, Michael Carroll, Peace. A, Sunghyun Kwon, William Woodall, Xxy-0905, 渠超胜
+
 3.10.1 (2026-09-02)
 -------------------
 * Apply launch prefix without overwriting the logger name (`#976 <https://github.com/ros2/launch/issues/976>`_)

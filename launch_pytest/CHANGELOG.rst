@@ -2,6 +2,12 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove unused launch_pytest talker args (`#1021 <https://github.com/ros2/launch/issues/1021>`_)
+* Use the SPDX identifier Apache-2.0 in license declarations (`#1013 <https://github.com/ros2/launch/issues/1013>`_)
+* Contributors: Michael Carroll, manbujingxindele
+
 3.10.1 (2026-09-02)
 -------------------
 
