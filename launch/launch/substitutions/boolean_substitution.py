@@ -65,7 +65,7 @@ class NotSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'NotSubstitution({self.value})'
+        return 'NotSubstitution({})'.format(' + '.join(sub.describe() for sub in self.value))
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
@@ -118,7 +118,9 @@ class LeftRightLogicalSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'{self.__class__.__name__}({self.left} {self.right})'
+        left = ' + '.join(sub.describe() for sub in self.left)
+        right = ' + '.join(sub.describe() for sub in self.right)
+        return f'{self.__class__.__name__}({left}, {right})'
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
@@ -193,7 +195,8 @@ class ContainerSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'{self.__class__.__name__}({" ".join(str(arg) for arg in self.args)})'
+        args = [' + '.join(sub.describe() for sub in arg) for arg in self.args]
+        return f'{self.__class__.__name__}({", ".join(args)})'
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
