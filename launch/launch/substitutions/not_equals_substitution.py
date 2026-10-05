@@ -41,10 +41,6 @@ class NotEqualsSubstitution(EqualsSubstitution):
         """Create a NotEqualsSubstitution substitution."""
         super().__init__(left, right)
 
-    def describe(self) -> Text:
-        """Return a description of this substitution as a string."""
-        return f'NotEqualsSubstitution({self.left} {self.right})'
-
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         return str(not (super().perform(context) == 'true')).lower()

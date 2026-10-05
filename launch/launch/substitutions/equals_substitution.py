@@ -118,7 +118,9 @@ class EqualsSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'EqualsSubstitution({self.left} {self.right})'
+        left = ' + '.join(sub.describe() for sub in self.left)
+        right = ' + '.join(sub.describe() for sub in self.right)
+        return f'{self.__class__.__name__}({left}, {right})'
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
