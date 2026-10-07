@@ -37,6 +37,20 @@ def mock_clean_env(monkeypatch):
     monkeypatch.delenv('OVERRIDE_LAUNCH_LOG_FORMAT', raising=False)
 
 
+def test_renew_latest_log_dir_uses_relative_target(tmp_path):
+    log_dir = tmp_path / 'run'
+    latest_dir = tmp_path / 'latest'
+
+    with mock.patch('launch.logging.os.symlink') as symlink_mock:
+        assert launch.logging._renew_latest_log_dir(log_dir=str(log_dir))
+
+    target = symlink_mock.call_args.args[0]
+    assert not os.path.isabs(target)
+    assert os.path.normpath(os.path.join(tmp_path, target)) == str(log_dir)
+    symlink_mock.assert_called_once_with(
+        log_dir.name, str(latest_dir), target_is_directory=True)
+
+
 def test_bad_logging_launch_config(mock_clean_env):
     """Tests that setup throws at bad configuration."""
     launch.logging.reset()
