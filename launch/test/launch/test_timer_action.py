@@ -34,6 +34,15 @@ from launch.substitutions import NotSubstitution
 from launch.substitutions import PythonExpression
 
 
+def test_timer_action_materializes_action_iterables():
+    action = LogInfo(msg='timer action')
+    timer = TimerAction(period=1.0, actions=iter([action]))
+
+    described_actions = timer.describe_conditional_sub_entities()[0][1]
+    assert list(described_actions) == [action]
+    assert list(timer.actions) == [action]
+
+
 def test_timer_action_can_capture_the_environment():
     """Test that timer actions capture the environment variables present when executed."""
     # Regression test for https://github.com/ros2/launch_ros/issues/376
