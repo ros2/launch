@@ -25,9 +25,7 @@ def test_declare_launch_argument_constructors():
     DeclareBooleanLaunchArgument('name')
 
     # All possible default values
-    for default_value in [
-        'True', 'true', 'TRUE', 'False', 'false', 'FALSE', True, False
-    ]:
+    for default_value in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE', True, False]:
         DeclareBooleanLaunchArgument('name', default_value=default_value)
 
     # With description
@@ -40,10 +38,8 @@ def test_declare_launch_argument_constructors():
 
     # With invalid choices override
     with pytest.raises(TypeError) as excinfo:
-        DeclareBooleanLaunchArgument(
-            'name', choices=['verdad', 'no verdad'])
-    expected_message = "multiple values for keyword argument 'choices'"
-    assert expected_message in str(excinfo.value)
+        DeclareBooleanLaunchArgument('name', choices=['verdad', 'no verdad'])
+    assert "multiple values for keyword argument 'choices'" in str(excinfo.value)
 
 
 def test_declare_boolean_launch_argument_execute():
