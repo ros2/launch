@@ -41,7 +41,7 @@ class DeclareBooleanLaunchArgument(DeclareLaunchArgument):
     .. doctest::
 
         >>> ld = LaunchDescription([
-        ...     DeclareBooleanLaunchArgument('simple_argument'),  # no default value, required
+        ...     DeclareBooleanLaunchArgument('simple_argument'),  # required, no default value
         ...     DeclareBooleanLaunchArgument('with_default_value', default_value=True),
         ...     # other actions here, ...
         ... ])
