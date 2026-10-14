@@ -41,7 +41,8 @@ class DeclareBooleanLaunchArgument(DeclareLaunchArgument):
     .. doctest::
 
         >>> ld = LaunchDescription([
-        ...     DeclareBooleanLaunchArgument('simple_argument'),  # default value is False
+        ...     DeclareBooleanLaunchArgument('simple_argument'),  # no default value required,
+        ...                                                       # default is False
         ...     DeclareBooleanLaunchArgument('with_default_value', default_value=True),
         ...     # other actions here, ...
         ... ])
@@ -50,7 +51,7 @@ class DeclareBooleanLaunchArgument(DeclareLaunchArgument):
 
         <launch>
             <bool_arg name="simple_argument"/>
-            <bool_arg name="with_default_value" default_value="true"/>
+            <bool_arg name="with_default_value" default="true"/>
         </launch>
     """
 
