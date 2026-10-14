@@ -40,6 +40,37 @@ def test_valid_argument_types():
     ensure_argument_type(mock_child_obj, MockClass, 'MockChildClass')
 
 
+def test_valid_iterables_of_types():
+    """Test the ensure_argument_type function with valid iterables of types."""
+    ensure_argument_type('foo', (str, int), 'arg_foo')
+    ensure_argument_type(1, [str, int], 'arg_bar')
+    ensure_argument_type('foo', (t for t in (str, int)), 'arg_baz')
+
+
+def test_invalid_element_in_types():
+    """Test the ensure_argument_type function with non-type elements in the types iterable."""
+    # Invalid element before a valid type.
+    with pytest.raises(TypeError) as ex:
+        ensure_argument_type('foo', [123, str], 'arg_foo')
+    assert "'types'" in str(ex.value)
+    assert 'type, collections.abc.Iterable of type' in str(ex.value)
+    # Invalid element after a type that matches the argument.
+    with pytest.raises(TypeError) as ex:
+        ensure_argument_type('foo', [str, 123], 'arg_foo')
+    assert "'types'" in str(ex.value)
+    assert 'type, collections.abc.Iterable of type' in str(ex.value)
+    # A string is an iterable, but not of types.
+    with pytest.raises(TypeError) as ex:
+        ensure_argument_type('foo', 'str', 'arg_foo')
+    assert "'types'" in str(ex.value)
+    assert 'type, collections.abc.Iterable of type' in str(ex.value)
+    # The error message should identify the 'types' parameter and the expectation.
+    with pytest.raises(TypeError) as ex:
+        ensure_argument_type('foo', (t for t in (str, None)), 'arg_foo')
+    assert "'ensure_argument_type()' expected 'types'" in str(ex.value)
+    assert 'type, collections.abc.Iterable of type' in str(ex.value)
+
+
 def test_invalid_argument_types():
     """Test the ensure_argument_type function with invalid input."""
     with pytest.raises(TypeError):
