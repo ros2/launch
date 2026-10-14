@@ -15,11 +15,18 @@
 """Module for the PopLaunchConfigurations action."""
 
 from typing import Any
+from typing import Dict
+from typing import Tuple
+from typing import Type
 
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 
 
+@expose_action('pop_vars')
 class PopLaunchConfigurations(Action):
     """
     Action that pops the state of launch configurations from a stack.
@@ -31,6 +38,13 @@ class PopLaunchConfigurations(Action):
     def __init__(self, **kwargs: Any) -> None:
         """Create a PopLaunchConfigurations action."""
         super().__init__(**kwargs)
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['PopLaunchConfigurations'], Dict[str, Any]]:
+        """Return ``PopLaunchConfigurations`` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+        return cls, kwargs
 
     def execute(self, context: LaunchContext) -> None:
         """Execute the action."""

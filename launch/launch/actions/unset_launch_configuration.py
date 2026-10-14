@@ -15,9 +15,15 @@
 """Module for the UnsetLaunchConfiguration action."""
 
 from typing import Any
+from typing import Dict
 from typing import List
+from typing import Tuple
+from typing import Type
 
 from ..action import Action
+from ..frontend import Entity
+from ..frontend import expose_action
+from ..frontend import Parser
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
@@ -25,11 +31,12 @@ from ..utilities import normalize_to_list_of_substitutions
 from ..utilities import perform_substitutions
 
 
+@expose_action('unset')
 class UnsetLaunchConfiguration(Action):
     """
     Action that unsets a launch configuration by name.
 
-    If the given launch configuration name is no set already then nothing
+    If the given launch configuration name is not set already then nothing
     happens.
 
     /sa :py:class:`launch.actions.SetLaunchConfiguration`
@@ -43,6 +50,14 @@ class UnsetLaunchConfiguration(Action):
         """Create an UnsetLaunchConfiguration action."""
         super().__init__(**kwargs)
         self.__name = normalize_to_list_of_substitutions(name)
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser
+              ) -> Tuple[Type['UnsetLaunchConfiguration'], Dict[str, Any]]:
+        """Return ``UnsetLaunchConfiguration`` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
+        return cls, kwargs
 
     @property
     def name(self) -> List[Substitution]:
