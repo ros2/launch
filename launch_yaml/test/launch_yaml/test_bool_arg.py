@@ -23,10 +23,12 @@ from parser_no_extensions import load_no_extensions
 
 
 def test_bool_arg():
-    """Parse a bool_arg action with a default and description."""
+    """Parse required and defaulted bool_arg actions."""
     yaml_file = textwrap.dedent(
         """\
         launch:
+            - bool_arg:
+                name: 'required_arg'
             - bool_arg:
                 name: 'my_arg'
                 default: 'true'
@@ -35,8 +37,11 @@ def test_bool_arg():
     )
     root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     launch_description = parser.parse_description(root_entity)
-    argument = launch_description.entities[0]
+    required_argument, argument = launch_description.entities
 
+    assert isinstance(required_argument, DeclareBooleanLaunchArgument)
+    assert required_argument.name == 'required_arg'
+    assert required_argument.default_value is None
     assert isinstance(argument, DeclareBooleanLaunchArgument)
     assert argument.name == 'my_arg'
     assert ''.join(
