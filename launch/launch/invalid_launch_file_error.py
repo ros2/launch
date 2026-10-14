@@ -21,10 +21,17 @@ from typing import Optional
 class InvalidLaunchFileError(Exception):
     """Exception raised when the given launch file is not valid."""
 
-    def __init__(self, extension: str = '', *, likely_errors: Optional[List[Exception]] = None):
+    def __init__(
+        self,
+        extension: str = '',
+        *,
+        likely_errors: Optional[List[Exception]] = None,
+        launch_file_path: Optional[str] = None,
+    ):
         """Create an InvalidLaunchFileError."""
         self._extension = extension
         self._likely_errors = likely_errors
+        self._launch_file_path = launch_file_path
         if self._extension == '' or not self._likely_errors:
             self._error_message = (
                 'The launch file may have a syntax error, or its format is unknown'
@@ -38,6 +45,10 @@ class InvalidLaunchFileError(Exception):
                 self._error_message += '\n - {}: {}'.format(type(error).__name__, error)
 
             self.__cause__ = self._likely_errors[0]
+
+        if self._launch_file_path is not None:
+            self._error_message = "Error loading '{}':\n{}".format(
+                self._launch_file_path, self._error_message)
 
     def __str__(self) -> str:
         """Pretty print."""

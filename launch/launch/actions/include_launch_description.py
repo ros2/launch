@@ -239,8 +239,13 @@ class IncludeLaunchDescription(Action):
             if argument.name not in argument_names:
                 raise RuntimeError(
                     "Included launch description missing required argument '{}' "
-                    "(description: '{}'), given: [{}]"
-                    .format(argument.name, argument.description, ', '.join(argument_names))
+                    "(description: '{}'), given: [{}] (launch file: '{}')"
+                    .format(
+                        argument.name,
+                        argument.description,
+                        ', '.join(argument_names),
+                        self.__launch_description_source.location,
+                    )
                 )
 
         # Create actions to set the launch arguments into the launch configurations.
