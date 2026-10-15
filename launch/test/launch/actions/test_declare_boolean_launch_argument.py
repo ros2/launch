@@ -52,8 +52,7 @@ def test_declare_boolean_launch_argument_execute():
     required_context.launch_configurations['required'] = 'true'
     assert required_action.visit(required_context) is None
 
-    default_action = DeclareBooleanLaunchArgument(
-        'with_default', default_value=False)
+    default_action = DeclareBooleanLaunchArgument('with_default', default_value=False)
     default_context = LaunchContext()
     assert default_action.visit(default_context) is None
     assert default_context.launch_configurations['with_default'] == 'False'

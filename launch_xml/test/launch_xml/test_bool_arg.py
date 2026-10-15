@@ -21,6 +21,8 @@ from launch.actions import DeclareBooleanLaunchArgument
 
 from parser_no_extensions import load_no_extensions
 
+import pytest
+
 
 def test_bool_arg():
     """Parse required and defaulted bool_arg actions."""
@@ -44,5 +46,23 @@ def test_bool_arg():
     assert ''.join(
         substitution.perform(None) for substitution in argument.default_value
     ) == 'true'
-    assert argument.description == "something. Valid choices are: " \
-        "['true', 'false', 'True', 'False', 'TRUE', 'FALSE']"
+    expected_choices = ['true', 'false', 'True', 'False', 'TRUE', 'FALSE']
+    assert expected_choices == argument.choices
+    assert argument.description == f'something. Valid choices are: {expected_choices}'
+
+
+def test_bool_arg_choices_rejected():
+    """Reject choices that override the boolean choices."""
+    xml_file = textwrap.dedent(
+        """\
+        <launch>
+            <bool_arg name="bool_arg_with_choices">
+                <choice value="abc"/>
+                <choice value="def"/>
+            </bool_arg>
+        </launch>
+        """
+    )
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    with pytest.raises(ValueError, match='Cannot specify choices for bool_arg'):
+        parser.parse_description(root_entity)
