@@ -28,9 +28,11 @@ from .find_executable import FindExecutable
 from .for_loop_var import ForEachVar
 from .for_loop_var import ForLoopIndex
 from .if_else_substitution import IfElseSubstitution
+from .is_empty_substitution import IsEmptySubstitution
 from .launch_configuration import LaunchConfiguration
 from .launch_log_dir import LaunchLogDir
 from .local_substitution import LocalSubstitution
+from .not_empty_substitution import NotEmptySubstitution
 from .not_equals_substitution import NotEqualsSubstitution
 from .path_join_substitution import PathJoinSubstitution
 from .path_join_substitution import PathSubstitution
@@ -55,9 +57,11 @@ __all__ = [
     'ForEachVar',
     'ForLoopIndex',
     'IfElseSubstitution',
+    'IsEmptySubstitution',
     'LaunchConfiguration',
     'LaunchLogDir',
     'LocalSubstitution',
+    'NotEmptySubstitution',
     'NotSubstitution',
     'NotEqualsSubstitution',
     'OrSubstitution',
