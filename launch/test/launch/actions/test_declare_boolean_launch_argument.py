@@ -14,7 +14,7 @@
 
 """Tests for the DeclareBooleanLaunchArgument action class."""
 
-# from launch import LaunchContext
+from launch import LaunchContext
 from launch.actions import DeclareBooleanLaunchArgument
 
 import pytest
@@ -40,3 +40,25 @@ def test_declare_launch_argument_constructors():
     with pytest.raises(TypeError) as excinfo:
         DeclareBooleanLaunchArgument('name', choices=['verdad', 'no verdad'])
     assert "multiple values for keyword argument 'choices'" in str(excinfo.value)
+
+
+def test_declare_boolean_launch_argument_execute():
+    """Test executing DeclareBooleanLaunchArgument actions."""
+    required_action = DeclareBooleanLaunchArgument('required')
+    required_context = LaunchContext()
+    with pytest.raises(RuntimeError, match='Required launch argument'):
+        required_action.visit(required_context)
+
+    required_context.launch_configurations['required'] = 'true'
+    assert required_action.visit(required_context) is None
+
+    default_action = DeclareBooleanLaunchArgument('with_default', default_value=False)
+    default_context = LaunchContext()
+    assert default_action.visit(default_context) is None
+    assert default_context.launch_configurations['with_default'] == 'False'
+
+    invalid_action = DeclareBooleanLaunchArgument('invalid')
+    invalid_context = LaunchContext()
+    invalid_context.launch_configurations['invalid'] = 'not-a-boolean'
+    with pytest.raises(RuntimeError, match='Valid options are'):
+        invalid_action.visit(invalid_context)
