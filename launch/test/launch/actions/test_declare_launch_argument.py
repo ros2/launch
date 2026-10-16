@@ -37,6 +37,8 @@ def test_declare_launch_argument_methods():
     assert dla1.description == 'description'
     assert dla1.choices is None
     assert 'DeclareLaunchArgument' in dla1.describe()
+    assert "name='name'" in dla1.describe()
+    assert 'default value' in dla1.describe()
     assert isinstance(dla1.describe_sub_entities(), list)
     assert isinstance(dla1.describe_conditional_sub_entities(), list)
 

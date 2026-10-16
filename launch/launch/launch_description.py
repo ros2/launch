@@ -61,6 +61,12 @@ class LaunchDescription(LaunchDescriptionEntity):
         self.__entities = list(initial_entities) if initial_entities is not None else []
         self.__deprecated_reason = deprecated_reason
 
+    def __repr__(self) -> Text:
+        """Return a description of this LaunchDescription as a string."""
+        n = len(self.__entities)
+        noun = 'entity' if n == 1 else 'entities'
+        return f'LaunchDescription({n} {noun})'
+
     def visit(self, context: LaunchContext) -> List[LaunchDescriptionEntity]:
         """Override visit from LaunchDescriptionEntity to visit contained entities."""
         if self.__deprecated_reason is not None:
