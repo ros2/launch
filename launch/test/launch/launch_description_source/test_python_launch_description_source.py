@@ -29,7 +29,8 @@ def test_python_launch_description_source():
     simple_launch_file_path = this_dir / 'simple.launch.py'
     plds = PythonLaunchDescriptionSource(simple_launch_file_path)
     assert 'python launch file' in plds.method
-    assert 'launch.substitutions.text_substitution.TextSubstitution' in plds.location
+    # The location is expanded even before get_launch_description() is called.
+    assert plds.location == str(simple_launch_file_path)
     ld = plds.get_launch_description(LaunchContext())
     assert plds.location == str(simple_launch_file_path)
     assert 0 == len(ld.entities)
