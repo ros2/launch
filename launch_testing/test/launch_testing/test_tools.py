@@ -54,6 +54,37 @@ def test_basic_output_filter():
     """.replace(' ' * 4, '')
     assert filter_fn(input_content) == output_content
 
+
+def test_basic_output_filter_multiline_prefix():
+    # A prefix that spans several lines matches as many consecutive output
+    # lines, each starting with the corresponding prefix line. An empty prefix
+    # line only matches an empty output line.
+    filter_fn = basic_output_filter(
+        filtered_prefixes=['[banner]\ngoodbye\n']
+    )
+
+    banner = """\
+        [banner] hello
+        goodbye and thanks
+
+    """.replace(' ' * 4, '')
+
+    assert filter_fn(banner) == ''
+    assert filter_fn(banner + 'foo\n') == 'foo\n'
+    assert filter_fn('foo\n' + banner + 'bar\n') == 'foo\nbar\n'
+    assert filter_fn('foo\n' + banner + 'bar\n' + banner) == 'foo\nbar\n'
+
+    # Partial matches are left alone, blank lines included.
+    assert filter_fn('[banner] hello\n\n') == '[banner] hello\n\n'
+    assert filter_fn('[banner] hello\ngoodbye\nfoo\n') == '[banner] hello\ngoodbye\nfoo\n'
+    assert filter_fn('bar\n\nbaz\n') == 'bar\n\nbaz\n'
+
+    # Single line prefixes still match line by line.
+    filter_fn = basic_output_filter(
+        filtered_prefixes=['[banner]', 'goodbye']
+    )
+    assert filter_fn(banner) == '\n'
+
     input_content = """\
         [talker] I said: foo
         [talker] I said: bar
