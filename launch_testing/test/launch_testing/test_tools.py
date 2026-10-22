@@ -14,6 +14,7 @@
 
 import os
 import re
+import textwrap
 
 import launch.actions
 import launch.events
@@ -36,22 +37,22 @@ def test_basic_output_filter():
 
     assert filter_fn('[talker] I said: foo') == '[talker] I said: foo'
 
-    input_content = """\
+    input_content = textwrap.dedent("""\
         [listener] I heard: foo
         [listener] I heard: bar
         [listener] I heard: foobar
-    """.replace(' ' * 4, '')
+    """)
     output_content = ''
     assert filter_fn(input_content) == output_content
 
-    input_content = """\
+    input_content = textwrap.dedent("""\
         [talker] I said: foo
         [listener] I heard: bar
         [listener] I heard: foobar
-    """.replace(' ' * 4, '')
-    output_content = """\
+    """)
+    output_content = textwrap.dedent("""\
         [talker] I said: foo
-    """.replace(' ' * 4, '')
+    """)
     assert filter_fn(input_content) == output_content
 
 
@@ -63,11 +64,11 @@ def test_basic_output_filter_multiline_prefix():
         filtered_prefixes=['[banner]\ngoodbye\n']
     )
 
-    banner = """\
+    banner = textwrap.dedent("""\
         [banner] hello
         goodbye and thanks
 
-    """.replace(' ' * 4, '')
+    """)
 
     assert filter_fn(banner) == ''
     assert filter_fn(banner + 'foo\n') == 'foo\n'
@@ -85,21 +86,21 @@ def test_basic_output_filter_multiline_prefix():
     )
     assert filter_fn(banner) == '\n'
 
-    input_content = """\
+    input_content = textwrap.dedent("""\
         [talker] I said: foo
         [talker] I said: bar
         [talker] I said: foobar
-    """.replace(' ' * 4, '')
+    """)
     output_content = input_content
     assert filter_fn(input_content) == output_content
 
 
 def test_expect_output():
-    output_text = """\
+    output_text = textwrap.dedent("""\
         [talker] I said: foo
         [listener] I heard: bar
         [talker] I said: foo!
-        [listener] I heard: baz""".replace(' ' * 4, '')
+        [listener] I heard: baz""")
     output_lines = output_text.splitlines()
 
     assert expect_output(expected_text=output_text, text=output_text)
