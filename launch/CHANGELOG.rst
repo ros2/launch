@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.16 (2026-10-23)
+-------------------
+* Make documentation for XML <arg> default match behavior (`#1032 <https://github.com/ros2/launch/issues/1032>`_) (`#1036 <https://github.com/ros2/launch/issues/1036>`_)
+* Add OpaqueFunction to the Basic Actions documentation (`#826 <https://github.com/ros2/launch/issues/826>`_) (`#1017 <https://github.com/ros2/launch/issues/1017>`_) (`#1029 <https://github.com/ros2/launch/issues/1029>`_)
+* Contributors: mergify[bot]
+
 1.0.15 (2026-09-06)
 -------------------
 * Correct typos (backport `#961 <https://github.com/ros2/launch/issues/961>`_) (`#964 <https://github.com/ros2/launch/issues/964>`_)

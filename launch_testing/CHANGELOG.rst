@@ -2,6 +2,9 @@
 Changelog for package launch_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.16 (2026-10-23)
+-------------------
+
 1.0.15 (2026-09-06)
 -------------------
 * Correct typos (backport `#961 <https://github.com/ros2/launch/issues/961>`_) (`#964 <https://github.com/ros2/launch/issues/964>`_)
