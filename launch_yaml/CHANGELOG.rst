@@ -2,6 +2,11 @@
 Changelog for package launch_yaml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.3 (2026-10-23)
+-------------------
+* Add boolean launch argument frontend tests (`#1043 <https://github.com/ros2/launch/issues/1043>`_)
+* Contributors: Om Vaghasiya
+
 3.10.2 (2026-10-01)
 -------------------
 * Make level attribute required on log action and remove log_info.py (`#1024 <https://github.com/ros2/launch/issues/1024>`_)

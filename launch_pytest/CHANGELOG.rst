@@ -2,6 +2,9 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.3 (2026-10-23)
+-------------------
+
 3.10.2 (2026-10-01)
 -------------------
 * Remove unused launch_pytest talker args (`#1021 <https://github.com/ros2/launch/issues/1021>`_)

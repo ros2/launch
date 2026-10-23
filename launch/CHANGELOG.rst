@@ -2,6 +2,15 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.10.3 (2026-10-23)
+-------------------
+* Add boolean launch argument frontend tests (`#1043 <https://github.com/ros2/launch/issues/1043>`_)
+* Correct the docstring of DeclareBooleanLaunchArgument (`#1044 <https://github.com/ros2/launch/issues/1044>`_)
+* Fix XML examples in DeclareLaunchArgument and DeclareBooleanLaunchArgument docs (`#1037 <https://github.com/ros2/launch/issues/1037>`_)
+* Make documentation for XML <arg> default match behavior (`#1032 <https://github.com/ros2/launch/issues/1032>`_)
+* Fix launch logging of lazy format arguments (`#1019 <https://github.com/ros2/launch/issues/1019>`_)
+* Contributors: Alejandro Hernández Cordero, Jasper van Brakel, Matthew Elwin, Om Vaghasiya, manbujingxindele
+
 3.10.2 (2026-10-01)
 -------------------
 * Add documentation for signal handling in launch (`#1025 <https://github.com/ros2/launch/issues/1025>`_)
