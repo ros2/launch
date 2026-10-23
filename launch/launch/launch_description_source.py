@@ -97,13 +97,26 @@ class LaunchDescriptionSource:
         """
         Get the location of the launch description source as a string.
 
-        The string is either a list of Substitution instances converted to
-        strings or the expanded path if :py:meth:`get_launch_description` has
-        been called.
+        If :py:meth:`get_launch_description` has been called, this is the
+        location expanded with that call's context. Otherwise, the
+        substitutions that make up the location are performed with an empty
+        context, so a location that does not depend on a context (e.g. a
+        plain file path, or a path built from substitutions like
+        ``PathJoinSubstitution``) is returned in its expanded form. If the
+        substitutions cannot be performed without a context, a description
+        of them is returned instead.
         """
         if self.__expanded_location is None:
-            # get_launch_description() has not been called yet
-            return ' + '.join([str(sub) for sub in self.__location])
+            # get_launch_description() has not been called yet; try to expand
+            # the location without a context, like
+            # try_get_launch_description_without_context() does, so callers
+            # get the plain location rather than a description of the
+            # substitutions. The result is not cached: the substitutions may
+            # expand differently once a real context is available.
+            try:
+                return perform_substitutions(LaunchContext(), self.__location)
+            except Exception:
+                return ' + '.join([sub.describe() for sub in self.__location])
         return self.__expanded_location
 
     @property
