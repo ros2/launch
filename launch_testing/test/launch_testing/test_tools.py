@@ -14,6 +14,7 @@
 
 import os
 import re
+import textwrap
 
 import launch.actions
 import launch.events
@@ -36,39 +37,70 @@ def test_basic_output_filter():
 
     assert filter_fn('[talker] I said: foo') == '[talker] I said: foo'
 
-    input_content = """\
+    input_content = textwrap.dedent("""\
         [listener] I heard: foo
         [listener] I heard: bar
         [listener] I heard: foobar
-    """.replace(' ' * 4, '')
+    """)
     output_content = ''
     assert filter_fn(input_content) == output_content
 
-    input_content = """\
+    input_content = textwrap.dedent("""\
         [talker] I said: foo
         [listener] I heard: bar
         [listener] I heard: foobar
-    """.replace(' ' * 4, '')
-    output_content = """\
+    """)
+    output_content = textwrap.dedent("""\
         [talker] I said: foo
-    """.replace(' ' * 4, '')
+    """)
     assert filter_fn(input_content) == output_content
 
-    input_content = """\
+
+def test_basic_output_filter_multiline_prefix():
+    # A prefix that spans several lines matches as many consecutive output
+    # lines, each starting with the corresponding prefix line. An empty prefix
+    # line only matches an empty output line.
+    filter_fn = basic_output_filter(
+        filtered_prefixes=['[banner]\ngoodbye\n']
+    )
+
+    banner = textwrap.dedent("""\
+        [banner] hello
+        goodbye and thanks
+
+    """)
+
+    assert filter_fn(banner) == ''
+    assert filter_fn(banner + 'foo\n') == 'foo\n'
+    assert filter_fn('foo\n' + banner + 'bar\n') == 'foo\nbar\n'
+    assert filter_fn('foo\n' + banner + 'bar\n' + banner) == 'foo\nbar\n'
+
+    # Partial matches are left alone, blank lines included.
+    assert filter_fn('[banner] hello\n\n') == '[banner] hello\n\n'
+    assert filter_fn('[banner] hello\ngoodbye\nfoo\n') == '[banner] hello\ngoodbye\nfoo\n'
+    assert filter_fn('bar\n\nbaz\n') == 'bar\n\nbaz\n'
+
+    # Single line prefixes still match line by line.
+    filter_fn = basic_output_filter(
+        filtered_prefixes=['[banner]', 'goodbye']
+    )
+    assert filter_fn(banner) == '\n'
+
+    input_content = textwrap.dedent("""\
         [talker] I said: foo
         [talker] I said: bar
         [talker] I said: foobar
-    """.replace(' ' * 4, '')
+    """)
     output_content = input_content
     assert filter_fn(input_content) == output_content
 
 
 def test_expect_output():
-    output_text = """\
+    output_text = textwrap.dedent("""\
         [talker] I said: foo
         [listener] I heard: bar
         [talker] I said: foo!
-        [listener] I heard: baz""".replace(' ' * 4, '')
+        [listener] I heard: baz""")
     output_lines = output_text.splitlines()
 
     assert expect_output(expected_text=output_text, text=output_text)
