@@ -2,6 +2,12 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.13 (2026-10-23)
+-------------------
+* Make documentation for XML <arg> default match behavior (`#1032 <https://github.com/ros2/launch/issues/1032>`_) (`#1035 <https://github.com/ros2/launch/issues/1035>`_)
+* Add OpaqueFunction to the Basic Actions documentation (`#826 <https://github.com/ros2/launch/issues/826>`_) (`#1017 <https://github.com/ros2/launch/issues/1017>`_) (`#1028 <https://github.com/ros2/launch/issues/1028>`_)
+* Contributors: mergify[bot]
+
 3.4.12 (2026-09-18)
 -------------------
 * Robust pytest_ignore_collect for multi-version Pytest compatibility (`#974 <https://github.com/ros2/launch/issues/974>`_) (`#1006 <https://github.com/ros2/launch/issues/1006>`_)

@@ -2,6 +2,9 @@
 Changelog for package launch_pytest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.4.13 (2026-10-23)
+-------------------
+
 3.4.12 (2026-09-18)
 -------------------
 * Fix Pytest 8/9 compatibility and coroutine leaks in launch_pytest (`#972 <https://github.com/ros2/launch/issues/972>`_) (`#1008 <https://github.com/ros2/launch/issues/1008>`_)
