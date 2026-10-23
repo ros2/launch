@@ -2,6 +2,11 @@
 Changelog for package launch_xml
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.9 (2026-10-23)
+------------------
+* Add boolean launch argument frontend tests (`#1043 <https://github.com/ros2/launch/issues/1043>`_) (`#1046 <https://github.com/ros2/launch/issues/1046>`_)
+* Contributors: mergify[bot]
+
 3.9.8 (2026-07-14)
 ------------------
 

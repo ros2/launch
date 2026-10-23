@@ -2,6 +2,16 @@
 Changelog for package launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.9.9 (2026-10-23)
+------------------
+* Add boolean launch argument frontend tests (`#1043 <https://github.com/ros2/launch/issues/1043>`_) (`#1046 <https://github.com/ros2/launch/issues/1046>`_)
+* Correct the docstring of DeclareBooleanLaunchArgument (`#1044 <https://github.com/ros2/launch/issues/1044>`_) (`#1045 <https://github.com/ros2/launch/issues/1045>`_)
+* Fix XML examples in DeclareLaunchArgument and DeclareBooleanLaunchArgument docs (`#1037 <https://github.com/ros2/launch/issues/1037>`_) (`#1039 <https://github.com/ros2/launch/issues/1039>`_)
+* Make documentation for XML <arg> default match behavior (`#1032 <https://github.com/ros2/launch/issues/1032>`_) (`#1033 <https://github.com/ros2/launch/issues/1033>`_)
+* Describe nested substitutions in conditional expressions (`#1012 <https://github.com/ros2/launch/issues/1012>`_) (`#1030 <https://github.com/ros2/launch/issues/1030>`_)
+* Add OpaqueFunction to the Basic Actions documentation (`#826 <https://github.com/ros2/launch/issues/826>`_) (`#1017 <https://github.com/ros2/launch/issues/1017>`_) (`#1026 <https://github.com/ros2/launch/issues/1026>`_)
+* Contributors: mergify[bot]
+
 3.9.8 (2026-07-14)
 ------------------
 * Fix Pytest 8/9 compatibility in hooks (backport `#972 <https://github.com/ros2/launch//issues/972>`_) (`#973 <https://github.com/ros2/launch//issues/973>`_)
