@@ -86,12 +86,8 @@ class LaunchService:
         # it being set to None by run() as it exits.
         self.__loop_from_run_thread_lock = threading.RLock()
         self.__loop_from_run_thread = None
-<<<<<<< HEAD
         self.__this_task = None
-=======
-        self.__this_task: Optional[asyncio.Task[None]] = None
-        self.__process_one_event_task: Optional[asyncio.Task[None]] = None
->>>>>>> 02e510c (Fix LaunchService._is_idle() to consider active background tasks (#996))
+        self.__process_one_event_task = None
 
         # Used to indicate when shutdown() has been called.
         self.__shutting_down = False
