@@ -245,7 +245,6 @@ class LaunchService:
             with self.__loop_from_run_thread_lock:
                 self.__context._set_asyncio_loop(None)
                 self.__loop_from_run_thread = None
-                self.__this_task = None
                 self.__process_one_event_task = None
                 self.__shutting_down = False
 
