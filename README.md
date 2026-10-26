@@ -3,6 +3,6 @@
 
  * [License](LICENSE)
  * [Contribution Guide](CONTRIBUTING.md)
- * [Conceptual Documentation](https://docs.ros.org/en/rolling/Developer-Tools/About-Launch.html)
- * [Tutorials](https://docs.ros.org/en/rolling/Developer-Tools/Launch/Launch-Main.html)
- * [Package Documentation](https://docs.ros.org/en/rolling/p/launch/)
+ * [Conceptual Documentation](https://docs.ros.org/en/lyrical/Developer-Tools/About-Launch.html)
+ * [Tutorials](https://docs.ros.org/en/lyrical/Developer-Tools/Launch/Launch-Main.html)
+ * [Package Documentation](https://docs.ros.org/en/lyrical/p/launch/)
