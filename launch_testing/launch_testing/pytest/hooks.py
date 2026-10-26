@@ -200,15 +200,23 @@ def find_launch_test_entrypoint(path):
         return None
 
 
-@pytest.hookimpl(tryfirst=True)
-def pytest_ignore_collect(collection_path=None, path=None, config=None):
-    # Pytest 8.x signature: (collection_path, path, config)
-    # Pytest < 8 signature: (path, config)
-    p = collection_path or path
-    if p is None:
-        return False
+if _pytest_version_ge(7):
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_ignore_collect(collection_path, config):
+        return _pytest_ignore_collect(collection_path)
+else:
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_ignore_collect(path, config):
+        return _pytest_ignore_collect(path)
 
-    path_obj = pathlib.Path(p)
+
+def _pytest_ignore_collect(path):
+    # Return None rather than False for other paths, so that pytest's own
+    # ignore handling (--ignore, collect_ignore, norecursedirs, ...) still runs.
+    if path is None:
+        return None
+
+    path_obj = pathlib.Path(path)
 
     # Ignore .launch.py files to avoid collection failures for launch_pytest tests
     if path_obj.name.endswith('.launch.py'):
@@ -218,7 +226,7 @@ def pytest_ignore_collect(collection_path=None, path=None, config=None):
     if path_obj.name == 'handlers.py' and path_obj.parent.name == 'logging':
         return True
 
-    return False
+    return None
 
 
 if _pytest_version_ge(8):
