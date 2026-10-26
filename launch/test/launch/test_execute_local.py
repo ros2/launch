@@ -178,3 +178,47 @@ def test_execute_process_with_output_dictionary():
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+
+
+def test_execute_process_with_shutdown_on_error():
+    """Test proper shutdown of children after exception during launch."""
+    exited_processes = 0
+
+    def on_exit(event, context):
+        nonlocal exited_processes
+        exited_processes += 1
+
+    executable_1 = ExecuteLocal(
+        process_description=Executable(
+            cmd=[sys.executable, '-c', 'while True: pass']
+        ),
+        output={'stdout': 'screen', 'stderr': 'screen'},
+        on_exit=on_exit,
+    )
+    executable_2 = ExecuteLocal(
+        process_description=Executable(
+            cmd=[sys.executable, '-c', 'while True: pass']
+        ),
+        output={'stdout': 'screen', 'stderr': 'screen'},
+        on_exit=on_exit,
+    )
+
+    # It's slightly tricky to coerce the standard implementation to fail in
+    # this way. However, launch_ros's Node class can fail similar to this and
+    # this case therefore needs to be handled correctly.
+    class ExecutableThatFails(ExecuteLocal):
+
+        def execute(self, context):
+            raise Exception('Execute Local failed')
+
+    executable_invalid = ExecutableThatFails(
+        process_description=Executable(
+            cmd=['fake_process_that_doesnt_exist']
+        ),
+        output={'stdout': 'screen', 'stderr': 'screen'},
+    )
+    ld = LaunchDescription([executable_1, executable_2, executable_invalid])
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert ls.run() == 1
+    assert exited_processes == 2
