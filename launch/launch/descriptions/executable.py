@@ -57,7 +57,9 @@ class Executable:
 
         :param cmd: A list where the first item is the executable and the rest are
             arguments to the executable, each item may be a string or a list of strings
-            and Substitutions to be resolved at runtime
+            and Substitutions to be resolved at runtime. Arguments that expand to an
+            empty string are dropped from the final command (the executable itself
+            is never dropped).
         :param prefix: a set of commands/arguments to precede the cmd, used for
             things like gdb/valgrind and defaults to the LaunchConfiguration
             called 'launch-prefix'. Note that a non-default prefix provided in
@@ -172,6 +174,12 @@ class Executable:
         """
         # expand substitutions in arguments to async_execute_process()
         cmd = [perform_substitutions(context, x) for x in self.__cmd]
+        # Drop arguments that expanded to an empty string (e.g. a
+        # LaunchConfiguration with an empty default value), so the process
+        # does not receive a spurious empty argv entry. The executable
+        # itself (cmd[0]) is kept even if empty, so name derivation and
+        # error reporting still see the original command.
+        cmd = cmd[:1] + [arg for arg in cmd[1:] if arg != '']
         # Perform filtering for prefix application
         should_apply_prefix = True  # by default
         if self.__prefix_filter is not None:  # no prefix given on construction
