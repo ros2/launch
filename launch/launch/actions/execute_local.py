@@ -14,6 +14,7 @@
 
 """Module for the ExecuteLocal action."""
 
+import sys
 import asyncio
 import io
 import logging
@@ -566,6 +567,10 @@ class ExecuteLocal(Action):
             )
 
         try:
+            # On Windows, Python scripts cannot be passed directly to CreateProcess().
+            # Invoke them through the Python interpreter, matching ros2run behavior.
+            if os.name == 'nt' and cmd and cmd[0].lower().endswith('.py'):
+                cmd.insert(0, sys.executable)
             transport, self._subprocess_protocol = await async_execute_process(
                 lambda **kwargs: self.__ProcessProtocol(
                     self, context, process_event_args, **kwargs
