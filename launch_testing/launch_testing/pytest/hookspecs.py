@@ -16,6 +16,6 @@ import pytest
 
 
 @pytest.hookspec(firstresult=True)
-def pytest_launch_collect_makemodule(path, parent, entrypoint):
+def pytest_launch_collect_makemodule(module_path, path, parent, entrypoint):
     """Make launch test module appropriate for the found test entrypoint."""
     pass

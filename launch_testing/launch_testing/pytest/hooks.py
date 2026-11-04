@@ -174,61 +174,107 @@ class LaunchTestModule(pytest.File):
 
 
 def find_launch_test_entrypoint(path):
+    path_obj = pathlib.Path(path)
+    # Skip files that are known to cause conflicts or are definitely not tests
+    if path_obj.name == 'handlers.py' and path_obj.parent.name == 'logging':
+        return None
+
+    # Only attempt to import files that look like Python modules and are not launch files
+    # with double extensions (which Pytest 8+ import_path might struggle with)
+    if not path_obj.name.endswith('.py') or path_obj.name.endswith('.launch.py'):
+        return None
+
     try:
         if _pytest_version_ge(8, 1, 0):
             from _pytest.pathlib import import_path
-            module = import_path(path, root=None, consider_namespace_packages=False)
+            module = import_path(path_obj, root=None, consider_namespace_packages=False)
         elif _pytest_version_ge(7, 0, 0):
             from _pytest.pathlib import import_path
-            module = import_path(path, root=None)
+            module = import_path(path_obj, root=None)
         else:
             # Assume we got legacy path in earlier versions of pytest
             module = path.pyimport()
         return getattr(module, 'generate_test_description', None)
-    except SyntaxError:
+    except Exception:
+        # Catch all exceptions during import to avoid breaking collection
         return None
 
 
-def pytest_pycollect_makemodule(path, parent):
+@pytest.hookimpl(tryfirst=True)
+def pytest_ignore_collect(collection_path=None, path=None, config=None):
+    # Pytest 8.x signature: (collection_path, path, config)
+    # Pytest < 8 signature: (path, config)
+    p = collection_path or path
+    if p is None:
+        return False
+
+    path_obj = pathlib.Path(p)
+
+    # Ignore .launch.py files to avoid collection failures for launch_pytest tests
+    if path_obj.name.endswith('.launch.py'):
+        return True
+
+    # Ignore standard library collisions (launch.logging.handlers vs logging.handlers)
+    if path_obj.name == 'handlers.py' and path_obj.parent.name == 'logging':
+        return True
+
+    return False
+
+
+if _pytest_version_ge(8):
+    def pytest_pycollect_makemodule(module_path, parent):
+        return _pytest_pycollect_makemodule(module_path, parent)
+else:
+    def pytest_pycollect_makemodule(path, parent):
+        return _pytest_pycollect_makemodule(path, parent)
+
+
+def _pytest_pycollect_makemodule(path, parent):
     entrypoint = find_launch_test_entrypoint(path)
     if entrypoint is not None:
         ihook = parent.session.gethookproxy(path)
         module = ihook.pytest_launch_collect_makemodule(
-            path=path, parent=parent, entrypoint=entrypoint
+            module_path=path, path=path, parent=parent, entrypoint=entrypoint
         )
         if module is not None:
             return module
 
-    if _pytest_version_ge(7):
-        path = pathlib.Path(path)
-        if path.name == '__init__.py':
-            return pytest.Package.from_parent(parent, path=path)
-        return pytest.Module.from_parent(parent=parent, path=path)
-    elif _pytest_version_ge(5, 4):
-        if path.basename == '__init__.py':
-            return pytest.Package.from_parent(parent, fspath=path)
-        return pytest.Module.from_parent(parent, fspath=path)
-    else:
-        # todo: remove fallback once all platforms use pytest >=5.4
-        if path.basename == '__init__.py':
-            return pytest.Package(path, parent)
-        return pytest.Module(path, parent)
+    # If it's not a launch test, still return a standard Module/Package
+    # but only if it matches standard test patterns to avoid aggressive collection.
+    path_obj = pathlib.Path(path)
+    if path_obj.name.startswith('test_') or path_obj.name.endswith('_test.py') or \
+       path_obj.name == '__init__.py':
+        if _pytest_version_ge(7):
+            if path_obj.name == '__init__.py':
+                return pytest.Package.from_parent(parent, path=path_obj)
+            return pytest.Module.from_parent(parent=parent, path=path_obj)
+        elif _pytest_version_ge(5, 4):
+            if path_obj.name == '__init__.py':
+                return pytest.Package.from_parent(parent, fspath=path)
+            return pytest.Module.from_parent(parent, fspath=path)
+        else:
+            if path_obj.name == '__init__.py':
+                return pytest.Package(path, parent)
+            return pytest.Module(path, parent)
+
+    return None
 
 
 @pytest.hookimpl(trylast=True)
-def pytest_launch_collect_makemodule(path, parent, entrypoint):
+def pytest_launch_collect_makemodule(module_path, path, parent, entrypoint):
+    p = module_path or path
+    if _pytest_version_ge(7):
+        path_obj = pathlib.Path(p)
+        module = LaunchTestModule.from_parent(parent=parent, path=path_obj)
+    else:
+        module = LaunchTestModule.from_parent(parent=parent, fspath=p)
+
     marks = getattr(entrypoint, 'pytestmark', [])
-    if marks and any(m.name == 'launch_test' for m in marks):
-        if _pytest_version_ge(7):
-            path = pathlib.Path(path)
-            module = LaunchTestModule.from_parent(parent=parent, path=path)
-        else:
-            module = LaunchTestModule.from_parent(parent=parent, fspath=path)
-        for mark in marks:
-            decorator = getattr(pytest.mark, mark.name)
-            decorator = decorator.with_args(*mark.args, **mark.kwargs)
-            module.add_marker(decorator)
-        return module
+    for mark in marks:
+        decorator = getattr(pytest.mark, mark.name)
+        decorator = decorator.with_args(*mark.args, **mark.kwargs)
+        module.add_marker(decorator)
+    return module
 
 
 def pytest_addhooks(pluginmanager):
