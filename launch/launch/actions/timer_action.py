@@ -95,7 +95,7 @@ class TimerAction(Action):
                 'passing a string literal was deprecated',
                 stacklevel=2)
         self.__period = type_utils.normalize_typed_substitution(period, float)
-        self.__actions = actions
+        self.__actions = list(actions)
         self.__context_locals: Dict[Text, Any] = {}
         self.__canceled = False
 
