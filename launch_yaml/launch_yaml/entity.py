@@ -123,8 +123,14 @@ class Entity(BaseEntity):
         self.__read_keys.add(name)
         data = self.__element[name]
         if check_is_list_entity(data_type):
-            if isinstance(data, list) and isinstance(data[0], dict):
-                return [Entity(child, name) for child in data]
+            if isinstance(data, list):
+                if all(isinstance(child, dict) for child in data):
+                    return [Entity(child, name) for child in data]
+                if not any(isinstance(child, dict) for child in data):
+                    # A plain list of scalars, e.g. `choice: [a, b]`, is
+                    # shorthand for a list of single-value entities, i.e.
+                    # `choice: [{value: a}, {value: b}]`.
+                    return [Entity({'value': str(child)}, name) for child in data]
             raise TypeError(
                 "Attribute '{}' of Entity '{}' expected to be a list of dictionaries.".format(
                     name, self.type_name
