@@ -20,6 +20,8 @@ from launch.utilities import perform_substitutions
 
 from parser_no_extensions import load_no_extensions
 
+import pytest
+
 
 def test_boolean_substitution_xml():
     xml_file = textwrap.dedent(
@@ -114,3 +116,33 @@ def check_boolean_substitution(file):
     assert perform(any_true_false.value) == 'true'
     assert perform(any_false_true.value) == 'true'
     assert perform(any_false_false.value) == 'false'
+
+
+@pytest.mark.parametrize('value, equals, not_equals', [
+    ('', 'true', 'false'),
+    ('cheese', 'false', 'true'),
+    ('[]', 'false', 'true'),
+])
+def test_equals_empty_string_xml(value, equals, not_equals):
+    xml_file = textwrap.dedent(
+        f"""
+        <launch>
+            <arg name="value" default="{value}" />
+            <let name="equals" value="$(equals $(var value) '')" />
+            <let name="not_equals" value="$(not-equals $(var value) '')" />
+        </launch>
+        """
+    )
+    with io.StringIO(xml_file) as f:
+        check_equals_empty_string(f, equals, not_equals)
+
+
+def check_equals_empty_string(file, equals, not_equals):
+    root_entity, parser = load_no_extensions(file)
+    ld = parser.parse_description(root_entity)
+    ls = LaunchService()
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+
+    assert ls.context.launch_configurations['equals'] == equals
+    assert ls.context.launch_configurations['not_equals'] == not_equals
