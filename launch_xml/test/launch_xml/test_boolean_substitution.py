@@ -19,13 +19,8 @@ from launch import LaunchService
 from launch.frontend import Parser
 from launch.utilities import perform_substitutions
 
-<<<<<<< HEAD
-=======
-from parser_no_extensions import load_no_extensions
-
 import pytest
 
->>>>>>> 743d8fe (Fix equals and not-equals substitutions comparing against '' in the frontend (#1061))
 
 def test_boolean_substitution_xml():
     xml_file = textwrap.dedent(
@@ -142,7 +137,7 @@ def test_equals_empty_string_xml(value, equals, not_equals):
 
 
 def check_equals_empty_string(file, equals, not_equals):
-    root_entity, parser = load_no_extensions(file)
+    root_entity, parser = Parser.load(file)
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
     ls.include_launch_description(ld)
