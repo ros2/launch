@@ -20,6 +20,8 @@ import os
 from launch.descriptions.executable import Executable
 from launch.launch_context import LaunchContext
 from launch.substitutions import EnvironmentVariable
+from launch.substitutions import LaunchConfiguration
+from launch.substitutions import TextSubstitution
 
 
 def test_executable():
@@ -43,6 +45,43 @@ def test_cmd_multiple_arguments_in_string():
     exe = Executable(cmd=['ls', '-opt1', '-opt2', '-opt3'])
     exe.prepare(LaunchContext(), None)
     assert all(a == b for a, b in zip(exe.final_cmd, ['ls', '-opt1', '-opt2', '-opt3']))
+
+
+def test_empty_arguments_are_dropped():
+    # Regression test for https://github.com/ros2/launch/issues/638
+    # Empty arguments (e.g. a substitution expanding to '') must not be
+    # passed to the executable as spurious empty argv entries.
+    exe = Executable(cmd=['ls', 'foo', '', 'bar'])
+    exe.prepare(LaunchContext(), None)
+    assert exe.final_cmd == ['ls', 'foo', 'bar']
+
+
+def test_empty_substitution_argument_is_dropped():
+    # The motivating case from #638: a LaunchConfiguration with an empty
+    # default value used as a command argument.
+    exe = Executable(
+        cmd=['prog', 'foo', LaunchConfiguration('bar', default=''), 'baz']
+    )
+    exe.prepare(LaunchContext(), None)
+    assert exe.final_cmd == ['prog', 'foo', 'baz']
+    exe = Executable(cmd=['prog', TextSubstitution(text=''), 'x'])
+    exe.prepare(LaunchContext(), None)
+    assert exe.final_cmd == ['prog', 'x']
+
+
+def test_empty_executable_is_kept():
+    # Only arguments are dropped; the executable slot itself is preserved
+    # even if it expands to an empty string.
+    exe = Executable(cmd=['', 'arg'])
+    exe.prepare(LaunchContext(), None)
+    assert exe.final_cmd == ['', 'arg']
+
+
+def test_empty_arguments_dropped_with_prefix():
+    exe = Executable(cmd=['my_program', '', 'arg'], prefix='gdb -ex run --args')
+    exe.prepare(LaunchContext(), None)
+    assert exe.final_cmd == ['gdb', '-ex', 'run', '--args', 'my_program', 'arg']
+    assert exe.final_name.startswith('my_program')
 
 
 def test_passthrough_properties():
