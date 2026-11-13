@@ -13,6 +13,9 @@
 # limitations under the License.
 
 from launch.invalid_launch_file_error import InvalidLaunchFileError
+from launch.launch_description_sources import any_launch_file_utilities
+
+import pytest
 
 
 def test_invalid_launch_file_error():
@@ -31,3 +34,19 @@ def test_invalid_launch_file_errors():
         assert 'ValueError' in ex.__str__()
         assert 'AttributeError' in ex.__str__()
         assert 'BufferError' in ex.__str__()
+
+
+def test_invalid_launch_file_error_includes_path(tmp_path):
+    """The error for a failed launch file load identifies the file path."""
+    launch_file_path = tmp_path / 'broken.launch.py'
+    launch_file_path.write_text(
+        'def generate_launch_description(:\n    pass\n',
+        encoding='utf-8',
+    )
+
+    with pytest.raises(InvalidLaunchFileError) as exc_info:
+        any_launch_file_utilities.get_launch_description_from_any_launch_file(
+            str(launch_file_path))
+
+    assert str(launch_file_path) in str(exc_info.value)
+    assert 'SyntaxError' in str(exc_info.value)
