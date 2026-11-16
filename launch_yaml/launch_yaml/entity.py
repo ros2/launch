@@ -113,16 +113,32 @@ class Entity(BaseEntity):
         `launch_yaml` does not apply type coercion,
         it only checks if the read value is of the correct type.
         """
-        if name not in self.__element:
+        attribute_name = name
+        if (
+            self.type_name == 'arg' and
+            name == 'choice' and
+            name not in self.__element and
+            'choices' in self.__element
+        ):
+            attribute_name = 'choices'
+        if attribute_name not in self.__element:
             if not optional:
                 raise AttributeError(
                     "Can not find attribute '{}' in Entity '{}'".format(
                         name, self.type_name))
             else:
                 return None
-        self.__read_keys.add(name)
-        data = self.__element[name]
+        self.__read_keys.add(attribute_name)
+        data = self.__element[attribute_name]
         if check_is_list_entity(data_type):
+            if attribute_name != name:
+                if is_instance_of(data, List[str], can_be_str=False):
+                    return [Entity({'value': value}, name) for value in data]
+                raise TypeError(
+                    "Attribute '{}' of Entity '{}' expected to be a list of strings.".format(
+                        attribute_name, self.type_name
+                    )
+                )
             if isinstance(data, list) and isinstance(data[0], dict):
                 return [Entity(child, name) for child in data]
             raise TypeError(
