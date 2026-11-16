@@ -70,6 +70,13 @@ class OpaqueFunction(Action):
         if kwargs is not None:
             self.__kwargs = kwargs
 
+    def __repr__(self) -> Text:
+        """Return a description of this OpaqueFunction as a string."""
+        function_name = getattr(self.__function, '__qualname__', None)
+        if not function_name:
+            function_name = getattr(self.__function, '__name__', repr(self.__function))
+        return f'OpaqueFunction(function={function_name})'
+
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         """Execute the action."""
         return self.__function(context, *self.__args, **self.__kwargs)
