@@ -61,5 +61,24 @@ def test_include():
     assert ls.context.launch_configurations['baz'] == 'BAZ'
 
 
+def test_include_with_empty_argument_lists():
+    """Parse an include action with explicitly empty argument lists."""
+    path = (Path(__file__).parent / 'executable.yaml').as_posix()
+    yaml_file = textwrap.dedent(
+        """\
+        launch:
+        - include:
+            file: '{}'
+            arg: []
+            let: []
+        """.format(path)
+    )
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    ld = parser.parse_description(root_entity)
+
+    include = ld.entities[0]
+    assert include.launch_arguments == ()
+
+
 if __name__ == '__main__':
     test_include()
