@@ -63,13 +63,17 @@ class Entity(BaseEntity):
                 f'\n---\n{self.__element}\n---'
             )
         if isinstance(self.__element, dict):
-            if 'children' not in self.__element:
+            if 'actions' in self.__element:
+                self.__read_keys.add('actions')
+                children = self.__element['actions']
+            elif 'children' in self.__element:
+                self.__read_keys.add('children')
+                children = self.__element['children']
+            else :
                 raise ValueError(
                     f'Expected entity `{self.__type_name}` to have children entities.'
-                    f'That can be a list of subentities or a dictionary with a `children` '
-                    'list element')
-            self.__read_keys.add('children')
-            children = self.__element['children']
+                    f'That can be a list of subentities or a dictionary with an `actions` '
+                    f'or `children` list element')
         else:
             children = self.__element
         entities = []
