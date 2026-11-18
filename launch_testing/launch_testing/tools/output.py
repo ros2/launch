@@ -39,28 +39,51 @@ def basic_output_filter(
     """
     Create a line filtering function to help output testing.
 
-    :param filtered_prefixes: A list of byte strings representing prefixes that will cause
+    :param filtered_prefixes: A list of strings representing prefixes that will cause
     output lines to be ignored if they start with one of the prefixes. By default lines
     starting with the process ID (`'pid'`) and return code (`'rc'`) will be ignored.
-    :param filtered_patterns: A list of byte strings representing regexes that will cause
+    A prefix may span several lines: each line of the prefix is matched against the
+    start of one of as many consecutive output lines, and all of them are ignored.
+    An empty prefix line only matches an empty output line.
+    :param filtered_patterns: A list of strings representing regexes that will cause
     output lines to be ignored if they match one of the regexes.
     """
     if filtered_prefixes is None:
         filtered_prefixes = get_default_filtered_prefixes()
     if filtered_patterns is None:
         filtered_patterns = get_default_filtered_patterns()
+    filtered_prefixes = [prefix.split('\n') for prefix in filtered_prefixes]
     filtered_patterns = list(map(re.compile, filtered_patterns))
+
+    def _prefix_match_length(lines, start, prefix_lines):
+        if start + len(prefix_lines) > len(lines):
+            return 0
+        for prefix_line, line in zip(prefix_lines, lines[start:]):
+            if prefix_line == '':
+                if line.rstrip('\r\n') != '':
+                    return 0
+            elif not line.startswith(prefix_line):
+                return 0
+        return len(prefix_lines)
 
     def _filter(output):
         filtered_output_lines = []
-        for line in output.splitlines(keepends=True):
+        lines = output.splitlines(keepends=True)
+        i = 0
+        while i < len(lines):
             # Filter out stdout that comes from underlying DDS implementation
-            # Note: we do not currently support matching filters across multiple stdout lines.
-            if any(line.startswith(prefix) for prefix in filtered_prefixes):
+            skip = next((
+                length for length in (
+                    _prefix_match_length(lines, i, prefix_lines)
+                    for prefix_lines in filtered_prefixes
+                ) if length > 0
+            ), 0)
+            if skip > 0:
+                i += skip
                 continue
-            if any(pattern.match(line) for pattern in filtered_patterns):
-                continue
-            filtered_output_lines.append(line)
+            if not any(pattern.match(lines[i]) for pattern in filtered_patterns):
+                filtered_output_lines.append(lines[i])
+            i += 1
         return ''.join(filtered_output_lines)
     return _filter
 
