@@ -19,8 +19,7 @@ import math
 import textwrap
 
 from launch.actions import TimerAction
-
-from parser_no_extensions import load_no_extensions
+from launch.frontend import Parser
 
 
 def test_timer_period_can_be_an_integer():
@@ -34,7 +33,7 @@ def test_timer_period_can_be_an_integer():
                         cmd: ls -las
         """
     yaml_file = textwrap.dedent(yaml_file)
-    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    root_entity, parser = Parser.load(io.StringIO(yaml_file))
     ld = parser.parse_description(root_entity)
     timer = ld.entities[0]
     assert isinstance(timer, TimerAction)
