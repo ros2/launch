@@ -188,7 +188,9 @@ class ExecuteProcess(ExecuteLocal):
 
         :param: cmd a list where the first item is the executable and the rest
             are arguments to the executable, each item may be a string or a
-            list of strings and Substitutions to be resolved at runtime
+            list of strings and Substitutions to be resolved at runtime.
+            Arguments that expand to an empty string are dropped from the
+            final command (the executable itself is never dropped).
         :param: cwd the directory in which to run the executable
         :param: name the label used to represent the process, as a string or a
             Substitution to be resolved at runtime, defaults to the basename of
