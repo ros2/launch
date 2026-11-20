@@ -69,3 +69,18 @@ def test_bool_arg_choices_rejected():
     root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
     with pytest.raises(ValueError, match='Cannot specify choices for bool_arg'):
         parser.parse_description(root_entity)
+
+
+def test_bool_arg_choices_key_rejected():
+    """Reject choices given under the `choices` key for a bool_arg."""
+    yaml_file = textwrap.dedent(
+        """\
+        launch:
+            - bool_arg:
+                name: 'bool_arg_with_choices'
+                choices: [abc, def]
+        """
+    )
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    with pytest.raises(ValueError, match='Cannot specify choices for bool_arg'):
+        parser.parse_description(root_entity)
