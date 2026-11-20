@@ -112,6 +112,8 @@ class Entity(BaseEntity):
         See :py:meth:`launch.frontend.Entity.get_attr`.
         `launch_yaml` does not apply type coercion,
         it only checks if the read value is of the correct type.
+        The exception is an integer where a float is expected,
+        which is returned as a float.
         """
         if name not in self.__element:
             if not optional:
@@ -130,6 +132,9 @@ class Entity(BaseEntity):
                     name, self.type_name
                 )
             )
+        if data_type is float and type(data) is int:
+            # YAML loads `5` as an int, accept it where a float is expected
+            data = float(data)
         if not is_instance_of(data, data_type, can_be_str=can_be_str):
             raise TypeError(
                 "Attribute '{}' of Entity '{}' expected to be of type '{}', got '{}'".format(
