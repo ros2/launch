@@ -142,7 +142,7 @@ class OrSubstitution(Substitution):
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
-        return f'AndSubstitution({self.left} {self.right})'
+        return f'OrSubstitution({self.left} {self.right})'
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
