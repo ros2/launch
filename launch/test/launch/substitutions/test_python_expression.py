@@ -14,6 +14,8 @@
 
 """Tests for the PythonExpression substitution class."""
 
+import math
+
 from launch import LaunchContext
 from launch.substitutions import PythonExpression
 from launch.substitutions import SubstitutionFailure
@@ -137,3 +139,17 @@ def test_python_substitution_submodule():
 
     # The expression should evaluate to True
     assert result
+
+
+def test_python_substitution_nested_scopes():
+    """Check that module names are visible in lambdas and generator expressions."""
+    lc = LaunchContext()
+
+    subst = PythonExpression(['sum(pi for _ in range(2))'])
+    assert subst.perform(lc) == str(2 * math.pi)
+
+    subst = PythonExpression(['max(map(lambda x: sqrt(x), (1, 4)))'])
+    assert subst.perform(lc) == '2.0'
+
+    subst = PythonExpression(["all(os.path.isabs(p) for p in ('/a', '/b'))"], ['os'])
+    assert subst.perform(lc) == 'True'
