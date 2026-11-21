@@ -58,4 +58,5 @@ def get_launch_description_from_any_launch_file(
             return loader(launch_file_path)
         except Exception as ex:
             exceptions.append(ex)
-    raise InvalidLaunchFileError(extension, likely_errors=exceptions)
+    raise InvalidLaunchFileError(
+        extension, likely_errors=exceptions, launch_file_path=launch_file_path)
