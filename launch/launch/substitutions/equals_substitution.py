@@ -98,7 +98,10 @@ class EqualsSubstitution(Substitution):
         """Parse `EqualsSubstitution` substitution."""
         if len(data) != 2:
             raise TypeError('and substitution expects 2 arguments')
-        return cls, {'left': data[0], 'right': data[1]}
+        # The frontend parses an empty argument, like '', into an empty list.
+        # Pass it on as an empty string, so __init__ doesn't turn it into '[]'.
+        left, right = ('' if isinstance(arg, Sequence) and len(arg) == 0 else arg for arg in data)
+        return cls, {'left': left, 'right': right}
 
     @property
     def left(self) -> List[Substitution]:
