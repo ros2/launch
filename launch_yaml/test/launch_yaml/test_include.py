@@ -61,5 +61,41 @@ def test_include():
     assert ls.context.launch_configurations['baz'] == 'BAZ'
 
 
+def test_include_args_as_mapping():
+    """Accept `arg` and `let` written as a mapping of name to value."""
+    path = (Path(__file__).parent / 'executable.yaml').as_posix()
+    yaml_file = \
+        """\
+        launch:
+        - let:
+            name: 'main_baz'
+            value: 'BAZ'
+        - include:
+            file: '{}'
+            arg:
+                foo: 'FOO'
+                baz: 'overwritten'
+            let:
+                bar: 'BAR'
+                baz: '$(var main_baz)'
+        """.format(path)  # noqa: E501
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    ld = parser.parse_description(root_entity)
+    include = ld.entities[1]
+    assert isinstance(include, IncludeLaunchDescription)
+    assert [
+        (name[0].perform(None), value[0].perform(None))
+        for name, value in include.launch_arguments[:3]
+    ] == [('foo', 'FOO'), ('baz', 'overwritten'), ('bar', 'BAR')]
+    ls = LaunchService(debug=True)
+    ls.include_launch_description(ld)
+    assert 0 == ls.run()
+    assert ls.context.launch_configurations['foo'] == 'FOO'
+    assert ls.context.launch_configurations['bar'] == 'BAR'
+    assert ls.context.launch_configurations['baz'] == 'BAZ'
+
+
 if __name__ == '__main__':
     test_include()
+    test_include_args_as_mapping()
