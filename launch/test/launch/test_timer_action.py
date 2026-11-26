@@ -33,6 +33,8 @@ from launch.substitutions import LaunchConfiguration
 from launch.substitutions import NotSubstitution
 from launch.substitutions import PythonExpression
 
+import pytest
+
 
 def test_timer_action_can_capture_the_environment():
     """Test that timer actions capture the environment variables present when executed."""
@@ -151,6 +153,12 @@ def test_timer_action_sanity_check():
     ls.include_launch_description(ld)
     assert 0 == ls.run()
     assert shutdown_reasons[0].reason == 'One second timeout'
+
+
+def test_timer_action_string_period():
+    """Test that a string literal period is rejected."""
+    with pytest.raises(TypeError):
+        TimerAction(period='1.0', actions=[])
 
 
 def test_shutdown_preempts_timers():
