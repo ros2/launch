@@ -182,6 +182,16 @@ class DeclareLaunchArgument(Action):
         if description is not None:
             kwargs['description'] = parser.escape_characters(description)
         choices = entity.get_attr('choice', data_type=List[Entity], optional=True)
+        # `choices` is accepted as an alias for `choice`, matching the name
+        # of the corresponding Python keyword argument. In YAML it may be a
+        # plain list of values, e.g. `choices: [asd, bsd]`.
+        choices_alias = entity.get_attr('choices', data_type=List[Entity], optional=True)
+        if choices is not None and choices_alias is not None:
+            raise ValueError(
+                "Specify only one of 'choice' and 'choices' in Entity '{}'".format(
+                    entity.type_name))
+        if choices is None:
+            choices = choices_alias
         if choices is not None:
             kwargs['choices'] = [
                 parser.escape_characters(choice.get_attr('value')) for choice in choices
