@@ -15,6 +15,55 @@
 from pathlib import Path
 import shutil
 
+import pytest
+
+
+@pytest.mark.parametrize('action', [
+    "IncludeLaunchDescription(PythonLaunchDescriptionSource('missing.launch.py'))",
+    "GroupAction(actions=[ReadyToTest()], condition=IfCondition('false'))",
+])
+def test_launch_service_stops_before_ready(testdir, action):
+    testdir.makepyfile(f"""\
+from launch import LaunchDescription
+from launch.actions import GroupAction, IncludeLaunchDescription
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+import launch_pytest
+from launch_pytest.actions import ReadyToTest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return LaunchDescription([{action}])
+
+@pytest.mark.launch(fixture=launch_description)
+def test_case():
+    pytest.fail('test body must not run before ReadyToTest')
+""")
+    result = testdir.runpytest_subprocess(timeout=10)
+    result.assert_outcomes(errors=1)
+    result.stdout.fnmatch_lines(['*launch service stopped before ReadyToTest*'])
+
+
+def test_launch_fixture_waits_for_delayed_ready(testdir):
+    testdir.makepyfile("""\
+from launch import LaunchDescription
+from launch.actions import TimerAction
+import launch_pytest
+from launch_pytest.actions import ReadyToTest
+import pytest
+
+@launch_pytest.fixture
+def launch_description():
+    return LaunchDescription([TimerAction(period=0.01, actions=[ReadyToTest()])])
+
+@pytest.mark.launch(fixture=launch_description)
+def test_case():
+    pass
+""")
+    result = testdir.runpytest_subprocess(timeout=10)
+    result.assert_outcomes(passed=1)
+
 
 def test_launch_fixture_is_not_a_launch_description(testdir):
     testdir.makepyfile("""\

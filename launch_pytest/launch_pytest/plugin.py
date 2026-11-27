@@ -128,9 +128,17 @@ def pytest_fixture_setup(fixturedef, request):
         ))
         ready = get_ready_to_test_action(ld)
         asyncio.set_event_loop(event_loop)
-        event = asyncio.Event()
-        ready._add_callback(lambda: event.set())
-        run_until_complete(event_loop, event.wait())
+        ready_future = event_loop.create_future()
+
+        def wakeup(is_ready):
+            if not ready_future.done():
+                ready_future.set_result(is_ready)
+
+        ready._add_callback(functools.partial(wakeup, True))
+        run_async_task.add_done_callback(lambda _: wakeup(False))
+        run_until_complete(event_loop, ready_future)
+        if not ready_future.result():
+            fail(f'{eprefix} launch service stopped before ReadyToTest')
         # this is guaranteed by the current run_async() implementation, let's check it just in case
         # it changes in the future
         assert ls.event_loop is event_loop
