@@ -18,7 +18,7 @@ import io
 from pathlib import Path
 import textwrap
 
-from launch import LaunchService
+from launch import LaunchDescription, LaunchDescriptionSource, LaunchService
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import AnyLaunchDescriptionSource
 
@@ -54,5 +54,96 @@ def test_include():
     assert ls.context.launch_configurations['baz'] == 'BAZ'
 
 
+def include_inner(inner_launch_file: str):
+    # Always use posix style paths in launch XML files.
+    path = (Path(__file__).parent / inner_launch_file).as_posix()
+    xml_file = \
+        """\
+        <launch>
+            <include file="{}"/>
+        </launch>
+        """.format(path)  # noqa: E501
+    xml_file = textwrap.dedent(xml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(xml_file))
+    ld = parser.parse_description(root_entity)
+    include = ld.entities[0]
+    assert isinstance(include, IncludeLaunchDescription)
+    assert isinstance(include.launch_description_source, AnyLaunchDescriptionSource)
+
+    return ld
+
+
+def test_include_inner_argument_default_no_argument():
+    """Test inner launch file having an argument with default value (no commandline input)."""
+    argument_name = 'inner_argument'
+    ld = include_inner('inner_default.launch.xml')
+
+    ls = LaunchService(debug=True)
+    # Pass the arguments as it is done in ros2launch
+    ls.include_launch_description(LaunchDescription([
+        IncludeLaunchDescription(LaunchDescriptionSource(ld), launch_arguments=[])
+    ]))
+    assert 0 == ls.run()
+    assert len(ls.context.launch_configurations) == 1
+    assert ls.context.launch_configurations == {argument_name: 'some default'}
+
+
+def test_include_inner_argument_default_with_argument():
+    """Test inner launch file having an argument with default value overwritten via commandline."""
+    argument_name = 'inner_argument'
+    argument_value = 'another_value'
+    ld = include_inner('inner_default.launch.xml')
+
+    ls = LaunchService(debug=True, argv=[f'{argument_name}:="{argument_value}"'])
+
+    # Pass the arguments as it is done in ros2launch
+    ls.include_launch_description(LaunchDescription([
+        IncludeLaunchDescription(
+            LaunchDescriptionSource(ld),
+            launch_arguments=[(argument_name, argument_value)]
+        )
+    ]))
+    assert 0 == ls.run()
+    assert len(ls.context.launch_configurations) == 1
+    assert ls.context.launch_configurations == {argument_name: argument_value}
+
+
+def test_include_inner_argument_no_argument():
+    """Test inner launch file having a required argument (no commandline input)."""
+    ld = include_inner('inner.launch.xml')
+
+    ls = LaunchService(debug=True)
+    # Pass the arguments as it is done in ros2launch
+    ls.include_launch_description(LaunchDescription([
+        IncludeLaunchDescription(LaunchDescriptionSource(ld), launch_arguments=[])
+    ]))
+    assert 1 == ls.run()
+    assert len(ls.context.launch_configurations) == 0
+
+
+def test_include_inner_argument_with_argument():
+    """Test inner launch file having a required argument overwritten via commandline."""
+    argument_name = 'inner_argument'
+    argument_value = 'another_value'
+    ld = include_inner('inner.launch.xml')
+
+    ls = LaunchService(debug=True, argv=[f'{argument_name}:="{argument_value}"'])
+
+    # Pass the arguments as it is done in ros2launch
+    ls.include_launch_description(LaunchDescription([
+        IncludeLaunchDescription(
+            LaunchDescriptionSource(ld),
+            launch_arguments=[(argument_name, argument_value)]
+        )
+    ]))
+    assert 0 == ls.run()
+    assert len(ls.context.launch_configurations) == 1
+    assert ls.context.launch_configurations == {argument_name: argument_value}
+
+
 if __name__ == '__main__':
     test_include()
+    test_include_inner_argument_default_no_argument()
+    test_include_inner_argument_default_with_argument()
+    test_include_inner_argument_no_argument()
+    test_include_inner_argument_with_argument()

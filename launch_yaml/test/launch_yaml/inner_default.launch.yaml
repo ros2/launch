@@ -1,0 +1,4 @@
+launch:
+-   arg:
+        name: inner_argument
+        default: some default
