@@ -88,7 +88,7 @@ class TimerAction(Action):
         ensure_argument_type(period, period_types, 'period', 'TimerAction')
         ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'TimerAction')
         self.__period = type_utils.normalize_typed_substitution(period, float)
-        self.__actions = actions
+        self.__actions = list(actions)
         self.__context_locals: Dict[Text, Any] = {}
         self.__canceled = False
 
