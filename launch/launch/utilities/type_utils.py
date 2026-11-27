@@ -156,7 +156,7 @@ def extract_type(data_type: AllowedTypesType) -> Tuple[ScalarTypesType, bool]:
         is_list = True
         scalar_type = data_type.__args__[0]  # type: ignore
     if is_valid_scalar_type(scalar_type) is False:
-        raise ValueError(f'Unrecognized data type: {data_type}')
+        raise ValueError(f'Unrecognized data type: {data_type.__name__}')
     return (scalar_type, is_list)
 
 
@@ -243,7 +243,7 @@ def coerce_to_type(
 
         if not is_instance_of_valid_type(output, can_be_str=can_be_str):
             raise ValueError(
-                f'{error_msg}: output type is not allowed, got {type(output)}'
+                f'{error_msg}: output type is not allowed, got {type(output).__name__}'
             )
         return output
 
@@ -285,7 +285,7 @@ def coerce_to_type(
         raise ValueError(
             'data_type is invalid. Expected one of: '
             'int, float, str, bool, List[int], List[float], List[str], List[bool]'
-            f'. Got {data_type}')
+            f'. Got {data_type.__name__}')
     output = convert_as_yaml(value, f"Failed to convert '{value}' to '{type_obj}'")
     if isinstance(output, valid_types):
         return output
@@ -312,7 +312,8 @@ def coerce_list(
     ensure_argument_type(value, list, 'value', 'coerce_list')
     output = [coerce_to_type(i, data_type, can_be_str=can_be_str) for i in value]
     if not is_instance_of_valid_type(output, can_be_str=can_be_str):
-        raise ValueError(f'cannot convert value to {data_type}. Got value=`{value}`')
+        typename = data_type.__name__ if data_type is not None else 'inferred type'
+        raise ValueError(f'cannot convert value to {typename}. Got value=`{value}`')
     return cast(ListValueType, output)
 
 
@@ -340,8 +341,8 @@ def get_typed_value(
             data_type, is_list = extract_type(data_type)
             if not is_list:
                 raise TypeError(
-                    f"Cannot convert input '{value}' of type '{type(value)}' to"
-                    f" '{data_type}'"
+                    f"Cannot convert input '{value}' of type '{type(value).__name__}' to"
+                    f" '{data_type.__name__}'"
                 )
         return coerce_list(value, data_type, can_be_str=can_be_str)
     else:
@@ -421,7 +422,8 @@ def normalize_typed_substitution(
     # Resolve scalar types immediately
     if isinstance(value, ScalarTypesTuple):
         if not is_instance_of(value, data_type):
-            raise TypeError(f"value='{value}' is not an instance of {data_type}")
+            typename = data_type.__name__ if data_type is not None else 'inferred type'
+            raise TypeError(f"value='{value}' is not an instance of {typename}")
         return value
     # Resolve substitutions and list of substitutions immediately
     if is_substitution(value):
@@ -431,7 +433,7 @@ def normalize_typed_substitution(
         raise TypeError(
             'value should be either a scalar, a substitutions,'
             ' or a mixed list of scalars and substitutions. '
-            f'Got `value={value}` of type `{type(value)}`. '
+            f'Got `value={value}` of type `{type(value).__name__}`. '
         )
     # Collect the types of the items of the list
     types_in_list: Set[Optional[Type[Union[str, int, float, bool, Substitution]]]] = set()
@@ -451,15 +453,17 @@ def normalize_typed_substitution(
         data_type, is_list = extract_type(data_type)
     # Must be expecting a list
     if not is_list:
+        typename = data_type.__name__ if data_type is not None else 'inferred type'
         raise TypeError(
             'The provided value resolves to a list, though the required type is a scalar. '
-            f"Got value='{value}', data_type='{data_type}'."
+            f"Got value='{value}', data_type='{typename}'."
         )
 
     # Normalize each specific uniform list input
+    type_name = data_type.__name__ if data_type is not None else 'inferred type'
     err_msg = (
         "Got a list of '{}'"
-        f", expected a list of '{data_type}'. value='{value}'"
+        f", expected a list of '{type_name}'. value='{value}'"
     )
     if types_in_list == {Substitution}:
         # list of substitutions, can be coerced later to anything
@@ -549,7 +553,7 @@ def perform_typed_substitution(
     if isinstance(value, ScalarTypesTuple):
         if data_type is not None and not is_instance_of(value, data_type):
             raise TypeError(
-                f'value=`{value}` is a scalar and not an instance of `{data_type}`')
+                f'value=`{value}` is a scalar and not an instance of `{data_type.__name__}`')
         return value
     elif is_normalized_substitution(value):
         return coerce_to_type(
@@ -563,7 +567,7 @@ def perform_typed_substitution(
             if not is_list:
                 raise ValueError(
                     'The input value is a list, cannot convert it to a scalar. '
-                    f"Got value='{value}', expected type {scalar_type}."
+                    f"Got value='{value}', expected type {scalar_type.__name__}."
                 )
         output = [
             coerce_to_type(
@@ -573,7 +577,7 @@ def perform_typed_substitution(
         if not is_instance_of(output, data_type):
             raise ValueError(
                     'The output list does not match the expected type '
-                    f"Got value='{value}', expected type {scalar_type}."
+                    f"Got value='{value}', expected type {scalar_type.__name__}."
                     if scalar_type is not None else
                     'The output list is not uniform'
                 )

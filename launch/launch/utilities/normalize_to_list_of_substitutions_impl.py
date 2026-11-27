@@ -38,7 +38,7 @@ def normalize_to_list_of_substitutions(subs: SomeSubstitutionsType) -> List[Subs
             return TextSubstitution(text=str(x))
         raise TypeError(
             "Failed to normalize given item of type '{}', when only "
-            "'str' or 'launch.Substitution' were expected.".format(type(x)))
+            "'str' or 'launch.Substitution' were expected.".format(type(x).__name__))
 
     if isinstance(subs, (str, Path)):
         return [TextSubstitution(text=str(subs))]

@@ -99,7 +99,7 @@ class OnActionEventBase(BaseEventHandler):
                     if not isinstance(entity, LaunchDescriptionEntity):
                         raise TypeError(
                             "expected all items in 'on_event' iterable to be of type "
-                            "'LaunchDescriptionEntity' but got '{}'".format(type(entity)))
+                            "'LaunchDescriptionEntity' but got '{}'".format(type(entity).__name__))
                 self.__actions_on_event = list(on_event)  # Outside list is to ensure type is List
             else:
                 self.__actions_on_event = [on_event]

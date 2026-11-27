@@ -29,7 +29,9 @@ class TextSubstitution(Substitution):
 
         if not isinstance(text, Text):
             raise TypeError(
-                "TextSubstitution expected Text object got '{}' instead.".format(type(text))
+                "TextSubstitution expected Text object got '{}' instead.".format(
+                    type(text).__name__
+                )
             )
 
         self.__text = text
