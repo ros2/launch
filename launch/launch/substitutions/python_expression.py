@@ -122,4 +122,6 @@ class PythonExpression(Substitution):
                 expression_locals.update(vars(module))
 
             expression_locals[module.__name__] = module
-        return str(eval(perform_substitutions(context, self.expression), {}, expression_locals))
+        # The names are passed as globals, not locals, so that they are also visible inside
+        # lambdas and generator expressions, which only look names up in globals.
+        return str(eval(perform_substitutions(context, self.expression), expression_locals))
