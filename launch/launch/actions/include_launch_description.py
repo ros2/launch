@@ -29,6 +29,10 @@ from typing import Union
 import launch.logging
 
 from .opaque_function import OpaqueFunction
+from .pop_environment import PopEnvironment
+from .pop_launch_configurations import PopLaunchConfigurations
+from .push_environment import PushEnvironment
+from .push_launch_configurations import PushLaunchConfigurations
 from .set_launch_configuration import SetLaunchConfiguration
 from ..action import Action
 from ..frontend import Entity
@@ -126,17 +130,31 @@ class IncludeLaunchDescription(Action):
         self,
         launch_description_source: Union[LaunchDescriptionSource, SomeSubstitutionsType],
         *,
+        scoped: bool = False,
         launch_arguments: Optional[
             Iterable[Tuple[SomeSubstitutionsType, SomeSubstitutionsType]]
         ] = None,
         **kwargs: Any
     ) -> None:
-        """Create an IncludeLaunchDescription action."""
+        """
+        Create an IncludeLaunchDescription action.
+
+        When `scoped` is True, launch configurations and environment variables set by the
+        included launch description are isolated to the scope of the include and will not
+        propagate back to the parent context. The included description still has access to
+        the parent's existing launch configurations (forwarding is always enabled for scoped
+        includes).
+
+        :param scoped: if True, push/pop launch configurations and environment around the
+            included description so that `SetLaunchConfiguration` and environment changes
+            do not leak into the parent scope. Defaults to False for backward compatibility.
+        """
         super().__init__(**kwargs)
         if not isinstance(launch_description_source, LaunchDescriptionSource):
             launch_description_source = AnyLaunchDescriptionSource(launch_description_source)
         self.__launch_description_source = launch_description_source
         self.__launch_arguments = () if launch_arguments is None else tuple(launch_arguments)
+        self.__scoped = scoped
         self.__logger = launch.logging.get_logger(__name__)
 
     @classmethod
@@ -146,6 +164,9 @@ class IncludeLaunchDescription(Action):
         _, kwargs = super().parse(entity, parser)
         file_path = parser.parse_substitution(entity.get_attr('file'))
         kwargs['launch_description_source'] = file_path
+        scoped = entity.get_attr('scoped', data_type=bool, optional=True)
+        if scoped is not None:
+            kwargs['scoped'] = scoped
         args = []
         args_arg = entity.get_attr('arg', data_type=List[Entity], optional=True)
         if args_arg is not None:
@@ -249,11 +270,25 @@ class IncludeLaunchDescription(Action):
             set_launch_configuration_actions.append(SetLaunchConfiguration(name, value))
 
         # Set launch arguments as launch configurations and then include the launch description.
-        return [
+        actions = [
             *set_launch_configuration_actions,
             launch_description,
             OpaqueFunction(function=self._restore_launch_file_location_locals),
         ]
+
+        if self.__scoped:
+            # Wrap with push/pop to isolate launch configurations and environment changes.
+            # Forwarding is always enabled: the included description sees the parent's
+            # existing launch configurations but its mutations do not leak back.
+            return [
+                PushLaunchConfigurations(),
+                PushEnvironment(),
+                *actions,
+                PopEnvironment(),
+                PopLaunchConfigurations(),
+            ]
+
+        return actions
 
     def _set_launch_file_location_locals(self, context: LaunchContext) -> None:
         context._push_locals()

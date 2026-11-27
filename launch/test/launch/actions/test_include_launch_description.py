@@ -24,6 +24,10 @@ from launch import LaunchService
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.actions import OpaqueFunction
+from launch.actions import PopEnvironment
+from launch.actions import PopLaunchConfigurations
+from launch.actions import PushEnvironment
+from launch.actions import PushLaunchConfigurations
 from launch.actions import ResetLaunchConfigurations
 from launch.actions import SetEnvironmentVariable
 from launch.actions import SetLaunchConfiguration
@@ -33,6 +37,8 @@ from launch.substitutions import ThisLaunchFileDir
 from launch.utilities import perform_substitutions
 
 import pytest
+
+from temporary_environment import sandbox_environment_variables
 
 
 def test_include_launch_description_constructors():
@@ -257,6 +263,176 @@ def test_include_launch_description_launch_arguments():
     )
     lc2 = LaunchContext()
     action2.visit(lc2)
+
+
+@sandbox_environment_variables
+def test_include_launch_description_scoped_execute():
+    """Test scoped=True: Push/Pop wrapping, forwarding, and isolation of launch configurations."""
+    ld_child = LaunchDescription([])
+    action = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld_child),
+        launch_arguments={'bar': 'BAR'}.items(),
+        scoped=True,
+    )
+
+    lc = LaunchContext()
+    lc.launch_configurations['foo'] = 'FOO'
+
+    result = action.visit(lc)
+
+    # Expected: Push, Push, SetLaunchConfig, LaunchDescription, OpaqueFunction, Pop, Pop
+    assert len(result) == 7
+    assert isinstance(result[0], PushLaunchConfigurations)
+    assert isinstance(result[1], PushEnvironment)
+    assert isinstance(result[2], SetLaunchConfiguration)
+    assert result[3] == ld_child
+    assert isinstance(result[4], OpaqueFunction)
+    assert isinstance(result[5], PopEnvironment)
+    assert isinstance(result[6], PopLaunchConfigurations)
+
+    # Step through and verify intermediate state
+    result[0].visit(lc)  # PushLaunchConfigurations
+    assert lc.launch_configurations['foo'] == 'FOO'  # forwarded to child scope
+
+    result[1].visit(lc)  # PushEnvironment
+
+    result[2].visit(lc)  # SetLaunchConfiguration('bar', 'BAR')
+    assert lc.launch_configurations['bar'] == 'BAR'
+    assert lc.launch_configurations['foo'] == 'FOO'  # still visible
+
+    # Simulate what the child launch description would do
+    lc.launch_configurations['baz'] = 'BAZ'
+    assert lc.launch_configurations['baz'] == 'BAZ'
+
+    # result[3] (LaunchDescription) and result[4] (OpaqueFunction) skipped — they don't affect
+    # launch_configurations directly in this test
+
+    result[5].visit(lc)  # PopEnvironment
+    result[6].visit(lc)  # PopLaunchConfigurations
+    # After pop, child's configs are gone, parent's are restored
+    assert lc.launch_configurations['foo'] == 'FOO'
+    assert 'baz' not in lc.launch_configurations
+    assert 'bar' not in lc.launch_configurations
+    assert len(lc.launch_configurations) == 1
+
+
+@sandbox_environment_variables
+def test_include_launch_description_unscoped_execute():
+    """Test scoped=False (default): no Push/Pop, configurations leak to parent."""
+    ld_child = LaunchDescription([])
+    action = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld_child),
+        launch_arguments={'bar': 'BAR'}.items(),
+    )
+
+    lc = LaunchContext()
+    lc.launch_configurations['foo'] = 'FOO'
+
+    result = action.visit(lc)
+
+    # Expected: SetLaunchConfig, LaunchDescription, OpaqueFunction (no Push/Pop)
+    assert len(result) == 3
+    assert isinstance(result[0], SetLaunchConfiguration)
+    assert result[1] == ld_child
+    assert isinstance(result[2], OpaqueFunction)
+    assert not any(isinstance(r, PushLaunchConfigurations) for r in result)
+    assert not any(isinstance(r, PopLaunchConfigurations) for r in result)
+
+    # Step through
+    result[0].visit(lc)  # SetLaunchConfiguration('bar', 'BAR')
+    assert lc.launch_configurations['bar'] == 'BAR'
+    assert lc.launch_configurations['foo'] == 'FOO'  # untouched
+
+    # After all actions, bar persists — it leaked to the parent scope
+    assert len(lc.launch_configurations) == 2
+    assert lc.launch_configurations['bar'] == 'BAR'
+
+
+@sandbox_environment_variables
+def test_include_launch_description_scoped_isolates_environment():
+    """Test scoped=True: environment variable changes do not leak to parent."""
+    ld_child = LaunchDescription([])
+    action = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld_child),
+        scoped=True,
+    )
+
+    lc = LaunchContext()
+    assert 'env_foo' not in lc.environment
+
+    result = action.visit(lc)
+
+    assert isinstance(result[0], PushLaunchConfigurations)
+    assert isinstance(result[1], PushEnvironment)
+
+    result[0].visit(lc)  # PushLaunchConfigurations
+    result[1].visit(lc)  # PushEnvironment
+
+    # Simulate child setting an environment variable
+    lc.environment['env_foo'] = 'FOO'
+    assert lc.environment['env_foo'] == 'FOO'
+
+    assert isinstance(result[-2], PopEnvironment)
+    assert isinstance(result[-1], PopLaunchConfigurations)
+
+    result[-2].visit(lc)  # PopEnvironment
+    assert 'env_foo' not in lc.environment  # rolled back
+
+    result[-1].visit(lc)  # PopLaunchConfigurations
+
+
+@sandbox_environment_variables
+def test_include_launch_description_unscoped_leaks_environment():
+    """Test scoped=False (default): environment variable changes leak to parent."""
+    ld_child = LaunchDescription([])
+    action = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld_child),
+    )
+
+    lc = LaunchContext()
+    result = action.visit(lc)
+
+    # No Push/Pop — environment mutations persist
+    assert len(result) == 2  # LaunchDescription, OpaqueFunction (no launch_arguments)
+
+    # Simulate child setting an environment variable
+    lc.environment['env_foo'] = 'FOO'
+
+    # After all actions, the env var persists — no Pop to roll it back
+    assert lc.environment['env_foo'] == 'FOO'
+
+
+@sandbox_environment_variables
+def test_include_launch_description_scoped_with_overwrite():
+    """Test scoped=True: child overwrites parent config, but parent value is restored after pop."""
+    ld_child = LaunchDescription([])
+    action = IncludeLaunchDescription(
+        LaunchDescriptionSource(ld_child),
+        launch_arguments={'foo': 'OOF'}.items(),
+        scoped=True,
+    )
+
+    lc = LaunchContext()
+    lc.launch_configurations['foo'] = 'FOO'
+    lc.launch_configurations['bar'] = 'BAR'
+
+    result = action.visit(lc)
+
+    result[0].visit(lc)  # PushLaunchConfigurations
+    assert lc.launch_configurations['foo'] == 'FOO'  # copied to new scope
+    assert lc.launch_configurations['bar'] == 'BAR'  # forwarded
+
+    result[1].visit(lc)  # PushEnvironment
+
+    result[2].visit(lc)  # SetLaunchConfiguration('foo', 'OOF')
+    assert lc.launch_configurations['foo'] == 'OOF'  # overwritten in child scope
+    assert lc.launch_configurations['bar'] == 'BAR'  # untouched
+
+    result[-2].visit(lc)  # PopEnvironment
+    result[-1].visit(lc)  # PopLaunchConfigurations
+    assert lc.launch_configurations['foo'] == 'FOO'  # restored
+    assert lc.launch_configurations['bar'] == 'BAR'  # still there
+    assert len(lc.launch_configurations) == 2
 
 
 def test_include_python():
