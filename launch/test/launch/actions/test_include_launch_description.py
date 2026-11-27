@@ -283,3 +283,18 @@ def test_include_python():
         assert len(action.launch_arguments) == 0
 
         assert action.launch_description_source.location == str(simple_launch_file_path)
+
+
+def test_missing_required_include_argument_identifies_launch_file(tmp_path):
+    """A missing argument error identifies the included launch file."""
+    launch_file_path = str(tmp_path / 'included.launch.py')
+    launch_description = LaunchDescription([DeclareLaunchArgument('required_argument')])
+    action = IncludeLaunchDescription(
+        LaunchDescriptionSource(launch_description, launch_file_path)
+    )
+
+    with pytest.raises(RuntimeError) as exc_info:
+        action.visit(LaunchContext())
+
+    assert 'Included launch description missing required argument' in str(exc_info.value)
+    assert launch_file_path in str(exc_info.value)
