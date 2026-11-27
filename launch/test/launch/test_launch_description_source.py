@@ -14,8 +14,13 @@
 
 """Tests for the LaunchDescriptionSource class."""
 
+import os
+
 from launch import LaunchDescription
 from launch import LaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import TextSubstitution
 
 import pytest
 
@@ -53,3 +58,43 @@ def test_launch_description_source_methods():
     assert lds.get_launch_description(MockLaunchContext()) == ld
     assert lds.location == 'location'
     assert lds.method == 'method description'
+
+
+def test_launch_description_source_location_expands_substitutions():
+    """Test that location expands substitutions before get_launch_description()."""
+    # A location made of substitutions that do not need a context is
+    # returned expanded, not as a description of the substitutions.
+    lds = LaunchDescriptionSource(
+        LaunchDescription(),
+        PathJoinSubstitution(['launch', 'launch_file.py']),
+    )
+    assert lds.location == os.path.join('launch', 'launch_file.py')
+
+    # Same for the PythonLaunchDescriptionSource-style plain path used in
+    # the issue: PathJoinSubstitution over plain components.
+    lds = LaunchDescriptionSource(
+        LaunchDescription(),
+        PathJoinSubstitution([[TextSubstitution(text='some')], 'file.launch.py']),
+    )
+    assert lds.location == os.path.join('some', 'file.launch.py')
+
+
+def test_launch_description_source_location_unexpandable_substitutions():
+    """Test that location describes substitutions it cannot expand without a context."""
+    # LaunchConfiguration has no value in an empty context and no default,
+    # so the location cannot be expanded yet; it is described instead of
+    # raising or returning an object repr.
+    lds = LaunchDescriptionSource(
+        LaunchDescription(),
+        LaunchConfiguration('unset_launch_configuration'),
+    )
+    assert lds.location == "LaunchConfig('unset_launch_configuration')"
+
+    # A location that mixes expandable and unexpandable substitutions also
+    # falls back to a description.
+    lds = LaunchDescriptionSource(
+        LaunchDescription(),
+        ['prefix-', LaunchConfiguration('unset_launch_configuration')],
+    )
+    assert 'LaunchConfig' in lds.location
+    assert 'object at' not in lds.location
