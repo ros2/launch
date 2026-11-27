@@ -125,12 +125,16 @@ class Entity(BaseEntity):
         self.__read_keys.add(name)
         data = self.__element[name]
         if check_is_list_entity(data_type):
+            if isinstance(data, dict):
+                # `{key: value, ...}` is shorthand for `[{name: key, value: value}, ...]`.
+                return [
+                    Entity({'name': key, 'value': value}, name) for key, value in data.items()
+                ]
             if isinstance(data, list) and isinstance(data[0], dict):
                 return [Entity(child, name) for child in data]
             raise TypeError(
-                "Attribute '{}' of Entity '{}' expected to be a list of dictionaries.".format(
-                    name, self.type_name
-                )
+                "Attribute '{}' of Entity '{}' expected to be a list of dictionaries"
+                ' or a mapping of names to values.'.format(name, self.type_name)
             )
         if data_type is float and type(data) is int:
             # YAML loads `5` as an int, accept it where a float is expected

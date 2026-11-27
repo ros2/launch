@@ -68,6 +68,27 @@ def test_executable():
     assert 0 == ls.run()
 
 
+def test_executable_env_as_mapping():
+    """Accept `env` written as a mapping of name to value."""
+    yaml_file = \
+        """\
+        launch:
+        -   executable:
+                cmd: ls
+                env:
+                    var: '1'
+                    other: 'two'
+        """
+    yaml_file = textwrap.dedent(yaml_file)
+    root_entity, parser = load_no_extensions(io.StringIO(yaml_file))
+    ld = parser.parse_description(root_entity)
+    executable = ld.entities[0]
+    assert [
+        (key[0].perform(None), value[0].perform(None))
+        for key, value in executable.additional_env
+    ] == [('var', '1'), ('other', 'two')]
+
+
 def test_executable_on_exit():
     yaml_file = \
         """\
