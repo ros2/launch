@@ -68,9 +68,22 @@ class PythonExpression(Substitution):
     def parse(cls, data: Sequence[SomeSubstitutionsType]
               ) -> Tuple[Type['PythonExpression'], Dict[str, Any]]:
         """Parse `PythonExpression` substitution."""
-        if len(data) < 1 or len(data) > 2:
-            raise TypeError('eval substitution expects 1 or 2 arguments')
-        kwargs = {'expression': data[0]}
+        if len(data) < 1:
+            raise TypeError('eval substitution expects at least 1 argument')
+        kwargs: Dict[str, Any] = {}
+        if len(data) <= 2:
+            kwargs['expression'] = data[0]
+        else:
+            # The expression is split into multiple arguments when it contains
+            # spaces, e.g. `$(eval 1 == 1)`.
+            # Join the arguments back with spaces to recover the expression.
+            from ..utilities import normalize_to_list_of_substitutions
+            expression: List[Substitution] = []
+            for i, sub_expression in enumerate(data):
+                if i > 0:
+                    expression += normalize_to_list_of_substitutions(' ')
+                expression += normalize_to_list_of_substitutions(sub_expression)
+            kwargs['expression'] = expression
         if len(data) == 2:
             # We get a text substitution from XML,
             # whose contents are comma-separated module names
