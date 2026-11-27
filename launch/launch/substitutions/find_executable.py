@@ -67,7 +67,8 @@ class FindExecutable(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by locating the executable on the PATH."""
         from ..utilities import perform_substitutions  # import here to avoid loop
-        result = which(perform_substitutions(context, self.name))
+        name = perform_substitutions(context, self.name)
+        result = which(name)
         if result is None:
-            raise SubstitutionFailure("executable '{}' not found on the PATH".format(self.name))
+            raise SubstitutionFailure("executable '{}' not found on the PATH".format(name))
         return result
