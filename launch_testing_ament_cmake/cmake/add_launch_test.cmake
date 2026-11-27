@@ -55,10 +55,10 @@ macro(parse_launch_test_arguments namespace filename)
     "ARGS;LABELS"
     ${ARGN})
 
-  if(NOT ${namespace}_TIMEOUT)
-    set(${namespace}_TIMEOUT 60)
+  if(NOT DEFINED ${namespace}_TIMEOUT OR "${${namespace}_TIMEOUT}" STREQUAL "")
+    set(${namespace}_TIMEOUT 60) #seconds
   endif()
-
+  
   if(NOT ${namespace}_PYTHON_EXECUTABLE)
     set(${namespace}_PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
   endif()
